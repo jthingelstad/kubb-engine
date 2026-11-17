@@ -44,6 +44,10 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.4.0** (minor, additive input API). A touch pendulum feeds the existing swing at
+  120 Hz. Human throw actions, recordings and crank traces can carry optional tuning
+  metadata. Existing actions and snapshots remain readable. As with 0.3.0, the new
+  engine capability gets a minor version. All 453 reference action hashes are unchanged.
 - **0.3.0** (minor: a new API, hash-neutral). The room (`room/`, docs/ROOM.md): the web's
   online-play logic (`src/net/lobby.js`, `seats.js`, `sync.js`) in Lua behind
   `kubbCall("room.<name>")`, proven equal to the JavaScript by recorded vectors; START

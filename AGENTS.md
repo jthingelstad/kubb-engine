@@ -44,7 +44,7 @@ iPhone app (the bundle: core, room, session and tune).
   (docs/ROOM.md). Pure like the core. Its deliberate differences from the JavaScript are
   listed in docs/ROOM.md; any other difference is a bug.
 - `tune/`: a host's values for the core's tune tables, chosen by the host's `useTune`
-  call (`pointer` for the web). `tune/touch.lua` comes later with the touch throw.
+  call (`pointer` for the web). `tune/touch.lua` calibrates the pendulum in `session/touch.lua`; both inputs share the CPU and physics tune.
 - `version.lua`: the engine's version (not in `core/`).
 
 ## Versions, golden hashes and releases (docs/VERSIONING.md)
