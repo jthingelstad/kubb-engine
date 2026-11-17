@@ -3,7 +3,7 @@
 The rules, physics, notation and session of Kubb: Throwing Wood, in pure Lua 5.4. Three
 clients vendor it byte for byte at a tagged release: the Playdate game (`playdate-kubb`,
 `core/`), the web game (`kubb.thingelstad.xyz`, at throwingwood.com) and the coming
-iPhone app (the bundle: core, session and tune).
+iPhone app (the bundle: core, room, session and tune).
 `CLAUDE.md` is a symlink to this file. `README.md` says what is here.
 
 ## Repo and pull requests
@@ -39,6 +39,10 @@ iPhone app (the bundle: core, session and tune).
 - `session/`: the platform-neutral session behind one door, `kubbCall` (from the web's
   `lua/web/`; docs/SESSION.md). Pure Lua like the core; tables keep their `tw.web.*`
   names so the web adopts it with path changes only.
+- `room/`: a shared pitch's document and reducers, who acts, staying in step: the web's
+  `src/net/lobby.js`, `seats.js` and `sync.js` in Lua, behind `kubbCall("room.<name>")`
+  (docs/ROOM.md). Pure like the core. Its deliberate differences from the JavaScript are
+  listed in docs/ROOM.md; any other difference is a bug.
 - `tune/`: a host's values for the core's tune tables, chosen by the host's `useTune`
   call (`pointer` for the web). `tune/touch.lua` comes later with the touch throw.
 - `version.lua`: the engine's version (not in `core/`).
@@ -61,8 +65,8 @@ iPhone app (the bundle: core, session and tune).
 - Clients copy a tagged release byte for byte and never edit the copy. A fix belongs
   here, then each client moves to the new tag.
 - `engine.json` holds the name, version, the playdate-kubb commit the core was extracted
-  from, the web commit the session came from, a sha256 per engine Lua file (by path) and
-  the bundle's sha256. After an intended change run `make manifest` and commit the
+  from, the web commits the session and the room came from, a sha256 per engine Lua
+  file (by path) and the bundle's sha256. After an intended change run `make manifest` and commit the
   result; `make test` fails while they disagree.
 
 ## Tests and tools
@@ -71,6 +75,11 @@ iPhone app (the bundle: core, session and tune).
   `expect.near`, `expect.truthy`. Pinned physics cases: `tests/lua/physcases/`. The
   session's are `tests/lua/session/`, run in a Lua state of their own (`make
   test-session`: they load the pointer tune, which changes core tables).
+- The room's tests are `tests/lua/room/` (`make test-room`) and
+  `tests/node/room.test.mjs`: the web's unit tests ported, the differences, and the
+  vectors in `tests/room/vectors/`. Never edit the vectors by hand: `make room-vectors
+  KUBB_WEB=<web checkout>` rewrites them from the web's JavaScript (read only), and
+  engine.json's `roomFrom.commit` names that commit.
 - `tests/node/session.test.mjs` runs the session under wasmoon (pinned to 1.16.0, the
   version the web ships) from the bundle; `tests/golden/` holds the golden driver and
   corpus.
@@ -88,7 +97,8 @@ iPhone app (the bundle: core, session and tune).
 
 `docs/notes/` holds the subsystem notes (rules engine, physics, physics fuzz, the
 reference engine, real games, headless games, the throw). Read the note before changing
-the part it covers. `docs/SESSION.md` is the session's API, `docs/VERSIONING.md` and
-`docs/DETERMINISM.md` the version rules and the reference platform. Code comments also
+the part it covers. `docs/SESSION.md` is the session's API, `docs/ROOM.md` the room's,
+`docs/VERSIONING.md` and `docs/DETERMINISM.md` the version rules and the reference
+platform. Code comments also
 cite `docs/DESIGN.md` and `docs/PLAYERS.md`, which are in `playdate-kubb`, and the
 session's cite `docs/CLIENT.md`, which is in `kubb.thingelstad.xyz`.
