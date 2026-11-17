@@ -6,9 +6,12 @@ NODE ?= node
 # pk-kubb-score (for realgames and sync-notation): $PK_KUBB_SCORE, else a sibling checkout.
 PKSCORE := $(or $(PK_KUBB_SCORE),$(CURDIR)/../pk-kubb-score)
 
-.PHONY: test test-lua test-session test-node test-wasm golden-check golden golden-native bundle manifest manifest-check games realgames physfuzz mjref sync-notation clean
+# The web's online-play modules (for room-vectors): $KUBB_WEB, else a sibling checkout.
+KUBB_WEB ?= $(CURDIR)/../kubb.thingelstad.xyz
 
-test: test-lua test-session test-node test-wasm golden-check manifest-check
+.PHONY: test test-lua test-session test-room room-vectors test-node test-wasm golden-check golden golden-native bundle manifest manifest-check games realgames physfuzz mjref sync-notation clean
+
+test: test-lua test-session test-room test-node test-wasm golden-check manifest-check
 
 # The core's tests, then the session's in a Lua state of their own: the session's
 # tests load the pointer tune, which changes the core's swing and autothrow tables.
@@ -17,6 +20,17 @@ test-lua:
 
 test-session:
 	"$(LUA)" tests/lua/run.lua tests/lua/session/test_*.lua
+
+# The room's calls (docs/ROOM.md) under desktop Lua: the web's unit tests ported, the
+# deliberate differences, and every committed vector in tests/room/vectors/.
+test-room:
+	"$(LUA)" tests/lua/run.lua tests/lua/room/test_*.lua
+
+# Rewrite tests/room/vectors/ from the web's JavaScript at KUBB_WEB (read only). Pass
+# WEB_COMMIT=<sha> for an export that is not a git checkout; then set engine.json's
+# roomFrom.commit to the same commit.
+room-vectors:
+	"$(NODE)" tools/room-vectors.mjs --web "$(KUBB_WEB)" $(if $(WEB_COMMIT),--commit $(WEB_COMMIT))
 
 test-node:
 	"$(NODE)" tests/node/notation-gate.mjs tests/fixtures/games

@@ -2,13 +2,13 @@
 
 The engine has one version, `major.minor.patch`, in `version.lua` (`tw.engine.version`,
 the API's `engineVersion` call) and in `engine.json`; `make test` fails when they differ.
-It names the whole engine: `core/`, `session/`, `tune/` and `version.lua`.
+It names the whole engine: `core/`, `room/`, `session/`, `tune/` and `version.lua`.
 
 ## What each part means
 
 - **Major**: a format change. The snapshot (`session.snapshotVersion`), an action's
   shape, or a document format a client stores or sends (the recording, the game file
-  the session writes) changes, so an old client cannot read what a new one writes.
+  the session writes, the room's document in a way an older client cannot read) changes, so an old client cannot read what a new one writes.
 - **Minor**: anything that can change a hash. Any physics, rules, tune or session change
   that alters what a seeded match does: a constant, an order of operations, a rounding,
   a new random draw. If it is not proven hash-neutral, it is a minor change.
@@ -24,9 +24,11 @@ make a failing check pass without bumping the version.
 
 Two clients may share an online match only when their engines' major.minor are equal
 (and they load the same tune; docs/SESSION.md "Starting"). Patch versions may differ.
-A client should compare `engineVersion` with its peer's before it joins and refuse a
-mismatch rather than drift apart, and records of a match should name the engine version
-it was played on, so a replay knows which engine reproduces it.
+The room's START enforces it: it writes `match.engine` and refuses while a player's
+engine differs (docs/ROOM.md "Engines in one match"), and a client joining a running
+match checks with `room.mayPlay`. Records of a match should name the engine version it
+was played on, so a replay knows which engine reproduces it (`replayOf` carries
+`engine`).
 
 ## Releases and vendoring
 
@@ -39,3 +41,15 @@ it was played on, so a replay knows which engine reproduces it.
 - Each client checks its copy against that tag's `engine.json`: a sha256 per file
   (keyed by path, `core/world.lua`) and the bundle's. A fix belongs here, then each
   client moves to the new tag.
+
+## Release notes
+
+- **0.3.0** (minor: a new API, hash-neutral). The room (`room/`, docs/ROOM.md): the web's
+  online-play logic (`src/net/lobby.js`, `seats.js`, `sync.js`) in Lua behind
+  `kubbCall("room.<name>")`, proven equal to the JavaScript by recorded vectors; START
+  stamps `match.engine` and refuses a different engine. `json.decode(text, true)` keeps
+  nulls and empty objects (the plain decode is unchanged). A snapshot restored while
+  raising, placing a punishment kubb or after the end now shows the match's pitch in the
+  defender's frame instead of the practice layout (display only). Every golden hash is
+  unchanged.
+- **0.2.0**: the engine extracted from playdate-kubb and the web's session.

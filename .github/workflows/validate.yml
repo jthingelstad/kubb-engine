@@ -1,6 +1,6 @@
 name: validate
 
-# The engine's check: the core's and the session's Lua tests on Lua 5.4, the
+# The engine's check: the core's, the session's and the room's Lua tests on Lua 5.4, the
 # notation gate and its refusal cases, the session under wasmoon, the golden
 # hashes and the engine.json check (`make test`), then the headless games
 # (`make games`). The job's name is the check a main ruleset would
@@ -41,6 +41,8 @@ jobs:
         run: make test-lua LUA=lua5.4
       - name: Session tests
         run: make test-session LUA=lua5.4
+      - name: Room tests
+        run: make test-room LUA=lua5.4
       - name: Notation gate
         run: make test-node NODE=node
       - name: Session under wasmoon

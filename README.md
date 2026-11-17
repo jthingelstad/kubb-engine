@@ -4,18 +4,20 @@ The rules, physics, notation and session of Kubb: Throwing Wood, as pure Lua 5.4
 rules engine (`core/rules`), the physics (`core/world`, `core/collide`, `core/body`), the
 throw and the computer thrower (`core/throwplan`, `core/autothrow`), matches
 (`core/match`) and the Planet Kubb Notation writer (`core/notation`, `core/gamefile`);
-and the session (`session/`), a practice pitch or a match behind one door, `kubbCall`,
-with JSON in and out (docs/SESSION.md). It has no drawing, input or file access; a
-client supplies those.
+the session (`session/`), a practice pitch or a match behind one door, `kubbCall`,
+with JSON in and out (docs/SESSION.md); and the room (`room/`), a shared pitch's
+document and who acts in it, behind the same door (docs/ROOM.md). It has no drawing,
+input, network or file access; a client supplies those.
 
 The core was extracted from the Playdate game (`playdate-kubb`, `source/core/`) and the
-session from the web game (`kubb.thingelstad.xyz`, `lua/web/`), at the commits recorded
-in `engine.json`.
+session and the room from the web game (`kubb.thingelstad.xyz`, `lua/web/` and
+`src/net/`), at the commits recorded in `engine.json`.
 
 ## Layout
 
 - `core/`: rules, physics, notation.
-- `session/`: the session and its API (`session/api.lua`).
+- `room/`: a shared pitch's document, its reducers, who acts and staying in step.
+- `session/`: the session and its API (`session/api.lua`), the room's calls too.
 - `tune/`: a host's values for the core's tune tables (`tune/pointer.lua`, the web's).
 - `version.lua`: the engine's version.
 
@@ -46,13 +48,16 @@ the first match (docs/SESSION.md "Starting").
 
 Needs Lua 5.4 and Node; run `npm ci` once (wasmoon, for the wasm tests).
 
-- `make test`: the core's Lua tests (`tests/lua/`) and the session's
-  (`tests/lua/session/`), the notation gate over `tests/fixtures/games/` and its refusal
+- `make test`: the core's Lua tests (`tests/lua/`), the session's
+  (`tests/lua/session/`) and the room's (`tests/lua/room/`, with the vectors in
+  `tests/room/vectors/`), the notation gate over `tests/fixtures/games/` and its refusal
   cases (`tests/fixtures/bad/`), the session under wasmoon, the golden hashes and the
   `engine.json` check.
 - `make golden`: rewrite the golden hashes (only with a minor version bump);
   `make golden-native`: how far desktop Lua agrees with them.
 - `make bundle`: the engine as one JSON file in `build/`.
+- `make room-vectors KUBB_WEB=<dir>`: rewrite the room's vectors from the web's
+  JavaScript (read only).
 - `make games`: 500 seeded rules-only games and 5 physics matches, every one gated.
 - `make physfuzz`: the physics fuzzer (a measuring tool).
 - `make realgames`: optional; needs a pk-kubb-score checkout (`PK_KUBB_SCORE`).

@@ -1,5 +1,5 @@
 // The engine as one artifact: every engine Lua source in one JSON file, the module
-// map { "core/world": "<source>", "session/api": "<source>", "tune/pointer": "<source>",
+// map { "core/world": "<source>", "room/lobby": "<source>", "session/api": "<source>", "tune/pointer": "<source>",
 // "version": "<source>" }, keys sorted and no whitespace, so the same sources always
 // give the same bytes. A client loads it behind its `import` shim (docs/SESSION.md
 // "Loading") and checks it against the sha256 beside it and in engine.json.
@@ -16,7 +16,7 @@ export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 
 // The engine's Lua: these folders' *.lua files and version.lua. Module names are
 // the paths without ".lua", as `import` takes them.
-export const DIRS = ['core', 'session', 'tune'];
+export const DIRS = ['core', 'room', 'session', 'tune'];
 export const TOP = ['version.lua'];
 
 // Every engine Lua file as a path from the repository root, sorted.
