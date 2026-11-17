@@ -56,11 +56,11 @@
     "session/replay.lua": "cd6415008b9a7cebc79a4c61ccdf3c4f9a81f5963e2e82a468c10f294f1f10ea",
     "session/session.lua": "888c6fab8fc5bcc4a91c2666906349d82726ea932986dd17a76485688fd7cbce",
     "session/throw.lua": "470fc02c635a4552abccc294ffc65ffd924960c2da064d892cf02bb1eef2fa9b",
-    "session/wide.lua": "087d2c3f4891926f7edc3fd6889a77b650afe5eaf93e10b0a0893a60f9a8885e",
+    "session/wide.lua": "f2ac4b36d7bba2ab081c55a27c1eb31549810431423e6a3671dedb7be99f90c5",
     "tune/pointer.lua": "7b30c67adf47fb8387e5b0dd7f73af3c92c99116d05781885e7fc0157fcc9397",
     "version.lua": "cfc55a10e02a9e83d2377886c113fbaa240979f3471a4444c1cae498899b1fed"
   },
   "bundle": {
-    "sha256": "3375a229021c6d42e634b979310c0bb290b749d86fcaa19a7d7c0f111c86b99f"
+    "sha256": "d83e21ffdb7f732953a4343cf701bac1d2473252cd60bfc038b9c7e114ca1274"
   }
 }
