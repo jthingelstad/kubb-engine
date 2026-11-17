@@ -1,4 +1,4 @@
--- The web session (docs/ENGINE.md): a practice pitch or a match, behind a
+-- The web session (docs/SESSION.md): a practice pitch or a match, behind a
 -- few coarse calls. Pure Lua 5.4 over the vendored core.
 --
 -- This is the Playdate's scenes/match.lua and scenes/settle.lua with the
@@ -770,7 +770,7 @@ function Session:throwAction(L, how, info)
 end
 
 -- Run a throw action: the same path for the actor and for every other
--- browser (docs/ENGINE.md "Sharing"). Returns the recording.
+-- browser (docs/SESSION.md "Determinism"). Returns the recording.
 function Session:applyThrow(a)
 	if self.kind == "match" then
 		assert(self.phase == "throw", "no throw set up")
@@ -828,7 +828,7 @@ end
 
 -- ---------- the frame ----------
 
--- One frame while aiming (docs/ENGINE.md "The frame"). inp = { dt, arm,
+-- One frame while aiming (docs/SESSION.md "The frame"). inp = { dt, arm,
 -- plan, move = {dx, dy}, walk = {dx, dy} }. Returns { dial, camera, aim,
 -- event, action, recording, need }.
 function Session:frame(inp)

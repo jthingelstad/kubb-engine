@@ -1,4 +1,4 @@
--- The throw scene with the screen taken out (docs/ENGINE.md). Pure Lua 5.4.
+-- The throw scene with the screen taken out (docs/SESSION.md). Pure Lua 5.4.
 --
 -- This is the Playdate's source/scenes/throw.lua (../../playdate-kubb), taken
 -- over line for line where it decides something: the aim (target circle,
@@ -7,7 +7,7 @@
 -- the verdicts, the result flag, the cameras (first person, plan view,
 -- follow, impact, the half circle) and the computer's arm on the clock.
 -- What the Playdate drew is returned as data instead. Where the web differs
--- it says so here and in docs/ENGINE.md "Where the web differs":
+-- it says so here and in docs/SESSION.md "Differences from the Playdate":
 --   * a throw is computed whole at release (playback.finish) and returned as
 --     a recording; the camera for any shown time is a pure function of it;
 --   * the target circle and the stance are also set by absolute position
