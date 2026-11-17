@@ -204,3 +204,16 @@ test("un-turning is the frame's half turn, and A's frame is left alone", functio
 	expect.near(aim.marker.y, 1, 1e-12)
 	expect.near(aim.marker.r, 0.25, 1e-12)
 end)
+
+test("a double hit's second burst comes un-turned too, and the recording is left alone", function()
+	local a = { x = 1.5, y = 2.0, z = 0.1 }
+	local rec = { timeline = { bursts = { { kind = "clean", anchor = a, second = { id = 9, anchor = a } } } } }
+	local out = wide.recording("B", rec)
+	local b = out.timeline.bursts[1]
+	expect.eq(b.second.anchor.x, b.anchor.x, "second x")
+	expect.eq(b.second.anchor.y, b.anchor.y, "second y")
+	expect.eq(b.second.id, 9)
+	expect.truthy(b.anchor.y ~= a.y, "turned into the world frame")
+	expect.eq(rec.timeline.bursts[1].second.anchor, a, "the session's recording is not changed")
+	expect.eq(a.y, 2.0)
+end)
