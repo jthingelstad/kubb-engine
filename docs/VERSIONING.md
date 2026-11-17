@@ -49,7 +49,7 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
   `kubbCall("room.<name>")`, proven equal to the JavaScript by recorded vectors; START
   stamps `match.engine` and refuses a different engine. `json.decode(text, true)` keeps
   nulls and empty objects (the plain decode is unchanged). A snapshot restored while
-  raising, placing a punishment kubb or after the end now shows the match's pitch in the
-  defender's frame instead of the practice layout (display only). Every golden hash is
+  raising, placing a punishment kubb or after the end now shows the match's pitch, in the
+  frame a live session shows it in, instead of the practice layout (display only). Every golden hash is
   unchanged.
 - **0.2.0**: the engine extracted from playdate-kubb and the web's session.

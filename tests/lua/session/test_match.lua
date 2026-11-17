@@ -273,7 +273,16 @@ local function checkRestored(s, what)
 	local back = r:view()
 	expect.eq(back.need.kind, live.need.kind, what .. ": need")
 	expect.eq(r.frameSide, s.frameSide, what .. ": the frame it is shown in")
-	sameItems(back.items, live.items, what)
+	-- A live session keeps drawing the last throw's items (its batons too) while the
+	-- defender settles and at the end; once a kubb is raised or placed, or the match is
+	-- over, a restored session draws the match's pitch as it stands instead: the pieces and
+	-- the debris, not the batons.
+	local st = s.settle
+	if live.need.kind == "over" or (st and ((st.raised or 0) > 0 or (st.placed or 0) > 0)) then
+		sameItems(back.items, s:pitchItems(), what .. " (settled)")
+	else
+		sameItems(back.items, live.items, what)
+	end
 	notPractice(back.items, what)
 	-- the view is display only: the snapshot is unchanged by it
 	expect.eq(r:snapshot(), s:snapshot(), what .. ": the same snapshot")
@@ -294,8 +303,6 @@ test("a snapshot restored while raising, placing a punishment kubb or after the 
 			if (n.kind == "raise" or n.kind == "punish" or n.kind == "over") and not seen[n.kind] then
 				seen[n.kind] = true
 				checkRestored(s, n.kind)
-				-- the settling side's frame
-				if n.kind ~= "over" then expect.eq(s.frameSide, n.side, n.kind .. ": the defender's frame") end
 			end
 			if n.kind == "over" then
 				s = nil
@@ -311,4 +318,39 @@ test("a snapshot restored while raising, placing a punishment kubb or after the 
 	expect.truthy(seen.raise, "a raise was restored")
 	expect.truthy(seen.punish, "a punishment kubb was restored")
 	expect.truthy(seen.over, "a finished match was restored")
+end)
+
+-- A match that ends on the king (Codex on #2): the live end view keeps the throw's own
+-- items, the fallen king's pose included, and a restored one shows the king down too.
+test("the king that ended the match lies down in the end view, live and restored", function()
+	local function kingOf(items)
+		for _, it in ipairs(items) do if it.id == "king" then return it end end
+	end
+	local done = false
+	for seed = 1, 40 do
+		local s = session.new { mode = "match", seed = seed, teams = teams(1, 1), start = START, raising = "hand" }
+		local r = autothrow.rng(500 + seed)
+		for _ = 1, 400 do
+			local n = s:need()
+			if n.kind == "over" then break end
+			if n.kind == "throw" then
+				s:apply(scriptedAction(s, r, (n.setup.kind == "toss") and 4 / autothrow.tune.drillScale or 1))
+			elseif n.kind == "raise" then
+				s:apply { type = "raise", choice = #n.choices }
+			elseif n.kind == "punish" then
+				s:apply { type = "punish", x = n.cursor.x, y = n.cursor.y }
+			end
+		end
+		local how = s.m.game.how
+		if s:need().kind == "over" and type(how) == "string" and how:find("^king") then
+			expect.truthy(kingOf(s:view().items).toppled, "live: the king is down (" .. how .. ")")
+			local back = session.restore(s:snapshot())
+			expect.truthy(kingOf(back:view().items).toppled, "restored: the king is down")
+			notPractice(back:view().items, "restored end")
+			expect.eq(back:snapshot(), s:snapshot(), "the same snapshot")
+			done = true
+			break
+		end
+	end
+	expect.truthy(done, "a match ended on the king")
 end)
