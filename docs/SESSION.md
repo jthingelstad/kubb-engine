@@ -169,6 +169,35 @@ release that this browser acts for, `action` is the throw to send to the room,
 `recording` is its recording, and `need` is what comes next (the throw has already been
 applied here).
 
+### Touch pendulum
+
+Send `frame({ dt, touch: [sample, ...] })` for a local human throw. Samples belong
+to one contact, in order. Start with `{ phase: "down", x, y, t }`, send positions
+while moving, and end with `{ phase: "up", x, y, t }` or `{ phase: "cancel" }`.
+Use monotonic seconds and divide both coordinates by the same short edge of the
+play area, with y increasing down. Keep that coordinate system for the contact.
+Forward coalesced samples with their original timestamps. Frames without new
+samples leave a held contact alone. The engine returns the usual dial, events,
+action and recording. A cancelled or stale contact (over 30 seconds between
+samples) lets down.
+
+`session/touch.lua` linearly interpolates at 120 Hz starting at touchdown, then
+projects onto the crank. A short edge is 600 degrees. Horizontal displacement
+from the origin discounts vertical travel by half its magnitude, down to zero.
+Angles round to 1/1024 degree. Winding back 30 degrees engages the core swing.
+A 300 degree/s return starts a flick, 1200 degree/s delivers full power. The
+existing swing measures speed and steadiness. A normal release waits for lift
+and uses the farthest forward angle. A slow return lets down at six and crossing
+180 degrees forward releases a sky ball even with the finger down.
+
+Both `useTune("pointer")` and `useTune("touch")` share the pointer host's physics,
+CPU calibration and dial. Either accepts both kinds of frame input. The touch
+projection constants live in `tune/touch.lua`. A human action and its recording
+carry an optional `input` field for tuning: `pointer` (the dial) or `touch`
+(the pendulum). The core's on-device trace writer tags its lines `crank`.
+Scripted throws and older records have no measured input. The tag is outside
+the snapshot, scoring, seats and player-facing views.
+
 ### Aiming
 
 All return `{ aim, camera }`, and do nothing unless this browser may aim now.

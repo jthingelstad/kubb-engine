@@ -68,7 +68,7 @@ test("the host's start-up calls: version, tune, client label", async () => {
   const engineJson = JSON.parse(fs.readFileSync(new URL('../../engine.json', import.meta.url), 'utf8'));
   assert.deepEqual(bare.call('engineVersion'), { version: engineJson.version });
   assert.throws(() => bare.newPractice({ surface: 'grass' }), /no tune: call useTune first/);
-  assert.throws(() => bare.call('useTune', { name: 'touch' }), /no module tune\/touch/);
+  assert.throws(() => bare.call('useTune', { name: 'missing' }), /no module tune\/missing/);
   assert.deepEqual(bare.call('useTune', { name: 'pointer' }), { tune: 'pointer' });
   assert.throws(() => bare.call('useTune', { name: 'crank' }), /already pointer/);
   assert.deepEqual(bare.call('setClient', { label: 'web 0.4.2' }), { client: 'web 0.4.2' });
@@ -78,6 +78,22 @@ test("the host's start-up calls: version, tune, client label", async () => {
   plain.newMatch({ seed: 3, cpu: 'both', start: START, maxTurns: 1 });
   assert.match(plain.call('sheet').text, new RegExp(`\\[Scored by "Throwing Wood kubb-engine ${engineJson.version.replaceAll('.', '\\.')}"\\]`));
   assert.equal(plain.hash().hash, bare.hash().hash, 'the label is not in the hash');
+});
+
+test("the touch host can play the same match as the pointer host", async () => {
+  const touch = await Engine.create({ tune: 'touch' });
+  const dial = await Engine.create();
+  for (const e of [touch, dial]) e.newMatch({ seed: 42, first: 'A', start: START });
+  assert.equal(touch.hash().hash, dial.hash().hash);
+  const out = touch.call('frame', { touch: [
+    { phase: 'down', x: 0.25, y: 1, t: 0 },
+    { x: 0.25, y: 1.2, t: 0.5 },
+    { phase: 'up', x: 0.25, y: 0.85, t: 0.67 },
+  ] });
+  assert.equal(out.action.input, 'touch');
+  const remote = dial.apply(out.action);
+  assert.deepEqual(remote.recording, out.recording);
+  assert.equal(touch.hash().hash, dial.hash().hash);
 });
 
 test("a practice throw gives a sane recording", async () => {
@@ -96,6 +112,8 @@ test("a practice throw gives a sane recording", async () => {
   }
   assert.equal(out.event, "release");
   const rec = out.recording;
+  assert.equal(rec.input, "pointer");
+  assert.equal(out.action.input, "pointer");
   assert.ok(rec.frames > 30 && rec.frames < 12 * 60);
   assert.equal(rec.frameDt, 1 / 60);
   assert.equal(rec.projectile.how, "baton");
