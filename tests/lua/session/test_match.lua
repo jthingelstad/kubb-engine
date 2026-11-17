@@ -230,3 +230,85 @@ test("the score sheet so far: header and turns, each line also without positions
 	local practice = session.new { mode = "practice" }
 	expect.eq(practice:sheet(), nil)
 end)
+
+-- A snapshot restored while no throw is set up (raising, a punishment kubb, the end)
+-- shows the match's pitch, as the live session does, not throw.new's practice layout
+-- (found by Codex on the engine's first pull request). Positions agree to save.pack's
+-- rounding; ids, kinds and toppled exactly.
+local function sameItems(got, want, what)
+	expect.eq(#got, #want, what .. ": the number of items")
+	local byId = {}
+	for _, it in ipairs(want) do byId[it.id] = it end
+	for _, it in ipairs(got) do
+		local w = byId[it.id]
+		expect.truthy(w, what .. ": " .. it.id .. " is on the live pitch")
+		expect.eq(it.kind, w.kind, what .. ": " .. it.id .. " kind")
+		expect.eq(it.toppled, w.toppled, what .. ": " .. it.id .. " toppled")
+		for _, k in ipairs { "x", "y", "z" } do expect.near(it[k], w[k], 2e-3, what .. ": " .. it.id .. " " .. k) end
+	end
+end
+
+local function practiceLayout()
+	local out = {}
+	for _, it in ipairs(throw.items(throw.new {})) do out[it.id] = it end
+	return out
+end
+
+-- Some piece of the restored view is not where the practice layout has it.
+local function notPractice(items, what)
+	local p = practiceLayout()
+	local differs = false
+	for _, it in ipairs(items) do
+		local q = p[it.id]
+		if not q or q.toppled ~= it.toppled or math.abs(q.x - it.x) > 1e-3 or math.abs(q.y - it.y) > 1e-3 then
+			differs = true
+		end
+	end
+	expect.truthy(differs, what .. ": the restored view is not the practice layout")
+end
+
+local function checkRestored(s, what)
+	local live = s:view()
+	local r = session.restore(s:snapshot())
+	local back = r:view()
+	expect.eq(back.need.kind, live.need.kind, what .. ": need")
+	expect.eq(r.frameSide, s.frameSide, what .. ": the frame it is shown in")
+	sameItems(back.items, live.items, what)
+	notPractice(back.items, what)
+	-- the view is display only: the snapshot is unchanged by it
+	expect.eq(r:snapshot(), s:snapshot(), what .. ": the same snapshot")
+end
+
+test("a snapshot restored while raising, placing a punishment kubb or after the end shows the match's pitch", function()
+	local seen = {}
+	local seed, s, r, guard = 10, nil, nil, 0
+	while not (seen.raise and seen.punish and seen.over) and seed < 30 do
+		if not s or guard >= 600 then
+			seed, guard = seed + 1, 0
+			s = session.new { mode = "match", seed = seed, teams = teams(1, 1), start = START, raising = "hand",
+				maxTurns = 12 }
+			r = autothrow.rng(88 + seed)
+		else
+			guard = guard + 1
+			local n = s:need()
+			if (n.kind == "raise" or n.kind == "punish" or n.kind == "over") and not seen[n.kind] then
+				seen[n.kind] = true
+				checkRestored(s, n.kind)
+				-- the settling side's frame
+				if n.kind ~= "over" then expect.eq(s.frameSide, n.side, n.kind .. ": the defender's frame") end
+			end
+			if n.kind == "over" then
+				s = nil
+			elseif n.kind == "throw" then
+				s:apply(scriptedAction(s, r, (n.setup.kind == "toss") and 4 / autothrow.tune.drillScale or 1))
+			elseif n.kind == "raise" then
+				s:apply { type = "raise", choice = #n.choices }
+			elseif n.kind == "punish" then
+				s:apply { type = "punish", x = n.cursor.x, y = n.cursor.y }
+			end
+		end
+	end
+	expect.truthy(seen.raise, "a raise was restored")
+	expect.truthy(seen.punish, "a punishment kubb was restored")
+	expect.truthy(seen.over, "a finished match was restored")
+end)

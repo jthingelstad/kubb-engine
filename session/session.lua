@@ -39,7 +39,7 @@ import "session/throw"
 
 local cmatch, cards, save, autothrow, wind = tw.match, tw.cards, tw.save, tw.autothrow, tw.wind
 local raising, frame, pitch, quat, swing, plan = tw.raising, tw.frame, tw.pitch, tw.quat, tw.swing, tw.plan
-local camera = tw.camera
+local camera, outcome, debris = tw.camera, tw.outcome, tw.debris
 local notation, gamefile = tw.notation, tw.gamefile
 local json, throw = tw.web.json, tw.web.throw
 
@@ -301,6 +301,8 @@ local function settleBegin(s)
 	local g = s.m.game
 	local n = g:need()
 	local st = s.settle
+	-- the pitch is shown in the defender's view frame while they settle (Session:view)
+	if n.kind == "raise" or n.kind == "punish" then s.frameSide = n.side end
 	if n.kind == "raise" then
 		st.mode, st.side, st.kubb = "raise", n.side, n.kubb
 		if not st.raiseTotal then
@@ -411,6 +413,8 @@ end
 function Session:over()
 	self.phase = "over"
 	self.setup = nil
+	-- the frame the pitch is shown in: the last throw's (a restored session has none yet)
+	self.frameSide = self.frameSide or self.side or "A"
 	local finish = self.finish or self.opts.start
 	self.overInfo = {
 		winner = cards.winner(self.m, finish),
@@ -640,10 +644,23 @@ function Session:minimap(items)
 	}
 end
 
+-- The match's pitch as it stands, in the frame it is shown in (self.frameSide), while no
+-- throw is set up: raising, punishment kubbs and the end. ts.items is the last throw's
+-- (or, after a restore, throw.new's practice layout), so the pieces come from the match
+-- itself, as core/match's setup makes them: the engine's pieces with the exact poses a
+-- throw left, and the debris lying on the pitch. Display only: nothing here is in the
+-- snapshot, and the match is not changed.
+function Session:pitchItems()
+	local m, side = self.m, self.frameSide
+	local pieces = outcome.pieces(m.game, side)
+	debris.applyExact(m.debris, pieces, side)
+	return throw.itemsOf(pieces, debris.pieces(m.debris, side))
+end
+
 -- Everything the screen needs when nothing is playing back.
 function Session:view()
 	local ts = self.ts
-	local items = throw.items(ts)
+	local items = (self.kind == "match" and self.phase ~= "throw") and self:pitchItems() or throw.items(ts)
 	return {
 		need = self:need(),
 		items = items,
