@@ -5,7 +5,7 @@
 
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local root = here .. "/../.."
-local sourceDir = root .. "/source"
+local sourceDir = root
 
 -- The import shim. Playdate's `import "core/vec"` runs source/core/vec.lua
 -- once and returns its value the first time, nil after (Inside Playdate 4.2).

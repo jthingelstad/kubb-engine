@@ -7,7 +7,7 @@
 -- Same seed, same files. `make games` runs this and then the notation gate.
 
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
-local sourceDir = here .. "/../source"
+local sourceDir = here .. "/.."
 local imported = {}
 function import(name)
 	if imported[name] then return nil end

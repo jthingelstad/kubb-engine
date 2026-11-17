@@ -328,7 +328,7 @@ test("recorded hardware traces replay through the new swing without errors", fun
 	local here = arg[0]:match("^(.*)/[^/]*$") or "."
 	local root = here .. "/../.."
 	local files = {}
-	local p = io.popen('ls "' .. root .. '/telemetry"/*/traces.jsonl 2>/dev/null')
+	local p = io.popen('ls "' .. root .. '/tests/fixtures/traces"/device-*.jsonl 2>/dev/null')
 	for f in p:lines() do files[#files + 1] = f end
 	p:close()
 	files[#files + 1] = root .. "/tests/fixtures/traces/sample.jsonl"

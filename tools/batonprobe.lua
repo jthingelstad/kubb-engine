@@ -25,7 +25,7 @@
 --     [--set name=value | --set grass.e=0 | --set collide.batonRound=0 ...]
 --     (world.tune, a surface, collide.tune or plan.tune (plan.tumbleTurns=1.1), for trials)
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
-local sourceDir = here .. "/../source"
+local sourceDir = here .. "/.."
 local imported = {}
 function import(name)
 	if imported[name] then return nil end

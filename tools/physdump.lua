@@ -11,7 +11,7 @@
 -- matches as tools/physmatch.lua plays them.
 
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
-local sourceDir = here .. "/../source"
+local sourceDir = here .. "/.."
 local imported = {}
 function import(name)
 	if imported[name] then return nil end

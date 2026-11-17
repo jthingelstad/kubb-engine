@@ -2,7 +2,7 @@
 -- the same import shim as tools/batonprobe.lua, and returns the helpers they
 -- share: json, cases and the mode's surface.
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
-local sourceDir = here .. "/../../source"
+local sourceDir = here .. "/../.."
 local imported = {}
 function import(name)
 	if imported[name] then return nil end

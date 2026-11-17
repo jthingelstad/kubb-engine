@@ -17,7 +17,7 @@
 -- instead of the sign they were recorded with.
 
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
-local sourceDir = here .. "/../source"
+local sourceDir = here .. "/.."
 local imported = {}
 function import(name)
 	if imported[name] then return nil end

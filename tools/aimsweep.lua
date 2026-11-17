@@ -13,7 +13,7 @@
 --     [--surface grass] [--set plan.aimHeightShare=0]
 -- --set plan.aimHeightShare=0 is the aim at the kubb's foot (before 2026-11-16).
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
-local sourceDir = here .. "/../source"
+local sourceDir = here .. "/.."
 local imported = {}
 function import(name)
 	if imported[name] then return nil end

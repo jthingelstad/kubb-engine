@@ -1,0 +1,44 @@
+name: validate
+
+# The engine's check: the Lua tests on Lua 5.4, the notation gate and its
+# refusal cases, the engine.json hash check (`make test`), then the headless
+# games (`make games`). The job's name is the check a main ruleset would
+# require: rename them together.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A new push to a PR supersedes its running check; main's runs finish.
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# No default token permissions; the job asks for its own. Actions are pinned
+# to commit SHAs and checkout leaves no token behind.
+permissions: {}
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: install Lua 5.4
+        run: sudo apt-get update -q && sudo apt-get install -y -q lua5.4
+      - name: Lua tests
+        run: make test-lua LUA=lua5.4
+      - name: Notation gate
+        run: make test-node NODE=node
+      - name: engine.json
+        run: make manifest-check NODE=node
+      - name: Headless games
+        run: make games LUA=lua5.4 NODE=node

@@ -14,9 +14,9 @@ test("core/ cannot import CoreLibs", function()
 	expect.eq(ok, false)
 end)
 
-test("no playdate.* under source/core", function()
+test("no playdate.* under core", function()
 	local here = arg[0]:match("^(.*)/[^/]*$") or "."
-	local dir = here .. "/../../source/core"
+	local dir = here .. "/../../core"
 	local p = io.popen('ls "' .. dir .. '"')
 	local n = 0
 	for f in p:lines() do
@@ -29,7 +29,7 @@ test("no playdate.* under source/core", function()
 				local code = line:gsub("%-%-.*$", "")
 				if code:match("playdate") then
 					h:close()
-					error("source/core/" .. f .. ":" .. lineNo .. " uses playdate")
+					error("core/" .. f .. ":" .. lineNo .. " uses playdate")
 				end
 			end
 			h:close()
