@@ -1,7 +1,8 @@
 -- Practice throws, whole: the plan's clean swing, the recording, the
 -- playback camera, the drill.
-import "web/session"
-import "web/json"
+import "session/session"
+import "session/json"
+tw.web.session.useTune("pointer") -- the web's tune: these tests were written for it
 local session, json, throw = tw.web.session, tw.web.json, tw.web.throw
 
 -- The plan's clean swing (throw.CLEAN on the plan's backswing and release),

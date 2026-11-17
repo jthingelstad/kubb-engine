@@ -1,6 +1,7 @@
--- The aim and the dial (lua/web/throw through lua/web/session).
-import "web/session"
-import "web/json"
+-- The aim and the dial (session/throw through session/session).
+import "session/session"
+import "session/json"
+tw.web.session.useTune("pointer") -- the web's tune: these tests were written for it
 local session, json = tw.web.session, tw.web.json
 
 -- A dial sweep as the pointer gives it: from `from` to `to` degrees at

@@ -1,8 +1,9 @@
 -- Matches through the session: the computer on both sides to a winner,
 -- raising and punishment by hand, snapshot -> restore -> continue.
-import "web/session"
-import "web/json"
+import "session/session"
+import "session/json"
 import "core/autothrow"
+tw.web.session.useTune("pointer") -- the web's tune: these tests were written for it
 local session, json, throw, autothrow = tw.web.session, tw.web.json, tw.web.throw, tw.autothrow
 
 local START = { year = 2026, month = 11, day = 15, hour = 10, min = 0 }

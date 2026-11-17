@@ -1,11 +1,12 @@
--- Replays (lua/web/replay.lua): a recorded match played again from its options and its
+-- Replays (session/replay.lua): a recorded match played again from its options and its
 -- log reproduces every hash and the result; BACK and REWIND land where they should; a
 -- replay belongs to nobody and refuses every action from outside.
-import "web/session"
-import "web/json"
-import "web/replay"
-import "web/api"
+import "session/session"
+import "session/json"
+import "session/replay"
+import "session/api"
 import "core/autothrow"
+tw.web.session.useTune("pointer") -- the web's tune: these tests were written for it
 local session, json, replay, autothrow = tw.web.session, tw.web.json, tw.web.replay, tw.autothrow
 
 local START = { year = 2026, month = 11, day = 16, hour = 9, min = 30 }

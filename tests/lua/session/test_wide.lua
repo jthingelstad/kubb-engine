@@ -1,12 +1,13 @@
--- The wide view (lua/web/wide.lua): the whole pitch in the box on every
+-- The wide view (session/wide.lua): the whole pitch in the box on every
 -- screen shape, one camera for the whole match, and the pitch in the world
 -- frame whichever team throws.
-import "web/api"
-import "web/wide"
-import "web/json"
+import "session/api"
+import "session/wide"
+import "session/json"
 import "core/camera"
 import "core/frame"
 import "core/pitch"
+tw.web.session.useTune("pointer") -- the web's tune: these tests were written for it
 local api, wide, json, camera, frame = tw.web.api, tw.web.wide, tw.web.json, tw.camera, tw.frame
 
 local function call(method, a)
