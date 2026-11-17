@@ -1,0 +1,3 @@
+# Engine sources are vendored and bundled byte for byte: keep them LF everywhere.
+*.lua text eol=lf
+*.json text eol=lf
