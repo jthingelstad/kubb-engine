@@ -1,0 +1,16 @@
+{
+  "name": "kubb-engine",
+  "private": true,
+  "type": "module",
+  "description": "The rules, physics, notation and session of Kubb: Throwing Wood, in pure Lua 5.4.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "devDependencies": {
+    "wasmoon": "1.16.0"
+  }
+}

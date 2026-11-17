@@ -1,4 +1,4 @@
--- The one door from JavaScript (docs/ENGINE.md "API"): kubbCall(method,
+-- The one door from JavaScript (docs/SESSION.md "The API"): kubbCall(method,
 -- argsJson) -> resultJson. One session per Lua state. Every call is
 -- protected: a Lua error comes back as {"error": "..."}, which src/engine
 -- throws as a JavaScript Error. snapshot returns the snapshot text itself;

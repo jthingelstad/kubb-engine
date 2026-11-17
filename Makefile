@@ -1,24 +1,55 @@
-# The Kubb Engine: desktop targets. Lua 5.4 and Node; nothing else for `make test`.
+# The Kubb Engine: desktop targets. Lua 5.4 and Node (`npm ci` first, for wasmoon);
+# nothing else for `make test`.
 
 LUA  ?= lua5.4
 NODE ?= node
 # pk-kubb-score (for realgames and sync-notation): $PK_KUBB_SCORE, else a sibling checkout.
 PKSCORE := $(or $(PK_KUBB_SCORE),$(CURDIR)/../pk-kubb-score)
 
-.PHONY: test test-lua test-node manifest manifest-check games realgames physfuzz mjref sync-notation clean
+.PHONY: test test-lua test-session test-node test-wasm golden-check golden golden-native bundle manifest manifest-check games realgames physfuzz mjref sync-notation clean
 
-test: test-lua test-node manifest-check
+test: test-lua test-session test-node test-wasm golden-check manifest-check
 
+# The core's tests, then the session's in a Lua state of their own: the session's
+# tests load the pointer tune, which changes the core's swing and autothrow tables.
 test-lua:
 	"$(LUA)" tests/lua/run.lua
+
+test-session:
+	"$(LUA)" tests/lua/run.lua tests/lua/session/test_*.lua
 
 test-node:
 	"$(NODE)" tests/node/notation-gate.mjs tests/fixtures/games
 	"$(NODE)" tests/node/gate-rejects.mjs
 	"$(NODE)" tools/realgames.mjs tests/fixtures/games tests/fixtures/games > /dev/null
 
-# engine.json: a sha256 per core file. `make manifest` rewrites it after an
-# intended core change; `make manifest-check` (part of `make test`) fails on a mismatch.
+# The session under wasmoon (the reference platform), loaded from the bundle.
+test-wasm:
+	"$(NODE)" --test tests/node/*.test.mjs
+
+# The golden hashes (docs/DETERMINISM.md): tests/golden/drive.lua's matches under
+# wasmoon must give every hash in tests/golden/hashes.json. A change that moves one
+# needs a minor version bump and `make golden`, which rewrites the corpus on purpose.
+# `make golden-native` plays the same matches under desktop Lua and says how many
+# actions agree: stock native Lua is for logic tests only.
+golden-check:
+	"$(NODE)" tests/golden/golden.mjs --check
+
+golden:
+	"$(NODE)" tests/golden/golden.mjs --write
+
+golden-native:
+	@mkdir -p build
+	"$(LUA)" tests/golden/native.lua > build/golden-native.json
+	"$(NODE)" tests/golden/golden.mjs --compare build/golden-native.json
+
+# The engine as one artifact: build/kubb-engine-sources.json and its .sha256.
+bundle:
+	"$(NODE)" tools/bundle.mjs
+
+# engine.json: a sha256 per engine Lua file and for the bundle, the version (checked
+# against version.lua). `make manifest` rewrites the hashes after an intended change;
+# `make manifest-check` (part of `make test`) fails on a mismatch.
 manifest:
 	"$(NODE)" tools/manifest.mjs write
 
