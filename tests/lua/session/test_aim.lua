@@ -175,3 +175,22 @@ test("json keeps negative zero, so a snapshot comes back to the same text", func
 	expect.eq(math.type(back.c), "integer")
 	expect.eq(math.type(back.e), "float")
 end)
+
+test("human frame reports every band edge once, in travel order", function()
+	local s = session.new { mode = "practice" }
+	local p = s.ts.sol
+	local function edges(arm)
+		local out = s:frame { dt = 1/60, arm = arm }
+		local names = {}
+		for _, e in ipairs(out.dial.crossings or {}) do names[#names + 1] = e.band .. "." .. e.edge end
+		return table.concat(names, " ")
+	end
+	expect.eq(edges(0), "")
+	expect.eq(edges(-40), "")
+	expect.eq(edges(-p.powerHi - 3), "power.enter power.exit")
+	expect.eq(edges(-p.powerHi - 3), "")
+	expect.eq(edges(1), "power.enter power.exit")
+	expect.eq(edges(p.releaseHi + 3), "release.enter release.exit")
+	expect.eq(edges(nil), "")
+	expect.eq(s:view().dial.crossings, nil)
+end)

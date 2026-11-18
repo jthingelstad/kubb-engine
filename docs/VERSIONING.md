@@ -44,6 +44,8 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.4.1** (patch). Optional dial band crossings, contact strengths and baton ground
+  landings for presentation. The 453 reference action hashes and wire formats are unchanged.
 - **0.4.0** (minor, additive input API). A touch pendulum feeds the existing swing at
   120 Hz. Human throw actions, recordings and crank traces can carry optional tuning
   metadata. Existing actions and snapshots remain readable. As with 0.3.0, the new

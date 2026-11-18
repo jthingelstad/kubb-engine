@@ -169,6 +169,13 @@ release that this browser acts for, `action` is the throw to send to the room,
 `recording` is its recording, and `need` is what comes next (the throw has already been
 applied here).
 
+On a human input frame, optional `dial.crossings` lists `{band, edge}` in travel
+order. The bands are `power` (backswing) and `release` (forward), the edges
+`enter` and `exit`. Endpoints are inside. Fast samples can cross both edges in
+one frame. Only measured arm motion while winding or swinging counts. A reset,
+lift without motion, stationary frame, remote aim or computer animation emits
+no crossing. Read once from the frame response, including a release frame.
+
 ### Touch pendulum
 
 Send `frame({ dt, touch: [sample, ...] })` for a local human throw. Samples belong
@@ -394,6 +401,18 @@ the cameras for you; the raw track is for a renderer that wants it. `slow` is th
 playback speed curve: full speed until `from`, `rate` from `hit` to `full`, back to full
 speed by `to`. `bursts` are known in full at the release (see below), so `sure` is true
 and `takenBack` false on the web; the fields stay so the format matches render/burst.
+
+Since 0.4.1, `timeline.contacts` lists wood-on-wood strikes in physics time
+(seconds from release). Each `{t, a, b, idA, idB, strength}` gives both body
+kinds and IDs. Keep the first positive normal impulse per unordered pair per
+throw. Of its points in that same solver step use the largest peak impulse,
+divided by 2 N·s and capped at 1. Rolling or later collisions of that same
+pair stay quiet. Another pair has its own strike. `timeline.batonLanding` is
+the thrown baton's first positive ground impulse, even if it struck wood first.
+It gives `{t, strength, surface}` using the same curve and first-step peak.
+Kubb throws have no baton landing. These fields and dial crossings are
+presentation only. Old recordings may omit them. Snapshots and actions are
+unchanged.
 
 ## Tunables
 

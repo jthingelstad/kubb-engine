@@ -129,3 +129,40 @@ test("a throw recorded before the nerves replays with no sideways verdict", func
 	expect.eq(out.recording.result.verdicts.side, nil)
 	expect.eq(out.recording.result.verdicts.power, "ON")
 end)
+
+test("wood strikes carry the solver time, kinds and bounded strength only once per pair", function()
+	local s = session.new { mode = "practice" }
+	s:setTarget(0, 4, true) -- king first, then ground
+	local rec = cleanThrow(s).recording
+	local seen, last = {}, 0
+	expect.truthy(#rec.timeline.contacts > 0)
+	for _, c in ipairs(rec.timeline.contacts) do
+		local ids = { c.idA, c.idB }
+		table.sort(ids)
+		local pair = table.concat(ids, "/")
+		expect.eq(seen[pair], nil)
+		seen[pair] = true
+		expect.truthy(c.t >= last and c.t <= rec.duration)
+		expect.truthy(c.strength > 0 and c.strength <= 1)
+		last = c.t
+	end
+	local first = rec.timeline.contacts[1]
+	expect.eq(first.t, rec.timeline.firstHit.t)
+	expect.truthy((first.a == "baton" and first.b == "king") or (first.b == "baton" and first.a == "king"))
+	expect.truthy(rec.timeline.batonLanding.t > first.t, "the baton hit wood before it reached the ground")
+end)
+
+test("a miss records the thrown baton's first ground impulse on each surface", function()
+	for _, surface in ipairs { "grass", "sand", "snow" } do
+		local s = session.new { mode = "practice", surface = surface }
+		s:setTarget(0.6, 5.0)
+		local rec = cleanThrow(s).recording
+		local land = rec.timeline.batonLanding
+		expect.eq(land.surface, surface)
+		expect.eq(land.t, rec.timeline.firstContact.t)
+		expect.eq(rec.timeline.firstContact.with, "ground")
+		expect.truthy(land.strength > 0 and land.strength <= 1)
+	end
+	local drill = session.new { mode = "practice", drill = true }
+	expect.eq(cleanThrow(drill).recording.timeline.batonLanding, nil)
+end)
