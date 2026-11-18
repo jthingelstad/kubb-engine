@@ -132,7 +132,8 @@ end)
 
 test("wood strikes carry the solver time, kinds and bounded strength only once per pair", function()
 	local s = session.new { mode = "practice" }
-	s:setTarget(0, 4, true) -- king first, then ground
+	s:setTarget(0, 4, true) -- a glancing strike lets the baton land beyond the king
+	s:setStance(0.04, 0)
 	local rec = cleanThrow(s).recording
 	local seen, last = {}, 0
 	expect.truthy(#rec.timeline.contacts > 0)
@@ -165,4 +166,23 @@ test("a miss records the thrown baton's first ground impulse on each surface", f
 	end
 	local drill = session.new { mode = "practice", drill = true }
 	expect.eq(cleanThrow(drill).recording.timeline.batonLanding, nil)
+end)
+
+test("practice keeps the six working batons and picks one up for the next throw", function()
+	local s = session.new { mode = "practice" }
+	for i = 1, 7 do
+		s:setTarget(0.7, 3.5)
+		local rec = cleanThrow(s).recording
+		local found, count = {}, 0
+		for _, it in ipairs(rec.items) do
+			if it.kind == "baton" then
+				expect.eq(found[it.id], nil)
+				found[it.id], count = true, count + 1
+			end
+		end
+		expect.eq(count, math.min(i, 6))
+		expect.truthy(found[rec.projectile.id])
+	end
+	s:reset()
+	for _, it in ipairs(s:view().items) do expect.truthy(it.kind ~= "baton") end
 end)

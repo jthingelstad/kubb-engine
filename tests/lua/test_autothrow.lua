@@ -296,3 +296,16 @@ test("the computer's swing mistakes do not grow with range; its nerves do", func
 	expect.near(clean.launch.sideDeg, 0, 1e-12)
 	expect.near(clean.launch.lenShare, 0, 1e-12)
 end)
+
+test("computer uses its assigned thrower level for drill spin and baton rotation", function()
+	for _, level in ipairs(plan.LEVELS) do
+		local s = toss()
+		s.thrower = { level = level }
+		local a = autothrow.choose(s, autothrow.rng(3), 0)
+		expect.near(a.drill.spin, tw.drill.tune.spiral + autothrow.tune.drillSpin[level] * plan.tune.spinPerStep, 1e-9)
+		s = baton("base", 1, 8)
+		s.thrower = { level = level }
+		a = autothrow.choose(s, autothrow.rng(3), 0)
+		expect.near(a.tumbleRate * a.plan.flightT / (2 * math.pi), plan.levels[level].tumbleTurns, 0.01)
+	end
+end)

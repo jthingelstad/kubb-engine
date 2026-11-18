@@ -106,6 +106,7 @@ are plain objects. The room's calls (`room.<name>`) are in docs/ROOM.md. Angles 
 | `frameView()` | The same view, in the thrower's view frame even while the wide view is on: what a report records (the web's `src/net/report.js`), so its replay compares like with like. |
 | `need()`      | What happens next (below).                                                                                                                                               |
 | `aim()`       | `{ aim, camera }`.                                                                                                                                                       |
+| `reportThrow()` | Last throw’s result, sequence and final piece poses in its thrower frame, including its projectile. Empty before a throw or after a restore. |
 | `recording()` | The last throw's recording (below), or `{}`.                                                                                                                             |
 
 **need** is one of:

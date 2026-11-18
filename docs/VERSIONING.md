@@ -44,6 +44,9 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.5.0**. Baton rotation follows the thrower’s level. Skilled computer players add
+  drill spin. Slow contact wakes resting pieces. These changes alter match hashes.
+
 - **0.4.1** (patch). Optional dial band crossings, contact strengths and baton ground
   landings for presentation. The 453 reference action hashes and wire formats are unchanged.
 - **0.4.0** (minor, additive input API). A touch pendulum feeds the existing swing at
