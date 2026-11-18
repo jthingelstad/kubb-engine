@@ -403,3 +403,12 @@ does so steadily. `source/scenes/throw.lua` and `source/core/playback.lua`:
   counted.
 - Self-tests and the desktop use scripted input, which has no device clock: they get
   `physicsBudget` per frame, as before.
+
+### Baton rotation and drill spin in 0.5.0
+
+A clean beginner baton aims for 0.62 turns. Club and pro aim for half a turn,
+with greater variation at club level and at longer range. The plan aims the
+lower end through the piece by allowing for the baton's segment half-length.
+The computer uses the level of the player taking the throw. Its beginner inkast
+keeps the natural wrist spiral. Club adds one spin step and pro adds two to
+stabilize the kubb in flight.

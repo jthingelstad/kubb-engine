@@ -336,3 +336,16 @@ test("debris: a leaning kubb settles back upright when its prop is picked up at 
 	-- and is at rest: nothing more to run
 	expect.eq(match.settleStanding(m, s), 0)
 end)
+
+test("debris: a slow slide wakes both a fallen kubb and a used baton", function()
+	for _, kind in ipairs { "kubb", "baton" } do
+		local qw, qx, qy, qz = outcome.quatOf { standing = false, angle = 0 }
+		local w = world.new { stakes = false, texture = false, pieces = {
+			{ id = "resting", kind = kind, x = 0, y = 5, toppled = true,
+				qw = qw, qx = qx, qy = qy, qz = qz } } }
+		local gap = kind == "kubb" and 0.057 or 0.044
+		slide(w, "incoming", 0, 5 - gap, 0.015)
+		world.step(w)
+		expect.truthy(w.byId.resting.everAwake, kind .. " joined the contact solver")
+	end
+end)

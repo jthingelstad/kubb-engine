@@ -28,7 +28,7 @@ local params = {
 	dragK = flight.tune.dragK, handHeight = flight.tune.handHeight,
 	batonRound = collide.tune.batonRound,
 	drill = { noseDownDeg = drill.tune.noseDownDeg, spiral = drill.tune.spiral, landZ = drill.tune.landZ },
-	plan = { spinPerStep = plan.tune.spinPerStep, tumbleTurns = plan.tune.tumbleTurns },
+	plan = { spinPerStep = plan.tune.spinPerStep, tumbleTurns = plan.levels.club.tumbleTurns },
 }
 local function write(name, s)
 	local f = assert(io.open(out .. "/" .. name, "w"))

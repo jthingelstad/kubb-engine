@@ -18,14 +18,14 @@ local function solve(d, release, aimZ)
 end
 
 test("aim heights: half a kubb, half the king, the ground off a piece", function()
-	expect.near(plan.aimZFor("kubb"), body.kinds.kubb.hz, 1e-12)
-	expect.near(plan.aimZFor("king"), body.kinds.king.hz, 1e-12)
-	expect.near(plan.aimZFor("kubb"), 0.075, 1e-9)
-	expect.near(plan.aimZFor("king"), 0.15, 1e-9)
+	expect.near(plan.aimZFor("kubb"), body.kinds.kubb.hz + body.kinds.baton.hl, 1e-12)
+	expect.near(plan.aimZFor("king"), body.kinds.king.hz + body.kinds.baton.hl, 1e-12)
+	expect.near(plan.aimZFor("kubb"), 0.075 + body.kinds.baton.hl, 1e-9)
+	expect.near(plan.aimZFor("king"), 0.15 + body.kinds.baton.hl, 1e-9)
 	expect.eq(plan.aimZFor(nil), 0)
 	local share = plan.tune.aimHeightShare
 	plan.tune.aimHeightShare = 0
-	expect.eq(plan.aimZFor("kubb"), 0)
+	expect.eq(plan.aimZFor("kubb"), body.kinds.baton.hl)
 	plan.tune.aimHeightShare = share
 end)
 
@@ -92,9 +92,9 @@ test("the computer aims a baton at mid-height: a kubb's, the king's", function()
 			pieces = { { id = id, kind = role == "king" and "king" or "kubb", role = role, half = "B", x = 0, y = y } } }
 	end
 	local a = autothrow.choose(setup("field", 5), autothrow.rng(1), 0)
-	expect.near(a.plan.aimZ, 0.075, 1e-9)
+	expect.near(a.plan.aimZ, plan.aimZFor("kubb"), 1e-9)
 	local k = autothrow.choose(setup("king", 4), autothrow.rng(1), 0)
-	expect.near(k.plan.aimZ, 0.15, 1e-9)
+	expect.near(k.plan.aimZ, plan.aimZFor("king"), 1e-9)
 end)
 
 test("a clean throw at a lone kubb topples it at 3, 5.27 and 8 m", function()

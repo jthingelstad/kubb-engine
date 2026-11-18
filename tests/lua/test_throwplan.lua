@@ -357,11 +357,11 @@ test("plan: the release sets the tumble, a turn over the flight inside the wrist
 	local tn = plan.tune
 	-- a full throw at 8 m: one turn over the clean flight
 	local sol = solve("baton", 0, 0, 0, 8, 90, "club")
-	expect.near(sol.tumble * sol.flightT / (2 * math.pi), tn.tumbleTurns, 1e-9)
+	expect.near(sol.tumble * sol.flightT / (2 * math.pi), plan.levels.club.tumbleTurns, 1e-9)
 	expect.near(plan.launch(sol, cleanSwing(sol), nil, {}).tumble, sol.tumble, 1e-12)
 	-- a 2 m lob: the arm is slow and the wrist cannot add a whole turn
 	local lob = solve("baton", 0, 0, 0, 2, 90, "club")
-	expect.near(lob.tumble, lob.speed / tn.armR * (1 + tn.wristShare), 1e-9)
+	expect.near(lob.tumble * lob.flightT / (2 * math.pi), 0.5, 0.03)
 	expect.truthy(lob.tumble * lob.flightT / (2 * math.pi) < 0.8)
 	-- a slow flick is a slow wrist: less turn
 	local slow = plan.launch(sol, cleanSwing(sol, { flickFrac = 0.85 }), nil, {})
@@ -378,9 +378,10 @@ test("plan: the release sets the tumble, a turn over the flight inside the wrist
 		return mean, sqrt(sq / n - mean * mean)
 	end
 	local cm, cs = spread("club")
-	expect.near(cm, tn.tumbleTurns, 0.03, "club: the habit on average")
+	expect.near(cm, plan.levels.club.tumbleTurns, 0.03, "club: the habit on average")
 	expect.near(cs, plan.levels.club.tumbleSd, 0.03)
-	local _, bs = spread("beginner")
+	local bm, bs = spread("beginner")
+	expect.near(bm, 0.62, 0.03)
 	local _, ps = spread("pro")
 	expect.truthy(bs > cs and ps < cs)
 	-- a drilled kubb draws no tumble and keeps the computer's stream as before
