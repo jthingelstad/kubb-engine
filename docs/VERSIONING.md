@@ -44,6 +44,9 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.5.1** (patch). A compact practice checkpoint replays the reported throw,
+  including accumulated wood and its surface. All 437 reference action hashes match 0.5.0.
+
 - **0.5.0**. Baton rotation follows the thrower’s level. Skilled computer players add
   drill spin. Slow contact wakes resting pieces. These changes alter match hashes.
 
