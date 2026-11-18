@@ -47,6 +47,7 @@ test("all three exercises produce replayable physical throws", function()
 		expect.eq(#ts.items, kind == "pair" and 2 or 1)
 		local out = s:frame {stroke = {down, {x = 0, y = ts.sol.back / 180}, {x = 0, y = -1}}}
 		expect.eq(out.action.how, kind == "pile" and "drill" or "baton")
+		if kind == "base" then expect.eq(out.recording.result.down, 1) end
 		local restored = session.restorePractice(s.practiceBefore)
 		local replicated = restored:apply(out.action)
 		expect.eq(json.encode(replicated.recording.bodies), json.encode(out.recording.bodies))

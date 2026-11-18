@@ -242,6 +242,10 @@ function session.new(o)
 		s.opts = { surface = surfaceKey(o.surface), level = o.level, set = o.set or "classic" }
 		s.ts = throw.new { surface = s.opts.surface, level = o.level, set = s.opts.set, exercise = o.exercise }
 		s.phase = "throw"
+		if o.exercise == "base" or o.exercise == "pair" or o.exercise == "pile" then
+			-- A practice comparison measures the stroke, without the seeded nerves scatter.
+			s.ts.nerves = false
+		end
 		if o.drill or o.exercise == "pile" then throw.setDrill(s.ts, true) end
 		if o.exercise == "pile" then throw.setTarget(s.ts, 0, 5.6, false) end
 		s.ts.railName = "PRACTICE"
