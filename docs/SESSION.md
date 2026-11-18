@@ -487,3 +487,9 @@ the sequential random generators.
   recordings are identical and the hashes equal) and a replay.
 - `make golden-check`: the golden hashes, the gate for hash-neutral changes
   (docs/DETERMINISM.md).
+
+For private throw reports, `reportThrow` returns the last action sequence, result and
+settled piece poses in the thrower’s frame. For practice it also returns
+`practiceBefore`, opaque engine JSON for the pitch immediately before that throw.
+Pass it to `restorePractice { checkpoint }` and then `apply` the recorded throw
+action to reproduce its contacts even when the full practice history is unavailable.

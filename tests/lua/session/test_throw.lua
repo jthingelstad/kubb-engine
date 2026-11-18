@@ -186,3 +186,18 @@ test("practice keeps the six working batons and picks one up for the next throw"
 	s:reset()
 	for _, it in ipairs(s:view().items) do expect.truthy(it.kind ~= "baton") end
 end)
+
+test("a bounded practice checkpoint reproduces a drill and a reused baton on a played pitch", function()
+	local s = session.new { mode = "practice", surface = "sand", level = "club" }
+	for _ = 1, 6 do cleanThrow(s) end
+	for _, drill in ipairs { true, true, false } do
+		s:setDrill(drill)
+		local original, action = cleanThrow(s)
+		local checkpoint = s.practiceBefore
+		expect.truthy(#checkpoint < 12000)
+		local replay = session.restorePractice(checkpoint)
+		local got = replay:apply(action)
+		expect.eq(json.encode(got.recording), json.encode(original.recording))
+		expect.eq(json.encode(replay.ts.items), json.encode(s.ts.items))
+	end
+end)
