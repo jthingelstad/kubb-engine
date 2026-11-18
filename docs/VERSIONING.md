@@ -44,6 +44,8 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.6.0**. A straight-through input and three practice exercises. Existing match actions retain their physics and wire format.
+
 - **0.5.1** (patch). A compact practice checkpoint replays the reported throw,
   including accumulated wood and its surface. All 437 reference action hashes match 0.5.0.
 
