@@ -497,7 +497,7 @@ action to reproduce its contacts even when the full practice history is unavaila
 ### Straight-through practice trial
 
 Start practice with an optional `exercise` of `base` (one 8 m kubb), `pair`
-(two offset field kubbs), or `pile` (drill beside a lying kubb).
+(two offset field kubbs), or `pile` (drill beside a lying kubb). These exercises turn seeded nerves off so misses can be traced to execution.
 Send `frame({stroke:[...]})` with one contact's down, positions, and up or
 cancel. Coordinates start at contact zero, positive down and right, in units
 of the visible rail's full pull. One rail length equals 180 backswing degrees.
