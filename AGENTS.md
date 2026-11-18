@@ -8,9 +8,9 @@ iPhone app (the bundle: core, room, session and tune).
 
 ## Repo and pull requests
 
-- GitHub: `jthingelstad/kubb-engine`, private for now. Manage it as if it were public:
-  no account ids, email addresses, device serial numbers, home-directory paths or
-  personal details in files, commit messages or pull requests.
+- GitHub: `jthingelstad/kubb-engine` is public. Keep account ids, email addresses, device
+  serial numbers, home-directory paths and personal details out of files, commit messages
+  and pull requests.
 - Changes reach `main` only through a pull request. Merges are rebase merges; branches
   are deleted on merge.
 - Before opening a pull request run `npm ci` once, then `make test` (and `make games` for

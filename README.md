@@ -67,4 +67,6 @@ The notes in `docs/notes/` explain the rules engine, the physics and the tools.
 
 ## License
 
-MIT. See `LICENSE`.
+The engine is under the [MIT license](LICENSE). The Planet Kubb Notation test tools
+are also MIT-licensed. Their [vendor notes](tests/vendor/pk-kubb-score/README.md#license)
+include the Peggy attribution.
