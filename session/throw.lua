@@ -21,7 +21,6 @@ import "core/tw"
 import "core/camera"
 import "core/swing"
 import "session/touch"
-import "session/straight"
 import "core/flight"
 import "core/pitch"
 import "core/world"
@@ -107,16 +106,7 @@ local function newItem(p)
 end
 
 -- The practice layout: five base kubbs on each baseline and the king.
-function throw.defaultLayout(exercise)
-	if exercise == "base" then
-		return { { id = "b3", kind = "kubb", x = 0, y = 8, base = true } }
-	elseif exercise == "pair" then
-		return { { id = "front", kind = "kubb", role = "field", x = 0, y = 5 },
-			{ id = "rear", kind = "kubb", role = "field", x = 0.09, y = 5.27 } }
-	elseif exercise == "pile" then
-		local h = math.sqrt(0.5)
-		return { { id = "first", kind = "kubb", x = 0, y = 5.6, qw = h, qx = 0, qy = h, qz = 0, toppled = true } }
-	end
+function throw.defaultLayout()
 	local l = {}
 	for _, side in ipairs { { "a", 0 }, { "b", 8 } } do
 		for i, x in ipairs(pitch.baseX) do
@@ -409,7 +399,7 @@ local function markerHome(s)
 end
 
 local function resetSwing(s)
-	s.arm, s.armed, s.pointerDown, s.touch, s.straight = nil, false, false, nil, nil
+	s.arm, s.armed, s.pointerDown, s.touch = nil, false, false, nil
 	swing.reset(s.swing)
 end
 
@@ -444,7 +434,7 @@ function throw.new(opts)
 		surface = opts.surface or throw.tune.surface,
 		set = opts.set or throw.tune.set,
 		defaultLevel = opts.level,
-		exercise = opts.exercise, layout = throw.defaultLayout(opts.exercise),
+		layout = throw.defaultLayout(),
 		items = {}, targets = {}, snaps = {},
 		lineY = throw.tune.lineY, forwardY = throw.tune.lineY, advY = nil,
 		projectile = "baton", projectileId = nil,
@@ -712,15 +702,10 @@ function throw.aimFrame(s, inp)
 	local arm = inp.arm
 	if holdPlan then
 		-- while the plan view is held the dial does not throw (B on the Playdate)
-		if s.straight or s.touch or sw.phase ~= "idle" then resetSwing(s) end
+		if s.touch or sw.phase ~= "idle" then resetSwing(s) end
 		s.armed = false
 		s.arm, s.pointerDown = arm, arm ~= nil
 		return nil, changed
-	end
-	if inp.stroke or s.straight then
-		local ev = tw.web.straight.frame(s, inp.stroke or {})
-		if sw.phase == "winding" then clearLast(s) end
-		return ev, changed, "straight"
 	end
 	if inp.touch or s.touch then
 		local ev = tw.web.touch.frame(s, inp.touch or {})
@@ -1251,7 +1236,7 @@ function throw.afterRest(s)
 	else
 		local any, all = false, true
 		for _, it in ipairs(s.items) do
-			if it.base or (s.exercise == "pair" and it.role == "field") then
+			if it.base then
 				any = true
 				if not it.toppled then all = false end
 			end

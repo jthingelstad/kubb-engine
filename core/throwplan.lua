@@ -535,7 +535,6 @@ function plan.launch(sol, r, opts, out)
 	end
 	local sdSide, sdLen = plan.nervesSd(lv, effBack, shake, m, kubb)
 	local sideDeg = pull * t.lateralDeg * se + zs * sdSide
-	if r.lineDeg then sideDeg = sideDeg + r.lineDeg end
 	local len = zl * sdLen
 	if len < t.lenMin then len = t.lenMin end
 	out.speed = out.speed * sqrt(1 + len)
