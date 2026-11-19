@@ -44,6 +44,8 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.7.0**. Retires the straight-through practice input and its three exercises. The crank, pointer dial and touch pendulum follow the 0.5.1 throw model.
+
 - **0.6.0**. A straight-through input and three practice exercises. Existing match actions retain their physics and wire format.
 
 - **0.5.1** (patch). A compact practice checkpoint replays the reported throw,

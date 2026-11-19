@@ -240,14 +240,9 @@ function session.new(o)
 	s.recording = nil
 	if s.kind == "practice" then
 		s.opts = { surface = surfaceKey(o.surface), level = o.level, set = o.set or "classic" }
-		s.ts = throw.new { surface = s.opts.surface, level = o.level, set = s.opts.set, exercise = o.exercise }
+		s.ts = throw.new { surface = s.opts.surface, level = o.level, set = s.opts.set }
 		s.phase = "throw"
-		if o.exercise == "base" or o.exercise == "pair" or o.exercise == "pile" then
-			-- A practice comparison measures the stroke, without the seeded nerves scatter.
-			s.ts.nerves = false
-		end
-		if o.drill or o.exercise == "pile" then throw.setDrill(s.ts, true) end
-		if o.exercise == "pile" then throw.setTarget(s.ts, 0, 5.6, false) end
+		if o.drill then throw.setDrill(s.ts, true) end
 		s.ts.railName = "PRACTICE"
 		return s
 	end
@@ -776,9 +771,6 @@ function Session:setControl(c)
 	local sides = c.sides or { "A", "B" }
 	self.control = { A = false, B = false, cpu = c.cpu ~= false }
 	for _, side in ipairs(sides) do self.control[side] = true end
-	if self.ts.straight and self.setup and not self.control[self.setup.side] then
-		tw.web.straight.frame(self.ts, { { phase = "cancel" } })
-	end
 	if self.ts.touch and self.setup and not self.control[self.setup.side] then
 		tw.web.touch.frame(self.ts, { { phase = "cancel" } })
 	end
@@ -816,14 +808,14 @@ end
 -- their own format; this checkpoint is only for replaying one practice throw.
 local function practiceCheckpoint(s)
 	local ts = s.ts
-	return json.encode { items = ts.items, exercise = ts.exercise, surface = ts.surface, set = ts.set, level = throw.levelFor(ts),
+	return json.encode { items = ts.items, surface = ts.surface, set = ts.set, level = throw.levelFor(ts),
 		drill = ts.drill, drillSeq = ts.drillSeq, baton = ts.practiceBaton,
 		throws = s.throws }
 end
 
 function session.restorePractice(text)
 	local c = json.decode(text)
-	local s = session.new { mode = "practice", surface = c.surface, set = c.set, level = c.level, exercise = c.exercise }
+	local s = session.new { mode = "practice", surface = c.surface, set = c.set, level = c.level }
 	local ts = s.ts
 	ts.items, ts.drillSeq, ts.practiceBaton = c.items, c.drillSeq, c.baton
 	s.throws, ts.throws = c.throws, c.throws
@@ -940,8 +932,7 @@ function Session:frame(inp)
 		ev, changed, input = throw.aimFrame(ts, inp)
 		crossings, ts.crossings = ts.crossings, nil
 		if ev == "release" then
-			local r = input == "straight" and ts.strokeResult or ts.swing.result
-			ts.strokeResult = nil
+			local r = ts.swing.result
 			L, how = throw.playerLaunch(ts, r)
 			info = { input = input or "pointer", back = r.back, stop = r.releaseAngle, verdicts = L }
 		end

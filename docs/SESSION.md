@@ -493,17 +493,3 @@ settled piece poses in the thrower’s frame. For practice it also returns
 `practiceBefore`, opaque engine JSON for the pitch immediately before that throw.
 Pass it to `restorePractice { checkpoint }` and then `apply` the recorded throw
 action to reproduce its contacts even when the full practice history is unavailable.
-
-### Straight-through practice trial
-
-Start practice with an optional `exercise` of `base` (one 8 m kubb), `pair`
-(two offset field kubbs), or `pile` (drill beside a lying kubb). These exercises turn seeded nerves off so misses can be traced to execution.
-Send `frame({stroke:[...]})` with one contact's down, positions, and up or
-cancel. Coordinates start at contact zero, positive down and right, in units
-of the visible rail's full pull. One rail length equals 180 backswing degrees.
-The deepest pull sets power. After arming at 30 degrees, the first forward
-crossing of zero releases at the planned loft. The interpolated x crossing
-sets direction, with an 8% central tolerance. Lifting short cancels.
-Presentation can draw dial.powerLo and powerHi on the linear scale. Timing and
-follow-through do not change the launch. The resulting ordinary throw action
-carries input "straight" and replays through the existing physics.
