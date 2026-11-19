@@ -44,6 +44,12 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.7.1** (patch). The game file writes fewer player names: no prefix on a throw by a
+  one-player team, and the player's initial (or the shortest start that tells two apart)
+  on a team of more, with `[Team X Players]` and `[Throw Levels]` naming the same ids.
+  Only the rendered file changes; game state, snapshots and saved history keep the full
+  ids, and older files still read. All 437 reference action hashes match 0.7.0.
+
 - **0.7.0**. Retires the straight-through practice input and its three exercises. The crank, pointer dial and touch pendulum follow the 0.5.1 throw model.
 
 - **0.6.0**. A straight-through input and three practice exercises. Existing match actions retain their physics and wire format.
