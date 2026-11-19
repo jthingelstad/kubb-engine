@@ -118,16 +118,24 @@ function notation.fileIds(teams)
 		while n < #s and s:sub(n, n) == "_" do n = n + 1 end
 		short[s] = s:sub(1, n)
 	end
-	local used = {}
-	for id in pairs(solo) do used[id] = true end
-	for _, id in ipairs(written) do
-		local w = short[stemOf[id]] .. suffixOf[id]
-		-- a one-player team's full id (or, never by the rule above, another
-		-- prefix) already says it: the full id, unique in the game, instead
-		if used[w] then w = id end
-		used[w] = true
-		prefix[id], header[id] = w, w
-	end
+	local cand = {}
+	for _, id in ipairs(written) do cand[id] = short[stemOf[id]] .. suffixOf[id] end
+	-- A prefix that a one-player team's full id, or another player's prefix,
+	-- already says gives way to the player's full id, which is unique in the
+	-- game. A full id taken up this way can meet another prefix in turn ("d"
+	-- alone against "d_b_b" and "d_b"), so repeat until nothing changes: each
+	-- pass only moves players to their full ids, and those never collide.
+	local changed
+	repeat
+		changed = false
+		local count = {}
+		for id in pairs(solo) do count[id] = (count[id] or 0) + 1 end
+		for _, id in ipairs(written) do count[cand[id]] = (count[cand[id]] or 0) + 1 end
+		for _, id in ipairs(written) do
+			if count[cand[id]] > 1 and cand[id] ~= id then cand[id] = id; changed = true end
+		end
+	until not changed
+	for _, id in ipairs(written) do prefix[id], header[id] = cand[id], cand[id] end
 	return prefix, header
 end
 

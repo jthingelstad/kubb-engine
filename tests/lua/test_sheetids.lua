@@ -75,6 +75,30 @@ test("file ids: a prefix never equals a one-player team's id", function()
 	end
 end)
 
+-- A prefix that falls back to a full id can meet another prefix: every id
+-- written must still be its own.
+test("file ids: a fallback to a full id never repeats another written id", function()
+	expect.eq(ids({ "D" }, { "D B B", "D" }), "d=false/d d_b_b=d_b_b/d_b_b d_b=d_b/d_b")
+	-- every header id unique, whatever the names: a sweep of awkward rosters
+	local pool = { "D", "D B", "D B B", "D", "Dana", "Dana B", "K", "Kim", "Ki", "K I", "A", "A B", "A", "B" }
+	local seed = 12345
+	local function pick() seed = (seed * 1103515245 + 12345) % 2147483648; return pool[seed % #pool + 1] end
+	for _ = 1, 400 do
+		local a, b = {}, {}
+		for i = 1, seed % 3 + 1 do a[i] = pick() end
+		for i = 1, seed % 4 + 1 do b[i] = pick() end
+		local ts = teams(a, b)
+		local _, header = notation.fileIds(ts)
+		local seen = {}
+		for _, side in ipairs { "A", "B" } do
+			for _, p in ipairs(ts[side].players) do
+				expect.truthy(not seen[header[p.id]], "repeated id " .. header[p.id])
+				seen[header[p.id]] = true
+			end
+		end
+	end
+end)
+
 test("turn line: without ids every throw keeps the full id (as before)", function()
 	local s = notation.sheet()
 	s:beginTurn(3, "A")

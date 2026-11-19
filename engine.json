@@ -39,7 +39,7 @@
     "core/match.lua": "29080f692bb3fc6952aebcf9471974d65e29415565448ecc8a2d9f976e79819b",
     "core/matchopts.lua": "be4dbdf3b22cb7ea7aa637643e3540e72857cefd4313c847aae8831cdde0124d",
     "core/names.lua": "faec8d960119704c95bd9a72f6462bc2b62daa30e19ff9cedc657a80e452848d",
-    "core/notation.lua": "e2a828083105d48ab5d050171d74460095ed88b1cf824bae10d24fddc88d14d3",
+    "core/notation.lua": "dc13b45fe7372792d845cdaff3dc1b0ee47c86f7f44c3b04b070131e497cef51",
     "core/order.lua": "9bcaef4c6424aed8fc66f618ee9e04629e0242b61c9d5efcaad89c224532865b",
     "core/outcome.lua": "6d5694f45e49ac26fece9379f7d94ecb4cd5213821ef6bcd2a41d4ff9c6c210c",
     "core/pitch.lua": "d3f9ff7dfdc4ded3ecd5dbf638ab9c88e49396ea14cc127236c120eec73073c4",
@@ -74,6 +74,6 @@
     "version.lua": "5abe66a0a17418d13aef1ea4df87b02cc2a3fce4c74a678e4cf53e33704beafa"
   },
   "bundle": {
-    "sha256": "ef0860df0c3728a299dac8a2399626e600e11da1899b77553cf74c99aa0509b4"
+    "sha256": "4558628c76ff129affc82f8f6b31d31bd0b885e8a6e78f2ef4b8d1b395b65f7d"
   }
 }
