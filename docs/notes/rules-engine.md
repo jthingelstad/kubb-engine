@@ -139,6 +139,22 @@ text; times are `{ year, month, day, hour, min }` tables passed in (no `os.time`
 - Player ids: lowercased name, spaces and hyphens to `_`, everything else but letters
   dropped; a taken id gets `_b`, `_c`, ... Names in headers lose quotes and brackets; player
   names also lose commas and parentheses (kubb.js splits on them).
+- **What the file writes for a player** (engine 0.7.1; Jamie, 2026-11-19: "player names in
+  the turns isn't ever needed unless a team has more than 1 player. And if so, it should use
+  an initial not the full name"). `notation.fileIds` decides it when the file is rendered;
+  the game, its saves, snapshots and the Playdate's history keep the full ids. A throw by a
+  team of one carries no prefix (`2. I - - - -`). A team of more writes the player's
+  initial, the first letter of their id (`4. l:3I l:- d:F s:-`); players whose prefixes are
+  written (both teams together, as kubb.js keys its players by id alone) and share one get
+  the shortest start of their id that tells them apart (Kim and Karl: `ki`, `ka`), never
+  ending on `_`. An id assignIds made unique keeps its suffix after its stem's prefix (two
+  Danas: `d`, `d_b`). The header names each player with the id the turn lines use
+  (`[Team B Players "Sam (s), Lee (l), Dana (d)"]`); a one-player team keeps its full id
+  there (`"Alex (alex)"`), because gamefile counts a team's players by its `(id)` entries
+  and kubb.js reads a name only with one, and no prefix may equal it (a prefix that would
+  falls back to the player's full id). `[Throw Levels]` uses the header's ids. Files from
+  before 0.7.1 prefix every throw with the full id; `gamefile.parse` reads both, and its
+  `throws` give each throw's player (an unprefixed one is its team's only player).
 - Inkast token per player, in order of first toss: `I` = every first throw this turn
   (rescued kubbs included, so I = kubbs knocked last turn + Q), `R` = every rethrow made,
   `P` = punishment kubbs (also in R), `Q` = rescues, `N` = kubbs that came to rest on another
@@ -161,7 +177,7 @@ text; times are `{ year, month, day, hour, min }` tables passed in (no `os.time`
 - **Positions** (2026-11-16, the notation's optional `(@ ...)`; Jamie: "the biggest
   limitation of the scoresheet system I created is it doesn't note pitch position for
   anything"): exact meters `x,y` with two decimals after the token, before any `# note`:
-  `3. max:2I (@ 4.39,4.61 4.34,5.21) max:F (@ 4.39,4.61) alex:B (@ 1.50,8.00)`. The frame
+  `3. m:2I (@ 4.39,4.61 4.34,5.21) m:F (@ 4.39,4.61) a:B (@ 1.50,8.00)`. The frame
   is the pitch seen from Team A's baseline all game: `notation.pitchXY` is the engine's
   x + 2.5 (the left sideline, as someone on Team A's baseline facing Team B sees it, is
   x = -2.5; `test_positions` proves it with the aim camera and the base kubbs) and y as is,

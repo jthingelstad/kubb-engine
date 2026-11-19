@@ -76,7 +76,7 @@ test("times: duration across midnight and month ends; file name", function()
 		"2026-01-02-0304-the-ringers-v-king-pin.txt")
 end)
 
--- A whole game through the engine: II.B.1, II.B.2, II.B.4a, FB, rethrow,
+-- A whole game through the engine (one player a team, so no player prefixes): II.B.1, II.B.2, II.B.4a, FB, rethrow,
 -- II.D.6 (N), rescue (Q), king shots (= and K) and X, with positions (each
 -- checked by hand against the script: engine x + 2.5, y as is; a kubb raised
 -- from lying at angle 0 stands 0.11 m along its axis, turn 4's b1 at -1.11).
@@ -97,14 +97,14 @@ local EXPECTED = [[
 [Mode "Pass and Play"]
 [Rules "U.S. Championship 4.0, 2-4-6"]
 
-1. jamie:B (@ 2.50,8.00) jamie:-
-2. club:I (@ 3.00,2.50) club:- club:- club:- club:-
-3. 2A jamie:B (@ 0.50,8.00) jamie:B (@ 1.50,8.00) jamie:- jamie:Z jamie:- jamie:-
-4. club:2IRN (@ 1.39,2.00 1.67,2.14) club:F (@ 3.00,2.50) club:F (@ 1.39,2.00) club:F (@ 1.67,2.14) club:B (@ 0.50,0.00) club:- club:- # b2 toppled a base kubb early; raised (II.B.4a)
-5. jamie:4I (@ 2.50,6.00 1.50,6.00 3.50,6.00 0.50,5.00) jamie:F (@ 1.50,6.00) jamie:F (@ 3.50,6.00) jamie:- jamie:- jamie:- jamie:-
-6. club:2I (@ 2.50,2.00 3.50,2.00) 3A club:F (@ 2.50,2.00) club:FB (@ 3.50,2.00 1.50,0.00) club:B (@ 2.50,0.00) club:2B (@ 3.50,0.00 4.50,0.00) club:= club:=
-7. jamie:7IQ (@ 2.49,6.20 3.00,7.00 2.00,7.00 4.00,7.00 1.00,7.00 2.50,5.00 3.50,5.00) jamie:- jamie:- jamie:- jamie:- jamie:- jamie:-
-8. 3A club:= club:K X X X X
+1. B (@ 2.50,8.00) -
+2. I (@ 3.00,2.50) - - - -
+3. 2A B (@ 0.50,8.00) B (@ 1.50,8.00) - Z - -
+4. 2IRN (@ 1.39,2.00 1.67,2.14) F (@ 3.00,2.50) F (@ 1.39,2.00) F (@ 1.67,2.14) B (@ 0.50,0.00) - - # b2 toppled a base kubb early; raised (II.B.4a)
+5. 4I (@ 2.50,6.00 1.50,6.00 3.50,6.00 0.50,5.00) F (@ 1.50,6.00) F (@ 3.50,6.00) - - - -
+6. 2I (@ 2.50,2.00 3.50,2.00) 3A F (@ 2.50,2.00) FB (@ 3.50,2.00 1.50,0.00) B (@ 2.50,0.00) 2B (@ 3.50,0.00 4.50,0.00) = =
+7. 7IQ (@ 2.49,6.20 3.00,7.00 2.00,7.00 4.00,7.00 1.00,7.00 2.50,5.00 3.50,5.00) - - - - - -
+8. 3A = K X X X X
 ]]
 
 test("a full scripted game renders exactly", function()
@@ -149,5 +149,5 @@ test("six from the start is named in the Rules header", function()
 	local text = notation.render(g, {})
 	expect.truthy(text:find('[Rules "U.S. Championship 4.0, six from the start"]', 1, true))
 	expect.truthy(text:find('[Win "Team B"]', 1, true))
-	expect.truthy(text:find("\n1. team_a:G X X X X X X\n", 1, true))
+	expect.truthy(text:find("\n1. G X X X X X X\n", 1, true), "a one-player team's resignation carries no prefix")
 end)
