@@ -120,7 +120,11 @@ Every client shows its own version with the engine's beside it, in one form:
     (`{ min, max, value, default, tick, step, unit, scope }`) and call `setArc`,
     `setTilt` or `setSpin` with any value. The step calls are unchanged.
   - Web and iPhone: offer Computer (from `MATCH_OPTIONS`) and a scene, and pass
-    `computer` and `scene` to `setOptions` and to a solo `newMatch`. Club and day,
+    `computer` and `scene` to `setOptions` (the same call as the other options) and to
+    a solo `newMatch`. In a room they are kept in the document's top-level `settings`,
+    not in `options`, so a 0.8 client's lobby write keeps them: read every option, with
+    defaults filled in, from the new room call `optionsOf { doc }`, not from
+    `doc.options` (docs/ROOM.md difference 9). Club and day,
     the defaults, are not written, so a start without them is unchanged. A scene is an
     id of lowercase letters, digits and hyphens, up to 24 characters
     (`room/lobby.isScene`). Draw `view.scene`, and draw an unknown one as day.

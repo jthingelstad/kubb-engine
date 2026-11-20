@@ -13,6 +13,8 @@
 --   * replayOf carries match.engine when the match has one;
 --   * cleanName never leaves half a character: where the JavaScript's 16-unit cut
 --     splits a character beyond U+FFFF, the whole character goes.
+--   * the engine's own options (computer, scene) live in a top-level `settings`, which an
+--     older engine's lobbyOf keeps; setOptions sets them and optionsOf reads all options.
 import "core/tw"
 import "version"
 import "session/json"
@@ -41,9 +43,14 @@ lobby.OPTION_DEFAULTS = { surface = "grass", opening = "2-4-6", raising = "hand"
 	computer = "club", scene = "day" }
 
 -- The engine's own options (docs/ROOM.md "Differences"), which the JavaScript does not
--- know: each is in the document's options only when a host set it to a value it takes,
--- so a document without them (every one an older client wrote) reads, cleans and writes
--- exactly as before, and an absent one is its default. Each key's test of a value:
+-- know. They live in the document's top-level `settings` ({ computer?, scene? }), not
+-- in `options`: an older engine's lobbyOf rebuilds `options` from the five keys it
+-- knows but keeps a top-level key it does not know, so a 0.8 client's joinTeam or
+-- setAccess leaves them as the host set them (docs/VERSIONING.md: the document grows by
+-- new top-level keys only). Each is there only when a host set it to a value it takes,
+-- and `settings` only when one is, so a document without them (every one an older
+-- client wrote) reads, cleans and writes exactly as before; an absent one is its
+-- default. Each key's test of a value:
 local OWN_KEYS = { "computer", "scene" }
 
 -- A scene (Jamie, 2026-11-20: scenes and effects are new settings, a look only): the
@@ -155,11 +162,17 @@ function lobby.cleanOptions(o)
 		local v = get(o, k)
 		out[k] = includes(OPTION_VALUES[k], v) and v or lobby.OPTION_DEFAULTS[k]
 	end
-	for _, k in ipairs(OWN_KEYS) do
-		local v = get(o, k)
-		if v ~= nil and OWN_OK[k](v) then out[k] = v end
-	end
 	return out
+end
+
+-- The engine's own settings kept: an object of the valid ones, or nil when there are none.
+local function cleanSettings(st)
+	local out, any = object {}, false
+	for _, k in ipairs(OWN_KEYS) do
+		local v = get(st, k)
+		if v ~= nil and OWN_OK[k](v) then out[k], any = v, true end
+	end
+	return any and out or nil
 end
 
 function lobby.optionLabel(key, value)
@@ -212,7 +225,8 @@ end
 
 -- ---------- the document ----------
 
-local KNOWN = { v = true, teams = true, options = true, open = true, started = true, n = true, match = true }
+local KNOWN = { v = true, teams = true, options = true, open = true, started = true, n = true, match = true,
+	settings = true }
 
 -- The document as it stands, or a fresh lobby (a room's document is null until someone
 -- writes it; an expired room comes back empty too). Unlike the JavaScript, top-level keys
@@ -238,6 +252,7 @@ function lobby.lobbyOf(doc)
 	l.v = lobby.DOC_VERSION
 	l.teams = teams
 	l.options = lobby.cleanOptions(get(d, "options"))
+	l.settings = cleanSettings(get(d, "settings"))
 	l.open = get(d, "open") == true
 	l.started = truthy(get(d, "started"))
 	local n = get(d, "n")
@@ -287,14 +302,32 @@ function lobby.setOptions(doc, options)
 		if truthy(options) and includes(OPTION_VALUES[k], v) then next[k] = v else next[k] = l.options[k] end
 		if next[k] ~= l.options[k] then changed = true end
 	end
+	-- the engine's own go to `settings`, in the same call
+	local had = l.settings or {}
+	local st = object {}
 	for _, k in ipairs(OWN_KEYS) do
 		local v = get(options, k)
-		if truthy(options) and v ~= nil and OWN_OK[k](v) then next[k] = v else next[k] = l.options[k] end
-		if next[k] ~= l.options[k] then changed = true end
+		if truthy(options) and v ~= nil and OWN_OK[k](v) then st[k] = v else st[k] = had[k] end
+		if st[k] ~= had[k] then changed = true end
 	end
 	if truthy(doc) and not changed then return nil end
 	l.options = next
+	l.settings = cleanSettings(st)
 	return l
+end
+
+-- Every match option the room holds, defaults filled in: `options`' five and the
+-- engine's own from `settings` (computer "club", scene "day" when absent). The one place
+-- a client reads them all.
+function lobby.optionsOf(doc)
+	local l = lobby.lobbyOf(doc)
+	local out = object {}
+	for k, v in pairs(l.options) do out[k] = v end
+	local st = l.settings or {}
+	for _, k in ipairs(OWN_KEYS) do
+		if st[k] ~= nil then out[k] = st[k] else out[k] = lobby.OPTION_DEFAULTS[k] end
+	end
+	return out
 end
 
 -- The host's choice: open (anyone may join from the home page's list) or invite only.
@@ -392,7 +425,7 @@ function lobby.matchOptions(doc, lu, seed, start)
 	}
 	for _, k in ipairs(OPTION_KEYS) do o[k] = l.options[k] end
 	-- the engine's own: only when set, so a room without them starts the match it always did
-	for _, k in ipairs(OWN_KEYS) do o[k] = l.options[k] end
+	for _, k in ipairs(OWN_KEYS) do o[k] = l.settings and l.settings[k] or nil end
 	return o
 end
 

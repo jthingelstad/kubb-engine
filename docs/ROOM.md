@@ -66,6 +66,7 @@ lobby.
   v: 1,
   teams:   { A: [memberId, ...], B: [...] },   in throwing order, 0 to 6 each
   options: { surface, opening, raising, wind, set },
+  settings: { computer?, scene? },   since 0.9, only when the host set one (difference 9)
   open:    false | true,     true lists the pitch under OPEN GAMES on the home page
   started: false | true,
   n:       0,                matches started on this pitch
@@ -95,8 +96,9 @@ lobby.
   from an older client has none, and no replay). `over` is absent until the match ends.
   Absent, `null` and empty are different here and each survives every call.
 - `options` keys and values: `MATCH_OPTIONS` below. Unknown ones are dropped; missing
-  ones take `OPTION_DEFAULTS`, except the engine's own options (difference 9), which
-  stay absent until the host sets them.
+  ones take `OPTION_DEFAULTS`. The engine's own options (`computer`, `scene`) are not in
+  `options` but in `settings` (difference 9). Read every option, defaults filled in,
+  with `optionsOf`.
 - A document with a log stays under `LOG_BUDGET` (248 KB, counting every character
   above U+007E as 6, as the room does): the commit that would pass it drops the log.
   A replay that commits a whole match in one pass (`replayLoad` with `document`) keeps
@@ -132,13 +134,14 @@ Each is `room.<name>`; the fields are the argument object's. "nothing" is `value
 | `lobbyOf`      | `doc`                                                          | The document as it stands, cleaned (teams to strings, options to known values, `n` to an integer, `match` to an object or null), or a fresh lobby. Unknown top-level keys are kept.                                             |
 | `sideOf`       | `doc, id`                                                      | `"A"`, `"B"` or null (watching).                                                                                                                                                                                                |
 | `joinTeam`     | `doc, id, side`                                                | Put `id` on `side` (`"A"`, `"B"`), or take them off both (`side: null`: sit out). Nothing while a match runs, for another side, when already there, or when the side holds six.                                                 |
-| `setOptions`   | `doc, options`                                                 | The host's options merged in (unknown values ignored). Nothing while a match runs or when nothing changes.                                                                                                                      |
+| `setOptions`   | `doc, options`                                                 | The host's options merged in (unknown values ignored); `computer` and `scene` go to `settings`. Nothing while a match runs or when nothing changes.                                                                             |
 | `setAccess`    | `doc, open`                                                    | Open (listed) or invite only. Nothing when unchanged.                                                                                                                                                                           |
 | `openListing`  | `doc, members, over`                                           | What the host tells the room server about an open pitch: `{ players, seats, state: "waiting" \| "playing" \| "over" }`, or null while invite only.                                                                              |
 | `pruneTeams`   | `doc, present`                                                 | Forget members no longer in the room (`present`: their ids). Between matches only; nothing when nobody went.                                                                                                                    |
 | `lineup`       | `doc, members`                                                 | Who plays: the teams with each member's cleaned name (`Player n` when none) and level, the computer on an empty side. Null when nobody is on a team.                                                                            |
 | `cleanName`    | `name`                                                         | Whitespace collapsed, trimmed, at most 16 UTF-16 units. `""` for a non-string.                                                                                                                                                  |
 | `cleanOptions` | `options`                                                      | Known keys with known values; the rest the defaults.                                                                                                                                                                            |
+| `optionsOf`    | `doc`                                                          | Every match option the room holds, defaults filled in: `options`' five and `computer` and `scene` from `settings`. The one place a client reads them all. Since 0.9.                                                             |
 | `optionLabel`  | `key, value`                                                   | The label shown for an option's value, or the value as text.                                                                                                                                                                    |
 | `matchOptions` | `doc, lineup, seed, start`                                     | The engine's `newMatch` options for the lineup: each player's `key` is their member id, `cpu: []` when both sides are human. The host passes its own `seed` and `start` (`{ year, month, day, hour, min }`).                    |
 | `startCheck`   | `players, members, host, lenient`                              | May START go ahead? `{ ok, engine, differ: [ids], unknown: [ids] }` (below).                                                                                                                                                    |
@@ -288,8 +291,9 @@ Every one is deliberate and tested (`tests/lua/room/test_room.lua`, "the engine'
 
 1. **`lobbyOf` keeps unknown top-level keys.** The JavaScript rebuilds the document from
    the keys it knows and drops the rest; here any other top-level key goes through every
-   reducer as it was, so a newer client's fields survive an older client's write. Until
-   the web adopts these calls, its own writes still drop them.
+   reducer as it was, so a newer client's fields survive an older client's write. The
+   web's lobby writes go through these calls (on the room's engine), so they keep them
+   too.
 2. **`startMatch` writes `match.engine`** and refuses on an engine mismatch
    (`members`, `lenient`; above). The JavaScript takes neither argument.
 3. **`replayOf` carries `engine`** when the match has one, so a replay knows which
@@ -303,21 +307,27 @@ Every one is deliberate and tested (`tests/lua/room/test_room.lua`, "the engine'
    JavaScript leaves a lone surrogate.
 7. **`ctx.connected` is a list**, not a `Set`.
 8. **Results are wrapped** in `{"value": ...}`, and `undefined` comes back as `null`.
-9. **The engine's own options** (since 0.9): `computer`, the computer's level
-   (`beginner`, `club` or `pro`; Jamie, 2026-11-20: "yes this should be a real per game
-   setting"). It is in `MATCH_OPTIONS` (label "Computer") and `OPTION_DEFAULTS`
-   (`club`), but `cleanOptions` keeps it only when given and valid and never fills it
-   in, `setOptions` keeps the room's value when an update leaves it out, and
-   `matchOptions` passes it on only when the room has it. So a room that never set it
-   has the document, START and match it always had (the computer at club), and an
-   older engine's room calls drop it. A person's own level stays theirs (`me.level`);
-   the option is the computer's only.
-   `scene` (since 0.9), the look the match is drawn in, is the second: in
-   `OPTION_DEFAULTS` (`day`) but not in `MATCH_OPTIONS`, since the engine does not list
-   the scenes. Any id of lowercase letters, digits and hyphens, 1 to 24 characters, is
-   taken (`isScene`), so a client adds a scene without an engine release and labels it
-   itself. `set` stays a fixed list, as the JavaScript has it (vector 017 refuses
-   `"mars"`).
+9. **The engine's own options** (since 0.9) live in a top-level `settings` object, not
+   in `options`: `{ computer?, scene? }`, each present only when a host set a valid
+   value, and `settings` only when one is. An older engine's `lobbyOf` (0.8.2 and before)
+   rebuilds `options` from the five keys it knows but keeps a top-level key it does not
+   know, so a 0.8 client's `joinTeam` or `setAccess` in a shared lobby leaves them as the
+   host set them (`tests/lua/room/test_settings.lua` proves it with 0.8.2's own
+   reducers). Inside `options` they would be dropped. A document without `settings`
+   reads and writes exactly as before.
+   - `computer`, the computer's level (`beginner`, `club` or `pro`; Jamie, 2026-11-20:
+     "yes this should be a real per game setting"). It is in `MATCH_OPTIONS` (label
+     "Computer") and `OPTION_DEFAULTS` (`club`). A person's own level stays theirs
+     (`me.level`); the option is the computer's only.
+   - `scene`, the look the match is drawn in: in `OPTION_DEFAULTS` (`day`) but not in
+     `MATCH_OPTIONS`, since the engine does not list the scenes. Any id of lowercase
+     letters, digits and hyphens, 1 to 24 characters, is taken (`isScene`), so a client
+     adds a scene without an engine release and labels it itself. `set` stays a fixed
+     list, as the JavaScript has it (vector 017 refuses `"mars"`).
+   - The host sets them with `setOptions`, in the same `options` object as the rest.
+     `optionsOf` reads all seven with defaults filled in. `matchOptions` passes each on
+     only when the room has it, so a room that never set one starts the match it always
+     did. `cleanOptions` is the JavaScript's: it knows only the five.
 
 Beyond these the calls decide exactly as the JavaScript does on the same JSON, odd input
 included: `===` (so `"3"` is not `3`), JavaScript truthiness (`0`, `""` and `null` are
