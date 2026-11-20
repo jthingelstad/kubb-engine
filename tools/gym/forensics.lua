@@ -33,6 +33,9 @@
 --   propped         kubbs that moved this throw and rest standing tilted past proppedDeg:
 --                   { { id, tilt } }
 --   restX, restY    the projectile's rest (a drill: where the kubb ended), view frame
+--   polled          an engine with no onContact (before 0.4.1): touches were found by
+--                   the narrow phase between steps, the landing only when the ground was
+--                   the first contact; kubb on kubb is not seen
 import "core/world"
 import "core/body"
 import "core/collide"
@@ -151,7 +154,10 @@ function forensics.run(w, ctx, pieces)
 	local eMin, contactSeen = nil, false
 	local pending, nPending = {}, 0
 	local landPending = false
+	-- engines before 0.4.1 have no onContact: their throws are read by polling (below)
+	local hooked, polling = false, false
 	w.onContact = function(time, a, other, imp)
+		hooked = true
 		if other == nil then
 			if a == proj and not groundT then
 				groundT = time
@@ -200,6 +206,31 @@ function forensics.run(w, ctx, pieces)
 			tr.where, tr.h = contactOn(proj, tr.b)
 		end
 		nPending = 0
+		if not hooked and not polling and w.firstContact then polling = true; rec.polled = true end
+		if polling then
+			local fc = w.firstContact
+			if not groundT and fc.with == "ground" then
+				groundT = fc.t
+				rec.landSpeed = sqrt(pvx * pvx + pvy * pvy + pvz * pvz)
+				landX, landY = fc.x, fc.y
+			end
+			contactSeen = true
+			for k = 1, nTracked do
+				local tr = tracked[k]
+				if not tr.projT then
+					local where, h = contactOn(proj, tr.b)
+					if where then
+						tr.projT = w.time
+						tr.projSpeed = sqrt(pvx * pvx + pvy * pvy + pvz * pvz)
+						tr.where, tr.h = where, h
+						rec.touched = rec.touched + 1
+						local vh = sqrt(pvx * pvx + pvy * pvy)
+						tr.lean, tr.descent, tr.afterGround = deg(acos(min(1, abs(pr33)))), deg(atan(-pvz, vh)), groundT ~= nil
+						if not firstPieceT then firstPieceT, firstTr, keptBase = w.time, tr, tr.projSpeed end
+					end
+				end
+			end
+		end
 		if landPending then
 			-- the contact point when the ground was its first contact, else its centre
 			landPending = false
