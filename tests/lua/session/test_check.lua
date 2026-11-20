@@ -2,7 +2,8 @@
 -- "What a server can prove"): the computer's throws made again from the snapshot, a
 -- person's throws held to what the dial can give, a side renamed in a start, the finished
 -- room document of a replay, and the 0.7.2 additions to what a replay and a recording say
--- (rulings as codes, standing counts, the wide view's landing, the Location line).
+-- (rulings as codes, standing counts, the wide view's landing, the Location line), and
+-- 0.7.4's: the Location line in every file a session writes, and short resign words.
 import "session/session"
 import "session/json"
 import "session/check"
@@ -695,7 +696,104 @@ test("setClient's location is the game file's Location line; by default it is Pl
 	expect.truthy(s:sheet().text:find('[Location "Web"]', 1, true), "the client's place")
 	local h = s:hash()
 	expect.truthy(json.decode(kubbCall("setClient", json.encode { label = "web 9.9.9", location = "a\nb" })).error)
-	expect.eq(call("setClient", { label = old }).location, nil, "absent: the default again")
+	expect.eq(call("setClient", { label = old }).location, "Playdate", "absent: the default again, and said")
 	expect.truthy(s:sheet().text:find('[Location "Playdate"]', 1, true))
 	expect.eq(s:hash(), h, "not in the hash")
+end)
+
+-- ---------- 0.7.4: the Location line everywhere, and the short words of an end ----------
+
+local function locationOf(text) return text:match('%[Location "([^"]*)"%]') end
+
+test("setClient says what it set: { client, location }, Playdate when none is given", function()
+	local old = session.client
+	local r = call("setClient", { label = "web 9.9.9", location = "throwingwood.com" })
+	expect.eq(r.client, "web 9.9.9")
+	expect.eq(r.location, "throwingwood.com")
+	r = call("setClient", { label = "web 9.9.9" })
+	expect.eq(r.location, "Playdate")
+	expect.eq(session.location, nil, "nothing set: the core's own line")
+	for _, bad in ipairs { "", " throwingwood.com", "throwingwood.com ", "a\"b", "a]b", "a/b", "a:b",
+		string.rep("x", 41), "é" } do
+		expect.truthy(json.decode(kubbCall("setClient", json.encode { label = "web 9.9.9", location = bad })).error,
+			"refused: " .. bad)
+	end
+	expect.truthy(json.decode(kubbCall("setClient", json.encode { label = "web 9.9.9", location = 7 })).error)
+	call("setClient", { label = old })
+end)
+
+test("the Location line reaches the live sheet, the over card's file and a replay's, and no hash", function()
+	local old = session.client
+	local m = match(3)
+	local final = m.final
+	-- not set: Playdate, as before
+	call("setClient", { label = old })
+	expect.eq(locationOf(final:sheet().text), "Playdate")
+	expect.eq(locationOf(final:need().file.text), "Playdate", "the over card's file, written at the end")
+	call("replayLoad", { start = m.start, log = noH(m.log) })
+	call("replayFinish")
+	expect.eq(locationOf(call("need").file.text), "Playdate", "a replay's over file")
+	expect.eq(locationOf(call("sheet").text), "Playdate", "a replay's sheet")
+	local plainFile = call("need").file.text
+	call("replayEnd")
+	-- set: every file written from then on carries it
+	call("setClient", { label = old, location = "throwingwood.com" })
+	local live = session.new { mode = "match", seed = 3, cpu = "both", start = START, maxTurns = 1 }
+	expect.eq(locationOf(live:sheet().text), "throwingwood.com", "a live sheet")
+	local info = call("replayLoad", { start = m.start, log = m.log }).replay
+	expect.eq(info.differs, false)
+	info = call("replayFinish")
+	expect.eq(info.replay and info.replay.differs or info.differs, false, "every hash as recorded")
+	expect.eq(call("hash").hash, m.log[#m.log].h, "the last hash is the recorded one")
+	local file = call("need").file.text
+	expect.eq(locationOf(file), "throwingwood.com", "a replay's over file")
+	expect.eq(locationOf(call("sheet").text), "throwingwood.com", "a replay's sheet")
+	expect.eq((file:gsub('%[Location "[^"]*"%]', "")), (plainFile:gsub('%[Location "[^"]*"%]', "")),
+		"only the Location line differs")
+	call("replayEnd")
+	-- a server's document of the same replay does not depend on it
+	local function doc()
+		local r = replay.new { start = m.start, log = noH(m.log), document = true }
+		r:finish()
+		return json.encode((r:document()))
+	end
+	local withLoc = doc()
+	call("setClient", { label = old })
+	expect.eq(doc(), withLoc, "the room document is the same with or without a location")
+	expect.truthy(not withLoc:find("throwingwood.com", 1, true) and not withLoc:find("Playdate", 1, true),
+		"no Location in the document")
+end)
+
+test("short: a resignation is RESIGNED whatever the team is called; nothing is cut inside a word", function()
+	expect.eq(session.short("Riverside resigned: Oak wins"), "RESIGNED")
+	expect.eq(session.short("rescue squad resigned: missed wins"), "RESIGNED")
+	expect.eq(session.short("king down resigned: Oak wins"), "RESIGNED")
+	expect.eq(session.short("resigned: Oak wins"), "RESIGNED")
+	expect.eq(session.short("king down: Riverside wins"), "KING DOWN")
+	expect.eq(session.short("king down early: Riverside wins"), "KING TOO EARLY: GAME OVER")
+	expect.eq(session.short("missed the king"), "KING STANDS")
+	expect.eq(session.short("2 field kubbs and base kubb down; pushed out: put back"), "3 DOWN")
+	expect.eq(session.short("2 rescues"), "2 RESCUE")
+	-- the fallback (no rule matches anything the core writes today)
+	expect.eq(session.short("something new here"), "SOMETHING")
+	expect.eq(session.short("short one"), "SHORT ONE")
+	expect.eq(session.short("abcdefghijklmnop"), "ABCDEFGHIJKLMNOP", "one long word stays whole")
+	expect.eq(session.short("twelve chars and more"), "TWELVE CHARS")
+	-- a real resignation, through a match's end (the turn limit resigns)
+	local m = match(3)
+	local n = m.final:need()
+	expect.eq(n.kind, "over")
+	if m.final.m.game.how == "resigned" then
+		expect.truthy(n.text:find(" resigned: "), n.text)
+		expect.eq(n.short, "RESIGNED")
+		expect.eq(n.last.short, "RESIGNED")
+	end
+	local s = session.new { mode = "match", cpu = "both", seed = 3, start = START,
+		teams = { A = { name = "Riverside", players = { "Riv" } }, B = { name = "Oak", players = { "Oak" } } } }
+	expect.truthy(s:apply { type = "resign", side = s:need().side }.ok ~= false)
+	n = s:need()
+	expect.eq(n.kind, "over")
+	expect.truthy(n.text:find("^%a+ resigned: %a+ wins$"), n.text)
+	expect.eq(n.short, "RESIGNED")
+	expect.eq(n.last.short, "RESIGNED")
 end)

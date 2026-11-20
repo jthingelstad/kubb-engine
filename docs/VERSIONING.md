@@ -44,6 +44,16 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.7.4** (patch). The short words of a resignation (`need.short`, `last.short`) are `"RESIGNED"`: the ruling begins with the team's name
+  (`"Riverside resigned: Oak wins"`), so no rule matched and the words were cut to 12
+  characters (`"RIVERSIDE RE"`). Words no rule knows are now cut at a word.
+  `setClient` returns `{ client, location }` with `location` always the game file's
+  Location line (`"Playdate"` when none is given); the web and the iPhone app pass
+  `location = "throwingwood.com"`. The location reaches the live sheet, the over card's
+  file and a replay's, and is in no snapshot, document or hash. Output only: no throw,
+  action, snapshot, document or file format changes, and all 437 reference action
+  hashes match 0.7.3.
+
 - **0.7.3** (patch). A server checking a shared match in one pass (`replayLoad` with
   `document`) no longer measures the whole room document on every action. The log
   budget's measure, the document's size counted as the room counts it, is now worked out

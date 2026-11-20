@@ -71,9 +71,17 @@ test("the host's start-up calls: version, tune, client label", async () => {
   assert.throws(() => bare.call('useTune', { name: 'missing' }), /no module tune\/missing/);
   assert.deepEqual(bare.call('useTune', { name: 'pointer' }), { tune: 'pointer' });
   assert.throws(() => bare.call('useTune', { name: 'crank' }), /already pointer/);
-  assert.deepEqual(bare.call('setClient', { label: 'web 0.4.2' }), { client: 'web 0.4.2' });
+  // since 0.7.4 setClient says the Location line too: Playdate's when none is given
+  assert.deepEqual(bare.call('setClient', { label: 'web 0.4.2' }), { client: 'web 0.4.2', location: 'Playdate' });
   bare.newMatch({ seed: 3, cpu: 'both', start: START, maxTurns: 1 });
   assert.match(bare.call('sheet').text, /\[Scored by "Throwing Wood web 0\.4\.2"\]/);
+  assert.match(bare.call('sheet').text, /\[Location "Playdate"\]/);
+  const placed = bare.hash().hash;
+  assert.deepEqual(bare.call('setClient', { label: 'web 0.4.2', location: 'throwingwood.com' }),
+    { client: 'web 0.4.2', location: 'throwingwood.com' });
+  assert.match(bare.call('sheet').text, /\[Location "throwingwood\.com"\]/);
+  assert.equal(bare.hash().hash, placed, 'the location is not in the hash');
+  bare.call('setClient', { label: 'web 0.4.2' });
   const plain = await Engine.create();
   plain.newMatch({ seed: 3, cpu: 'both', start: START, maxTurns: 1 });
   assert.match(plain.call('sheet').text, new RegExp(`\\[Scored by "Throwing Wood kubb-engine ${engineJson.version.replaceAll('.', '\\.')}"\\]`));
