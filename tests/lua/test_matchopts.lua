@@ -41,18 +41,19 @@ test("matchopts: the options reach the engine, and a save keeps the raising", fu
 	expect.eq(back.game.surface, "Sand"); expect.eq(back.game.opening, "six")
 end)
 
-test("matchopts: the kubb set row, and a save keeps the set", function()
+test("matchopts: no kubb set row (a web and iPhone look); an older choice or save with one still loads", function()
+	for _, row in ipairs(matchopts.list) do
+		expect.truthy(row.key ~= "set" and row.key ~= "scene", "no " .. row.key .. " row on the Playdate")
+	end
 	local c = matchopts.defaults()
-	expect.eq(matchopts.value(c, "set"), "classic")
-	matchopts.step(c, "set", 1); expect.eq(matchopts.value(c, "set"), "usa")
-	matchopts.step(c, "set", -2); expect.eq(matchopts.value(c, "set"), "wisconsin")
-	expect.eq(matchopts.shown(c, "set"), "WISCONSIN")
-	local o = matchopts.apply({}, c)
-	expect.eq(o.set, "wisconsin")
-	expect.eq(matchopts.valid({ set = 9 }).set, 1)
+	expect.eq(c.set, nil)
+	expect.eq(matchopts.apply({}, c).set, nil, "apply sets no kubb set")
+	expect.eq(matchopts.apply({ set = "usa" }, c).set, "usa", "nor clears one the caller had")
+	local kept = matchopts.valid({ surface = 2, set = 3, wind = 2 })
+	expect.eq(kept.surface, 2); expect.eq(kept.wind, 2); expect.eq(kept.set, nil)
 	local m = match.new { start = { year = 2026, month = 11, day = 14, hour = 9, min = 0 } }
 	local _, opts = save.unpack(save.pack(m, { set = "sweden" }))
-	expect.eq(opts.set, "sweden")
+	expect.eq(opts.set, "sweden", "a save that carries a set gives it back")
 end)
 
 test("matchopts: the wind row, and a save keeps the wind", function()

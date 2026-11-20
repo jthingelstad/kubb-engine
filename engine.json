@@ -37,7 +37,7 @@
     "core/howtoplay.lua": "55bdc5519a010fe79ac94d9ce41f4a998f69bb2741154bd253f20a2a17d39feb",
     "core/lineup.lua": "c7c96c0c228d0e584a05dfa72508f998d8492a83af3770ca5db4cab178d11a48",
     "core/match.lua": "1e1cc359f27f826c15958118fce6c810cfb908533362adc9570cb9612b3aac16",
-    "core/matchopts.lua": "ac348d14a3dbb646746b354d4450df0c0295d9b3f274080d7b14ee6180c7b5e9",
+    "core/matchopts.lua": "8c24a85bfdeba0f6ed727adb57ea07e9fba50312741053f11fc257b8211dc619",
     "core/names.lua": "faec8d960119704c95bd9a72f6462bc2b62daa30e19ff9cedc657a80e452848d",
     "core/notation.lua": "dc13b45fe7372792d845cdaff3dc1b0ee47c86f7f44c3b04b070131e497cef51",
     "core/order.lua": "9bcaef4c6424aed8fc66f618ee9e04629e0242b61c9d5efcaad89c224532865b",
@@ -49,7 +49,7 @@
     "core/rect.lua": "9a89203a29c6c8bc6fbea6cc6b393399622c9eaf9072a4ff47f05faa650c4619",
     "core/roster.lua": "ea99aba74cfc6456d3b6875bfdd64d8b50e3a23ec515835306d5ab95e97072cd",
     "core/rules.lua": "fbb5b9c54e656c6769f5b637773e9f6657d8e7f36743b8e4f688f1a1d3ac9984",
-    "core/save.lua": "3a4b81f16cd5759914cdff5897e6bb5c4c74c8bd4f57ab18dfd02970b6beccd4",
+    "core/save.lua": "0183f03c8c94877237cd8e1a6a586818693fc948efe13c1ff4ccc7f927057070",
     "core/swing.lua": "c55fd9282c913a1f12cfb463e887e64372846ac32ff5d704b54b4a65510c5b4a",
     "core/throwplan.lua": "c402cda588ccb05bbf76cd9788764f3a794d1a2fc8f6dd4ba1a29e8dae7b45fa",
     "core/trace.lua": "677a86eeea08ff9cfae63f57a0852f7e3a140428de278db0da6c1cf63ddc1896",
@@ -76,6 +76,6 @@
     "version.lua": "078565292b5fc1da3465fcd2912a3bddd3e6ab75249cccc0cc081596e5a8adff"
   },
   "bundle": {
-    "sha256": "1cdbd23561cd5eb005ece82cd2445e9a4013726fe28020085aab16cbfd70c97f"
+    "sha256": "49b1f756a75f3fd4c7c66a1f33472a9db06c21f79c781941c76ae5fb3490ce3e"
   }
 }
