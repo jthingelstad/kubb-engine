@@ -137,6 +137,8 @@ for (const k of KINDS) {
   FKEYS.push([`f.${k}.hit`, `${KLABEL[k]}: target toppled`, 'p']);
   FKEYS.push([`f.${k}.ground1`, `${KLABEL[k]}: met the ground first`, 'p']);
 }
+FKEYS.push(['f.good', 'meter all good (power, release, steady), of batons', 'p']);
+FKEYS.push(['f.goodMiss', 'meter all good, the kubb stood (field and base)', 'p']);
 FKEYS.push(['Batons that missed their target: how (field and base kubbs)']);
 for (const w of ['short', 'over', 'wide', 'touched']) FKEYS.push([`f.miss.${w}`, {
   short: 'landed short', over: 'landed past it', wide: 'wide of it', touched: 'touched it, it stood' }[w], 'p']);
@@ -230,6 +232,9 @@ export function addThrow(o, t) {
     const k = t.k;
     hit(o[`f.${k}.hit`], !!f.targetDown);
     hit(o[`f.${k}.ground1`], !!f.ground1);
+    const good = !!(t.v && t.v[0] === 0 && t.v[1] === 0 && t.v[2]);
+    if (t.v) hit(o['f.good'], good);
+    if (t.v && good && k !== 'king') hit(o['f.goodMiss'], !f.targetDown);
     if (k !== 'king' && !f.targetDown) {
       const mk = missKind(f);
       for (const w of ['short', 'over', 'wide', 'touched']) hit(o[`f.miss.${w}`], mk === w);
@@ -302,7 +307,9 @@ export function page(columns, names, opts = {}) {
     if (cells.every(x => x === '' || x === '-')) continue;
     out.push([label, ...cells]);
   }
-  return render(out, names);
+  // a heading with no rows under it goes
+  const kept = out.filter((r, i) => r.length > 1 || (out[i + 1] && out[i + 1].length > 1));
+  return render(kept, names);
 }
 
 export function render(rows, names) {

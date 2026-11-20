@@ -16,16 +16,15 @@
 // checkout's); without it the reference column is left out. --records is a folder of
 // recorded online matches (private: never in this repository); with it the page adds
 // the recorded-throw bank. A measuring tool: it changes nothing in the engine.
-import { spawn, execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync, mkdtempSync } from 'node:fs';
 import { availableParallelism, tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as score from './gym/score.mjs';
+import { runPool, git, extractEngine } from './gym/pool.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
-const LUA = process.env.LUA || 'lua5.4';
 
 // ---------- options ----------
 
@@ -72,9 +71,6 @@ function parse(argv) {
 
 // ---------- the engine this runs ----------
 
-function git(args, cwd = root) {
-  try { return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { return null; }
-}
 function engineInfo(dir) {
   const v = readFileSync(join(dir, 'version.lua'), 'utf8').match(/VERSION <const> = "([^"]+)"/);
   const out = { version: v ? v[1] : null };
@@ -87,30 +83,6 @@ function engineInfo(dir) {
 }
 
 // ---------- running workers ----------
-
-function runPool(tasks, jobs, onDone) {
-  return new Promise((ok, fail) => {
-    let next = 0, running = 0, done = 0;
-    const start = () => {
-      while (running < jobs && next < tasks.length) {
-        const t = tasks[next++];
-        running++;
-        const p = spawn(LUA, t.args, { cwd: root, stdio: ['ignore', 'pipe', 'pipe'] });
-        let err = '';
-        p.stderr.on('data', d => { err += d; });
-        p.stdout.on('data', () => {});
-        p.on('close', code => {
-          running--;
-          if (code !== 0) { fail(new Error(`gym: worker failed (${t.args.join(' ')}):\n${err}`)); return; }
-          done++;
-          if (onDone) onDone(done, tasks.length);
-          if (done === tasks.length) ok(); else start();
-        });
-      }
-    };
-    if (!tasks.length) ok(); else start();
-  });
-}
 
 function configsOf(o, hasModel) {
   const out = [];
@@ -274,8 +246,7 @@ async function cardFor(spec, o) {
   if (!sha) throw new Error(`gym compare: ${spec} is neither a scorecard file nor a git ref`);
   const tmp = mkdtempSync(join(tmpdir(), 'kubb-gym-'));
   try {
-    const tar = execFileSync('git', ['archive', sha, 'core', 'session', 'tune', 'room', 'version.lua'], { cwd: root, maxBuffer: 1 << 28 });
-    execFileSync('tar', ['-x', '-C', tmp], { input: tar });
+    extractEngine(sha, tmp);
     const card = await scorecard({ ...o, engine: tmp, out: join(root, 'build', 'gym', `ref-${sha.slice(0, 10)}-${process.pid}`) });
     card.engine = { version: engineInfo(tmp).version, commit: sha, ref: spec };
     return card;
@@ -298,7 +269,7 @@ async function main(argv) {
     let text = printCard(card, real);
     if (card.bank) {
       const { printBank } = await import('./gym/bank.mjs');
-      text += '\n\n' + printBank(card.bank);
+      text += '\n\n' + printBank(card.bank, card);
     }
     console.log(text);
     if (o.json) writeFileSync(o.json, JSON.stringify({ ...card, real }, null, 0));
@@ -345,7 +316,7 @@ async function main(argv) {
     const r = await fit(o.pos[0], { jobs: o.jobs });
     console.log(printFit(r));
     if (o.write) {
-      writeFileSync(o.model, JSON.stringify(r.model, null, 1) + '\n');
+      writeFileSync(o.model, JSON.stringify(r.model, null, 1).replace(/\[\s*(-?[\d.e+-]+(?:,\s*-?[\d.e+-]+)*)\s*\]/g, (m, x) => `[${x.split(/,\s*/).join(', ')}]`) + '\n');
       console.log(`\nwrote ${o.model}`);
     }
     return 0;
