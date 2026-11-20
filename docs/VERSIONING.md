@@ -61,6 +61,24 @@ them is the room's (docs/ROOM.md "The room's engine" and "Speaking down").
   keys only, which `lobbyOf` keeps, because a watcher on another engine writes its own
   seat. A change that cannot keep to this is a major version.
 
+## What a client shows
+
+Every client shows its own version with the engine's beside it, in one form:
+
+    <app version> (<engine version>)        0.9.8 (0.8.1)
+
+- The app's version comes first. The engine's full version (`engineVersion`, read from
+  the vendored copy at run time, never typed a second time) is in the parentheses, and
+  nothing else is.
+- A client that carries several engines shows the newest it carries, the one a new
+  match against the computer plays on. Where it shows detail it lists the others after
+  the label ("Also plays 0.7.4").
+- A platform's build number is not part of the label. Where it is shown it stands
+  apart, as "build 114".
+- The label is for a person reading the app and for a private feedback report. It is
+  never on the room's wire or in a kept match, replay or share: those name only the
+  engine the match was played on, and say nothing of which client played.
+
 ## Releases and vendoring
 
 - A release is a tag `vX.Y.Z` on `main`, made after the pull request that sets
