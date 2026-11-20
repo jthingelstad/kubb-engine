@@ -447,6 +447,22 @@ through the face. Without it the planned speed fell under 1.5 m/s at a step away
 throw still came down on the kubb's top, and the power target sat at the bottom of the
 clock (30 to 46 at 0.2 m), where a swing hardly moves the baton.
 
+What 0.8.2 saves, to the same bits. The hand (`handAt`, 30 bisection steps of a carry) and
+the aim height (`plan.solve`, 20 steps of a `speedForCarry`) are part of every short
+baton's hash, so both keep every step whose answer is not already known. Two kinds are:
+the aim's last `speedForCarry` repeated the one already made for the answer, so it is kept
+instead; and once a bisection's ends are neighbouring floats its midpoint is one of them,
+whose side is known, so it stops there (a 32-bit float gets there late in `handAt`, a
+double never does). `flight.carry` also works its step's constant products out once,
+grouped as before. Shortcuts that decide a midpoint from a root found another way (a
+regula falsi on the drop, for instance) are not exact: on the desktop a 1e-9 m margin held
+over every case, but on the Playdate's 32-bit floats the carry is not monotone at that
+scale and the hand moved by about 3e-8 m in one case in ten; and the aim height's
+`speedForCarry` stops early when a step stops getting closer, so its answer can sit up to
+about a millimetre from the true root and no margin is safe. `tests/lua/planref.lua`
+keeps the 0.8.1 plan, and the identity tests compare the two over a dense sweep on the
+desktop and under wasmoon.
+
 The arrival turn (`flight.nearTurn`). The tumble is held to the wrist's range
 (`plan.tune.armR`, `wristShare`), which on a short flight left the baton arriving part way
 through its half turn, end down (130 to 170 degrees from upright). Thrown full it still
