@@ -2,8 +2,8 @@
 --
 --   lua5.4 tools/replay_traces.lua [--current-sign] <traces.jsonl> [...]
 --
--- traces.jsonl is written by the game when "Record crank" is on in the System
--- Menu: in the Simulator at
+-- traces.jsonl is written by the game when a `debug` flag file is in its Data
+-- folder at launch (the System Menu's "Record crank" item is gone): in the Simulator at
 -- ~/Developer/PlaydateSDK/Disk/Data/com.throwingwood.playdate/traces.jsonl,
 -- on the device in Data/com.throwingwood.playdate/ (Data Disk mode).
 -- Each line prints what the game recorded and what today's swing tunables
