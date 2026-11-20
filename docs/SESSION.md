@@ -309,7 +309,9 @@ log. A server (a highlight reel) can replay it in the engine and check this much
   are seeded from them. `checkThrow` holds it to bounds worked out from the code that
   makes a throw (`session/check.lua` lists each with its source): the plan solved again
   for the stance and target with every release, tilt (or spin) and level a player can
-  choose; the loft pinned by the stop; the tilt pinning the shake and the pull; the
+  choose; the loft pinned by the stop (since 0.8.0, a baton planned under 2 m with the
+  plan's flatter share of it and the heave of a swing past the power target, as
+  `plan.launch` gives them); the tilt pinning the shake and the pull; the
   swivel, speed and tumble within the nerves' largest draw (and never under the floors
   the throw clamps to: a tumble under `tumbleMin`, a length draw under `lenMin`), `ZMAX` = sqrt(-2 ln 1e-12),
   about 7.43 sds (`plan.rng`'s normal floors u1 at 1e-12); the flick between

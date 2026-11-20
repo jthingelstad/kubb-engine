@@ -44,6 +44,34 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.8.0** (minor). A person's baton planned under 2 m (`flight.tune.nearM`, the
+  stance to the circle) is now a low, firm bowl: the hand lower and ahead of the feet,
+  the baton tipped toward the kubb, the loft flatter, the aim into the kubb's face, an
+  arrival turn that comes in flat or end over end rather than end down, and a swing past
+  the power target heaving the baton up over the kubb (docs/notes/throw.md "The hand at
+  a short throw"). What did not change: every throw planned at 2 m and over, every
+  computer throw (the computer never stands nearer than 2 m) and every drilled kubb are
+  bit-identical to 0.7.4, and all 437 reference action hashes match it. It is a minor
+  version all the same: the action's format is unchanged, and the hand is worked out
+  from the action's stance and circle, so a 0.7 client applying a 0.8 player's short
+  baton throws it from the feet and falls out of step from that throw on. What it costs:
+  the web and the iPhone move to 0.8 together (the room already refuses a match between
+  0.7 and 0.8, docs/ROOM.md), and a kept 0.7 match with a person's baton under 2 m
+  replays differently on 0.8 from that throw on. The golden corpus gains a thirteenth
+  match that throws such batons (docs/DETERMINISM.md "The gate"); its header is 0.8.0.
+  `checkThrow` (a server's `checkThrows`) holds a short baton's loft to what
+  `plan.launch` gives it, the share and the heave included.
+
+  For clients: sync the tag; no action, snapshot, document or recording format changes,
+  and no session call or field is added. `flight.handAt(d)` (new in the core) returns
+  five values: the hand's height, how far ahead of the feet it lets go, the share of the
+  loft kept, the short throw's share s and the tip; `plan.solve`'s result gains
+  `handZ`, `handFwd`, `loftShare`, `handTip` and `nearShare` for a baton. The aim arc
+  (`aim.arc`) already starts at the hand and ends where the throw meets the aim; it is
+  the planned arc, so it neither tips nor shows a live swing's overpower. A client
+  whose own test pins the corpus at twelve matches (the iPhone's `GoldenTests`) needs
+  thirteen.
+
 - **0.7.4** (patch). The short words of a resignation (`need.short`, `last.short`) are `"RESIGNED"`: the ruling begins with the team's name
   (`"Riverside resigned: Oak wins"`), so no rule matched and the words were cut to 12
   characters (`"RIVERSIDE RE"`). Words no rule knows are now cut at a word.
