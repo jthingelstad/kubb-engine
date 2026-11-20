@@ -27,6 +27,7 @@ frame is the throwing side's (the defending side's for raising and punishment).
 | `session/session.lua` | `tw.web.session`: practice and match sessions, actions, snapshot, restore, hash, the tune and the client label.    |
 | `session/throw.lua`   | `tw.web.throw`: one throw: aim, dial, computer, launch, the recording, the playback camera.                        |
 | `session/replay.lua`  | `tw.web.replay`: a finished match played again from its options and its log, read only.                            |
+| `session/check.lua`   | `tw.web.check`: a shared match's throws checked: the computer's made again, a person's held to the dial.           |
 | `session/wide.lua`    | `tw.web.wide`: the wide view, one camera for the whole pitch.                                                      |
 | `session/json.lua`    | `tw.web.json`: deterministic JSON (sorted keys, shortest round-trip floats, integers kept apart from floats).      |
 | `room/`               | The room's calls, `kubbCall("room.<name>")`: a shared pitch's document, who acts, staying in step (docs/ROOM.md).  |
@@ -76,9 +77,12 @@ Before the first `new` or `restore`, a host makes these calls:
   file the session makes (`[Scored by "Throwing Wood <label>"]`), like `"web 0.4.2"`.
   1 to 40 letters, digits, spaces, dots, hyphens or pluses, no space at either end.
   Default `"kubb-engine <version>"`. It can be called again; a file takes the label set
-  when it is written.
+  when it is written. Since 0.7.2 it also takes `location`, the game file's
+  `[Location "..."]` line (`"Web"`, same rules as the label) and returns it; absent, the
+  line is `"Playdate"` as before. Each call sets both, so a call without `location` puts
+  `"Playdate"` back.
 
-The label is not in the snapshot, so it never changes a hash. The tune can: it sets how
+The label and the location are not in the snapshot, so it never changes a hash. The tune can: it sets how
 the computer's flick maps onto the swing, so peers in one online match load the same
 tune (the golden hashes are recorded with `pointer`).
 
@@ -156,8 +160,9 @@ aim { x0, y0, x1, y1 }, advY, lineY, wind }`.
 top, right, bottom }` in frame px fits one fixed camera to it and returns `{ camera, kind,
 farPx }` (`kind` "side" or "end"; `farPx` the smallest base kubb's height in frame px).
 From then on every call's `camera` is that camera, and what a call gives in Team B's view
-frame (items, aim, minimap, a recording's bursts) comes un-turned into the world frame,
-with `wide` set to the kind. `setWide(null)` turns it off. The setting outlasts `new` and
+frame (items, aim, minimap, a recording's bursts; since 0.7.2 also its `landing`,
+`result.landX`/`landY` and `restX`/`restY`, and `timeline.firstContact` and `firstHit`)
+comes un-turned into the world frame, with `wide` set to the kind. `setWide(null)` turns it off. The setting outlasts `new` and
 `restore`.
 
 `arm` is the pointer on the dial as **forward degrees from 6 o'clock** in (-180, 180]:
@@ -232,8 +237,83 @@ A finished match played again (`session/replay.lua`): `replayLoad({ setup, h0, l
 (`setup` the match's options, or `start` its first snapshot; `log` `[{ a, h }]`, each
 action and the hash after it) sets it out again; `replayStep()`, `replayBack()` (the start
 of the previous turn), `replayRewind()`, `replayInfo()` and `replayEnd()`. Every result
-carries `replay: { i, total, turn, thrown, throws, differs, done }`. While a replay is
-loaded every action from outside is refused; `new` or `restore` ends it.
+carries `replay: { i, total, turn, thrown, throws, differs, done, over, refusedAt, ... }`.
+While a replay is loaded every action from outside is refused; `new` or `restore` ends it.
+
+Since 0.7.2:
+
+- `replayStep()` also returns `standing: { before, after }`, the kubbs standing either
+  side of the action: `{ king, A: { field, base }, B: { field, base } }` (`king` true
+  while it stands). One action's `after` is the next one's `before`.
+- `replayFinish()` plays every action left without recordings and returns the info.
+  `refusedAt` is the 0-based index of the first action the match refused (then
+  `differs` is true), `over` that the match has ended.
+- `replayLoad` takes three options for a server (below, "What a server can prove"):
+  `checkCpu: true` makes each of the computer's throws again and sets `forged`,
+  `forgedAt` (0-based) and `forgedWhy` at the first that is not the same, or the first
+  action on the computer's turn that is not its throw; `checkThrows: true` holds each
+  person's throw to `checkThrow` and sets `outOfBounds`, `outOfBoundsAt` and
+  `outOfBoundsWhy`; `document: true` (or `{ ids: { A: [...], B: [...] }, host }`) builds
+  the room document as a pitch builds it. `cpuChecked` and `throwsChecked` count what
+  was checked.
+- `replayDocument()` returns `{ document, h0, hashes }` once the replay is finished:
+  the room document (docs/ROOM.md "The document") with the teams joined, the options
+  set, START with the first snapshot and every action committed with the snapshot and
+  hash after it, `over` on the last; `hashes[i]` is the hash after action i. It refuses
+  a replay not played to its end, one with a refused action, and a match of the
+  computer against itself. Member ids are each player's `key`, else the side and number
+  (`"A1"`); `match.engine` is this engine's major.minor.
+- `checkThrow(action)` returns `{ ok, why, computer, levels, level, atLevel }`: could
+  `action` be the next throw of the match as it stands now (`levels` the player levels
+  that fit it).
+- `checkStart({ start })` returns `{ ok, why }`: is `start` a match's first snapshot,
+  exactly what `newMatch` makes from the options inside it?
+- `renameStart({ start, names: { A: "Ann" } })` returns `{ start }`: the same first
+  snapshot with that side's names changed and nothing else. A string names the team
+  and, on a one-player side, its player; `{ name, players: ["..", ..] }` names a team of
+  more (one name each). Player keys stay. The names are in the snapshot, so every hash
+  from `h0` on differs; the throws, rulings (save their words) and pieces do not.
+
+#### What a server can prove
+
+A shared match against the computer arrives as its first snapshot (or setup) and its
+log. A server (a highlight reel) can replay it in the engine and check this much:
+
+- **The computer's throws are its own.** The computer's choice uses only the setup, the
+  seed and the throw count (`autothrow.choose` on `rng(mix(seed, 1, throws))`), so
+  `checkCpu` makes each one again from the snapshot before it and compares every field
+  exactly (the host's `at` aside). A changed speed, aim or verdict, or a person's throw
+  put in its turn, is `forged` at that action.
+- **Every action is legal in order.** A refused action (out of step, a wrong side, a
+  bad spot) stops the replay: `refusedAt`. The result (rulings, the winner, the game
+  file) is what the engine makes of the log, never what the sender says.
+- **A person's throw is one the dial could make.** It cannot be made again: the action
+  keeps the swing's back and stop but not its flick, shake or pull, and the nerves' draws
+  are seeded from them. `checkThrow` holds it to bounds worked out from the code that
+  makes a throw (`session/check.lua` lists each with its source): the plan solved again
+  for the stance and target with every release, tilt (or spin) and level a player can
+  choose; the loft pinned by the stop; the tilt pinning the shake and the pull; the
+  swivel, speed and tumble within the nerves' largest draw, `ZMAX` = sqrt(-2 ln 1e-12),
+  about 7.43 sds (`plan.rng`'s normal floors u1 at 1e-12); the flick between
+  `minFlickFrac` and 1 and matching the power verdict; a kubb's nose, spin and wobble
+  exactly `drill.body`'s; the backswing 30 to 200 degrees; the stance on the ground the
+  rules allow (an unset stance straight behind the target); the target in the marker's
+  area or on a piece. Touch, the linear meter and STAND feed the same swing and
+  `setStance`, so they need no bounds of their own.
+
+What it cannot prove:
+
+- **That a person threw it.** Any throw inside the bounds passes, whoever (or whatever)
+  made it. A program can choose good throws inside them.
+- **That the speed was likely.** The bounds are the largest the engine can give, not a
+  likely spread. An overpowered full backswing at a near target multiplies the nerves:
+  the bound for a legal baton is about 57 m/s, and an honest dial throw reaches 30 m/s
+  about once in 300 such swings. A 30 m/s baton from a short or on-target swing is
+  refused.
+- **The match before the start.** `checkStart` proves the start is a fresh match made
+  from its own options, but the options (names, seed, levels) are whatever the sender
+  chose.
+- **A match against a person.** Neither side's throws can be made again.
 
 ### Actions (a match among browsers)
 
@@ -383,7 +463,7 @@ What a throw did, for the renderer and for a replay:
   result  { flag, legal, down, toppled [ids], hit, distance, landX, landY,
             restCm, restText, restX, restY,
             verdicts { power, release, steady, side?, powerV, releaseV, sideV? }, back, stop,
-            ruling { text, short } },     // ruling: matches
+            ruling { text, short, code, n, parts [{ code, n }], winner } },  // matches
   timeline {
     firstContact { t, x, y, z, with }, firstHit { t, x, y, z, with },
     touches [{ id, kind, t }],
@@ -402,6 +482,15 @@ the cameras for you; the raw track is for a renderer that wants it. `slow` is th
 playback speed curve: full speed until `from`, `rate` from `hit` to `full`, back to full
 speed by `to`. `bursts` are known in full at the release (see below), so `sure` is true
 and `takenBack` false on the web; the fields stay so the format matches render/burst.
+
+Since 0.7.2 a match's `ruling` carries codes beside its words, so a reader need not parse
+the English: `parts` one `{ code, n? }` per part of the line, `code` and `n` the first
+part's, `winner` the side that won when the throw ended the match. A baton's codes:
+`miss`, `kingMiss`, `field` (n kubbs), `base` (n), `helicopter`, `ownHalf`, `baseEarly`,
+`pushedOut`, `kingWin`, `kingEarly`, `resigned`. A kubb's: `inForNow`, `outForNow`,
+`ownHalfOut`, then at the round's last kubb `in` (n thrown), `rethrow` (n), `punish`
+(n), `lowered`, `rescue` (n), `ownHalf`, or `kingKubb` (the king toppled). The words are
+as they were.
 
 Since 0.4.1, `timeline.contacts` lists wood-on-wood strikes in physics time
 (seconds from release). Each `{t, a, b, idA, idB, strength}` gives both body
@@ -479,7 +568,10 @@ the sequential random generators.
 - `make test-session`: `tests/lua/session/` under desktop Lua 5.4, in a Lua state of
   its own (it loads the pointer tune, which changes the core's tables): the host's calls,
   aim and dial, practice throws and the drill, matches, raising and punishment, snapshot
-  and restore, resigning, a change of thrower, replays, the wide view.
+  and restore, resigning, a change of thrower, replays, the wide view, and
+  (`test_check.lua`) a server's checks: the computer's throws made again, a person's
+  dial and touch throws held to `checkThrow` and the forged cases refused, a renamed
+  start, and a replay's document against a real room's.
 - `make test-wasm`: `tests/node/session.test.mjs` under wasmoon, loaded from the bundle:
   the host's calls, a practice throw, the multiplayer proof (one Lua state plays a whole
   match with the computer on one side and scripted dial swings on the other, a second
