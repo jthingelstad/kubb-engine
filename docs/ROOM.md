@@ -95,7 +95,8 @@ lobby.
   from an older client has none, and no replay). `over` is absent until the match ends.
   Absent, `null` and empty are different here and each survives every call.
 - `options` keys and values: `MATCH_OPTIONS` below. Unknown ones are dropped; missing
-  ones take `OPTION_DEFAULTS`.
+  ones take `OPTION_DEFAULTS`, except the engine's own options (difference 9), which
+  stay absent until the host sets them.
 - A document with a log stays under `LOG_BUDGET` (248 KB, counting every character
   above U+007E as 6, as the room does): the commit that would pass it drops the log.
   A replay that commits a whole match in one pass (`replayLoad` with `document`) keeps
@@ -302,6 +303,15 @@ Every one is deliberate and tested (`tests/lua/room/test_room.lua`, "the engine'
    JavaScript leaves a lone surrogate.
 7. **`ctx.connected` is a list**, not a `Set`.
 8. **Results are wrapped** in `{"value": ...}`, and `undefined` comes back as `null`.
+9. **The engine's own options** (since 0.9): `computer`, the computer's level
+   (`beginner`, `club` or `pro`; Jamie, 2026-11-20: "yes this should be a real per game
+   setting"). It is in `MATCH_OPTIONS` (label "Computer") and `OPTION_DEFAULTS`
+   (`club`), but `cleanOptions` keeps it only when given and valid and never fills it
+   in, `setOptions` keeps the room's value when an update leaves it out, and
+   `matchOptions` passes it on only when the room has it. So a room that never set it
+   has the document, START and match it always had (the computer at club), and an
+   older engine's room calls drop it. A person's own level stays theirs (`me.level`);
+   the option is the computer's only.
 
 Beyond these the calls decide exactly as the JavaScript does on the same JSON, odd input
 included: `===` (so `"3"` is not `3`), JavaScript truthiness (`0`, `""` and `null` are
