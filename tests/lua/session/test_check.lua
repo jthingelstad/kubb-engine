@@ -277,6 +277,12 @@ test("checkThrow refuses a throw at 30 m/s and other throws the dial cannot make
 	refused(bat, function(a) a.launch.loft = a.launch.loft + 3 end, "a loft its stop cannot give")
 	refused(bat, function(a) a.launch.swivel = a.launch.swivel + 0.3 end, "17 degrees off its line")
 	refused(bat, function(a) a.launch.tumble = 200 end, "a tumble too fast")
+	refused(bat, function(a) a.launch.tumble = -3 end, "a tumble under the least (plan.launch clamps to tumbleMin)")
+	refused(bat, function(a) a.launch.tumble = plan.tune.tumbleMin - 1e-6 end, "just under the least")
+	refused(bat, function(a) a.launch.speed = -a.launch.speed end, "a backward speed")
+	refused(bat, function(a) a.launch.speed = 0 end, "no speed")
+	refused(kub, function(a) a.launch.spin = a.launch.spin + plan.tune.spinPerStep * 0.5 end, "a kubb's spin between steps")
+	refused(kub, function(a) a.launch.rollLand = 0.1 end, "a kubb's roll")
 	refused(bat, function(a) a.launch.tilt = 80; a.launch.legal = true end, "a helicopter called legal")
 	refused(bat, function(a) a.swing.back = 260 end, "a backswing past the swing's cap")
 	refused(bat, function(a) a.swing.stop = -10 end, "a backward release")
@@ -397,6 +403,100 @@ test("renameStart changes a side's names and nothing else: the same throws, othe
 	local no = call("checkStart", { start = mid:snapshot() })
 	expect.eq(no.ok, false)
 	expect.truthy(json.decode(kubbCall("renameStart", json.encode { start = mid:snapshot(), names = { A = "X" } })).error)
+end)
+
+-- A thrower action names a player by id, and the ids come from the names: a rename maps
+-- the log too. On a one-player side the action is taken (naming its only player), so a
+-- solo match against the computer can carry one.
+local function cmatchCandidates(s) return tw.match.candidates(s.m) end
+
+local function playWithThrowers(seed, sizeA, cpu)
+	local s = session.new { mode = "match", seed = seed, cpu = cpu, start = START, maxTurns = 6,
+		teams = matchTeams(sizeA, 1) }
+	local start = s:snapshot()
+	local log, recs, changes = {}, {}, 0
+	local r = autothrow.rng(seed)
+	local function put(a, out)
+		log[#log + 1] = { a = json.decode(json.encode(a)) }
+		recs[#log] = out and out.recording and json.encode(out.recording) or nil
+	end
+	local guard = 0
+	while s:need().kind ~= "over" do
+		guard = guard + 1
+		assert(guard < 5000)
+		local n = s:need()
+		if n.kind == "throw" and not session.isCpu(s, s.setup.side) then
+			local pick
+			for _, c in ipairs(cmatchCandidates(s)) do
+				if c.ok and (not c.current or sizeA == 1) then pick = c end
+			end
+			if pick and (sizeA == 1 or r.next() < 0.5) then
+				local a = { type = "thrower", id = pick.id }
+				local o = s:apply(a)
+				expect.eq(o.ok, true, "the thrower change is taken: " .. tostring(o.why))
+				put(a)
+				changes = changes + 1
+			end
+			local f
+			for _ = 1, 20 do f = pointerThrow(s, r); if f and f.action then break end end
+			put(f.action, f)
+		elseif n.kind == "throw" then
+			local f
+			for _ = 1, 2000 do f = s:frame { dt = 1 / 60 }; if f.action then break end end
+			put(f.action, f)
+		elseif n.kind == "raise" then
+			local a = { type = "raise", choice = #n.choices }
+			s:apply(a); put(a)
+		else
+			local a = { type = "punish", x = n.cursor.x, y = n.cursor.y }
+			s:apply(a); put(a)
+		end
+	end
+	return start, log, recs, changes
+end
+
+test("renameStart maps the thrower actions' ids: a team of two, renamed, replays to its end", function()
+	local start, log, recs, changes = playWithThrowers(12, 2, "B")
+	expect.truthy(changes > 2, "thrower changes: " .. changes)
+	-- unmapped, the renamed match stops at the first thrower action
+	local out = call("renameStart", { start = start, names = { A = { name = "East", players = { "Uma", "Vic" } } },
+		log = log })
+	local plain = replay.new { start = out.start, log = noH(log) }
+	local pi = plain:finish()
+	expect.truthy(pi.refusedAt ~= nil, "the old ids are refused")
+	local first
+	for i, e in ipairs(log) do if e.a.type == "thrower" then first = first or i end end
+	expect.eq(pi.refusedAt, first - 1)
+	-- mapped: to the end, every recording the same but for the names
+	local n = 0
+	for _ in pairs(out.ids) do n = n + 1 end
+	expect.eq(n, 3, "an id for each player")
+	local r1 = replay.new { start = start, log = noH(log) }
+	local r2 = replay.new { start = out.start, log = out.log }
+	for i = 1, #log do
+		local o1, o2 = r1:step(), r2:step()
+		expect.eq(o2.ok, true, "action " .. i .. " renamed")
+		if o1.recording then
+			local x1, x2 = copy(o1.recording), copy(o2.recording)
+			x1.result.ruling, x2.result.ruling = nil, nil
+			expect.eq(json.encode(x1), json.encode(x2), "the same throw " .. i)
+			expect.eq(json.encode(o1.recording), recs[i], "the original as played " .. i)
+		end
+	end
+	expect.eq(r2:info().over, true, "the renamed match ends")
+	expect.eq(r2:info().differs, false)
+	expect.eq(r1.s.m.game.winner, r2.s.m.game.winner)
+end)
+
+test("a solo side can carry a thrower action, and the rename maps it", function()
+	local start, log, _, changes = playWithThrowers(14, 1, "B")
+	expect.truthy(changes > 0, "the sole player named")
+	local out = call("renameStart", { start = start, names = { A = "Shared" }, log = log })
+	local r = replay.new { start = out.start, log = out.log, checkCpu = true }
+	local info = r:finish()
+	expect.eq(info.over, true)
+	expect.eq(info.refusedAt, nil)
+	expect.eq(info.forged, false)
 end)
 
 test("renameStart renames a team of several by name and players", function()

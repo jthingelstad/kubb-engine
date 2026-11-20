@@ -1198,6 +1198,33 @@ function session.renameStart(start, names)
 	return newFromSetup(o):snapshot()
 end
 
+-- The players' ids (notation.assignIds) come from their names, so a rename changes them,
+-- and a log's `thrower` actions name players by id. session.renameIds(start, renamed):
+-- { [old id] = new id } for every player, matched by side and place. session.renameLog(
+-- log, ids): a copy of the log ([{ a }], the hashes dropped: a renamed match has its own)
+-- with each thrower action's id mapped, so the renamed match replays as the original did.
+function session.renameIds(start, renamed)
+	local a, b = session.restore(start), session.restore(renamed)
+	local ids = {}
+	for _, side in ipairs { "A", "B" } do
+		local pa, pb = a.m.game.teams[side].players, b.m.game.teams[side].players
+		assert(#pa == #pb, "renameIds: side " .. side .. " has other players")
+		for i, p in ipairs(pa) do ids[p.id] = pb[i].id end
+	end
+	return ids
+end
+
+function session.renameLog(log, ids)
+	assert(type(log) == "table", "renameLog: a log [{ a }]")
+	local out = {}
+	for i, e in ipairs(log) do
+		local x = copyTable(e.a)
+		if type(x) == "table" and x.type == "thrower" and ids[x.id] then x.id = ids[x.id] end
+		out[i] = { a = x }
+	end
+	return out
+end
+
 -- ---------- snapshot ----------
 
 function Session:snapshotTable()
