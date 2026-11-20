@@ -66,3 +66,19 @@ test("matchopts: the wind row, and a save keeps the wind", function()
 	local _, opts = save.unpack(save.pack(m, { wind = "light" }))
 	expect.eq(opts.wind, "light")
 end)
+
+test("save: automatic raising for the rest of the match is kept, and back to by hand", function()
+	local m = match.new { start = { year = 2026, month = 11, day = 20, hour = 9, min = 0 } }
+	local opts = { autoSettle = nil }
+	expect.eq(select(2, save.unpack(save.pack(m, opts))).autoRaise, nil, "by hand: nothing written")
+	opts.autoRaise = true
+	local d = save.pack(m, opts)
+	expect.eq(d.opts.autoRaise, true)
+	local back, o = save.unpack(d)
+	expect.eq(o.autoRaise, true, "a resumed match goes on raising itself")
+	expect.eq(o.autoSettle, nil, "the match's own Raising option is untouched")
+	opts.autoRaise = false
+	expect.eq(select(2, save.unpack(save.pack(back, opts))).autoRaise, nil, "and back to by hand")
+	-- the session's snapshot packs with no options, so it never holds it (no hash moves)
+	expect.eq(save.pack(m, nil).opts.autoRaise, nil)
+end)
