@@ -96,3 +96,24 @@ test('live: the web\'s constants are the engine\'s', { skip }, () => {
   }
   assert.equal(constants.CLIENT, web.sync.CLIENT);
 });
+
+// Several engines in one room (room/engines.lua, since 0.8.1): the same answers under
+// wasmoon as tests/lua/room/test_engines.lua finds under desktop Lua.
+test('engineFor, carried, announce and speakAs under wasmoon', () => {
+  const both = ['0.8', '0.7'];
+  const fresh = (id, engine) => ({ id, connected: true, me: { name: id, ...lua('announce', { carries: both, engine }).value } });
+  const doc = { v: 1, teams: { A: ['h'], B: ['p', 'i'] } };
+  const members = [fresh('h'), fresh('p'), { id: 'i', connected: true, me: { name: 'i', engine: '0.7.4' } }];
+  assert.equal(lua('announce', { carries: ['0.7.4', '0.8.1'], engine: '0.7' }).text,
+    '{"value":{"engine":"0.7+engines","engines":["0.8","0.7"]}}');
+  assert.deepEqual(lua('carried', { me: { engine: '0.7', engines: both } }).value, ['0.7']);
+  assert.deepEqual(lua('carried', { me: members[0].me }).value, both);
+  assert.deepEqual(lua('engineFor', { doc, members, host: 'h' }).value, { engine: '0.7', missing: [], unknown: [] });
+  assert.deepEqual(lua('engineFor', { doc: { v: 1, teams: { A: ['h'], B: ['p'] } }, members, host: 'h' }).value,
+    { engine: '0.8', missing: [], unknown: [] });
+  members[0] = { id: 'h', connected: true, me: { name: 'h', engine: '0.8+engines', engines: ['0.8'] } };
+  assert.deepEqual(lua('engineFor', { doc, members, host: 'h' }).value, { engine: null, missing: ['i'], unknown: [] });
+  const spoken = lua('speakAs', { members: [fresh('p', '0.7')], engine: '0.8' }).value;
+  assert.equal(spoken[0].me.engine, '0.8');
+  assert.deepEqual(spoken[0].me.engines, both);
+});
