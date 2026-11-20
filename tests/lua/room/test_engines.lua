@@ -94,6 +94,17 @@ test("engineFor: the newest that the host and every player carry", function()
 	same(room("engineFor", { doc = doc({ "h", "w" }, { "p" }), members = ms, host = "h" }).engine, "0.7")
 end)
 
+test("engineFor: the limit is each member's list, not the room's engines together", function()
+	-- the host carries 0.1 to 0.16 and the player 0.1 and 0.17: seventeen engines
+	-- between them, and the one they share is the oldest
+	local sixteen = {}
+	for i = 16, 1, -1 do sixteen[#sixteen + 1] = "0." .. i end
+	local ms = { new("h", sixteen, "0.1"), new("p", { "0.17", "0.1" }, "0.1") }
+	local r = room("engineFor", { doc = doc({ "h" }, { "p" }), members = ms, host = "h" })
+	same(r.engine, "0.1")
+	same(r.missing, {})
+end)
+
 test("engineFor: a new host on its own, an old host, the computer on a side", function()
 	same(room("engineFor", { doc = doc(), members = { new("h", both) }, host = "h" }).engine, "0.8")
 	same(room("engineFor", { doc = doc({ "h" }), members = { new("h", both) }, host = "h" }).engine, "0.8")

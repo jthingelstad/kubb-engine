@@ -47,9 +47,10 @@ function E.compare(a, b)
 	return 0
 end
 
--- A list of versions as major.minors, each once, newest first, at most MAX.
+-- A list of versions as major.minors, each once, newest first, at most MAX (one
+-- member's list; `whole` keeps every entry, for the engines of everyone in a room).
 -- Anything that is not a version is left out; a non-list is an empty list.
-function E.list(v)
+function E.list(v, whole)
 	local out, seen = {}, {}
 	if not json.isArray(v) then return out end
 	for _, x in ipairs(v) do
@@ -60,7 +61,9 @@ function E.list(v)
 		end
 	end
 	table.sort(out, function(a, b) return E.compare(a, b) > 0 end)
-	while #out > E.MAX do out[#out] = nil end
+	if not whole then
+		while #out > E.MAX do out[#out] = nil end
+	end
 	return out
 end
 
@@ -151,7 +154,7 @@ function E.engineFor(doc, members, host, me, carries)
 	for _, list in ipairs(lists) do
 		for _, mm in ipairs(list) do all[#all + 1] = mm end
 	end
-	all = E.list(all)
+	all = E.list(all, true) -- MAX is each member's limit, not the room's
 
 	local hasHost = host ~= nil and not js.isNull(host)
 	local hostList = hasHost and lists[1] or {}
