@@ -310,3 +310,88 @@ test("a replay plays the match again: the same recordings and hashes, read only"
   viewer.replayEnd();
   console.log(`      replayed ${log.length} actions, ${last} turns`);
 });
+
+// What a highlight-reel server runs on a shared match against the computer (docs/SESSION.md
+// "What a server can prove"), under wasmoon: the computer's throws made again, a person's
+// throws held to the dial, the finished room document, and the start renamed.
+test("a server's checks: checkCpu, checkThrows, replayDocument, renameStart", async () => {
+  const actor = await Engine.create();
+  const setup = {
+    seed: 7, cpu: "B", start: START, wind: "light", raising: "hand", maxTurns: 6,
+    teams: {
+      A: { name: "Home", players: [{ name: "Ann", key: "m1" }] },
+      B: { name: "Computer", players: [{ name: "Computer" }] },
+    },
+  };
+  actor.newMatch(setup);
+  const start = actor.snapshot();
+  const log = [];
+  let personThrow = -1;
+  let guard = 0;
+  while (actor.need().kind !== "over" && guard++ < 2000) {
+    const n = actor.need();
+    let action;
+    if (n.kind === "raise") {
+      action = { type: "raise", choice: n.default };
+      actor.apply(action);
+    } else if (n.kind === "punish") {
+      action = { type: "punish", x: n.cursor.x, y: n.cursor.y };
+      actor.apply(action);
+    } else {
+      let out;
+      if (n.cpu) {
+        for (let i = 0; i < 600 && !out?.action; i++) out = actor.frame({ dt: 1 / 60 });
+      } else {
+        const before = actor.snapshot();
+        const plan = actor.aim().aim.plan;
+        for (const arm of swingArms(plan.back, plan.release)) {
+          out = actor.frame({ dt: 1 / 60, arm });
+          if (out.event) break;
+        }
+        if (!out.action) out = actor.frame({ dt: 1 / 60 });
+        if (personThrow < 0) {
+          personThrow = log.length;
+          const probe = await Engine.create();
+          probe.restore(before);
+          assert.equal(probe.call('checkThrow', out.action).ok, true, 'the dial throw is in bounds');
+          probe.restore(before);
+          const fast = { ...out.action, launch: { ...out.action.launch, speed: 30 } };
+          assert.equal(probe.call('checkThrow', fast).ok, false, '30 m/s is not');
+        }
+      }
+      action = out.action;
+    }
+    log.push({ a: JSON.parse(JSON.stringify(action)) });
+  }
+  const server = await Engine.create();
+  const opts = { start, log, checkCpu: true, checkThrows: true, document: true };
+  server.call('replayLoad', opts);
+  const info = server.call('replayFinish');
+  assert.equal(info.over, true);
+  assert.equal(info.forged, false);
+  assert.equal(info.outOfBounds, false);
+  assert.ok(info.cpuChecked > 5 && info.throwsChecked > 5);
+  const doc = server.call('replayDocument');
+  assert.equal(doc.hashes.at(-1), actor.hash().hash);
+  assert.equal(doc.document.match.snap, actor.snapshot());
+  server.call('replayEnd');
+  // a computer throw slowed: forged at that action
+  const cpuAt = log.findIndex((e) => e.a.type === 'throw' && e.a.scripted);
+  const forged = structuredClone(log);
+  forged[cpuAt].a.launch.speed /= 2;
+  server.call('replayLoad', { ...opts, log: forged, document: undefined });
+  const f = server.call('replayFinish');
+  assert.equal(f.forged, true);
+  assert.equal(f.forgedAt, cpuAt);
+  server.call('replayEnd');
+  // renamed: the same match under other names, other hashes
+  const renamed = server.call('renameStart', { start, names: { A: "Shared" } }).start;
+  assert.notEqual(renamed, start);
+  assert.equal(server.call('checkStart', { start: renamed }).ok, true);
+  server.call('replayLoad', { start: renamed, log, checkCpu: true });
+  const r = server.call('replayFinish');
+  assert.equal(r.over, true);
+  assert.equal(r.forged, false);
+  assert.notEqual(server.hash().hash, actor.hash().hash);
+  server.call('replayEnd');
+});

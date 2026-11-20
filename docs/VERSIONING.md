@@ -44,6 +44,18 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.7.2** (patch). What a server needs to check and publish a shared match against
+  the computer (docs/SESSION.md "What a server can prove"): `replayLoad` options
+  `checkCpu` (the computer's throws made again from the snapshot; `forged`, `forgedAt`),
+  `checkThrows` (a person's throws held to bounds worked out from the code;
+  `outOfBounds`, `outOfBoundsAt`) and `document`, with `replayFinish`,
+  `replayDocument`, `refusedAt` and standing counts per step; `checkThrow`,
+  `checkStart` and `renameStart`. Rulings carry codes beside their words. The wide view
+  also un-turns a recording's landing, rest and first hit. `setClient` takes a
+  `location` for the game file's Location line (default `"Playdate"`, as before).
+  Snapshots, actions and recordings keep their shape (fields only added). All 437
+  reference action hashes match 0.7.1.
+
 - **0.7.1** (patch). The game file writes fewer player names: no prefix on a throw by a
   one-player team, and the player's initial (or the shortest start that tells two apart)
   on a team of more, with `[Team X Players]` and `[Throw Levels]` naming the same ids.

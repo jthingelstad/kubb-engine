@@ -186,6 +186,14 @@ the web paces its socket, not shared state.
 5. The end: the action that ends the match commits with `over: true`; `replayOf(match)`
    is what the room keeps. `backToLobby(doc, n)` for a rematch.
 
+A finished match can also be turned into its document after the fact (since 0.7.2): the
+session's `replayLoad({ ..., document: true })`, `replayFinish()` and
+`replayDocument()` (docs/SESSION.md "The score sheet and replays") run these same
+reducers, steps 1, 2, 4 and 5, over the replay. The document is the one a pitch that
+played the match would have written, byte for byte as `json.encode` gives it, so
+`replayOf(document.match)` gives the room's replay of it. `test_check.lua` compares one
+with a real room flow.
+
 ## Engines in one match
 
 Two clients share a match only when their engines' major.minor are equal
