@@ -37,10 +37,23 @@ lobby.LOG_BUDGET = 248 * 1024
 lobby.REPLAY_VERSION = 1
 
 local OPTION_KEYS = { "surface", "opening", "raising", "wind", "set" }
-lobby.OPTION_DEFAULTS = { surface = "grass", opening = "2-4-6", raising = "hand", wind = "off", set = "classic" }
+lobby.OPTION_DEFAULTS = { surface = "grass", opening = "2-4-6", raising = "hand", wind = "off", set = "classic",
+	computer = "club" }
+
+-- The engine's own options (docs/ROOM.md "Differences"), which the JavaScript does not
+-- know: each is in the document's options only when a host set it to a value it takes,
+-- so a document without them (every one an older client wrote) reads, cleans and writes
+-- exactly as before, and an absent one is its default. Each key's test of a value:
+local OWN_KEYS = { "computer" }
+local OWN_OK = {
+	-- the computer's level, a game setting (Jamie, 2026-11-20: "yes this should be a real
+	-- per game setting"); absent: club, as before
+	computer = function(v) return includes(lobby.LEVELS, v) end,
+}
 
 -- The match options the host sets: { key, label, { { value, label }, ... } }, as on the
--- web's solo options card. (Each player's throw level is their own.)
+-- web's solo options card. (Each player's throw level is their own; the computer's is the
+-- match's, since 0.9.)
 lobby.MATCH_OPTIONS = {
 	{ "surface", "Surface", { { "grass", "Grass" }, { "sand", "Sand" }, { "snow", "Snow" } } },
 	{ "opening", "Opening", { { "2-4-6", "2-4-6" }, { "six", "Six batons" } } },
@@ -48,6 +61,7 @@ lobby.MATCH_OPTIONS = {
 	{ "wind", "Wind", { { "off", "Off" }, { "light", "Light" }, { "strong", "Strong" } } },
 	{ "set", "Kubbs", { { "classic", "Classic" }, { "usa", "USA" }, { "sweden", "Sweden" },
 		{ "minnesota", "Minnesota" }, { "wisconsin", "Wisconsin" } } },
+	{ "computer", "Computer", { { "beginner", "Beginner" }, { "club", "Club" }, { "pro", "Pro" } } },
 }
 
 local OPTION_VALUES = {}
@@ -128,6 +142,10 @@ function lobby.cleanOptions(o)
 	for _, k in ipairs(OPTION_KEYS) do
 		local v = get(o, k)
 		out[k] = includes(OPTION_VALUES[k], v) and v or lobby.OPTION_DEFAULTS[k]
+	end
+	for _, k in ipairs(OWN_KEYS) do
+		local v = get(o, k)
+		if v ~= nil and OWN_OK[k](v) then out[k] = v end
 	end
 	return out
 end
@@ -257,6 +275,11 @@ function lobby.setOptions(doc, options)
 		if truthy(options) and includes(OPTION_VALUES[k], v) then next[k] = v else next[k] = l.options[k] end
 		if next[k] ~= l.options[k] then changed = true end
 	end
+	for _, k in ipairs(OWN_KEYS) do
+		local v = get(options, k)
+		if truthy(options) and v ~= nil and OWN_OK[k](v) then next[k] = v else next[k] = l.options[k] end
+		if next[k] ~= l.options[k] then changed = true end
+	end
 	if truthy(doc) and not changed then return nil end
 	l.options = next
 	return l
@@ -356,6 +379,8 @@ function lobby.matchOptions(doc, lu, seed, start)
 		first = "A",
 	}
 	for _, k in ipairs(OPTION_KEYS) do o[k] = l.options[k] end
+	-- the engine's own: only when set, so a room without them starts the match it always did
+	for _, k in ipairs(OWN_KEYS) do o[k] = l.options[k] end
 	return o
 end
 

@@ -242,18 +242,28 @@ local function matchOptions(o)
 	out.start = o.start or { year = 2026, month = 1, day = 1, hour = 12, min = 0 }
 	for _, k in ipairs { "year", "month", "day", "hour", "min" } do out.start[k] = I(out.start[k] or 0) end
 	out.mode = o.modeName
+	-- the computer's level, a game setting (Jamie, 2026-11-20: "yes this should be a real
+	-- per game setting"): every computer player takes it unless its entry names its own.
+	-- Kept only when given and not the default, so a match without it (every one before
+	-- 0.9) and one that names club have the snapshot a match always had; absent, the
+	-- computer throws at club (autothrow.tune.level)
+	if plan.levels[o.computer] and o.computer ~= autothrow.tune.level then out.computer = o.computer end
 	-- the teams: { A = { name, players = { { name, level } } }, B = ... }, 1 to 6 players each
 	local teams = {}
 	for _, side in ipairs { "A", "B" } do
 		local t = (o.teams or {})[side] or {}
+		local isCpuSide = false
+		for _, c2 in ipairs(cpu) do if c2 == side then isCpuSide = true end end
 		local name = t.name or ((#cpu == 1 and cpu[1] == side) and "Computer" or ("Team " .. side))
 		local players = {}
 		for i, p in ipairs(t.players or {}) do
 			if i > 6 then break end
 			if type(p) == "string" then p = { name = p } end
-			players[#players + 1] = { name = tostring(p.name or ("Player " .. i)), level = p.level, key = p.key }
+			local level = p.level
+			if level == nil and isCpuSide then level = out.computer end
+			players[#players + 1] = { name = tostring(p.name or ("Player " .. i)), level = level, key = p.key }
 		end
-		if #players == 0 then players[1] = { name = name } end
+		if #players == 0 then players[1] = { name = name, level = isCpuSide and out.computer or nil } end
 		teams[side] = { name = name, players = players }
 	end
 	out.teams = teams
