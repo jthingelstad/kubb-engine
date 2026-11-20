@@ -36,6 +36,7 @@ import "core/gamefile"
 import "version"
 import "session/json"
 import "session/throw"
+import "room/lobby"
 
 local cmatch, cards, save, autothrow, wind = tw.match, tw.cards, tw.save, tw.autothrow, tw.wind
 local raising, frame, pitch, quat, swing, plan = tw.raising, tw.frame, tw.pitch, tw.quat, tw.swing, tw.plan
@@ -248,6 +249,10 @@ local function matchOptions(o)
 	-- 0.9) and one that names club have the snapshot a match always had; absent, the
 	-- computer throws at club (autothrow.tune.level)
 	if plan.levels[o.computer] and o.computer ~= autothrow.tune.level then out.computer = o.computer end
+	-- the scene, a look only (room/lobby.isScene): kept only when given, valid and not
+	-- "day", the default, so the start is otherwise the one a match always had. The
+	-- physics and the rules never read it
+	if tw.room.lobby.isScene(o.scene) and o.scene ~= tw.room.lobby.OPTION_DEFAULTS.scene then out.scene = o.scene end
 	-- the teams: { A = { name, players = { { name, level } } }, B = ... }, 1 to 6 players each
 	local teams = {}
 	for _, side in ipairs { "A", "B" } do
@@ -292,7 +297,8 @@ function session.new(o)
 	s.throws = 0
 	s.recording = nil
 	if s.kind == "practice" then
-		s.opts = { surface = surfaceKey(o.surface), level = o.level, set = o.set or "classic" }
+		s.opts = { surface = surfaceKey(o.surface), level = o.level, set = o.set or "classic",
+			scene = tw.room.lobby.isScene(o.scene) and o.scene ~= "day" and o.scene or nil }
 		s.ts = throw.new { surface = s.opts.surface, level = o.level, set = s.opts.set }
 		s.phase = "throw"
 		if o.drill then throw.setDrill(s.ts, true) end
@@ -740,6 +746,8 @@ function Session:view()
 		camera = ts.aimCam,
 		dial = throw.dial(ts, true),
 		surface = ts.surface, set = ts.set,
+		-- the scene to draw (a look only; "day" when the match names none)
+		scene = self.opts.scene or tw.room.lobby.OPTION_DEFAULTS.scene,
 	}
 end
 
@@ -888,14 +896,15 @@ end
 -- their own format; this checkpoint is only for replaying one practice throw.
 local function practiceCheckpoint(s)
 	local ts = s.ts
-	return json.encode { items = ts.items, surface = ts.surface, set = ts.set, level = throw.levelFor(ts),
+	return json.encode { items = ts.items, surface = ts.surface, set = ts.set, scene = s.opts.scene,
+		level = throw.levelFor(ts),
 		drill = ts.drill, drillSeq = ts.drillSeq, baton = ts.practiceBaton,
 		throws = s.throws }
 end
 
 function session.restorePractice(text)
 	local c = json.decode(text)
-	local s = session.new { mode = "practice", surface = c.surface, set = c.set, level = c.level }
+	local s = session.new { mode = "practice", surface = c.surface, set = c.set, scene = c.scene, level = c.level }
 	local ts = s.ts
 	ts.items, ts.drillSeq, ts.practiceBaton = c.items, c.drillSeq, c.baton
 	s.throws, ts.throws = c.throws, c.throws

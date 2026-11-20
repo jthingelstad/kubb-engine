@@ -60,14 +60,14 @@
     "room/api.lua": "34bf044899012a72ded30b255e55d5795019622abcc121d2e73e1c4c9e488aec",
     "room/engines.lua": "be34d3d02aa9a41051347adc2e0bb855f5f6b37203d92a505822fd4711954eca",
     "room/js.lua": "579c2d7743603ee7c87b94db472d3b0100eab12a8fbd9957df097f441ea4e562",
-    "room/lobby.lua": "ba720e2d223a5516d3a07b74a71c01be0ef69eafba6f64d956da819f8ba57915",
+    "room/lobby.lua": "9591e30e94cb5ba63687b9b46074c0c93ccadd65a6a01bb506aa9ab1fe6f07d1",
     "room/seats.lua": "6bbc5db4cddf33f6f49f8d4887840134eb9d02d86ec2d2969203e84c140ef1bc",
     "room/sync.lua": "b7703c43982aad5abfe7275d908f1ee4d9f0b1ae2570622193b9d572c8883cb1",
     "session/api.lua": "8168f1b206b094278e2f8554707a2958a71dfb23138d6cde222466e2802687ea",
     "session/check.lua": "98db010af19a8f081cf667becb38f54bdb2630c64993dd1a7bebce3aac49eb60",
     "session/json.lua": "c67017eb3aa54b2ebc68000999b7a7c770dab6d7ec45d5e6f2a481bfe38e25b0",
     "session/replay.lua": "f405db2e8a36616ec4321fbb855ba8b0536ed8ba7183ec90468411800b19f11e",
-    "session/session.lua": "f4f767525eede9583de3ecbc4cd737c3ee04698e8cc5d325efba33de6b16b98a",
+    "session/session.lua": "e4e62c39eef39d22bebfe389b7ea504ebe485ba8e33892746619c703678c251a",
     "session/throw.lua": "66fa475243b7d7b3e1cdbc17d3b7c068cd10bdfd1988c91b954b01e0bd7256b9",
     "session/touch.lua": "1785c2057390574d94f42fde5945558e42ae20186a74d5bd8bc6d523231d4371",
     "session/wide.lua": "9f2087d3362b6ed4d2240365a5bd79504ae7207775529cc0d403ab201befd855",
@@ -76,6 +76,6 @@
     "version.lua": "078565292b5fc1da3465fcd2912a3bddd3e6ab75249cccc0cc081596e5a8adff"
   },
   "bundle": {
-    "sha256": "b7e506ca7fd80ed7f9b461e0655c5d13140faf05b8394f143dd4331ad3a245d4"
+    "sha256": "1cdbd23561cd5eb005ece82cd2445e9a4013726fe28020085aab16cbfd70c97f"
   }
 }
