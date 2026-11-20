@@ -166,6 +166,34 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
   arithmetic is term for term the plain version's, so results did not change: a change to
   these files should keep a dump of every body after a fixed scenario bit-identical on the
   desktop, or say why not.
+- **A baton on a kubb's top** (a play-test match, 2026-11-20: "batons bounce off the top
+  of kubbs way too much"; 29 of 41 first touches of a standing piece on the top; the worst,
+  a clean throw at 6.89 m/s, left the kubb standing and the baton going on at 4.55 m/s,
+  rising). Studied with `tools/topprobe.lua`; the contact is not changed.
+  - Where the touches are: a baton arrives near upright (`r33` -0.95 to -1), so a throw a
+    few centimetres high sets its lower end on the top. That was most of it, and the aim
+    now goes lower (docs/notes/real-games.md, "Aim lower, at the body").
+  - Why a kubb stands: over the first four steps of the top touches that left it standing
+    (pro, 3 to 5 m) the baton took a mean 0.39 N s back and 1.10 N s up, so the kubb took
+    as much forward and down. Tipping it over its far foot from the top needs the forward
+    share over the downward to pass its depth over its height, 0.07 / 0.15 = 0.47; 0.35 is
+    under it, and under the friction's 0.4 too, so the contact stuck rather than slid:
+    friction was not cut short, and more of it (0.6, 0.8) moved nothing. A push down
+    inside the kubb's footprint cannot tip it; the baton pivots over its planted end and
+    vaults (`tests/lua/test_topcontact.lua`: planted on the top it stands and the baton
+    rises over 0.1 m; 6 cm lower it falls). Rounding the kubb's edges more for a baton
+    (`collide.tune.batonRound` 0.02, 0.03) moved nothing either.
+  - The bounce: two wooden blocks on a pendulum part at 0.41 to 0.47 at 1.2 to 1.5 m/s
+    (Alonso-Marroquin et al., Granular Matter 2013, arXiv 1405.3049); a block dropped on
+    acrylic 0.39 to 0.60. Wood struck harder dents and gives up more (Sakai et al., J. Soc.
+    Mat. Sci. Japan 2022). No baton-on-kubb figure at 3 to 8 m/s was found, so 0.25 to 0.45
+    is the defensible range and `pairE` 0.35 sits in it. A baton's own bounce of 0.2 off
+    any piece was built and measured, not kept: the share of top touches after which the
+    baton rose 5 cm or more fell from 59% to 40% (pro), but the kubb fell less (per top
+    touch 89% -> 86%; the computer's field hits 67% -> 65%), and in `make realgames` every
+    figure moved away from the real games (cleared the field 55.5% -> 51.7%, turns a game
+    19.3 -> 21.6). The bounce is part of what fells a kubb struck on an edge; the vault
+    over a planted end is mechanics, not bounce (at 0.2 the fixture's baton rose higher).
 - **Free flight** (2026-11-16, from the reference engine's finding 3). A body with no
   contact this step moves by the trapezoid: x += (v before the step's forces + v after) / 2
   x dt, which is exact under gravity alone and drops nothing of the drag's turn. Until
