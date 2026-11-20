@@ -93,6 +93,53 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.9.0** (minor). Physics and the computer change what a seeded match does, so the
+  golden corpus is new (13 matches, 523 action hashes, header 0.9.0). A 0.8 match
+  replays differently on 0.9, and the room refuses a match between 0.8 and 0.9.
+
+  What a player sees:
+  - A kubb held up by the ground alone comes to rest only on a face, never balanced
+    on an edge or a corner.
+  - Batons aim lower, at a kubb's body rather than its top (`aimHeightShare` 0.5 to
+    0.3), so fewer bounce off the top.
+  - The computer steps up to a kubb a step away from the line (`minRange` 2.0 to
+    0.25 m) and throws the low, hard point-blank baton.
+  - The computer's target label names the kubb it is aiming at.
+  - A kubb's spin is kept for the side's next kubb in the inkast turn, and goes when
+    the turn ends, the side changes or a match starts. Arc and tilt go back to the
+    plan's own at every throw.
+  - Tilt, arc and spin take any value in their range, not only the steps.
+  - The computer's level (beginner, club or pro) and the scene are match options.
+  - The Playdate's match options have no kubb set row. Sets are a web and iPhone look.
+  - A save keeps automatic raising for the rest of the match.
+
+  For clients:
+  - Sync the tag. Rooms refuse mixed minors, so the web and the iPhone carry 0.9 next
+    to 0.8 for 0.8 matches.
+  - Web and iPhone: draw the plan's sliders from `view.aim.controls`
+    (`{ min, max, value, default, tick, step, unit, scope }`) and call `setArc`,
+    `setTilt` or `setSpin` with any value. The step calls are unchanged.
+  - Web and iPhone: offer Computer (from `MATCH_OPTIONS`) and a scene, and pass
+    `computer` and `scene` to `setOptions` and to a solo `newMatch`. Club and day,
+    the defaults, are not written, so a start without them is unchanged. A scene is an
+    id of lowercase letters, digits and hyphens, up to 24 characters
+    (`room/lobby.isScene`). Draw `view.scene`, and draw an unknown one as day.
+  - A person's throw action now carries `plan` (`{ release, tilt }` or
+    `{ release, spin }`). Send the action as `frame` returns it.
+  - Playdate: a d-pad tap moves a control one tick (`plan.tune.arcTickDeg`,
+    `tiltTickDeg`, `spinTick`); held, it slides a tick a frame, clamped by
+    `plan.clampRelease`, `clampTilt` and `clampSpin`.
+  - Playdate: keep a kubb's spin for the turn as the session does, or decide not to.
+  - Playdate: show the COMPUTER row from `core/matchopts`. Give each computer
+    player `opts.computer` as its level, so the game file and a resume carry it.
+  - Playdate: drop its SET filter. `matchopts.apply` no longer sets `opts.set`.
+  - Playdate: pass `autoRaise` (true, or nil for by hand) to `save.write`. It comes
+    back from `save.unpack`, so the side file can go.
+  - A client that throws the computer's batons through `autothrow.launch` now gets
+    the plan's hand (`handZ`, `handFwd`, `handTip`), as the session throws them.
+  - Known gap: `checkThrow` takes a forged `noseDown` on a drill released very early
+    or at the sky end (docs/SESSION.md "What a server can prove").
+
 - **0.8.2** (patch). A short baton's plan skips the carries whose answers it already
   has: the aim height's last `speedForCarry` repeated the one made for its answer, and a
   bisection whose ends are neighbouring floats (only a 32-bit float gets there) stops;
