@@ -96,7 +96,14 @@ plan.tune = {
 	-- m: 15 cm), so it meets the piece's face instead of coming down at its foot.
 	-- A target not on a piece (an empty spot) is aimed at the ground, as before.
 	-- Drilled kubbs are not aimed this way (drill.solveAt has its own landing).
-	aimHeightShare = 0.5,
+	-- 0.5 until 0.9, then 0.3 (a play-test match, 2026-11-20: "batons bounce off
+	-- the top of kubbs way too much", 29 of its 41 first touches of a standing
+	-- piece on the top). A baton arrives near upright, its lower end a half
+	-- length (plan.aimZFor's clearance) under its centre and its upper end as
+	-- far over, so a throw a few centimetres high puts its lower end on the
+	-- kubb's top; 4.5 cm up a kubb, the lower end meets the body with room over
+	-- it (tools/topprobe.lua, docs/notes/real-games.md "Aim lower, at the body").
+	aimHeightShare = 0.3,
 	-- The wrist checks the arm's rotation to aim for the level's tumbleTurns.
 	-- On longer throws the arm speed limits how much of that rotation can be
 	-- checked. A rough release adds seeded variation in turns (tumbleSd).

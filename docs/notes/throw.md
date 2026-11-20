@@ -293,7 +293,7 @@ Every number that is a guess lives in one table per module, with a comment:
   and `tiltMaxDeg`, `spinSteps` and `spinPerStep`, the sky ball's extra, the helicopter
   limit, the shake's tilt and pull, overpower, STEADY, the baton's tumble (`tumbleTurns`,
   `armR`, `wristShare`, `tumbleMin`: "The baton's tumble"), the height a clean baton's
-  centre goes through a standing piece (`aimHeightShare` 0.5: "Aimed through the piece");
+  centre goes through a standing piece (`aimHeightShare` 0.3, 0.5 until 0.9: "Aimed through the piece");
   `tw.plan.levels` (beginner, club, pro: the targets' half widths, the error inside a
   target, the shake and overpower costs, the nerves and `tumbleSd`; `plan.LEVELS` in menu
   order).

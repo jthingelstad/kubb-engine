@@ -475,7 +475,7 @@ so it met the kubb low, often landed short of it on an end, bounced and went ove
 
 - **The aim** (Jamie's call): with the circle on a standing kubb or the king (within the
   scene's `snapRadius`, or the computer's target), the clean throw aims the baton's centre
-  through the piece at `plan.aimZFor(kind)`, `aimHeightShare` (0.5) of its height: a kubb
+  through the piece at `plan.aimZFor(kind)`, `aimHeightShare` (0.5 until 0.9, now 0.3: "Aim lower, at the body" below) of its height: a kubb
   0.075 m, the king 0.15 m. `plan.solve` takes `q.aimZ` and carries to
   `flight.tune.handHeight - aimZ` (no extra carries a frame); `sol.aimZ`, `sol.flightT`
   (to that height) and `sol.tumble` follow it. At the same loft a higher aim needs a little
@@ -541,6 +541,33 @@ so it met the kubb low, often landed short of it on an end, bounced and went ove
   and part the ground's bounce, which the dig takes away only on a steep strike. A
   pointed hardwood end may plug more than that on a leaning strike, but there is no
   measured baton-on-turf figure to tune to, so it stays.
+- **Aim lower, at the body** (0.9). A play-test match (2026-11-20, engine 0.7.4): "batons
+  bounce off the top of kubbs way too much"; 29 of its 41 first touches of a standing piece
+  were on the top. A baton arrives near upright (the clean throw's `r33` -0.95 to -1), its
+  lower end `plan.aimZFor`'s clearance (a half length) under its centre, so with the centre
+  aimed 7.5 cm up a kubb plus that clearance, a throw a few centimetres high puts the lower
+  end on the top: there it presses the kubb down (no lever to tip it) and vaults over.
+  `aimHeightShare` 0.5 -> 0.3 (4.5 cm up a kubb, 9 cm up the king), the clearance kept.
+  The planner is unchanged (`tests/lua/test_plan_identity.lua` passes its aim height in;
+  only the height it is given moves). Measured, `lua5.4 tools/topprobe.lua --n 150` (a lone
+  standing kubb on grass, the computer's own swing and nerves at 1 to 8 m, 0.5 -> 0.3):
+  - the clean throw at 2 to 8 m now meets the side at every range (before, the top at 2, 6
+    and 7 m); 1 m is the point-blank throw, end down on the top either way.
+  - pro: hit 70% -> 72%, first touch on the top 62% -> 59%, toppled per touch 87% -> 92%,
+    toppled per top touch 82% -> 89%; top touches that left it standing 92 -> 59 in 1,200
+    throws. Club 59% -> 60%, 62% -> 62%, 85% -> 86%, 83% -> 87%. Beginner about the same
+    (50%, 72%, 76% -> 77%, 83% -> 85%): its scatter is wider than the change.
+  - lower still (0.2, 0.1, 0) moves nothing more and lands more batons short first (skip
+    23% -> 24 to 30%).
+  - `lua5.4 tools/batonprobe.lua --rates 400` (the computer, club): base 16% -> 16%, field
+    64% -> 67%, king 69% -> 71%.
+  - `make realgames` (150 matches, seed 2; real / before / after): turns a game 8.9 / 24.1
+    / 19.3; field batons missed 24.7% / 31.3% / 28.3%, took two 16.0% / 7.8% / 8.7%, three
+    or more 10.0% / 0.5% / 0.6%; cleared the field 83.4% / 51.2% / 55.5%; turns from an
+    advantage line 14.4% / 44.4% / 40.1%; a base kubb from 8 m 32.7% / 28.2% / 29.1%, from
+    an advantage line 51.7% / 44.4% / 49.5%; the king 83.8% / 76.3% / 87.3%; punishment
+    kubbs 1.3% / 4.3% / 4.3%. Every figure moves toward the real games except the king,
+    which passes them; the nerves are not retuned for it.
 
 ### What scatters a drilled kubb
 

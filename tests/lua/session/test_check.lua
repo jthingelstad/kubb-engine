@@ -262,7 +262,11 @@ test("checkThrow refuses a throw at 30 m/s and other throws the dial cannot make
 	local bat, kub
 	for _, t in ipairs(m.throws) do
 		if t.action.how == "baton" and t.action.launch.legal and t.action.swing.back < 110 and not bat then bat = t end
-		if t.action.how == "drill" and not kub then kub = t end
+		-- (a drill released at the sky end or very early fits other releases with its
+		-- nose moved, so the nose pins nothing there: from 0.9 match 1's first drill
+		-- stops at 29 degrees and takes any nose; docs/notes, the owner's to decide)
+		if t.action.how == "drill" and t.action.swing.stop > 60 and t.action.swing.stop < 160
+			and not kub then kub = t end
 	end
 	local function refused(t, change, what)
 		local a = copy(t.action)
@@ -610,7 +614,8 @@ end)
 
 test("rulings carry codes beside their words, and the words are as before", function()
 	local seen = {}
-	for _, seed in ipairs { 1, 2, 3, 4, 5, 6 } do
+	-- (13: from 0.9 seeds 1 to 12 drill no second kubb in a turn, so give no "in for now")
+	for _, seed in ipairs { 1, 2, 3, 4, 5, 6, 13 } do
 		local m = match(seed)
 		for i, rec in pairs(m.recs) do
 			local w = rec.result.ruling

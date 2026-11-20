@@ -17,11 +17,11 @@ local function solve(d, release, aimZ)
 		level = "club", aimZ = aimZ }, {})
 end
 
-test("aim heights: half a kubb, half the king, the ground off a piece", function()
-	expect.near(plan.aimZFor("kubb"), body.kinds.kubb.hz + body.kinds.baton.hl, 1e-12)
-	expect.near(plan.aimZFor("king"), body.kinds.king.hz + body.kinds.baton.hl, 1e-12)
-	expect.near(plan.aimZFor("kubb"), 0.075 + body.kinds.baton.hl, 1e-9)
-	expect.near(plan.aimZFor("king"), 0.15 + body.kinds.baton.hl, 1e-9)
+test("aim heights: low on a kubb and the king, the ground off a piece", function()
+	expect.near(plan.aimZFor("kubb"), 0.6 * body.kinds.kubb.hz + body.kinds.baton.hl, 1e-12)
+	expect.near(plan.aimZFor("king"), 0.6 * body.kinds.king.hz + body.kinds.baton.hl, 1e-12)
+	expect.near(plan.aimZFor("kubb"), 0.045 + body.kinds.baton.hl, 1e-9)
+	expect.near(plan.aimZFor("king"), 0.09 + body.kinds.baton.hl, 1e-9)
 	expect.eq(plan.aimZFor(nil), 0)
 	local share = plan.tune.aimHeightShare
 	plan.tune.aimHeightShare = 0
