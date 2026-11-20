@@ -297,7 +297,10 @@ Every number that is a guess lives in one table per module, with a comment:
   `tw.plan.levels` (beginner, club, pro: the targets' half widths, the error inside a
   target, the shake and overpower costs, the nerves and `tumbleSd`; `plan.LEVELS` in menu
   order).
-- `tw.flight.tune` (`source/core/flight.lua`): gravity, hand height, loft range (5 to 55) and step,
+- `tw.flight.tune` (`source/core/flight.lua`): gravity, hand height, the hand at a short throw
+  (`nearM`, `nearHandHeight`, `nearReach`, `nearFlatten`, `nearAimZ`, `nearAimRef`,
+  `nearSpeed`, `nearLoftDeg`, `nearTip`, `nearLow`, `nearTurnM`, `nearTurnDeg`,
+  `nearTurnOverDeg`, `nearOverLoft`: "The hand at a short throw" below), loft range (5 to 55) and step,
   baton size, wobble. (`boostBelowDeg` and `flight.loftBoost`, the old player's low throw,
   were removed 2026-11-15, as were `swing.tune`'s launch and tumble ranges: the plan's
   scales set the speed, `plan.tumbleFor` the tumble.)
@@ -412,3 +415,104 @@ lower end through the piece by allowing for the baton's segment half-length.
 The computer uses the level of the player taking the throw. Its beginner inkast
 keeps the natural wrist spiral. Club adds one spin step and pro adds two to
 stabilize the kubb in flight.
+
+## The hand at a short throw
+
+A player's report (2026-11-20, iPad, club): two batons at a field kubb 35 cm in front of
+the advantage line both missed. Replayed, the first came down on the kubb's top front
+edge at 0.34 s (its centre 15 cm up, falling at about 60 degrees, 0.87 N s) and bounced
+back to rest at its foot; the kubb rocked 1.4 degrees and stood. The second, LONG, struck
+the top edge at 16 cm and went on to rest half a metre past it. The cause was the release:
+every baton left the hand upright at `handHeight` (0.6 m) over the feet, so a target a
+step away could only be reached by a slow throw falling steeply onto the kubb's top, and a
+blow from above presses a kubb into the ground. The computer never met it: it stands at
+least `autothrow.tune.minRange` (2 m) from its target, which is why that limit exists.
+
+Jamie, the same day: "Real player when hitting a field Kubb that close will hit it low and
+hard in an attempt to roll the Kubb into other field kubbs or even on a hope to roll it to
+the baseline to hit a baseline Kubb!" / "It would be 1 in 100 to role a field 4M into a
+baseline." / "It is common to hit a big cluster of field kubbs that close." / "And players
+miss when they attempt to overpower those throws."
+
+Under `flight.tune.nearM` (2 m, the planned distance from the stance to the circle;
+`flight.handAt`), by `s = 1 - d / nearM`, the hand goes down toward `nearHandHeight` and
+ahead of the feet toward `nearReach`, the baton leaves it tipped forward by `nearTip * s`,
+the loft keeps `1 - nearFlatten * s` of itself, and a baton aimed through a piece is aimed
+from `nearAimRef` (a kubb's aim at 2 m) toward `nearAimZ` (into its face, not over its
+top). On top of that is the firm bowl: where a throw at `nearSpeed` (3.7 m/s, a backswing
+of 67.4) and the flattened field loft would carry past the aim, the hand goes lower until
+it does not, down to the baton's lower end `nearLow` off the grass; where the hand is that
+low and the throw would still be softer (under about 0.5 m), `plan.solve` aims higher
+through the face. Without it the planned speed fell under 1.5 m/s at a step away, a slow
+throw still came down on the kubb's top, and the power target sat at the bottom of the
+clock (30 to 46 at 0.2 m), where a swing hardly moves the baton.
+
+The arrival turn (`flight.nearTurn`). The tumble is held to the wrist's range
+(`plan.tune.armR`, `wristShare`), which on a short flight left the baton arriving part way
+through its half turn, end down (130 to 170 degrees from upright). Thrown full it still
+toppled the kubb, but a swing a little short (a flick of 0.85 to 0.9) planted that end in
+the grass in front of it: at 1.25 m a flick of 0.88 toppled 56% / 45% in 0.7.4 and less
+after the first two passes of this work. Under `nearTurnM` (0.97 m) the plan now turns the
+baton to `nearTurnDeg` (110 degrees, the tip included) on arrival, flat into the face and
+within the wrist's range; from `nearTurnM` to `nearM` it turns `nearTurnOverDeg` past a half
+turn (the top end coming over into the kubb), eased to the level's own tumble by
+`nearM`. Both bowls work and the mixture of them does not, so the turn steps at
+`nearTurnM` (from about 6 to 13.5 rad/s); at `nearM` it meets the old tumble exactly.
+
+Overpowering (`nearOverLoft`). The level's overpower cost multiplies the shake and the
+nerves, which at a step away are far too small to miss by: with only that, a swing two
+bands past the power target still toppled the kubb every time under 0.5 m. A swing past the
+power target under `nearM` now adds `nearOverLoft` (2.5) degrees of loft per degree past
+it, times `s`, so the baton rises over the kubb. On the band nothing changes.
+
+`plan.solve` returns the hand (`handZ`, `handFwd`, `loftShare`, `handTip`, `nearShare`),
+`plan.launch` flattens the loft, `session/throw` launches from the hand (from the action's
+stance and circle, so the action's format is unchanged) and draws the arc from it (not yet
+tipped). At 2 m and over every number is as before (`tools/physdump.lua`, the golden corpus
+and `tools/physmatch.lua` unchanged). `tools/pointblank.lua` measures the hit window by
+range, a kubb square and turned 45 degrees (`--set flight.nearM=0` for the engine before;
+`--sweep` for the plan across `nearM`, `--nerves`, `--flick`, `--over`, `--behind king`,
+`--cluster N`). Club, no nerves, the share of swings the gauge calls ON ON that topple
+(square / 45 degrees), 0.7.4 against now:
+
+| range | full flick | flick 0.88 | flick 0.85 | power target now |
+|---|---|---|---|---|
+| 0.2 m | 48/5, 100/100 | 65/14, 100/100 | 72/16, 100/100 | 46.6 to 62.6 |
+| 0.35 m | 2/0, 100/100 | 24/0, 100/100 | 55/1, 100/100 | 52.7 to 68.7 |
+| 0.5 m | 0/0, 100/100 | 0/0, 100/100 | 0/0, 100/100 | 59.4 to 75.4 |
+| 0.75 m | 62/38, 100/100 | 30/1, 100/100 | 40/12, 100/100 | 59.4 to 75.4 |
+| 1.0 m | 29/24, 100/100 | 94/59, 100/100 | 85/51, 100/95 | 59.4 to 75.4 |
+| 1.25 m | 55/51, 100/100 | 56/45, 100/100 | 42/31, 100/89 | 59.4 to 75.4 |
+| 1.5 m | 60/53, 99/78 | 77/38, 100/100 | 43/17, 100/82 | 60.6 to 76.6 |
+| 1.75 m | 65/57, 85/65 | 78/27, 99/89 | 40/5, 98/53 | 63.5 to 79.5 |
+| 1.9 m | 68/60, 69/59 | 81/25, 99/58 | 45/3, 86/12 | 65.1 to 81.1 |
+| 2.0 m | the same | the same | the same | 66.0 to 82.0 |
+
+Overpowered (club, ON on the stop, square / 45): a swing one band past the power target
+topples 75/73 at 0.2 m, 50/44 at 0.35 m, 17/15 at 0.5 m, 10/9 at 0.75 m, 24/16 at 1.0 m,
+9/5 at 1.25 m and nothing from 1.5 m (0.7.4: 0 to 1% at every range, the baton landing on
+the kubb's top or past it). Two bands past topples nothing at any range, in both.
+
+Clusters (`--cluster`, 40 seeded layouts of 3, 5 or 8 field kubbs 0.1 to 0.4 m apart,
+the nearest one the target, 3 x 3 swings across ON ON, club): kubbs toppled per baton, the
+mean and the share taking 0 / 1 / 2 / 3 / 4 or more:
+
+| kubbs | 0.35 m | 0.75 m | 1.25 m | 2 m |
+|---|---|---|---|---|
+| 3 | 1.30 (0/70/30/0/0) | 1.39 (0/61/39/0/0) | 1.42 (0/60/39/1/0) | 0.97 (31/41/27/1/0) |
+| 5 | 1.32 (1/69/28/2/0) | 1.51 (0/53/43/4/0) | 1.41 (2/58/34/5/0) | 1.02 (32/39/26/4/0) |
+| 8 | 1.40 (2/61/34/4/0) | 1.60 (2/45/45/8/1) | 1.41 (7/53/32/8/0) | 1.05 (33/36/24/6/1) |
+
+0.7.4 toppled a mean of about 0.1 / 0.6 / 0.65 at 0.35 / 0.75 / 1.25 m, mostly by missing.
+In the real games (`real-games.md`, all ranges together) about a third of the batons that
+hit field kubbs took two or more, close to the engine's share here; three or more is rarer
+in the engine than in the games. A struck kubb moves 0.1 to 0.4 m on average and never
+more than half a metre, so a field kubb rolled 4 m into a baseline kubb does not happen
+(Jamie's 1 in 100 is an upper bound); kubb-on-kubb and kubb-on-grass contact are unchanged.
+
+What it costs: a kubb a step away is nearly certain on any sensible swing (the toppling
+area is five times the one at 2 m); one band long at 0.2 m still topples three times in
+four; full flick on a kubb turned 45 degrees at 1.5 to 1.75 m is 78 to 65%, a few points
+under the first two passes; and a king standing up to 0.6 m behind a kubb 1.5 to 1.9 m away
+falls about as often as it does behind one at 2 m (about a quarter of ON ON swings), where
+it used to fall less.
