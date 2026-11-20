@@ -312,6 +312,12 @@ Every one is deliberate and tested (`tests/lua/room/test_room.lua`, "the engine'
    has the document, START and match it always had (the computer at club), and an
    older engine's room calls drop it. A person's own level stays theirs (`me.level`);
    the option is the computer's only.
+   `scene` (since 0.9), the look the match is drawn in, is the second: in
+   `OPTION_DEFAULTS` (`day`) but not in `MATCH_OPTIONS`, since the engine does not list
+   the scenes. Any id of lowercase letters, digits and hyphens, 1 to 24 characters, is
+   taken (`isScene`), so a client adds a scene without an engine release and labels it
+   itself. `set` stays a fixed list, as the JavaScript has it (vector 017 refuses
+   `"mars"`).
 
 Beyond these the calls decide exactly as the JavaScript does on the same JSON, odd input
 included: `===` (so `"3"` is not `3`), JavaScript truthiness (`0`, `""` and `null` are

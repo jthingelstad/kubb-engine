@@ -38,17 +38,29 @@ lobby.REPLAY_VERSION = 1
 
 local OPTION_KEYS = { "surface", "opening", "raising", "wind", "set" }
 lobby.OPTION_DEFAULTS = { surface = "grass", opening = "2-4-6", raising = "hand", wind = "off", set = "classic",
-	computer = "club" }
+	computer = "club", scene = "day" }
 
 -- The engine's own options (docs/ROOM.md "Differences"), which the JavaScript does not
 -- know: each is in the document's options only when a host set it to a value it takes,
 -- so a document without them (every one an older client wrote) reads, cleans and writes
 -- exactly as before, and an absent one is its default. Each key's test of a value:
-local OWN_KEYS = { "computer" }
+local OWN_KEYS = { "computer", "scene" }
+
+-- A scene (Jamie, 2026-11-20: scenes and effects are new settings, a look only): the
+-- pitch's light and sky, drawn by the client, never read by the physics or the rules.
+-- The engine does not list the scenes: an id is lowercase letters, digits and hyphens,
+-- 1 to 24 characters (OPTION_DEFAULTS.scene, "day", when absent), and a client draws one
+-- it does not know as "day", the look there has always been. So a client adds a scene
+-- without an engine release, and the scene is not in MATCH_OPTIONS: the client labels it.
+function lobby.isScene(v)
+	return type(v) == "string" and #v >= 1 and #v <= 24 and v:match("^[a-z0-9%-]+$") ~= nil
+end
+
 local OWN_OK = {
 	-- the computer's level, a game setting (Jamie, 2026-11-20: "yes this should be a real
 	-- per game setting"); absent: club, as before
 	computer = function(v) return includes(lobby.LEVELS, v) end,
+	scene = lobby.isScene,
 }
 
 -- The match options the host sets: { key, label, { { value, label }, ... } }, as on the
