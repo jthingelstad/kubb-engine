@@ -97,6 +97,9 @@ lobby.
   ones take `OPTION_DEFAULTS`.
 - A document with a log stays under `LOG_BUDGET` (248 KB, counting every character
   above U+007E as 6, as the room does): the commit that would pass it drops the log.
+  A replay that commits a whole match in one pass (`replayLoad` with `document`) keeps
+  each log entry's size from commit to commit (`lobby.docSize`) instead of encoding the
+  whole document on every action: the same number, so the log goes at the same action.
 
 ### Values used by the calls
 
