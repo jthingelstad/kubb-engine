@@ -53,7 +53,8 @@ iPhone app (the bundle: core, room, session and tune).
   in the same pull request.** That is any physics, rules, tune or session change that
   alters what a seeded match does. `make golden-check` (in `make test` and CI) is the
   gate: it passing is what hash-neutral means, and only hash-neutral changes may be a
-  patch. A snapshot, action or document format change is a major bump.
+  patch. A format change an older client cannot read is a major bump; fields that only
+  add, inside a match pinned to its major.minor, go with the minor (docs/VERSIONING.md).
 - Bump the version in `version.lua` and `engine.json` together (`make test` checks).
 - The golden corpus is generated under wasmoon only, the reference platform
   (docs/DETERMINISM.md). Stock desktop Lua is for logic tests, never for hashes.
