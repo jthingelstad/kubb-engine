@@ -19,7 +19,7 @@
     "note": "room/ is src/net's lobby.js, seats.js and sync.js in Lua; tests/room/vectors/ were recorded from this commit (docs/ROOM.md)"
   },
   "files": {
-    "core/autothrow.lua": "0f94773f8f1f40484edf4cba16ecc21e33c7f4353e3e0f63faadc56e46663ac3",
+    "core/autothrow.lua": "c4c67d079efcb341f70195f803fe17ba89cbcb4884582b0ebfc0b94c6940ae38",
     "core/bench.lua": "763ad4227dbc59ac8279b42165afbd2945ed951b5ad00e8934f239f534194e7f",
     "core/body.lua": "7984503fa805f27b9acc4cdfe998f730178a6c7fa5edf2f28950d274819c3b31",
     "core/burstpick.lua": "2c3f468a44b041a4161f2f7db7f49efbba2d16c2585ec7ac5b2610af22a4ce10",
@@ -68,7 +68,7 @@
     "session/json.lua": "c67017eb3aa54b2ebc68000999b7a7c770dab6d7ec45d5e6f2a481bfe38e25b0",
     "session/replay.lua": "f405db2e8a36616ec4321fbb855ba8b0536ed8ba7183ec90468411800b19f11e",
     "session/session.lua": "97a89a56ff6dd2f52688fbd06654d8ddcadb280b639aade4cb310575dd10b79c",
-    "session/throw.lua": "7df212cf6d747284bd045ff3fc5126e9b510e36d5e7c9f549e99c8d496a9f06b",
+    "session/throw.lua": "a9a80fc1273cc8d6682ab13d850b234e0c4d24c3ef772421ecffaaf95013bfda",
     "session/touch.lua": "1785c2057390574d94f42fde5945558e42ae20186a74d5bd8bc6d523231d4371",
     "session/wide.lua": "9f2087d3362b6ed4d2240365a5bd79504ae7207775529cc0d403ab201befd855",
     "tune/pointer.lua": "7b30c67adf47fb8387e5b0dd7f73af3c92c99116d05781885e7fc0157fcc9397",
@@ -76,6 +76,6 @@
     "version.lua": "078565292b5fc1da3465fcd2912a3bddd3e6ab75249cccc0cc081596e5a8adff"
   },
   "bundle": {
-    "sha256": "c2e9c0c8abfcb7a3595a86fb2d0ba222470d48d902eeb9798256fc7ae3231e19"
+    "sha256": "d1e71421ac8a0a1699c9ec75d46fce6d715cd5381ba22f618ae8b531d6e61d17"
   }
 }

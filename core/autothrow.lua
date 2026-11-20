@@ -315,7 +315,8 @@ end
 -- height; the king from the baseline. Kubbs: drilled to the basket
 -- (autothrow.basket) from the baseline. scale (default 1) multiplies every
 -- mistake: below 1 a steadier thrower. level: a tw.plan level (default
--- tune.level).
+-- tune.level). A baton's throw names the piece it is aimed at (`on`, its
+-- id: the front kubb of the lane it aims across), a drill none.
 function autothrow.choose(s, r, scale, level)
 	scale = scale or 1
 	local t = autothrow.tune
@@ -323,7 +324,7 @@ function autothrow.choose(s, r, scale, level)
 	if type(lname) ~= "string" then lname = t.level end
 	scale = scale * (t.swingScale[lname] or 1)
 	local q = { level = autothrow.cpuLevel(lname), surface = s.surface }
-	local tx, ty, py, arc
+	local tx, ty, py, arc, on
 	if s.kind == "toss" then
 		local side = autothrow.basket(s, r)
 		tx, ty = autothrow.spot(s, side)
@@ -364,6 +365,7 @@ function autothrow.choose(s, r, scale, level)
 			end
 		end
 		ty = target.y - t.batonShort
+		on = target.id
 		q.projectile = "baton"
 		-- through the piece at its aim height (plan.tune.aimHeightShare), as a
 		-- player's circle on a piece is
@@ -385,7 +387,7 @@ function autothrow.choose(s, r, scale, level)
 	local L = plan.launch(sol, sw, { projectile = q.projectile, tilt = 0, spin = q.spin,
 		nerves = scale > 0 and r or nil }, {})
 	local a = { x = st.x, y = st.y, swivel = L.swivel, loftDeg = L.loft, speed = L.speed,
-		tumbleRate = L.tumble, tilt = L.tilt, legal = L.legal, plan = sol, swing = sw, launch = L }
+		tumbleRate = L.tumble, tilt = L.tilt, legal = L.legal, plan = sol, swing = sw, launch = L, on = on }
 	if q.projectile == "kubb" then
 		a.drill = { markerX = tx, markerY = ty - s.lineY, noseDown = L.noseDown, rollLand = L.rollLand,
 			spin = L.spin, wobble = L.wobble }
