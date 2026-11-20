@@ -9,6 +9,8 @@ It names the whole engine: `core/`, `room/`, `session/`, `tune/` and `version.lu
 - **Major**: a format change. The snapshot (`session.snapshotVersion`), an action's
   shape, or a document format a client stores or sends (the recording, the game file
   the session writes, the room's document in a way an older client cannot read) changes, so an old client cannot read what a new one writes.
+  A format change an older client cannot read is a major; fields that only add, inside
+  a match pinned to its major.minor, go with the minor.
 - **Minor**: anything that can change a hash. Any physics, rules, tune or session change
   that alters what a seeded match does: a constant, an order of operations, a rounding,
   a new random draw. If it is not proven hash-neutral, it is a minor change.
