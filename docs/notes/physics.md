@@ -109,6 +109,39 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
   everything it touches (`test_physics`: "a kubb resting on a lying kubb sleeps, and wakes
   when the one under it is knocked"). The record is three numbers and a reference on each
   body, set in the store loop: no tables in the step.
+- **Rest on a face** (a play-test match, 2026-11-20: "Drilled Kubb landed on its edge --
+  not possible!"; the second kubb of an inkast slept free on a long edge, rolled 44
+  degrees, its centre 4.95 cm up, nothing within 0.4 m). The sleep test had no stability
+  check. A box tipping slowly over an edge is held by the turf (`texture.drag` and
+  `grip`, which take a share of a lying piece's spin as well as its slide, 14.5/s on
+  grass once slow) and by the dig's rolling lever; near the balance the tipping is too
+  slow to beat them (on grass gravity turns a kubb 0.5 mm past its edge at 1.5 rad/s^2,
+  and the grip holds that under 0.1 rad/s), so it passed `sleepAng` and slept balanced.
+  Now a box held up by the ground alone (no piece pressed this step: not `restStep`, not
+  `propStep`) sleeps only on a face: its support is the corners on the ground, and on
+  flat ground the centre is over them only when a whole face is down. `boxFlat(b,
+  flatTol)` takes the face whose axis is nearest vertical and asks that its corners stand
+  within `flatTol` (2 mm, the contact margin) of each other; resting faces read under
+  0.5 mm, the edge and corner balances 20 mm and more. On an edge it stays awake, the
+  turf's hold only slows it, and it falls onto a face. A box propped on another piece (a
+  kubb, the king, a stake, a baton) is the leaner rule's as before. The grip was left
+  as it is: keeping it off the spin of a box on an edge (tried) moved nothing measurable
+  (run on +1 cm at the median) and costs a call a step. Measured (2000 jittered drills
+  into an empty half per surface, aim, loft, power, wrist and spin jittered; before ->
+  after): rests free on an edge or a corner, grass 14 (1 in 143) -> 0, sand 151 (1 in
+  13) -> 0, snow 32 (1 in 62) -> 0; run on p10 / p50 / p90 unchanged to the centimetre;
+  steps +0.3 to +0.7%, no throw ran out of time (longest 3.9 s). `tools/drillscatter.lua
+  --only 3`: run on unchanged to the millimetre; poses at rest that are neither flat nor
+  on an end, grass 1 / 2% -> 0, sand 10 / 9% -> 0, snow 4 / 1% -> 0; touch to rest mean
+  +0.01 to +0.10 s (sand most), the longest 2.9 s (was 2.3). `make realgames` (150
+  matches seed 2): within the run's noise everywhere (missed 31.3 -> 31.3%, took two 8.0
+  -> 7.8%, cleared 50.0 -> 51.2%, base from 8 m 28.1 -> 28.2%, king 75.7 -> 76.3%). Cost:
+  `boxFlat` runs only for a slow box with no prop (a few multiplies); the bench and the
+  match case are unchanged (0.017 ms a step; match case 0.005 to 0.006, ground 0.011,
+  multi 0.019). Tests: `test_rest.lua` (the set-down near the edge's balance that slept
+  there on every surface, 1200 jittered drills, and leaners on a kubb, a stake and a
+  baton). Not bit-identical: any throw where a box slowed on an edge or a corner with
+  nothing propping it.
 - `core/playback`: compute ahead and play back. Poses are recorded every 1/50 s of
   simulated time (per body, only from the first frame it moved); the screen shows any time
   between two records (`playback.poseAt` interpolates) at the pace of "Playback" below.
