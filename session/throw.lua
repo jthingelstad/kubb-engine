@@ -650,6 +650,48 @@ function throw.stepSide(s, side)
 	end
 end
 
+-- Any value in range (Jamie, 2026-11-20): a baton's tilt in degrees, a kubb's spin in
+-- taps (fractions too). Each does nothing for the other projectile. setArc takes any
+-- release already (plan.clampRelease does not round).
+local function finite(v) return type(v) == "number" and v == v end
+
+function throw.setTilt(s, deg)
+	if s.projectile == "kubb" or not finite(deg) then return false end
+	s.tilt = plan.clampTilt(deg)
+	return true
+end
+
+function throw.setSpin(s, taps)
+	if s.projectile ~= "kubb" or not finite(taps) then return false end
+	s.spin = plan.clampSpin(taps)
+	s.planDirty = true
+	replan(s)
+	aimCamera(s)
+	return true
+end
+
+-- What a slider draws for each of the plan's controls: its range, default, value, the
+-- tick a held key slides by and the step a press jumps by. arc for every throw; tilt for
+-- a baton, spin for a kubb. scope: "throw" (back to default at every throw) or "turn"
+-- (kept for the side's next kubb in the inkast turn).
+function throw.controls(s)
+	local pt = plan.tune
+	local kubb = s.projectile == "kubb"
+	local out = {
+		arc = { min = pt.releaseMinDeg, max = pt.releaseMaxDeg, value = s.release, set = s.arcSet and true or false,
+			default = plan.arcFor(kubb and "drill" or s.markerKind), tick = pt.arcTickDeg, step = pt.arcStepDeg,
+			unit = "deg", scope = "throw" },
+	}
+	if kubb then
+		out.spin = { min = -pt.spinSteps, max = pt.spinSteps, value = s.spin, default = 0, tick = pt.spinTick,
+			step = 1, unit = "taps", radPerTap = pt.spinPerStep, baseRad = drill.tune.spiral, scope = "turn" }
+	else
+		out.tilt = { min = -pt.tiltMaxDeg, max = pt.tiltMaxDeg, value = s.tilt, default = 0, tick = pt.tiltTickDeg,
+			step = pt.tiltStepDeg, unit = "deg", scope = "throw" }
+	end
+	return out
+end
+
 -- The plan starts afresh (arc follows the target, no tilt or spin).
 function throw.freshPlan(s)
 	freshPlan(s)

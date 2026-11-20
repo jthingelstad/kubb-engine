@@ -232,12 +232,33 @@ All return `{ aim, camera }`, and do nothing unless this browser may aim now.
 | `setTarget(x, y, snap)`        | The circle at (x, y); `snap` puts it on the nearest piece within `snapRadius`.                                       |
 | `nudgeTarget(dx, dy)`          | The circle moved by (dx, dy) metres.                                                                                 |
 | `setStance(x, y)`              | The thrower stands there (behind the line, inside the pitch). `setStance()` lets the stance follow the target again. |
-| `stepArc(step)`, `setArc(deg)` | The release angle (the plan's arc).                                                                                  |
-| `stepSide(step)`               | The baton's side spin step.                                                                                          |
+| `stepArc(step)`, `setArc(deg)` | The release angle (the plan's arc): a step of `arcStepDeg`, or any value, clamped (never rounded). |
+| `stepSide(step)`               | A step: a baton's tilt by `tiltStepDeg`, a kubb's spin by one tap.                                  |
+| `setTilt(deg)`, `setSpin(spin)` | Since 0.9: a baton's tilt (degrees) or a kubb's spin (taps, fractions too), any value, clamped to the range; each does nothing for the other projectile. |
 | `freshPlan()`                  | Back to the plan's own release and arc.                                                                              |
 | `setLevel(level)`              | The thrower's level (practice: the default level).                                                                   |
 
 Practice also has `setDrill(on)`, `reset()` and `setSurface(name)`, which return a view.
+
+**The controls** (since 0.9; Jamie, 2026-11-20: "more analog allow the slider to select
+any value in a range"). `aim.controls` gives a slider its numbers from the engine:
+`arc` always, `tilt` for a baton, `spin` for a kubb, each `{ min, max, default, value,
+tick, step, unit, scope }` (`arc` also `set`, `spin` also `radPerTap` and `baseRad`).
+`tick` is the fine move a held key slides by, one a frame (`plan.tune.arcTickDeg`,
+`tiltTickDeg`, `spinTick`); `step` what a press jumps by (the step calls). `scope` is
+`"throw"` or `"turn"` (below).
+
+| Control | Range | Default | Tick | Step | Physically |
+| ------- | ----- | ------- | ---- | ---- | ---------- |
+| `arc` | 15 to 165 clock degrees (half past 5 to half past 12) | the plan's own: 90 at base kubbs, 75 the king, 60 field kubbs, 135 a drilled kubb | 5 | 15 | the release target; the loft is `plan.loftFor` of it, about 7 to 57 degrees |
+| `tilt` | -20 to 20 degrees | 0 | 1 | 5 | the baton's spin plane tipped, before the shake's tilt; over 30 with the shake is a helicopter |
+| `spin` | -3 to 3 taps | 0 | 0.25 | 1 | 22 rad/s a tap about the kubb's long axis, + clockwise from behind (rolls right), on top of the wrist's 3 rad/s spiral: -63 to +69 rad/s |
+
+The value a client sends is applied as it is (clamped), and the throw's action carries
+the launch it made, so a fractional value needs no wire precision of its own: every
+client applies the action's numbers (JSON's shortest round-trip doubles), never a slider
+position. The spin is linear in the physics (`drill.body`; the drill's solve does not
+read it), so there is no step at a former tap.
 
 **Turn and throw settings** (Jamie, 2026-11-20). The arc and a baton's tilt are throw
 settings: every throw starts from the plan's own arc and no tilt. A kubb's spin is a turn
@@ -319,7 +340,7 @@ log. A server (a highlight reel) can replay it in the engine and check this much
   are seeded from them. `checkThrow` holds it to bounds worked out from the code that
   makes a throw (`session/check.lua` lists each with its source): the plan solved again
   for the stance and target with every release, tilt (or spin) and level a player can
-  choose; the loft pinned by the stop (since 0.8.0, a baton planned under 2 m with the
+  choose (since 0.9 any value in range, the action's `plan` tried first); the loft pinned by the stop (since 0.8.0, a baton planned under 2 m with the
   plan's flatter share of it and the heave of a swing past the power target, as
   `plan.launch` gives them); the tilt pinning the shake and the pull; the
   swivel, speed and tumble within the nerves' largest draw (and never under the floors

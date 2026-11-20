@@ -662,6 +662,7 @@ function Session:aimView()
 			releaseLo = sol.releaseLo, releaseHi = sol.releaseHi,
 		},
 		arc = arc,
+		controls = throw.controls(ts),
 		projectile = ts.projectile, drill = ts.drill,
 		lineY = ts.lineY, forwardY = ts.forwardY, advY = ts.advY, advText = ts.advText,
 		halfWidth = throw.tune.halfWidth, backMax = throw.tune.backMax,
@@ -770,6 +771,16 @@ end
 
 function Session:stepSide(step)
 	if self:canAim() then throw.stepSide(self.ts, I(step or 1)) end
+	return aimOut(self)
+end
+
+function Session:setTilt(deg)
+	if self:canAim() and type(deg) == "number" then throw.setTilt(self.ts, F(deg)) end
+	return aimOut(self)
+end
+
+function Session:setSpin(taps)
+	if self:canAim() and type(taps) == "number" then throw.setSpin(self.ts, F(taps)) end
 	return aimOut(self)
 end
 

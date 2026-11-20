@@ -76,6 +76,15 @@ plan.tune = {
 	                       -- the touch, a gyroscope; once down, spin moves it a little either way: which
 	                       -- corner strikes first decides more than the spin (2026-11-16, the plain body
 	                       -- with the turf's bite; tools/spinwall.lua)
+	-- The plan's controls take any value in their range (Jamie, 2026-11-20: "more analog
+	-- allow the slider to select any value in a range"): the release in
+	-- releaseMinDeg..releaseMaxDeg, the tilt in -tiltMaxDeg..tiltMaxDeg, the spin in
+	-- -spinSteps..spinSteps taps (fractions too). The steps above stay for a press that
+	-- jumps (a keyboard's); a tick is the fine move a d-pad held down slides by, one a
+	-- frame (about a second across at 30 fps), and one tap still shows
+	arcTickDeg = 5,        -- 30 ticks across the release's range
+	tiltTickDeg = 1,       -- 40 ticks across the tilt's
+	spinTick = 0.25,       -- taps: 24 ticks across the spin's (5.5 rad/s a tick)
 	defaultLevel = "club", -- the level when none is given
 	-- the swing against the plan (plan.launch)
 	skyExtraDeg = 45,      -- a sky ball (the crank on past 12): its release counts as this
@@ -269,6 +278,22 @@ function plan.clampRelease(releaseDeg)
 	if releaseDeg < t.releaseMinDeg then return t.releaseMinDeg end
 	if releaseDeg > t.releaseMaxDeg then return t.releaseMaxDeg end
 	return releaseDeg
+end
+
+-- Clamp a planned tilt (a baton, degrees) to -tiltMaxDeg..tiltMaxDeg and a planned spin
+-- (a kubb, taps, any fraction) to -spinSteps..spinSteps.
+function plan.clampTilt(deg)
+	local m = plan.tune.tiltMaxDeg
+	if deg < -m then return -m end
+	if deg > m then return m end
+	return deg
+end
+
+function plan.clampSpin(taps)
+	local m = plan.tune.spinSteps
+	if taps < -m then return -m end
+	if taps > m then return m end
+	return taps
 end
 
 -- The default release for a target kind: "base", "king", "field" or "drill".
