@@ -9,7 +9,7 @@ PKSCORE := $(or $(PK_KUBB_SCORE),$(CURDIR)/../pk-kubb-score)
 # The web's online-play modules (for room-vectors): $KUBB_WEB, else a sibling checkout.
 KUBB_WEB ?= $(CURDIR)/../kubb.thingelstad.xyz
 
-.PHONY: test test-lua test-session test-room room-vectors test-node test-wasm golden-check golden golden-native bundle manifest manifest-check games realgames physfuzz mjref sync-notation clean
+.PHONY: test test-lua test-session test-room room-vectors test-node test-wasm golden-check golden golden-native bundle manifest manifest-check games realgames physfuzz gym mjref sync-notation clean
 
 test: test-lua test-session test-room test-node test-wasm golden-check manifest-check
 
@@ -108,6 +108,15 @@ SURFACE := Grass
 
 physfuzz:
 	"$(LUA)" tools/physfuzz.lua --n $(N) --seed $(SEED) --surface $(SURFACE)
+
+# The Kubb Gym (tools/gym.mjs, docs/notes/gym.md): seeded matches by the computer
+# and the human thrower, every throw's forensics, the anomalies, the real-games
+# comparison on one page. A measuring tool, not part of `make test`. GYM is passed
+# through: make gym GYM="--full --json build/gym.json".
+GYM ?=
+
+gym:
+	LUA="$(LUA)" PK_KUBB_SCORE="$(PKSCORE)" "$(NODE)" tools/gym.mjs $(GYM)
 
 # The reference-engine comparison (tools/mjref, docs/notes/reference-engine.md).
 # Optional: MJPY is a Python with mujoco and numpy (python3 -m venv <dir>, then
