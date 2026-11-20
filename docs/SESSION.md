@@ -268,11 +268,16 @@ Since 0.7.2:
   that fit it).
 - `checkStart({ start })` returns `{ ok, why }`: is `start` a match's first snapshot,
   exactly what `newMatch` makes from the options inside it?
-- `renameStart({ start, names: { A: "Ann" } })` returns `{ start }`: the same first
+- `renameStart({ start, names: { A: "Ann" }, log? })` returns `{ start, ids, log? }`: the same first
   snapshot with that side's names changed and nothing else. A string names the team
   and, on a one-player side, its player; `{ name, players: ["..", ..] }` names a team of
   more (one name each). Player keys stay. The names are in the snapshot, so every hash
   from `h0` on differs; the throws, rulings (save their words) and pieces do not.
+  Players' ids come from their names, and a `thrower` action names a player by id (a
+  solo side can carry one too, naming its only player), so the old log stops at the
+  first one. `ids` maps each old id to its new one; pass the log and `log` comes back
+  with every thrower action's id mapped (the hashes dropped): replay the renamed start
+  with that log.
 
 #### What a server can prove
 
@@ -293,7 +298,8 @@ log. A server (a highlight reel) can replay it in the engine and check this much
   makes a throw (`session/check.lua` lists each with its source): the plan solved again
   for the stance and target with every release, tilt (or spin) and level a player can
   choose; the loft pinned by the stop; the tilt pinning the shake and the pull; the
-  swivel, speed and tumble within the nerves' largest draw, `ZMAX` = sqrt(-2 ln 1e-12),
+  swivel, speed and tumble within the nerves' largest draw (and never under the floors
+  the throw clamps to: a tumble under `tumbleMin`, a length draw under `lenMin`), `ZMAX` = sqrt(-2 ln 1e-12),
   about 7.43 sds (`plan.rng`'s normal floors u1 at 1e-12); the flick between
   `minFlickFrac` and 1 and matching the power verdict; a kubb's nose, spin and wobble
   exactly `drill.body`'s; the backswing 30 to 200 degrees; the stance on the ground the

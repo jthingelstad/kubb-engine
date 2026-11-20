@@ -215,12 +215,19 @@ local function tryTilt(ctx, levelName, sol, ptilt, taps)
 		local rangeFactor = min(1.5, max(0.5, (sol.dist or 8) / 8))
 		local sdT = (lv.tumbleSd or 0) * rangeFactor * (1 + t.roughGain * shake) * m
 		local k = (T and T > 0) and sdT * 2 * pi / T or 0
+		-- plan.launch clamps every rate to tumbleMin: none is ever under it
+		if L.tumble < t.tumbleMin - EPS then return false, 6, "a tumble under the least the throw gives" end
 		if rate0 and rate0 > 0 then
 			if L.tumble > t.tumbleMin + EPS then
 				lo = max(lo, (L.tumble - check.ZMAX * k) / rate0)
 				hi = min(hi, (L.tumble + check.ZMAX * k) / rate0)
 			else
 				hi = min(hi, (t.tumbleMin + check.ZMAX * k) / rate0)
+			end
+		elseif rate0 == 0 then
+			-- no planned rate: the nerves' turns alone, clamped to tumbleMin
+			if L.tumble > max(t.tumbleMin, check.ZMAX * k) + EPS then
+				return false, 6, "a tumble faster than the nerves give with no planned rate"
 			end
 		elseif abs(L.tumble - max(t.tumbleMin, 0)) > TOL then
 			return false, 6, "a tumble with no planned rate"

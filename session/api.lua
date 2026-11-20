@@ -169,13 +169,21 @@ end
 -- ---------- checking a shared match (session/check.lua) ----------
 -- checkThrow(action): could this be the next throw as the match is set up now? { ok, why,
 -- computer, levels, level, atLevel }. checkStart { start }: is it a match's first
--- snapshot? { ok, why }. renameStart { start, names = { A = "<name>" } }: { start }.
+-- snapshot? { ok, why }. renameStart { start, names = { A = "<name>" }, log? }: { start, ids,
+-- log? }: the renamed start, the players' ids old to new, and the log with its thrower
+-- actions' ids mapped (session.renameLog), so the renamed match replays to its end.
 function M.checkThrow(a) return check.throw(need(), a) end
 function M.checkStart(a)
 	local ok, why = session.startCheck(a and a.start)
 	return { ok = ok, why = why }
 end
-function M.renameStart(a) return { start = session.renameStart(a.start, a.names) } end
+function M.renameStart(a)
+	local start = session.renameStart(a.start, a.names)
+	local ids = session.renameIds(a.start, start)
+	local out = { start = start, ids = ids }
+	if a.log ~= nil then out.log = session.renameLog(a.log, ids) end
+	return out
+end
 
 -- Frozen rest poses in the frame of the reported throw, including pieces
 -- picked up for the following turn. Avoid serializing the playback tracks.
