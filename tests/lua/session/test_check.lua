@@ -797,3 +797,66 @@ test("short: a resignation is RESIGNED whatever the team is called; nothing is c
 	expect.eq(n.short, "RESIGNED")
 	expect.eq(n.last.short, "RESIGNED")
 end)
+
+-- ---------- 0.8.0: a person's baton planned under flight.tune.nearM ----------
+
+-- A short baton's loft is the release's loft times the plan's loftShare, plus the
+-- overpower heave (nearOverLoft) past the power target: a server must hold it to that,
+-- not to the release's loft. A play-made advantage line rarely stands this near a
+-- kubb, so the set-up's advantage line is moved up by hand, in both sessions alike.
+test("check: a person's short baton fits, on the band, long, at any arc and level", function()
+	local function at(d, level, arc)
+		local s = session.new { mode = "match", seed = 7, cpu = "B", start = START, maxTurns = 4,
+			teams = { A = { name = "Ada", players = { { name = "Ada", level = "club", key = "m1" } } },
+				B = { name = "Computer", players = { { name = "Computer" } } } } }
+		s.setup.forwardY, s.ts.forwardY = 4.6, 4.6
+		s:setStance(0, 4.6)
+		s:setTarget(0, 4.6 + d, false)
+		if level then s:setLevel(level) end
+		if arc then s:setArc(arc) end
+		return s
+	end
+	local function swingTo(s, back, stop)
+		local arm, o = 0, nil
+		while arm > -back do
+			arm = math.max(-back, arm - 400 / 60)
+			o = s:frame { dt = 1 / 60, arm = arm }
+			if o.action then return o.action end
+		end
+		for _ = 1, 200 do
+			arm = math.min(stop, arm + 2400 / 60)
+			o = s:frame { dt = 1 / 60, arm = arm }
+			if o.action then return o.action end
+		end
+		return s:frame({ dt = 1 / 60 }).action
+	end
+	local r = autothrow.rng(808)
+	local cases = {}
+	for _, d in ipairs { 0.35, 0.75, 1.25, 1.9 } do
+		for over = 0, 1 do cases[#cases + 1] = { d = d, over = over } end
+	end
+	for _ = 1, 16 do
+		cases[#cases + 1] = { d = 0.1 + r.next() * 1.9, level = LEVELS[1 + floor(r.next() * 3)],
+			arc = r.next() < 0.5 and 15 + r.next() * 150 or nil, back = 35 + r.next() * 120,
+			stopOff = (r.next() - 0.5) * 80 }
+	end
+	for _, c in ipairs(cases) do
+		local s1 = at(c.d, c.level, c.arc)
+		local p = s1:aimView().plan
+		expect.truthy(p.dist < 2, "planned under nearM")
+		local back = c.back or (p.powerLo + p.powerHi) / 2 + (c.over or 0) * (p.powerHi - p.powerLo)
+		local a = swingTo(s1, back, math.max(5, p.release + (c.stopOff or 0)))
+		expect.truthy(a, "the swing threw")
+		local res = check.throw(at(c.d, c.level, c.arc), json.decode(json.encode(a)))
+		expect.truthy(res.ok, string.format("%.2f m: %s", c.d, tostring(res.why)))
+	end
+	-- and a launch no swing gives is still refused
+	local s1 = at(0.35)
+	local p = s1:aimView().plan
+	local a = json.decode(json.encode(swingTo(s1, (p.powerLo + p.powerHi) / 2, p.release)))
+	a.launch.loft = a.launch.loft + 10
+	expect.eq(check.throw(at(0.35), a).ok, false, "a loft 10 degrees off")
+	a.launch.loft = a.launch.loft - 10
+	a.launch.speed = a.launch.speed * 1.3
+	expect.eq(check.throw(at(0.35), a).ok, false, "a speed 30% over")
+end)
