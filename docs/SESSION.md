@@ -348,7 +348,11 @@ The actions:
 
 - `{ type: "throw", seq, how, launch, stance, target, scripted, swing?, verdicts?, at? }`:
   what `frame` returned. `seq` is the number of throws before it; a throw out of step is
-  an error, never applied.
+  an error, never applied. `target.on` is the id of the piece the circle is on, or null.
+  For the computer's baton it is the piece `autothrow.choose` aimed at (`a.on`: the
+  front kubb of the lane it aims across), since 0.9; before, the circle moved to the
+  computer's aim and kept the label of the piece it was on before, so a turn's batons
+  could name a kubb they were not thrown at.
 - `{ type: "raise", choice }`: the index into `need.choices` (leave it out for the
   computer's default).
 - `{ type: "punish", x, y }`: the spot in the defender's view frame. Refused spots come

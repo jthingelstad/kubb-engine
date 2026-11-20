@@ -841,7 +841,10 @@ function throw.showAim(s, a)
 		s.spin = (a.drill.spin - drill.tune.spiral) / plan.tune.spinPerStep
 	end
 	s.cpuTarget = P ~= nil and P.tx ~= nil
-	if s.cpuTarget then s.markerX, s.markerY = P.tx, P.ty end
+	-- the circle and its label move together: the label names the piece the
+	-- computer aims at (a.on), not the one the circle was on before (a
+	-- play-test match: four batons of a turn labelled a4 were aimed at a3)
+	if s.cpuTarget then s.markerX, s.markerY, s.markerOnId = P.tx, P.ty, a.on end
 	aimCamera(s)
 end
 
