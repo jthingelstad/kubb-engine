@@ -568,6 +568,19 @@ so it met the kubb low, often landed short of it on an end, bounced and went ove
     an advantage line 51.7% / 44.4% / 49.5%; the king 83.8% / 76.3% / 87.3%; punishment
     kubbs 1.3% / 4.3% / 4.3%. Every figure moves toward the real games except the king,
     which passes them; the nerves are not retuned for it.
+- **The computer on the line** (0.9). `autothrow.tune.minRange` 2.0 -> 0.25: a field kubb a
+  step past the advantage line was thrown at from 2 m back. The person's point-blank throw
+  (0.8.0, `flight.tune.nearM`) is the computer's too: `tools/pointblank.lua --cpu 300`,
+  toppled at 0.25 / 0.5 / 1 / 1.5 / 2 m: beginner 94 / 90 / 88 / 67 / 52%, club 99 / 97 /
+  97 / 84 / 67%, pro 99 / 98 / 98 / 92 / 77% (the levels keep their order at every range).
+  `autothrow.launch` (the headless matches) now throws from the hand the plan was solved
+  for, as the session does: without it a plan under 2 m left from the upright hand and
+  field hits fell to 13% (20 matches). Hash-neutral where the plan is 2 m and over.
+  `make realgames` (real / before / after): turns a game 8.9 / 19.3 / 15.6; ended on the
+  king 100% / 91.3% / 99.3%; field batons missed 24.7% / 28.3% / 25.1%, took two 16.0% /
+  8.7% / 8.4%; cleared the field 83.4% / 55.5% / 63.1%; turns from an advantage line 14.4%
+  / 40.1% / 32.7%; a base kubb from 8 m 32.7% / 29.1% / 29.1%, from an advantage line
+  51.7% / 49.5% / 54.1%; the king 83.8% / 87.3% / 86.6%.
 
 ### What scatters a drilled kubb
 

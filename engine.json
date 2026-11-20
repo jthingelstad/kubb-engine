@@ -19,7 +19,7 @@
     "note": "room/ is src/net's lobby.js, seats.js and sync.js in Lua; tests/room/vectors/ were recorded from this commit (docs/ROOM.md)"
   },
   "files": {
-    "core/autothrow.lua": "c4c67d079efcb341f70195f803fe17ba89cbcb4884582b0ebfc0b94c6940ae38",
+    "core/autothrow.lua": "a9fddbf8996b30659037f1ced072025d238f0a35a47fd3371d1187cd38a41136",
     "core/bench.lua": "763ad4227dbc59ac8279b42165afbd2945ed951b5ad00e8934f239f534194e7f",
     "core/body.lua": "7984503fa805f27b9acc4cdfe998f730178a6c7fa5edf2f28950d274819c3b31",
     "core/burstpick.lua": "2c3f468a44b041a4161f2f7db7f49efbba2d16c2585ec7ac5b2610af22a4ce10",
@@ -76,6 +76,6 @@
     "version.lua": "078565292b5fc1da3465fcd2912a3bddd3e6ab75249cccc0cc081596e5a8adff"
   },
   "bundle": {
-    "sha256": "b7b66da940ccab544d20bca4435e352393020a9b26aefbb2229b3f5d33a22f36"
+    "sha256": "4dc4dda82be97acf394ca5e1c56cbe9779456b7bc024654c4c9c141c6ef3c225"
   }
 }

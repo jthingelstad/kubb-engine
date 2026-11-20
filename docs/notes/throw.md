@@ -426,7 +426,8 @@ the top edge at 16 cm and went on to rest half a metre past it. The cause was th
 every baton left the hand upright at `handHeight` (0.6 m) over the feet, so a target a
 step away could only be reached by a slow throw falling steeply onto the kubb's top, and a
 blow from above presses a kubb into the ground. The computer never met it: it stands at
-least `autothrow.tune.minRange` (2 m) from its target, which is why that limit exists.
+least `autothrow.tune.minRange` (2 m) from its target, which is why that limit existed. From
+0.9 it is 0.25 m: the computer stands on the line and makes the same point-blank throw.
 
 Jamie, the same day: "Real player when hitting a field Kubb that close will hit it low and
 hard in an attempt to roll the Kubb into other field kubbs or even on a hope to roll it to

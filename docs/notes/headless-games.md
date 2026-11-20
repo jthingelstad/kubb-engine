@@ -33,8 +33,9 @@ fields (`x, y, swivel, loftDeg, speed, tumbleRate, tilt, legal`), the solve as `
 (`markerX`, `markerY` from the line, and world.launchDrill's `noseDown, rollLand, spin,
 wobble`); `autothrow.launch(w, s, a)` puts it into a world. Batons go at the
 nearest live target's center, or among field kubbs down the lane with the most of them
-("Tuned toward the real games" below) (from the advantage line, but never nearer than `minRange`, 2
-m: a slow lofted baton under 2 m nearly always missed; the king from the baseline). Kubbs
+("Tuned toward the real games" below) (from the advantage line, but never nearer than `minRange`: 2
+m until 0.9, when a slow lofted baton under 2 m nearly always missed, 0.25 m since the
+point-blank throw; the king from the baseline). Kubbs
 are drilled at the drill arc to the basket (Jamie, 2026-11-14): the corner of the far half
 nearest the centre line by a sideline (`basketX`, `basketY`), the one that already has more
 field kubbs near it, so a turn's kubbs group and one that runs goes out for a rethrow; since
