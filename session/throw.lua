@@ -521,11 +521,21 @@ function throw.prepare(s, setup)
 	s.advText = s.advMeters and fmt("ADVANTAGE LINE  %.1f M", s.advMeters) or nil
 	s.markerFixed = false
 	if setup.projectile == "kubb" then
-		if not (s.drill and s.markerSide == setup.side) then markerHome(s) end
+		if not (s.drill and s.markerSide == setup.side) then
+			markerHome(s)
+			s.keptSpin = nil
+		end
 		s.markerSide = setup.side
 		s.drill = true
+		-- A kubb's spin is a turn setting (Jamie, 2026-11-20: "Keep between throws"): the
+		-- spin a person threw the side's last kubb with (s.keptSpin, set from the action
+		-- by Session:applyThrow) stays for the rest of the side's kubbs in this inkast
+		-- turn, rethrows included, with the same scope as the circle. Arc and tilt are
+		-- throw settings: freshPlan above put them back.
+		s.spin = s.keptSpin or 0
 	else
 		s.drill = false
+		s.keptSpin = nil
 		retarget(s, keep)
 	end
 	s.thisDrill = false
@@ -547,6 +557,7 @@ function throw.setDrill(s, on)
 	s.projectileId = nil
 	s.stanceSet = false
 	freshPlan(s)
+	s.keptSpin = nil
 	clearLast(s)
 	if on then
 		markerHome(s)
@@ -569,6 +580,9 @@ function throw.reset(s)
 	s.mode = "aim"
 	resetSwing(s)
 	if not s.drill then retarget(s, false) end
+	-- practice with KUBBS on keeps its spin from throw to throw until the pitch is reset
+	-- (a kubb's spin is a turn setting, Jamie, 2026-11-20)
+	if s.drill then s.spin, s.keptSpin = 0, nil end
 	s.planDirty = true
 	replan(s)
 	aimCamera(s)

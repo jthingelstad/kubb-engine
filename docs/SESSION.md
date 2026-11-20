@@ -239,6 +239,16 @@ All return `{ aim, camera }`, and do nothing unless this browser may aim now.
 
 Practice also has `setDrill(on)`, `reset()` and `setSurface(name)`, which return a view.
 
+**Turn and throw settings** (Jamie, 2026-11-20). The arc and a baton's tilt are throw
+settings: every throw starts from the plan's own arc and no tilt. A kubb's spin is a turn
+setting, "Keep between throws": the spin a person threw a kubb with is where the same
+side's next kubb in the same inkast turn starts (rethrows included), as the circle is
+kept; a side's batons, the other side's turn and a new match start from none. It is taken
+from the action's `plan.spin` and kept in the snapshot's aim memory (`keptSpin`, absent
+when none), so every client and a restore start the next kubb from the same value, and
+`aim.plan.spin` shows it. `freshPlan` puts this throw's spin back to none. In practice
+with KUBBS on the spin stays from throw to throw until `reset()` or `setDrill`.
+
 ### The score sheet and replays
 
 `sheet()` is `{ text, name, shown, done }` for a match (`{}` in practice): `text` the game
@@ -346,13 +356,18 @@ What it cannot prove:
 
 The actions:
 
-- `{ type: "throw", seq, how, launch, stance, target, scripted, swing?, verdicts?, at? }`:
+- `{ type: "throw", seq, how, launch, stance, target, scripted, swing?, verdicts?, plan?, at? }`:
   what `frame` returned. `seq` is the number of throws before it; a throw out of step is
   an error, never applied. `target.on` is the id of the piece the circle is on, or null.
   For the computer's baton it is the piece `autothrow.choose` aimed at (`a.on`: the
   front kubb of the lane it aims across), since 0.9; before, the circle moved to the
   computer's aim and kept the label of the piece it was on before, so a turn's batons
   could name a kubb they were not thrown at.
+  Since 0.9 a person's throw carries `plan`: `{ release, tilt }`
+  for a baton, `{ release, spin }` for a kubb, the plan as the thrower set it (degrees,
+  degrees, taps). Every client applies `launch`, never `plan`; the kubb's `spin` is what
+  the side's next kubb starts from (below), and `checkThrow` holds the throw to it. The
+  computer's throws and older actions have none.
 - `{ type: "raise", choice }`: the index into `need.choices` (leave it out for the
   computer's default).
 - `{ type: "punish", x, y }`: the spot in the defender's view frame. Refused spots come

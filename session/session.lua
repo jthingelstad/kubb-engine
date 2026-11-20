@@ -316,7 +316,7 @@ end
 -- snapshot as it was before that set-up, so a restore sets the throw up again
 -- exactly.
 local MEM = { "playerX", "playerY", "stanceSet", "stanceSide", "stanceKind", "markerX", "markerY", "markerSet",
-	"markerOnId", "markerSide", "drill", "lastBack", "lastStop" }
+	"markerOnId", "markerSide", "drill", "lastBack", "lastStop", "keptSpin" }
 
 local setMem
 
@@ -335,6 +335,10 @@ function setMem(ts, m)
 	ts.markerX, ts.markerY = F(ts.markerX) or 0, F(ts.markerY) or 0
 	ts.playerX, ts.playerY = F(ts.playerX) or 0, F(ts.playerY) or 0
 	ts.lastBack, ts.lastStop = F(ts.lastBack), F(ts.lastStop)
+	-- the kept spin (throw.prepare): absent unless a person threw a kubb with spin, so a
+	-- match that never had one keeps the snapshot it always had
+	ts.keptSpin = F(ts.keptSpin)
+	if ts.keptSpin == 0 then ts.keptSpin = nil end
 	ts.stanceSet, ts.markerSet, ts.drill = ts.stanceSet and true or false, ts.markerSet and true or false,
 		ts.drill and true or false
 end
@@ -838,6 +842,18 @@ function Session:throwAction(L, how, info)
 		scripted = info.scripted or false, input = info.input,
 	}
 	if info.back then a.swing = { back = info.back, stop = info.stop } end
+	-- a person's throw names its plan (since 0.9): the planned release and the baton's tilt
+	-- or the kubb's spin as the thrower chose them. Every client applies the launch, never
+	-- these; the kubb's spin is kept for the side's next kubb (throw.prepare) and a server
+	-- checks against them (session/check)
+	if not info.scripted then
+		local sol = ts.sol or {}
+		if ts.projectile == "kubb" then
+			a.plan = { release = F(sol.release or ts.release), spin = F(ts.spin or 0) }
+		else
+			a.plan = { release = F(sol.release or ts.release), tilt = F(ts.tilt or 0) }
+		end
+	end
 	if info.verdicts then
 		a.verdicts = { powerV = info.verdicts.powerV, releaseV = info.verdicts.releaseV,
 			steady = info.verdicts.steady and true or false, sideV = info.verdicts.sideV }
@@ -917,6 +933,16 @@ function Session:applyThrow(a)
 		ts.flagText = session.short(m.text)
 		ts.mode = "aim"
 		ts.watching = false
+		-- a person's kubb keeps its spin for the side's next kubb (throw.prepare): taken
+		-- from the action, so every client and a restore hold the same value
+		if not cpuSide and how == "drill" and type(a.plan) == "table" then
+			local sp = a.plan.spin
+			if type(sp) == "number" and sp == sp then
+				local m3 = plan.tune.spinSteps
+				sp = F(max(-m3, min(m3, sp)))
+				ts.keptSpin = sp ~= 0 and sp or nil
+			end
+		end
 		self:advance()
 	end
 	rec.input = a.input
