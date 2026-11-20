@@ -152,9 +152,26 @@ end
 
 -- ---------- one throw ----------
 
+-- The standing kubb or king nearest the aim point: the target of an engine whose
+-- autothrow does not name it (before 0.8)
+local function nearestTarget(s, P)
+	if not P or not P.tx then return nil end
+	local best, bd = nil, math.huge
+	for _, p in ipairs(s.pieces) do
+		if p.kind ~= "baton" and not p.toppled then
+			local d = (p.x - P.tx) ^ 2 + (p.y - P.ty) ^ 2
+			if d < bd then best, bd = p, d end
+		end
+	end
+	return best and best.id
+end
+
 local function choose(s, r)
-	if human then return human.choose(s, r, opt.level, model) end
-	return autothrow.choose(s, r, opt.scatter, opt.level)
+	local a
+	if human then a = human.choose(s, r, opt.level, model)
+	else a = autothrow.choose(s, r, opt.scatter, opt.level) end
+	if not a.on and s.kind ~= "toss" then a.on = nearestTarget(s, a.plan) end
+	return a
 end
 
 local function pieceById(s, id)
