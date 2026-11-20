@@ -1,6 +1,6 @@
 {
   "name": "kubb-engine",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "extractedFrom": {
     "repository": "jthingelstad/playdate-kubb",
     "path": "source/core",
@@ -73,9 +73,9 @@
     "session/wide.lua": "9f2087d3362b6ed4d2240365a5bd79504ae7207775529cc0d403ab201befd855",
     "tune/pointer.lua": "7b30c67adf47fb8387e5b0dd7f73af3c92c99116d05781885e7fc0157fcc9397",
     "tune/touch.lua": "b7c3f2851c4c386cc39a76d891cf273d703ac231fe51c235db5d1bc404915221",
-    "version.lua": "078565292b5fc1da3465fcd2912a3bddd3e6ab75249cccc0cc081596e5a8adff"
+    "version.lua": "9ee5ee6a407590d164a70f658c79c99d72520dd1663bdb437da3af2ad85f577a"
   },
   "bundle": {
-    "sha256": "47e63d1288419df6e29dfc8719249ef0466af0351d21197ffcb07d15740c9fd6"
+    "sha256": "34a404fa7d087dfa0073a91de23062f14d85c231feb6124cedc49e8123670ce3"
   }
 }
