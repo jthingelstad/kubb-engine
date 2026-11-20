@@ -93,6 +93,18 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.8.2** (patch). A short baton's plan skips the carries whose answers it already
+  has: the aim height's last `speedForCarry` repeated the one made for its answer, and a
+  bisection whose ends are neighbouring floats (only a 32-bit float gets there) stops;
+  `flight.carry` works its step's constant products out once, grouped as before. About
+  10% off `plan.solve` at 1 m on the desktop. Every number `plan.solve`, `flight.handAt`
+  and `flight.carry` return is the same as in 0.8.1 bit for bit, on doubles and on 32-bit
+  floats: `tests/lua/planref.lua` keeps 0.8.1's plan and the identity tests compare the
+  two over 431,516 cases on the desktop and under wasmoon. All 505 reference action
+  hashes match 0.8.1 (the corpus keeps its 0.8.0 header).
+
+  For clients: sync the tag; nothing else changes.
+
 - **0.8.1** (patch). Several engines in one room (docs/ROOM.md "Engines in one match",
   "Carrying several engines" above). New room calls: `engineFor` (the room's engine:
   the newest major.minor that the host and every player carry, or null with who is
