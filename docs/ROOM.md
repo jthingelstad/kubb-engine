@@ -21,6 +21,7 @@ repository's.
 | `room/seats.lua` | `tw.room.seats`: who may act for what the match needs now (seats.js).                         |
 | `room/sync.lua`  | `tw.room.sync`: what to do with a document version that arrived, and the action's rider.      |
 | `room/js.lua`    | `tw.room.js`: the JavaScript rules these follow (truthiness, `===`, `JSON.stringify`, sizes). |
+| `room/engines.lua` | `tw.room.engines`: the room's engine when clients carry several (since 0.8.1).              |
 | `room/api.lua`   | `tw.room.api`: the calls behind `kubbCall("room.<name>")`.                                    |
 
 `session/api.lua` imports `room/api`, so loading the session as usual (docs/SESSION.md
@@ -146,6 +147,11 @@ Each is `room.<name>`; the fields are the argument object's. "nothing" is `value
 | `isReplay`     | `replay`                                                       | Is this (from the room's kept copy) a replay the engine can play?                                                                                                                                                               |
 | `backToLobby`  | `doc, n`                                                       | REMATCH: the same teams, the match dropped. Nothing unless a match runs (and is match `n`, when `n` is given).                                                                                                                  |
 | `mayPlay`      | `engine, match, lenient`                                       | May a member whose engine is `engine` play `match`? `{ ok, why: null \| "unknown" \| "differs", engine, match }`.                                                                                                               |
+| `engineFor`    | `doc, members, host, me, carries`                              | The engine the next match runs on (below): `{ engine, missing: [ids], unknown: [ids] }`, `engine` null when none is carried by all. `me` (a member id) and `carries` (what `me` carries) are optional. Since 0.8.1.                |
+| `carried`      | `me`                                                           | The major.minors a member's presence (`me`) says it carries, newest first. Since 0.8.1.                                                                                                                                         |
+| `announce`     | `carries, engine`                                              | The presence fields a client carrying several engines sends while the room's engine is `engine`: `{ engine: "<engine>+engines", engines: [...] }`. Since 0.8.1.                                                               |
+| `speakAs`      | `members, engine`                                              | The members with `me.engine` set to `engine` for each that carries it, for a host passing them to `engine`'s own `startMatch`. Since 0.8.1.                                                                                   |
+| `compareEngines` | `a, b`                                                       | -1, 0 or 1 as major.minor `a` is older than, equal to or newer than `b`; null when either is not a version. Since 0.8.1.                                                                                                       |
 | `constants`    |                                                                | `DOC_VERSION, TEAM_MAX, SEATS, SIDES, NAME_MAX, LEVELS, OPTION_DEFAULTS, MATCH_OPTIONS, LOG_BUDGET, REPLAY_VERSION` as lobby.js exports them, sync.js's `CLIENT`, `WITH_BYTES` (4096) and `ENGINE` (this engine's major.minor). |
 
 ### Who acts (seats.js)
@@ -199,18 +205,81 @@ with a real room flow.
 
 ## Engines in one match
 
-Two clients share a match only when their engines' major.minor are equal
-(docs/VERSIONING.md "Playing together"). The room enforces it at START:
+A match belongs to the engine major.minor it was started on, for its whole life: its
+play, its replay, its embed, its highlight reel, a share's check and its score sheet.
+Two clients share it only when both carry that engine (docs/VERSIONING.md "Playing
+together"). A client may carry one engine (every release before 0.8.1 does) or several
+(docs/VERSIONING.md "Carrying several engines").
 
-- START writes `match.engine`, this engine's major.minor.
-- `startMatch` refuses while any player's engine (their `me.engine` in `members`)
-  differs from the host's (`startCheck`'s `differ`). The host is not checked: it runs
-  this engine.
+What every release since 0.3 does, unchanged:
+
+- START writes `match.engine`, the starting engine's major.minor (`lobby.ENGINE`).
+- `startMatch` refuses while any player's engine (their `me.engine` in `members`, read
+  as major.minor) differs from the starting engine's (`startCheck`'s `differ`). The host
+  is not checked: it runs that engine. Watchers are not checked: only the lineup's
+  players are (`lineup`: the teams' members still in the room, away or not).
 - A player who names no engine (a web client from before 0.3) counts as `unknown`. By
   default START is refused for them too; the host may pass `lenient: true` to let them
   play. `lenient` never lets a different engine in.
 - A client joining a running match calls `mayPlay(myEngineVersion, match)`. A match
   with no `engine` (started by an older client) is `unknown`: refused unless `lenient`.
+
+### The room's engine
+
+When clients carry several engines, the next match runs on the **room's engine**: the
+newest major.minor that the host and every player in the lineup carry
+(`engineFor(doc, members, host)`). It is a function of the room's presence and its
+teams and nothing else, so every client works out the same one from the same room.
+Watchers do not count, so a watcher on an older engine never pulls a match down; they
+count once they take a seat. When no engine is carried by all, `engine` is null and
+`missing` names the players to tell (those without the engine most of them share).
+
+What a member carries is read from its presence (`carried`):
+
+- A client carrying several sends `engines`, every major.minor it carries, and writes its
+  `engine` as the room's engine followed by `+engines` (`"0.7+engines"`; `announce`).
+  Older engines read `engine` through `majorMinor`, which stops at the minor, so they
+  see `"0.7"`.
+- `engines` is believed only while `engine` carries the mark and is among them. The room
+  server merges `me` field by field, so an older client rejoining under the same member
+  id (an old tab in the same browser) overwrites `engine` and leaves a stale `engines`
+  behind; the missing mark says so.
+- Otherwise a member carries its lone `engine` (`"0.7.4"` and `"0.7"` both read as
+  `0.7`), or nothing.
+
+`engineFor` reads each member's `engines`, never a new client's own `engine`, so a
+client changing its announcement cannot change the answer: there is no loop to swing.
+
+### Speaking down
+
+A client that carries several engines keeps every client that carries one in agreement
+without any change to them:
+
+1. It works out the room's engine counting itself (`engineFor` with `me`, and
+   `carries` while its own presence has not come back), and announces it
+   (`announce` then the room's `me` message) whenever the answer changes: when a
+   member joins, leaves or takes or gives up a seat, and when the host changes. Before
+   it knows the room it announces its newest.
+2. It runs the lobby, START and the match on that engine's own `room.*` and session
+   calls, so the rules it applies are exactly an older client's. As host it starts on
+   that engine, passing `speakAs(members, engine)` as `members` so a player whose new
+   announcement is still on its way is not refused for it. Its `match.engine` is then
+   that engine's.
+3. An older host reads the new client's `engine` as the room's and its START passes.
+   An older player's lobby check of the host (`mayPlay` against the host's `engine`)
+   passes. An older client's `mayPlay` on the match passes.
+4. In a running match a client plays or watches only on `match.engine`, through that
+   engine's `mayPlay`; a client that does not carry it is refused, as today.
+
+An announcement takes one round trip. While it is on its way an older host may refuse
+START once (it shows its version card and can start again) and an older player may see
+its version card for a moment. Nothing is written in that time.
+
+The room's document, its reducers and the rules of who acts are the same code in every
+engine a client carries today (`room/` is the same in 0.7.4 and 0.8.0, and 0.8.1 only
+adds these calls). Running the lobby on the room's engine keeps clients agreeing if they ever
+differ; the document must still only grow (docs/VERSIONING.md "Carrying several
+engines"), because a watcher on another engine writes its own seat.
 
 ## Differences from the JavaScript
 
@@ -224,7 +293,8 @@ Every one is deliberate and tested (`tests/lua/room/test_room.lua`, "the engine'
    (`members`, `lenient`; above). The JavaScript takes neither argument.
 3. **`replayOf` carries `engine`** when the match has one, so a replay knows which
    engine reproduces it.
-4. **`startCheck` and `mayPlay`** are new.
+4. **`startCheck` and `mayPlay`** are new, and so are `engineFor`, `carried`,
+   `announce`, `speakAs` and `compareEngines` (since 0.8.1).
 5. **`rider` takes `client` and `engine`** instead of the JavaScript's `size` function
    (always `asciiSize` here). With neither given it is the JavaScript's rider exactly.
 6. **`cleanName` never leaves half a character.** Where the JavaScript's 16-unit cut

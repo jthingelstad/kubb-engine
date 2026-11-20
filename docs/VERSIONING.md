@@ -22,13 +22,44 @@ make a failing check pass without bumping the version.
 
 ## Playing together
 
-Two clients may share an online match only when their engines' major.minor are equal
-(and they load the same tune; docs/SESSION.md "Starting"). Patch versions may differ.
-The room's START enforces it: it writes `match.engine` and refuses while a player's
-engine differs (docs/ROOM.md "Engines in one match"), and a client joining a running
-match checks with `room.mayPlay`. Records of a match should name the engine version it
-was played on, so a replay knows which engine reproduces it (`replayOf` carries
-`engine`).
+A match belongs to the engine major.minor it was started on, for its whole life: its
+play, its replay, its embed, its highlight reel, a share's check and its score sheet.
+Two clients share an online match only when both carry that engine (and load the same
+tune; docs/SESSION.md "Starting"). Patch versions may differ.
+
+The room enforces it: START writes `match.engine` and refuses while a player names
+another engine, and a client joining a running match checks with `room.mayPlay`
+(docs/ROOM.md "Engines in one match"). When clients carry several engines, the next
+match runs on the room's engine, the newest that the host and every player carry
+(`room.engineFor`), and a client that carries several speaks down to it so a client
+that carries one agrees. Records of a match name the engine it was played on
+(`replayOf` carries `engine`), so a replay knows which engine reproduces it.
+
+## Carrying several engines
+
+A client need not carry only one engine. The web carries every minor that kept matches
+still need, each at that minor's last tag, byte for byte, and loads only the one a page
+needs; the iPhone app carries what its build shipped with, and may bundle the previous
+one or two so phones on different builds can play together. How a room picks between
+them is the room's (docs/ROOM.md "The room's engine" and "Speaking down").
+
+- **The principle.** A match runs, replays, renders and is checked on its own
+  `match.engine`. A client that carries it uses it; one that does not says so, as
+  `mayPlay` does. A kept match from an engine no client carries any more falls back to
+  the newest engine, with the hash that disagrees noted, as replays always have.
+- **The support window.** An engine stays in the set while a kept match may need it:
+  rooms and replays are kept a year from the end of their match, so a minor stays until
+  a year after the last match started on it ended, and while clients that carry only it
+  are still about (an iPhone build in testers' or players' hands). Dropping a minor is a
+  client's release, never the engine's.
+- **What clients call only grows.** Within the window one client code base drives every
+  engine it carries, so from one minor to the next the session's and the room's calls,
+  their arguments and their results only gain: no call, field or value a client relies
+  on is renamed, removed or changes meaning. A client feature-detects anything newer
+  (a call that answers `{"error": "unknown call ..."}`, a field that is absent) and does
+  without it on an older engine. The room's document grows the same way: new top-level
+  keys only, which `lobbyOf` keeps, because a watcher on another engine writes its own
+  seat. A change that cannot keep to this is a major version.
 
 ## Releases and vendoring
 
@@ -43,6 +74,24 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
   client moves to the new tag.
 
 ## Release notes
+
+- **0.8.1** (patch). Several engines in one room (docs/ROOM.md "Engines in one match",
+  "Carrying several engines" above). New room calls: `engineFor` (the room's engine:
+  the newest major.minor that the host and every player carry, or null with who is
+  missing it), `carried` (what a member's presence says it carries), `announce` (the
+  presence a client carrying several sends: `engines`, and `engine` as the room's engine
+  marked `+engines`), `speakAs` (the members as a host passes them to its START on the
+  room's engine) and `compareEngines`. A client carrying several engines speaks down: it
+  announces the room's engine and runs the lobby, START and the match on that engine's
+  own calls, so a client carrying one (every earlier release, the iPhone's TestFlight
+  build among them) agrees with it unchanged. Nothing else changes: `startCheck`,
+  `startMatch`, `mayPlay` and every other call decide exactly as in 0.8.0, `constants`
+  is unchanged, and all 505 reference action hashes match 0.8.0 (the corpus keeps its
+  0.8.0 header).
+
+  For clients: sync the tag. A client that carries one engine need do nothing; one that
+  carries several uses the new calls from its newest engine (they are not in 0.8.0 or
+  earlier) and every other call from the engine the room or the match runs on.
 
 - **0.8.0** (minor). A person's baton planned under 2 m (`flight.tune.nearM`, the
   stance to the circle) is now a low, firm bowl: the hand lower and ahead of the feet,
