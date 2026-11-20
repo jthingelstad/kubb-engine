@@ -40,9 +40,14 @@ autothrow.tune = {
 	                         -- the plan's arcs: a clean baton landing up to 0.2 m past the
 	                         -- center hits most often at 2 to 8 m; aimed 0.15 short, a 2 m
 	                         -- baton at a field kubb hit a quarter of the time)
-	minRange = 2.0,          -- m: never stands nearer its target than this, even with the
-	                         -- advantage line further up (a slow lofted baton under 2 m
-	                         -- hit 2 to 7 in 40; at 2 to 3 m about half)
+	minRange = 0.25,         -- m: never stands nearer its target than this, even with the
+	                         -- advantage line further up. 2.0 until 0.9 (a slow lofted
+	                         -- baton under 2 m hit 2 to 7 in 40); since 0.8.0 a short throw
+	                         -- is the person's low hard point-blank one (flight.handAt), so
+	                         -- it stands on the line: a kubb a step away toppled 90% /
+	                         -- 97% / 98% at 0.5 m (beginner / club / pro), 52% / 67% / 77%
+	                         -- from the old 2 m (tools/pointblank.lua --cpu 300). 0.25 is the
+	                         -- nearest the point-blank throw is measured at
 	halfWidth = 2.4,         -- m: the stance stays inside the throwing line's ends (the stakes)
 	-- The basket (Jamie, 2026-11-14; "basket" is the right term): real
 	-- throwers put their kubbs in one of the two corners of the far half
@@ -404,7 +409,11 @@ function autothrow.launch(w, s, a)
 		return world.launchDrill(w, s.kubb, a.x, a.y, a.swivel, a.loftDeg, a.speed, d.noseDown, d.rollLand,
 			d.spin, d.wobble)
 	end
-	return world.launchBaton(w, a.x, a.y, a.swivel, a.loftDeg, a.speed, a.tumbleRate, a.tilt, s.batonId)
+	-- from the hand the plan was solved for, as the session throws (flight.handAt:
+	-- low and ahead of the feet under flight.tune.nearM, upright over them beyond)
+	local p = a.plan
+	return world.launchBaton(w, a.x, a.y, a.swivel, a.loftDeg, a.speed, a.tumbleRate, a.tilt, s.batonId,
+		p and p.handZ, p and p.handFwd, p and p.handTip)
 end
 
 tw.autothrow = autothrow

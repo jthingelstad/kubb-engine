@@ -88,11 +88,15 @@ test("a clean drill (scale 0) is the plan's solve; it rests in the basket", func
 	end
 end)
 
-test("a baton never stands nearer its target than minRange", function()
+test("a baton stands on the advantage line, never nearer its target than minRange", function()
 	local t = autothrow.tune
+	-- a field kubb a step past the line: from the line itself (2 m back until 0.9)
 	local s = baton("field", 1.9, 4.6, 3.6)
 	local a = autothrow.choose(s, autothrow.rng(2), 0)
-	expect.near(a.y, 4.6 - t.minRange, 1e-9)
+	expect.near(a.y, 3.6, 1e-9)
+	s = baton("field", 1.9, 3.7, 3.6)
+	a = autothrow.choose(s, autothrow.rng(2), 0)
+	expect.near(a.y, 3.7 - t.minRange, 1e-9)
 	s.forwardY, s.pieces[1].y = 1.0, 6.0
 	a = autothrow.choose(s, autothrow.rng(2), 0)
 	expect.near(a.y, 1.0, 1e-9)
