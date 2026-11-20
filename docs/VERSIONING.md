@@ -44,6 +44,17 @@ was played on, so a replay knows which engine reproduces it (`replayOf` carries
 
 ## Release notes
 
+- **0.7.3** (patch). A server checking a shared match in one pass (`replayLoad` with
+  `document`) no longer measures the whole room document on every action. The log
+  budget's measure, the document's size counted as the room counts it, is now worked out
+  as the size with an empty log plus each entry's size, kept once measured, plus the
+  commas between them (`lobby.docSize`), which is the same number exactly: every piece of
+  the text starts and ends on an ASCII character. The cost of `document` had grown with
+  the square of the match's length (a 400-action match took several times as long as
+  the replay without it). No throw and no document changes: the log is dropped at the
+  same action as before, live play and the room's `commitAction` call measure as they
+  did, and all 437 reference action hashes match 0.7.2.
+
 - **0.7.2** (patch). What a server needs to check and publish a shared match against
   the computer (docs/SESSION.md "What a server can prove"): `replayLoad` options
   `checkCpu` (the computer's throws made again from the snapshot; `forged`, `forgedAt`),
