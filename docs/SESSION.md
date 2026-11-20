@@ -78,11 +78,18 @@ Before the first `new` or `restore`, a host makes these calls:
   1 to 40 letters, digits, spaces, dots, hyphens or pluses, no space at either end.
   Default `"kubb-engine <version>"`. It can be called again; a file takes the label set
   when it is written. Since 0.7.2 it also takes `location`, the game file's
-  `[Location "..."]` line (`"Web"`, same rules as the label) and returns it; absent, the
-  line is `"Playdate"` as before. Each call sets both, so a call without `location` puts
-  `"Playdate"` back.
+  `[Location "..."]` line (`"throwingwood.com"` for the web and the iPhone app, same
+  rules as the label: a domain name passes); absent, the line is `"Playdate"` as before.
+  Each call sets both, so a call without `location` puts `"Playdate"` back. It returns
+  `{ client, location }`, the label and the Location line every file will now carry
+  (since 0.7.4 `location` is `"Playdate"` when none was given; before, it was left out).
+  The location reaches every file the session writes: the live `sheet()`, the over
+  need's `file`, and a replay's sheet and over file (each written with the location set
+  at the time, on the host that writes it).
 
-The label and the location are not in the snapshot, so it never changes a hash. The tune can: it sets how
+The label and the location are not in the snapshot, the room document (`replayDocument`)
+or any recording, so neither ever changes a hash, and two hosts with different
+locations play one match in step. The tune can: it sets how
 the computer's flick maps onto the swing, so peers in one online match load the same
 tune (the golden hashes are recorded with `pointer`).
 
@@ -131,6 +138,11 @@ crowded }`; `ends[i] = { which, pose, inBounds, obstructedBy, ok, why }` (`why`:
 [{ kind, id, x, y, r }], others, n, of, team, local }`: a punishment kubb to place.
 - `{ kind: "over", winner, how, file { text, name }, text, short }`: the match is over;
   `file` is the game file (match.file, `version` the client label, see "Starting").
+  `short` is `text` as a few capital words (`session.short`): `"KING DOWN"`,
+  `"KING TOO EARLY: GAME OVER"`, and `"RESIGNED"` for a resignation, whose `text`
+  begins with the team's name (`"Riverside resigned: Oak wins"`; before 0.7.4 its
+  `short` was the first 12 characters, `"RIVERSIDE RE"`). Words no rule knows are cut
+  at a word, never inside one. Output only: not in the snapshot or any hash.
 
 Every match need also carries `card` (informational: `{ kind: "settle" | "handoff" |
 "pass", ... }`, the Playdate's cards; nothing waits on them), `turn`, `throws`, `teams`,
