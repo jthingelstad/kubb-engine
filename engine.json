@@ -67,8 +67,8 @@
     "session/check.lua": "1d4e6f91964492be6511be1ee0b677a6479ecd07d85bfc89884f09b8e3f747c1",
     "session/json.lua": "c67017eb3aa54b2ebc68000999b7a7c770dab6d7ec45d5e6f2a481bfe38e25b0",
     "session/replay.lua": "f405db2e8a36616ec4321fbb855ba8b0536ed8ba7183ec90468411800b19f11e",
-    "session/session.lua": "97a89a56ff6dd2f52688fbd06654d8ddcadb280b639aade4cb310575dd10b79c",
-    "session/throw.lua": "a9a80fc1273cc8d6682ab13d850b234e0c4d24c3ef772421ecffaaf95013bfda",
+    "session/session.lua": "8baabc2918970e120888945932faa2b36cb04cf612de6e41ebd8d750c8c4fdb3",
+    "session/throw.lua": "1c4bcd86dcafc554b98ba88b22d15be19bf8a1c8caf2ed13853ee8b8d3b57aa9",
     "session/touch.lua": "1785c2057390574d94f42fde5945558e42ae20186a74d5bd8bc6d523231d4371",
     "session/wide.lua": "9f2087d3362b6ed4d2240365a5bd79504ae7207775529cc0d403ab201befd855",
     "tune/pointer.lua": "7b30c67adf47fb8387e5b0dd7f73af3c92c99116d05781885e7fc0157fcc9397",
@@ -76,6 +76,6 @@
     "version.lua": "078565292b5fc1da3465fcd2912a3bddd3e6ab75249cccc0cc081596e5a8adff"
   },
   "bundle": {
-    "sha256": "4dc4dda82be97acf394ca5e1c56cbe9779456b7bc024654c4c9c141c6ef3c225"
+    "sha256": "86aacc3c6b23a38b987bd0e2920ef01e45f081b2a0adf9c7f9191373183fbe1c"
   }
 }
