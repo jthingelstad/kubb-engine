@@ -36,7 +36,7 @@ of its compound woods were good, and they are here as team nouns (Driftkubbs, Ir
 Pinekubbs).
 
 There is nothing to connect to: no service, no data beyond the two lists. The old repo
-stays as it is, and its README can point here.
+was archived on 2026-11-21, and its README points here.
 
 ## 3. The shapes
 
@@ -281,8 +281,9 @@ The engine decides how names are made. What the game asks of players is Jamie's:
    the Playdate client measures the widest name in its own font first; if the HUD
    cannot fit 16, the engine gets a shorter `namegen.max` for it rather than a second
    word list.
-3. **The old generator.** Recommended: a README note pointing here, then archive the repo.
-   Its domain is gone.
+3. **The old generator.** Decided by Jamie, 2026-11-21: `Planet-Kubb/pk-name-generator`
+   is archived, with a README note pointing here and a warning against reusing its
+   English noun list.
 4. **A public name page** on throwingwood.com for real teams (section 9). Recommended:
    later, after the game uses the names.
 5. **A Swedish read of the English words.** Recommended before the first client ships:
