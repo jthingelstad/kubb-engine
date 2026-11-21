@@ -3,7 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compareCards, reproOf } from '../../tools/gym.mjs';
+import { compareCards, reproOf, refEngineDir } from '../../tools/gym.mjs';
+import { anomaliesOf } from '../../tools/gym/score.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -37,4 +38,17 @@ test('a replay command carries every option that shapes the simulation', () => {
     assert.ok(cmd.includes(part), `${part} in ${cmd}`);
   // the computer has no model
   assert.ok(!reproOf(o, { thrower: 'cpu', level: 'pro', surface: 'Grass' }, { m: 1, t: 1 }).includes('--model'));
+});
+
+test('a compared git ref keeps its engine when the scorecards are kept', () => {
+  const sha = '0123456789abcdef0123';
+  assert.equal(refEngineDir(sha, {}), null);
+  for (const o of [{ json: 'out.json' }, { keep: true }])
+    assert.equal(refEngineDir(sha, o), path.join(root, 'build', 'gym', 'engine-0123456789'));
+});
+
+test('a throw is unsettled only when its own engine ran out of time', () => {
+  const kinds = f => anomaliesOf({ k: 'baton', f: { hits: [], rest: 15, ...f } }).map(a => a.kind);
+  assert.ok(!kinds({}).includes('unsettled'));
+  assert.ok(kinds({ timedOut: true }).includes('unsettled'));
 });
