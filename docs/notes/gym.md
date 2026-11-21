@@ -39,7 +39,7 @@ with their repro commands.
 - **The computer** is `core/autothrow` as the game plays it.
 - **The human thrower** (`tools/gym/human.lua`) is a person at the meter. It picks the
   target and stance as the computer does, plans the throw at its own level as the session
-  plans a player's (the level's gauge forgiveness, the default arc for the target, no tilt or
+  plans a player's (the level's gauge forgiveness, the default arc for the distance, no tilt or
   spin), draws a swing from the fitted model, and makes the launch as `throw.playerLaunch`
   does, nerves seeded by the swing. So it plays through the same forgiveness and nerves a
   person gets; only the swing is drawn instead of cranked.

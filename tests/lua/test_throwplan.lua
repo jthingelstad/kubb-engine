@@ -66,8 +66,15 @@ test("plan: the loft scale is the line through 5 and 3 o'clock, and inverts", fu
 	expect.eq(plan.loftFor(400), plan.tune.loftMaxDeg)
 	expect.eq(plan.clampRelease(0), 15)
 	expect.eq(plan.clampRelease(200), 165)
-	expect.eq(plan.arcFor("king"), 75)
 	expect.eq(plan.arcFor("drill"), 135)
+	-- a baton's default release goes by the distance, never by the target's kind
+	expect.near(plan.arcFor("baton", 8), 60, 1e-9)
+	expect.near(plan.arcFor("baton", 5), 37.5, 1e-9)
+	expect.near(plan.arcFor("baton", 2), 15, 1e-9)
+	expect.eq(plan.arcFor("baton", 0.5), 15, "never under the release range")
+	expect.eq(plan.arcFor("baton", 30), 165, "never over it")
+	expect.eq(plan.arcFor("king", 4), plan.arcFor("field", 4), "the kind of target does not count")
+	expect.eq(plan.arcFor("base"), plan.arcFor("baton", 8), "no distance: a baseline throw")
 end)
 
 -- ---------- stance, snap, solve ----------
@@ -89,7 +96,7 @@ test("plan: snap finds the nearest standing target within the radius", function(
 end)
 
 test("plan: a 3 o'clock baton at the plan's backswing lands on a base kubb 8 m out", function()
-	local sol = solve("baton", 0, 0, 1, 8, plan.arcFor("base"))
+	local sol = solve("baton", 0, 0, 1, 8, 90)
 	expect.near(sol.loft, 32, 1e-9)
 	expect.near(sol.back, 120 + 0.6, 1.5, "about 10 o'clock") -- 8.06 m out
 	local L = plan.launch(sol, cleanSwing(sol), { projectile = "baton", tilt = 0 }, {})

@@ -58,9 +58,20 @@ plan.tune = {
 	loftMinDeg = 2,        -- the launch angle never goes under this ...
 	loftMaxDeg = 75,       -- ... or over this (a sky ball reaches it)
 	-- the plan (B + d-pad)
-	arc = { base = 90, king = 75, field = 60, drill = 135 }, -- default release by target: 3
-	                       -- o'clock at base kubbs, half past 3 at the king, 4 at field
-	                       -- kubbs, half past 1 for a drilled kubb
+	-- A baton's default release goes by how far away its target is, never by what the
+	-- target is (Jamie, 2026-11-20: "The closer you are to the target the lower you
+	-- throw. A Kubb 1m away you barely even have an arc."; a kubb 5 m away is thrown
+	-- "fairly low. Waist high. Only a beginner would throw chest high."; "arc based on
+	-- target is just obviously wrong"). A line through two points, kept inside the
+	-- plan's release range: half past 5 (loft 7) at 2 m and under, where the short
+	-- throw's hand flattens it further (flight.handAt); 4 o'clock (loft 22) at 8 m. At
+	-- 5 m that is loft 14.5: the baton's centre peaks about 0.85 m up, its top end at
+	-- the waist. Until 0.10 the release went by the target's kind (a base kubb 90, the
+	-- king 75, a field kubb 60 whatever the distance): a base kubb from 8 m peaked
+	-- head high and one from an advantage line 2 m away was lobbed at loft 32.
+	arcNearM = 2, arcNearDeg = 15,
+	arcFarM = 8,  arcFarDeg = 60,
+	arc = { drill = 135 }, -- a drilled kubb's default release: half past 1
 	arcStepDeg = 15,       -- B + up/down moves the release target half an hour
 	releaseMinDeg = 15,    -- the planned release stays between half past 5 ...
 	releaseMaxDeg = 165,   -- ... and half past 12
@@ -296,9 +307,14 @@ function plan.clampSpin(taps)
 	return taps
 end
 
--- The default release for a target kind: "base", "king", "field" or "drill".
-function plan.arcFor(kind)
-	return plan.tune.arc[kind] or plan.tune.arc.base
+-- The default release (degrees): a drilled kubb's (kind "drill"), or a baton's for a
+-- target d metres from the stance (plan.tune "A baton's default release"; any other
+-- kind, which no longer counts; d nil: arcFarM, a baseline throw).
+function plan.arcFor(kind, d)
+	local t = plan.tune
+	if kind == "drill" then return t.arc.drill end
+	d = d or t.arcFarM
+	return plan.clampRelease(t.arcNearDeg + (d - t.arcNearM) * (t.arcFarDeg - t.arcNearDeg) / (t.arcFarM - t.arcNearM))
 end
 
 -- The height (m) a baton's centre is aimed through a piece of this kind:
@@ -362,7 +378,7 @@ end
 -- For a kubb also drill.solveAt's x, band and T.
 function plan.solve(q, out)
 	local lv = levelOf(q.level)
-	local rel = plan.clampRelease(q.release or plan.tune.arc.base)
+	local rel = plan.clampRelease(q.release or plan.arcFor(q.projectile == "kubb" and "drill" or "baton"))
 	local loft = plan.loftFor(rel)
 	local px, py, tx, ty = q.px, q.py, q.tx, q.ty
 	if q.projectile == "kubb" then
@@ -498,6 +514,21 @@ function plan.nervesSd(lv, back, shake, over, kubb)
 	return (lv.nervesDeg or 0) * k, (lv.nervesLen or 0) * k
 end
 
+-- The backswing a baton's nerves go by (plan.nervesSd's back), for a swing that
+-- counts as effBack against the plan sol: the nerves go by how far the throw is,
+-- not by how far back the arm went. A flat throw needs more backswing than a lofted
+-- one to the same spot and is not a harder throw for it (until 0.10 it was: the
+-- nerves read the backswing itself). So: the backswing that reaches the planned
+-- distance on the reference arc (plan.backFor), the distance scaled as this swing's
+-- reach is against the plan's, so a swing past the target still counts as a longer
+-- throw. A kubb's (its plan has one arc to judge by) is effBack as it is.
+function plan.nervesBack(sol, effBack, kubb)
+	if kubb or not (sol.dist and sol.back) then return effBack end
+	local r0 = plan.reach(sol.back)
+	if r0 <= 0.1 then return effBack end
+	return plan.backFor(plan.reach(effBack) * sol.dist / r0)
+end
+
 -- The aim fan for solution sol (plan.solve) at its own power with a clean
 -- swing: how far either side of the planned line (m) the throw spreads at
 -- range m from the thrower (fanSd sds), and the sd of the angle (degrees).
@@ -505,7 +536,8 @@ end
 -- dropped: at club level 1 sd at 8 m is about 0.1 m, inside the target
 -- circle, so the fan read as a narrow lane, not a spread.)
 function plan.spread(sol, range, level)
-	local sd = plan.nervesSd(level or sol.level, sol.back, 0, 1, sol.projectile == "kubb")
+	local kubb = sol.projectile == "kubb"
+	local sd = plan.nervesSd(level or sol.level, plan.nervesBack(sol, sol.back, kubb), 0, 1, kubb)
 	return tan(rad(sd * plan.tune.fanSd)) * range, sd
 end
 
@@ -620,7 +652,7 @@ function plan.launch(sol, r, opts, out)
 		zs, zl = rng.normal(1), rng.normal(1)
 		if not kubb then zt = rng.normal(1) end
 	end
-	local sdSide, sdLen = plan.nervesSd(lv, effBack, shake, m, kubb)
+	local sdSide, sdLen = plan.nervesSd(lv, plan.nervesBack(sol, effBack, kubb), shake, m, kubb)
 	local sideDeg = pull * t.lateralDeg * se + zs * sdSide
 	local len = zl * sdLen
 	if len < t.lenMin then len = t.lenMin end
@@ -648,7 +680,7 @@ function plan.launch(sol, r, opts, out)
 		out.tilt = pull * shakeTilt
 		out.legal = true
 		out.tumble = 0
-		drill.body(1 - se, pull, (opts.spin or 0) * t.spinPerStep, out, out.loft - (sol.loft or out.loft))
+		drill.body(1 - se, pull, (opts.spin or 0) * t.spinPerStep, out, out.loft)
 	else
 		local tilt = (opts.tilt or 0) + pull * shakeTilt
 		out.tilt = tilt

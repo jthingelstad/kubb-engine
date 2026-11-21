@@ -105,7 +105,7 @@ test("a baton stands on the advantage line, never nearer its target than minRang
 	expect.near(a.y, 0, 1e-9)
 end)
 
-test("choose returns the launch fields; the arc follows the target", function()
+test("choose returns the launch fields; the arc follows the distance", function()
 	local cases = { { "base", 0.5, 8, "base" }, { "field", -1, 5.5, "field" }, { "king", 0, 4, "king" } }
 	for _, c in ipairs(cases) do
 		local a = autothrow.choose(baton(c[1], c[2], c[3], 0, c[1] == "king"), autothrow.rng(5), 0)
@@ -114,7 +114,8 @@ test("choose returns the launch fields; the arc follows the target", function()
 		end
 		expect.eq(a.legal, true)
 		expect.eq(a.drill, nil)
-		expect.near(a.loftDeg, plan.loftFor(plan.arcFor(c[4])), 1e-9, c[1] .. " arc")
+		local d = math.sqrt((c[2] - a.x) ^ 2 + (c[3] - a.y) ^ 2)
+		expect.near(a.loftDeg, plan.loftFor(plan.arcFor("baton", d)), 1e-9, c[1] .. " arc")
 		-- the plan and the swing for the gauge: the arm goes back to swing.back
 		-- and forward to swing.releaseAngle
 		expect.near(a.plan.tx, c[2], 1e-9)
@@ -301,12 +302,12 @@ test("the computer's swing mistakes do not grow with range; its nerves do", func
 	expect.near(clean.launch.lenShare, 0, 1e-12)
 end)
 
-test("computer uses its assigned thrower level for drill spin and baton rotation", function()
+test("computer spins every drill the same and uses its thrower level for baton rotation", function()
 	for _, level in ipairs(plan.LEVELS) do
 		local s = toss()
 		s.thrower = { level = level }
 		local a = autothrow.choose(s, autothrow.rng(3), 0)
-		expect.near(a.drill.spin, tw.drill.tune.spiral + autothrow.tune.drillSpin[level] * plan.tune.spinPerStep, 1e-9)
+		expect.near(a.drill.spin, tw.drill.tune.spiral + autothrow.tune.drillSpin * plan.tune.spinPerStep, 1e-9)
 		s = baton("base", 1, 8)
 		s.thrower = { level = level }
 		a = autothrow.choose(s, autothrow.rng(3), 0)

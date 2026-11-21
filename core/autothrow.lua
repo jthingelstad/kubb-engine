@@ -1,7 +1,7 @@
 -- The computer thrower (DESIGN.md section 4: "the computer throws the same
 -- way: it plans a target and an arc and makes a swing with mistakes in it").
 -- For a match setup (core/match) it does what a player does: picks a target,
--- stands behind it (tw.plan.stance), takes the default arc (tw.plan.arcFor),
+-- stands behind it (tw.plan.stance), takes the default arc (tw.plan.arcFor, by the distance),
 -- solves the plan at a throw level (tw.plan.solve), then makes a synthetic
 -- swing (the fields core/swing measures at a release) with seeded mistakes
 -- in it, and tw.plan.launch turns that swing into the launch. Self-tests,
@@ -33,7 +33,10 @@ autothrow.tune = {
 	level = "club",          -- the throw level it solves at (tw.plan.levels) when none is given
 	-- the swing's mistakes times this at each level (autothrow.cpuLevel); pro is
 	-- the recorded tournament games (Jamie, 2026-11-17), club and beginner below it
-	drillSpin = { beginner = 0, club = 1, pro = 2 }, -- taps of axial spin to steady the flight
+	drillSpin = 1,           -- taps of axial spin on every drill, to steady the flight: what a
+	                         -- thrower's hand does, not a thing a level's name decides (until
+	                         -- 0.10: beginner 0, club 1, pro 2). One tap is the least that holds
+	                         -- the nose to the touch; the levels differ by their swings' mistakes
 	swingScale = { beginner = 1.6, club = 1.3, pro = 1 },
 	batonShort = 0,          -- m the baton's target is short of the kubb's center: none, the
 	                         -- center, where a player's target snaps (measured 2026-11-15 with
@@ -333,7 +336,7 @@ function autothrow.choose(s, r, scale, level)
 	if s.kind == "toss" then
 		local side = autothrow.basket(s, r)
 		tx, ty = autothrow.spot(s, side)
-		q.spin = t.drillSpin[lname] or t.drillSpin[t.level]
+		q.spin = t.drillSpin
 		q.projectile, arc = "kubb", plan.arcFor("drill")
 		py = s.lineY
 	else
@@ -375,14 +378,16 @@ function autothrow.choose(s, r, scale, level)
 		-- through the piece at its aim height (plan.tune.aimHeightShare), as a
 		-- player's circle on a piece is
 		q.aimZ = plan.aimZFor((s.kingShot or target.role == "king") and "king" or "kubb")
-		if s.kingShot or target.role == "king" then arc = plan.arcFor("king")
-		elseif target.role == "field" then arc = plan.arcFor("field")
-		else arc = plan.arcFor("base") end
 		py = s.kingShot and s.lineY or (s.forwardY or s.lineY)
 		if py > target.y - t.minRange then py = target.y - t.minRange end
 		if py < s.lineY then py = s.lineY end
 	end
 	local st = plan.stance(tx, ty, s.lineY, py, t.halfWidth, {})
+	if q.projectile == "baton" then
+		-- the default arc for the distance (plan.arcFor), as a player's is
+		local dx, dy = tx - st.x, ty - st.y
+		arc = plan.arcFor("baton", math.sqrt(dx * dx + dy * dy))
+	end
 	q.px, q.py, q.tx, q.ty, q.release = st.x, st.y, tx, ty, arc
 	local sol = plan.solve(q, {})
 	if q.projectile == "kubb" then scale = scale * t.drillScale end

@@ -32,8 +32,9 @@ this throw: "HOW TO THROW" below).
   then the stance is `plan.stance`, straight behind the circle as far forward as allowed.
   B + up/down taps move the planned release `plan.tune.arcStepDeg` (15) within
   `releaseMinDeg`..`releaseMaxDeg` and set `s.arcSet`; until then the release is
-  `plan.arcFor` the kind of target nearest the circle (base 3 o'clock, king half past 3,
-  field 4, a drill half past 1). B + left/right taps: a baton's tilt (`s.tilt`, steps of
+  `plan.arcFor`: a drill's is half past 1; a baton's goes by the distance from the stance
+  to the circle, never by the kind of target (from 0.10.0: half past 5 at 2 m and under,
+  4 o'clock at 8 m, a line between; `throw.defaultArc`). B + left/right taps: a baton's tilt (`s.tilt`, steps of
   `tiltStepDeg` to `tiltMaxDeg`), a kubb's spin (`s.spin`, to `spinSteps` taps). While A or
   B is held the crank does not throw. The swivel is always the plan's (`s.sol.swivel`).
 - **The plan.** `replan(s)` (`throw.replan`) runs `plan.solve` into `s.sol` (reused, no

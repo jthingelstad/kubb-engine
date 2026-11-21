@@ -254,17 +254,19 @@ local function practiceLayout()
 	return out
 end
 
--- Some piece of the restored view is not where the practice layout has it.
-local function notPractice(items, what)
+-- Some piece of the view is not where the practice layout has it.
+local function differsFromPractice(items)
 	local p = practiceLayout()
-	local differs = false
 	for _, it in ipairs(items) do
 		local q = p[it.id]
 		if not q or q.toppled ~= it.toppled or math.abs(q.x - it.x) > 1e-3 or math.abs(q.y - it.y) > 1e-3 then
-			differs = true
+			return true
 		end
 	end
-	expect.truthy(differs, what .. ": the restored view is not the practice layout")
+	return false
+end
+local function notPractice(items, what)
+	expect.truthy(differsFromPractice(items), what .. ": the restored view is not the practice layout")
 end
 
 local function checkRestored(s, what)
@@ -300,7 +302,10 @@ test("a snapshot restored while raising, placing a punishment kubb or after the 
 		else
 			guard = guard + 1
 			local n = s:need()
-			if (n.kind == "raise" or n.kind == "punish" or n.kind == "over") and not seen[n.kind] then
+			-- (a punishment kubb in a match's first turn waits on a pitch that is still the
+			-- practice layout, which shows nothing: wait for one on a pitch that has moved)
+			if (n.kind == "raise" or n.kind == "punish" or n.kind == "over") and not seen[n.kind]
+				and (n.kind ~= "punish" or differsFromPractice(s:view().items)) then
 				seen[n.kind] = true
 				checkRestored(s, n.kind)
 			end

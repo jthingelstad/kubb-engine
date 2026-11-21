@@ -360,7 +360,7 @@ for _, surface in ipairs { "grass", "sand", "snow" } do
 			for _, mx in ipairs(MX) do
 				for g = 1, grounds do
 					local sol = drill.solveAt(mx, my, 0, loft, {}, nil, surface)
-					local L = drill.body(1, 1, 0, {})
+					local L = drill.body(1, 1, 0, {}, loft)
 					local w = world.new { surface = surface, groundSeed = g * 7919 + 13 }
 					local b = world.launchDrill(w, "d", sol.x, 0, sol.swivel, sol.loft, sol.speed, L.noseDown, L.rollLand,
 						L.spin, L.wobble)
@@ -444,39 +444,46 @@ import "core/drill"
 local drill = tw.drill
 local t = drill.tune
 local zero = {}
-for li = 1, #t.slideLofts do
-	zero[li] = {}
-	for j = 1, #t.slideR do zero[li][j] = 0 end
+for k = 1, #t.slideSpins do
+	zero[k] = {}
+	for li = 1, #t.slideLofts do
+		zero[k][li] = {}
+		for j = 1, #t.slideR do zero[k][li][j] = 0 end
+	end
 end
 t.slide = { grass = zero, sand = zero, snow = zero }
 local MX = { -1.5, 0, 1.5 }
 print(fmt("drillscatter 5: the aim allowance, %d lines x %d grounds a cell (m past the aimed landing; sd of the mean in brackets)", #MX, grounds))
 for _, surface in ipairs { "grass", "sand", "snow" } do
 	if not surfaceOnly or surfaceOnly == surface then
-	local rows, notes = {}, {}
-	for li, loft in ipairs(t.slideLofts) do
-		local row, nrow = {}, {}
-		for j, R in ipairs(t.slideR) do
-			local a = acc()
-			for _, mx in ipairs(MX) do
-				for g = 1, grounds do
-					local sol = drill.solveAt(mx, R, 0, loft, {}, nil, surface)
-					local L = drill.body(1, 1, 0, {})
-					local w = world.new { surface = surface, groundSeed = g * 6151 + 29 }
-					local b = world.launchDrill(w, "d", sol.x, 0, sol.swivel, sol.loft, sol.speed, L.noseDown, L.rollLand,
-						L.spin, L.wobble)
-					world.run(w)
-					add(a, (b.x - sol.x) * math.sin(sol.swivel) + b.y * math.cos(sol.swivel) - sol.land)
+	print(fmt("\t\t%s = {", surface))
+	for _, spin in ipairs(t.slideSpins) do
+		local rows, notes = {}, {}
+		for li, loft in ipairs(t.slideLofts) do
+			local row, nrow = {}, {}
+			for j, R in ipairs(t.slideR) do
+				local a = acc()
+				for _, mx in ipairs(MX) do
+					for g = 1, grounds do
+						local sol = drill.solveAt(mx, R, 0, loft, {}, nil, surface, spin)
+						local L = drill.body(1, 1, spin, {}, loft)
+						local w = world.new { surface = surface, groundSeed = g * 6151 + 29 }
+						local b = world.launchDrill(w, "d", sol.x, 0, sol.swivel, sol.loft, sol.speed, L.noseDown, L.rollLand,
+							L.spin, L.wobble)
+						world.run(w)
+						add(a, (b.x - sol.x) * math.sin(sol.swivel) + b.y * math.cos(sol.swivel) - sol.land)
+					end
 				end
+				row[j] = fmt("%.2f", math.max(0, mean(a)))
+				nrow[j] = fmt("%+.2f (%.2f)", mean(a), sd(a) / sqrt(a.n))
 			end
-			row[j] = fmt("%.2f", math.max(0, mean(a)))
-			nrow[j] = fmt("%+.2f (%.2f)", mean(a), sd(a) / sqrt(a.n))
+			rows[li] = "{ " .. table.concat(row, ", ") .. " }"
+			notes[li] = fmt("    -- spin %d loft %d: %s", spin, loft, table.concat(nrow, "  "))
 		end
-		rows[li] = "{ " .. table.concat(row, ", ") .. " }"
-		notes[li] = fmt("    -- loft %d: %s", loft, table.concat(nrow, "  "))
+		print(fmt("\t\t\t{ %s }, -- spin %d", table.concat(rows, ", "), spin))
+		for _, l in ipairs(notes) do print(l) end
 	end
-	print(fmt("\t\t%s = { %s },", surface, table.concat(rows, ", ")))
-	for _, l in ipairs(notes) do print(l) end
+	print("\t\t},")
 	end
 end
 end

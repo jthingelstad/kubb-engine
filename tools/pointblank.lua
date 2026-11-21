@@ -96,7 +96,7 @@ end
 local function solveFor(d, lv)
 	local kind = d >= 6 and "base" or "field"
 	return plan.solve({ projectile = "baton", px = 0, py = PY, tx = 0, ty = PY + d,
-		release = plan.arcFor(kind), level = lv or level, aimZ = plan.aimZFor(kind) }, {})
+		release = plan.arcFor("baton", d), level = lv or level, aimZ = plan.aimZFor(kind) }, {})
 end
 
 local function swingOf(back, stop)

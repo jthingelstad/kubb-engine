@@ -102,7 +102,7 @@ local BODY = {}
 -- many taps of spin. Steps it to rest and fills `out`: land (centre at the
 -- first touch), nose (first touch ahead of the centre), hop, the body.
 local function drillInto(w, id, sol, taps, out)
-	local L = drill.body(1, 1, taps * PER, BODY)
+	local L = drill.body(1, 1, taps * PER, BODY, sol.loft)
 	local b = world.launchDrill(w, id, sol.x, 0, sol.swivel, sol.loft, sol.speed, L.noseDown, L.rollLand,
 		L.spin, L.wobble)
 	local landX, landY, hop, nose = nil, nil, 0, false

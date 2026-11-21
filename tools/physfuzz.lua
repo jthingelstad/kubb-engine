@@ -354,7 +354,7 @@ local function drawThrow(i)
 		T.layoutKind = fmt("aim %.2f m", T.d)
 		T.pieces = { { id = "k", kind = "kubb", x = 0, y = T.d } }
 		T.stakes = false
-		local st = physcheck.planState({ px = 0, py = 0, tx = 0, ty = T.d, release = plan.tune.arc.field,
+		local st = physcheck.planState({ px = 0, py = 0, tx = 0, ty = T.d, release = plan.arcFor("baton", T.d),
 			level = "club", aimZ = plan.aimZFor("kubb") }, T.tumble)
 		st.groundSeed = T.groundSeed
 		T.state = st
@@ -404,11 +404,16 @@ local function drawThrow(i)
 	end
 	T.setup = s
 	-- the arc: the default one most of the time, else moved
-	local arc0 = plan.tune.arc[arcKey]
+	-- (a drill's is plan.tune.arc.drill; a baton's goes by its distance, so a moved
+	-- one moves the whole line, plan.tune.arcNearDeg and arcFarDeg, by the same
+	-- degrees, and T.arc is that move)
+	local drillArc = arcKey == "drill"
+	local arc0 = drillArc and plan.tune.arc.drill or 0
 	local arc = arc0
 	if r.next() < 0.4 then
-		local spread = (arcKey == "drill") and 30 or 45
-		arc = math.max(plan.tune.releaseMinDeg, math.min(plan.tune.releaseMaxDeg, arc0 + r.uniform(-spread, spread)))
+		local spread = drillArc and 30 or 45
+		arc = arc0 + r.uniform(-spread, spread)
+		if drillArc then arc = math.max(plan.tune.releaseMinDeg, math.min(plan.tune.releaseMaxDeg, arc)) end
 	end
 	T.arc = arc
 	-- the B + left/right control, from a stream of its own (so the layout and
@@ -424,9 +429,10 @@ local function drawThrow(i)
 		local k = 1 + math.floor(rc.next() * taps)
 		T.tilt = (rc.next() < 0.5 and -k or k) * pt.tiltStepDeg
 	end
-	plan.tune.arc[arcKey] = arc
+	local near0, far0 = pt.arcNearDeg, pt.arcFarDeg
+	if drillArc then pt.arc.drill = arc else pt.arcNearDeg, pt.arcFarDeg = near0 + arc, far0 + arc end
 	local ok, a = withControls(T.spin or 0, T.tilt or 0, autothrow.choose, s, r, T.cls.scale, T.cls.level)
-	plan.tune.arc[arcKey] = arc0
+	pt.arc.drill, pt.arcNearDeg, pt.arcFarDeg = drillArc and arc0 or pt.arc.drill, near0, far0
 	if not ok then error(a) end
 	if T.cls.wild then
 		a.speed = a.speed * r.uniform(0.85, 1.15)

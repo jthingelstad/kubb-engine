@@ -191,7 +191,7 @@ local function tryTilt(ctx, levelName, sol, ptilt, taps)
 		return false, 3, "the steady verdict does not fit the shake the tilt shows"
 	end
 	-- sideways
-	local sdSide, sdLen = plan.nervesSd(lv, effBack, shake, m, kubb)
+	local sdSide, sdLen = plan.nervesSd(lv, plan.nervesBack(sol, effBack, kubb), shake, m, kubb)
 	local sideDeg = deg(L.swivel - sol.swivel)
 	local zs = (sideDeg - pull * t.lateralDeg * se) / sdSide
 	if abs(zs) > check.ZMAX + EPS then return false, 4, "the swivel is off the line by more than the nerves give" end
@@ -201,7 +201,7 @@ local function tryTilt(ctx, levelName, sol, ptilt, taps)
 	end
 	-- a kubb's body
 	if kubb then
-		local body = drill.body(1 - se, pull, (taps or 0) * t.spinPerStep, {}, loft - (sol.loft or loft))
+		local body = drill.body(1 - se, pull, (taps or 0) * t.spinPerStep, {}, loft)
 		if abs(body.noseDown - L.noseDown) > TOL or abs(body.spin - L.spin) > TOL or L.rollLand ~= 0
 			or abs(body.wobble - L.wobble) > TOL then
 			return false, 5, "the kubb's nose, spin, roll or wobble is not what the drill gives"
@@ -351,10 +351,6 @@ local function releases(ctx, levelName)
 	elseif not ctx.sky and L.loft > t.loftMinDeg and L.loft < t.loftMaxDeg and lv.inGain < 1 then
 		local effRel = plan.releaseFor(L.loft)
 		add((effRel - lv.inGain * ctx.stop) / (1 - lv.inGain))
-	end
-	-- a kubb's nose pins the plan's loft: noseDown is noseDownDeg less the loft over the plan's
-	if ctx.kubb and num(L.noseDown) then
-		add(plan.releaseFor(L.loft - (drill.tune.noseDownDeg - L.noseDown)))
 	end
 	for _, r in pairs(t.arc) do add(r) end
 	for r = t.releaseMinDeg, t.releaseMaxDeg, t.arcStepDeg do add(r) end

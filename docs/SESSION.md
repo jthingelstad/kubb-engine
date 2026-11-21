@@ -365,15 +365,12 @@ What it cannot prove:
   from its own options, but the options (names, seed, levels) are whatever the sender
   chose.
 - **A match against a person.** Neither side's throws can be made again.
-- **A drilled kubb's nose, at the ends of the arc (a known gap, 0.9.0).** A drill
-  released very early (a stop about 29 degrees) or at the sky end (about 180) passes
-  with its `noseDown` changed, because the nose moved fits another release the check
-  tries. Between 60 and 160 degrees the nose is pinned and a forged one is refused. In
-  session match 1, 4 of the 5 drills stop outside that band. The test
-  `known gap: a drill released very early or at the sky end takes a forged noseDown`
-  (`tests/lua/session/test_check.lua`) pins today's behaviour. Closing it is the owner's
-  call: it means holding the nose to the action's own `plan.release`, which a sender
-  can also choose.
+
+A drilled kubb's nose was a known gap in 0.9.0 (a drill released very early or at the
+sky end passed with its `noseDown` changed). From 0.10.0 the nose goes by the loft the
+kubb leaves at (`drill.noseFor`), which the check holds, so a forged nose is refused at
+every release (`a drill released very early or at the sky end takes no forged noseDown`,
+`tests/lua/session/test_check.lua`).
 
 ### Actions (a match among browsers)
 

@@ -309,11 +309,11 @@ test("checkThrow refuses a throw at 30 m/s and other throws the dial cannot make
 	expect.eq(info.outOfBoundsAt, bat.i - 1)
 end)
 
--- Known gap (0.9.0, docs/SESSION.md "Checking a throw"): a drill released very early
--- (stop about 29) or at the sky end (about 180) takes a forged nose, because the nose
--- moved fits another candidate release. This pins today's behaviour so a change to it is
--- seen; when the check closes the gap, turn these into refusals.
-test("known gap: a drill released very early or at the sky end takes a forged noseDown", function()
+-- Until 0.10 a drill released very early (stop about 29) or at the sky end (about 180)
+-- took a forged nose, because the nose moved fitted another candidate release (0.9.0's
+-- known gap, docs/SESSION.md "Checking a throw"). The nose now goes by the loft the kubb
+-- left at (drill.noseFor), which the check holds, so none is taken.
+test("a drill released very early or at the sky end takes no forged noseDown", function()
 	local outside, taken = 0, 0
 	for _, seed in ipairs { 1, 2 } do
 		local m = match(seed)
@@ -328,7 +328,7 @@ test("known gap: a drill released very early or at the sky end takes a forged no
 		end
 	end
 	expect.truthy(outside > 0, "drills outside 60 to 160 in matches 1 and 2")
-	expect.truthy(taken > 0, "the gap: " .. taken .. " of " .. outside .. " forged noses taken")
+	expect.eq(taken, 0, taken .. " of " .. outside .. " forged noses taken")
 end)
 
 test("checkThrow's bounds: an overpowered swing at a near target, and the fastest legal baton", function()

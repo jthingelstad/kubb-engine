@@ -75,7 +75,7 @@ local function nearAction(match, need, aim, d, over)
 	local px, py = m.x, m.y - d
 	local sol = plan.solve({
 		projectile = "baton", px = px, py = py, tx = m.x, ty = m.y,
-		release = plan.arcFor("field"), level = aim.plan.level, surface = match.opts.surface, spin = 0,
+		release = plan.arcFor("baton", d), level = aim.plan.level, surface = match.opts.surface, spin = 0,
 		aimZ = plan.aimZFor("kubb"),
 	}, {})
 	local mid = (sol.powerLo + sol.powerHi) / 2
