@@ -361,7 +361,7 @@ local function one(s, a, base)
 		local L2 = launch(ts3, swingOf(back, stop, rt.flick, rt.shake, rt.pull), rt.z)
 		o.rethrow = fireWorld(ts3, L2, a.how)
 		o.rethrow.legal = L2.legal
-		o.rethrow.powerV, o.rethrow.releaseV = L2.powerV, L2.releaseV
+		o.rethrow.powerV, o.rethrow.releaseV, o.rethrow.steady = L2.powerV, L2.releaseV, L2.steady and true or false
 	end
 	emit(o)
 end

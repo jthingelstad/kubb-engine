@@ -83,6 +83,20 @@ function human.swing(sol, p, r, out)
 	return out
 end
 
+-- The standing kubb or king nearest a plan's aim point: the target of an engine whose
+-- autothrow does not name it (before 0.8).
+function human.nearest(s, P)
+	if not P or not P.tx then return nil end
+	local best, bd = nil, math.huge
+	for _, p in ipairs(s.pieces) do
+		if p.kind ~= "baton" and not p.toppled then
+			local d = (p.x - P.tx) ^ 2 + (p.y - P.ty) ^ 2
+			if d < bd then best, bd = p, d end
+		end
+	end
+	return best and best.id
+end
+
 -- A throw for match setup s at throw level `level` (a name) by a person
 -- whose swing is drawn from model. Returns what autothrow.choose returns
 -- (autothrow.launch puts it into a world), with a.human = the model level used.
@@ -97,9 +111,13 @@ function human.choose(s, r, level, model)
 	if kubb then
 		q.release = plan.arcFor("drill")
 	else
+		-- an engine before 0.8 does not name its target: the standing piece nearest
+		-- the aim point is it (the arc depends on whether that is a field kubb)
+		local on = a0.on or human.nearest(s, P)
+		a0.on = on
 		local role = "base"
 		for _, p in ipairs(s.pieces) do
-			if p.id == a0.on then role = p.role or (p.kind == "king" and "king") or "base" end
+			if p.id == on then role = p.role or (p.kind == "king" and "king") or "base" end
 		end
 		if s.kingShot or role == "king" then
 			q.release, q.aimZ = plan.arcFor("king"), plan.aimZFor("king")
