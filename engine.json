@@ -1,6 +1,6 @@
 {
   "name": "kubb-engine",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "extractedFrom": {
     "repository": "jthingelstad/playdate-kubb",
     "path": "source/core",
@@ -47,11 +47,11 @@
     "core/playback.lua": "78d514e82e5d5b5fa6c471881977226c8c692ba34537f0f7a4c72bb82128e2a3",
     "core/plays.lua": "8d0eb55c6e4264436b7284d12496afb52b84745e7d07c941ab195d62659c5910",
     "core/quat.lua": "b337eaaf99083d8aa3c6334eaad82ec6729cc6dc6128552ba2b61459a2993eee",
-    "core/raising.lua": "9997995b5e325e21de19d7726d1c8236dcc5e8b3a74373821900c3ee4e41c668",
+    "core/raising.lua": "537ed6d95045acab1032b45fb3e61cc189b73e26fa6cf3e5c7f09a8fb9f42837",
     "core/read.lua": "061e4b4a65d60c199f5e5185b4adbd9194c1cc2dce1f6abdd5a858ac369ff791",
     "core/rect.lua": "9a89203a29c6c8bc6fbea6cc6b393399622c9eaf9072a4ff47f05faa650c4619",
     "core/roster.lua": "ea99aba74cfc6456d3b6875bfdd64d8b50e3a23ec515835306d5ab95e97072cd",
-    "core/rules.lua": "fbb5b9c54e656c6769f5b637773e9f6657d8e7f36743b8e4f688f1a1d3ac9984",
+    "core/rules.lua": "ca456c75feabcc018c1210a14bd18edc9b6f369ce9621fd0efd4be745430e980",
     "core/save.lua": "27cb87941e929a186884b3d38c4eae6ef86adca764b3af04ca5bb9ce3b5cfff2",
     "core/swing.lua": "c55fd9282c913a1f12cfb463e887e64372846ac32ff5d704b54b4a65510c5b4a",
     "core/throwplan.lua": "69bb4e53d45cb76725f7b62f32f51e98ae0b39d433cdb5ba8c7a82e75a401a83",
@@ -76,9 +76,9 @@
     "session/wide.lua": "9f2087d3362b6ed4d2240365a5bd79504ae7207775529cc0d403ab201befd855",
     "tune/pointer.lua": "7b30c67adf47fb8387e5b0dd7f73af3c92c99116d05781885e7fc0157fcc9397",
     "tune/touch.lua": "b7c3f2851c4c386cc39a76d891cf273d703ac231fe51c235db5d1bc404915221",
-    "version.lua": "b00b73894da9e700dba23f72131921c434b1554b9c9c41648fff20bca9471845"
+    "version.lua": "685ebe1b48a96050faa13ddee98e5106649d54eebe83f23efa3b162a46081c71"
   },
   "bundle": {
-    "sha256": "51d471a212624a7e3a6da50365d14689cfa68c75e4c8141d3d5a72ebe25e3d82"
+    "sha256": "f33e12f6471127678bb65f0fb68fccd9e69533609723259e4a7c781ccfb53276"
   }
 }
