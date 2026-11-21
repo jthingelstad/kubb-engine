@@ -163,7 +163,18 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
 - **Engine:** modelled another way (0.11.0). Club and pro lay a row, each kubb flank to
   flank with the innermost one lying (`row = 1`, `rowStep`). It lies as a fence, and the
   defender's `apart` raise staggers it into depth. In the Gym it gave more doubles and
-  triples than 0.10's line or cluster (Q6).
+  triples than 0.10's line or cluster (Q6). The play itself is built, switched off
+  (0.11.3, `core/cpu` depthSpot; `cpu.tune.depth`, no level knows it): the kubbs lie end
+  to end in a column down the baton's path, the first in the basket, each later one aimed
+  to rest 4 cm in front of the column's front kubb with the row's dead landing and roll,
+  four to a column, none nearer the centre line than 4.35 m (the baskets face each other:
+  two columns grown to the centre line stand a hand apart, and a baton at one touches the
+  other team's column in the thrower's own half, II.B.11); then the next column starts
+  flank to flank with the innermost column's back kubb. A defender raises a lying kubb
+  only along its length, so a column stands in one lane whichever ends are chosen. In
+  the Gym, switched on, the pro computer laying columns beats the pro computer laying
+  the row 74.5% on seeds 1 and 2 alike (at club 58.8% and 62.0%; docs/notes/gym.md, "The
+  attacker's plays").
 - **Gym:** first-baton take by field size (`firstBaton.*`), `g.btc`; compare `row = 1`
   with `row = 0`.
 

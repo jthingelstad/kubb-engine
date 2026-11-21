@@ -95,6 +95,53 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.11.3** (patch). The defender's raising by side and two attacking plays for the
+  computer, built switched off (docs/notes/computer-player.md, "How a play gets in"):
+  - **Raising by side**: `match.settle` raises each kubb with the defender's policy,
+    `match.raisePolicy(m, side)`: the computer's by its level (`core/cpu.raising`,
+    `cpu.raise`, its reason in `cpu.last` with `kind = "raise"`), a person's by the
+    engine's advice (`cpu.advice`), which is also the session's `need.default` for a
+    raise by hand (a `raise` action with no choice takes it). The match knows the
+    computer's sides from `match.new`'s new `cpu` (a list or set of sides; the session
+    passes its own `cpu` option) or, without it, from the mode `Vs Playdate` (Team B);
+    `match.new`'s `raising = { A, B }` names a side's policy outright. Neither is saved;
+    the mode is. Every level and the advice are `apart`, so every side raises as before.
+  - **`field.line`** (`core/cpu` lineChoice, `read.lineLane`): stand on the throwing line
+    where the kubbs line up behind the front one, scored by the lane along that line
+    (weighed as `raise.par` weighs a pair) times the chance of hitting from there; never
+    through the king, past a kubb in front, or within 0.3 m of a field kubb in the
+    thrower's own half (II.B.11).
+  - **`inkast.depth`** (`core/cpu` depthSpot): lay the kubbs end to end in columns down
+    the baton's path, 4 cm apart, four to a column and none nearer the centre line than
+    4.35 m, with the row's dead landing and roll.
+  - Both plays are in `cpu.tune`, switched by level (`0` at every level) and off entirely
+    (`on = 0`); the Gym reaches every number (`--set cpu.tune.line.pro=1`). Neither draws
+    from a random stream. `core/plays` has `raise.par`, `field.line` and `inkast.depth`
+    with no levels: no level uses them yet. The Gym's plain run, `tools/physmatch.lua`
+    and a `versus` team that names no `raise=` raise as the engine raises such a side
+    (`apart` here).
+
+  No level uses any of it: the computer throws and raises exactly as on 0.11.2. All 532
+  golden action hashes match 0.11.2, `tests/fixtures/cpu/choose.txt` (0.11.0's) still
+  passes untouched (`tools/cpufixture.lua` writes it again byte for byte), and
+  `tools/physdump.lua`'s output is the same byte for byte. The tests switch each play
+  and the raising on inside the test to prove what it does.
+
+  Measured switched on through the Gym, as Jamie decided they are to be enabled (pro
+  `par`, club `apart`, beginner `first`, a person `par`; `field.line` and `inkast.depth`
+  at pro; docs/notes/gym.md, "Raising by level" and "The attacker's plays"): the pro
+  computer with both plays beats the pro without them 79.4% and 79.9% (seeds 1 and 2),
+  and beats 0.11.2's pro 79.0% and 81.3%; its field batons that took three or more go
+  from 4.9% to 6.8% (the target is 12 to 18). With the plays, `par` and `apart` are level
+  at pro, and `par` beats the same-end policies 55 to 57. At club the column wins too
+  (58.8%, 62.0%) but moves club away from real play, so it is to stay off at club.
+  Switched on, a `par` decision with eight kubbs still lying takes about 0.12 ms in
+  desktop Lua (0.001 ms for `apart`), a `field.line` decision at ten standing field kubbs
+  about 0.11 ms (0.016 ms without) and a pro `inkast.depth` toss about 0.018 ms (0.003).
+
+  For clients: sync the tag; nothing else changes. The session passes its `cpu` option to
+  the core; a client passes nothing new.
+
 - **0.11.2** (patch). A raising policy that counts the attacker's batons,
   `raising.policies.par` (raise.par, raise.across), built switched off: the end that
   leaves the fewest kubbs one behind another on a baton's path, seen straight down the

@@ -19,7 +19,9 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Basis:** player
 - **Against:** Q7.
 - **Levels:** Proposed: pro. Club spreads kubbs apart without counting.
-- **Engine:** built, used by no level (0.11.2): `raising.policies.par`, the end that
+- **Engine:** built, used by no level (0.11.2; the raising by level that can give it to a
+  side, `core/cpu.raising`, `cpu.advice` and `match.raisePolicy`, is built switched off in
+  0.11.3, every side `apart`): `raising.policies.par`, the end that
   leaves the attacker's batons the fewest kubbs one behind another, a pair weighed by how
   close it is across the baton's path and how far along it (`raising.tune.par*`). It
   counts pairs in line, not batons, and looks no baton ahead. The game's policy is still
