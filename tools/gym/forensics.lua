@@ -33,6 +33,8 @@
 --   propped         kubbs that moved this throw and rest standing tilted past proppedDeg:
 --                   { { id, tilt } }
 --   restX, restY    the projectile's rest (a drill: where the kubb ended), view frame
+--   broken          bodies whose state is not a number or whose centre is under the
+--                   ground: { { id, why } } (a hard defect, tools/gym.mjs --gate)
 --   polled          an engine with no onContact (before 0.4.1): touches were found by
 --                   the narrow phase between steps, the landing only when the ground was
 --                   the first contact; kubb on kubb is not seen
@@ -266,6 +268,20 @@ function forensics.run(w, ctx, pieces)
 	for k = 1, nTracked do tracked[k].maxD = sqrt(tracked[k].maxD) end
 	local res = world.result(w)
 	rec.rest = w.time
+	rec.timedOut = w.time >= world.tune.maxTime or nil
+	-- hard defects: a body whose state is not a number, or whose centre is under the ground
+	for k = 1, w.n do
+		local b = w.bodies[k]
+		if not b.static then
+			local why
+			if b.x ~= b.x or b.y ~= b.y or b.z ~= b.z or b.qw ~= b.qw then why = "not a number"
+			elseif b.z < -0.01 then why = "under the ground" end
+			if why then
+				rec.broken = rec.broken or {}
+				rec.broken[#rec.broken + 1] = { id = b.id, why = why }
+			end
+		end
+	end
 	rec.ground1 = w.firstContact ~= nil and w.firstContact.with == "ground"
 	rec.restX, rec.restY = proj.x, proj.y
 	if landX then

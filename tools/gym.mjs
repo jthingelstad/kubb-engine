@@ -56,13 +56,15 @@ function parse(argv) {
     else if (a === '--engine') o.engine = take();
     else if (a === '--write') o.write = true;
     else if (a === '--keep') o.keep = true;
+    else if (a === '--gate') o.gate = true;
     else if (a.startsWith('--')) throw new Error(`gym: unknown option ${a}`);
     else o.pos.push(a);
   }
   if (!o.n) o.n = o.mode === 'full' ? 300 : 40;
   o.mode = o.mode || (o.n >= 300 ? 'full' : 'quick');
   if (!o.model) o.model = join(here, 'gym', 'human-model.json');
-  if (o.real === undefined) {
+  if (o.real === 'none') o.real = null;
+  else if (o.real === undefined) {
     const pk = process.env.PK_KUBB_SCORE || join(root, '..', 'pk-kubb-score');
     if (existsSync(join(pk, 'games'))) o.real = join(pk, 'games');
   }
@@ -81,6 +83,9 @@ function engineInfo(dir) {
   }
   return out;
 }
+
+// Anomaly kinds that are defects whatever their rate (--gate fails on them).
+const HARD = ['unsettled', 'broken'];
 
 // ---------- running workers ----------
 
@@ -121,7 +126,8 @@ export async function scorecard(o) {
   const out = o.out || join(root, 'build', 'gym', `run-${process.pid}-${Date.now()}`);
   rmSync(out, { recursive: true, force: true });
   mkdirSync(out, { recursive: true });
-  const chunk = Math.max(2, Math.ceil(o.n / Math.max(1, Math.ceil(o.jobs * 2 / configs.length))));
+  // about six batches a process, so the pool's tail is short
+  const chunk = Math.max(2, Math.ceil(o.n * configs.length / (o.jobs * 6)));
   const tasks = [];
   for (const c of configs) {
     const dir = join(out, cfgDir(c));
@@ -134,6 +140,7 @@ export async function scorecard(o) {
   await runPool(tasks, o.jobs, (d, n) => { if (process.stderr.isTTY) process.stderr.write(`\rgym: ${d}/${n} batches`); });
   if (process.stderr.isTTY) process.stderr.write('\n');
   const wall = (Date.now() - t0) / 1000;
+  const t1 = Date.now();
   const card = {
     tool: 'kubb-gym', format: 1, created: new Date().toISOString(), engine: engineInfo(o.engine || root), mode: o.mode, n: o.n, seed: o.seed,
     sets: o.sets, maxturns: o.maxturns, wallS: wall, jobs: o.jobs,
@@ -156,6 +163,7 @@ export async function scorecard(o) {
     card.results[name] = { ...games, ...th, matches };
     card.clusters[name] = [...clusters.values()].sort((a, b) => b.count - a.count);
   }
+  card.countS = (Date.now() - t1) / 1000;
   card.out = out;
   return card;
 }
@@ -272,8 +280,16 @@ async function main(argv) {
       text += '\n\n' + printBank(card.bank, card);
     }
     console.log(text);
-    if (o.json) writeFileSync(o.json, JSON.stringify({ ...card, real }, null, 0));
+    if (o.json) writeFileSync(o.json, JSON.stringify({ ...card, out: undefined, real }, null, 0));
     if (!o.keep && !o.out) rmSync(card.out, { recursive: true, force: true });
+    if (o.gate) {
+      // hard defects only: never a rate
+      const bad = [];
+      for (const [name, cl] of Object.entries(card.clusters))
+        for (const e of cl) if (HARD.includes(e.kind)) bad.push(`${name}: ${e.kind}: ${e.key}: ${e.count} (${e.examples[0] ? e.examples[0].cmd : ''})`);
+      if (bad.length) { console.error(`gym --gate: hard defects\n  ${bad.join('\n  ')}`); return 1; }
+      console.error('gym --gate: no hard defects');
+    }
     return 0;
   }
   if (o.cmd === 'compare') {
