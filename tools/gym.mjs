@@ -11,6 +11,9 @@
 //   node tools/gym.mjs sweep <path> <v1,v2,...> [run options]
 //   node tools/gym.mjs bank <records dir> [--json file] [--engine dir]
 //   node tools/gym.mjs fit <records dir> [--write]
+//   node tools/gym.mjs versus --a "<spec>" --b "<spec>" [--n 300] [--seed 1]
+//       [--surfaces Grass] [--jobs N] [--json file] [--maxturns 40] [--probe 2]
+//       spec: level=pro;thrower=cpu;raise=apart;<tune path>=<number>... (';' or ',')
 //
 // Quick (the default) plays 40 matches a configuration, full 300. --real is a
 // pk-kubb-score checkout's games folder (default: $PK_KUBB_SCORE/games, else the sibling
@@ -32,7 +35,7 @@ const root = resolve(here, '..');
 function parse(argv) {
   const o = { cmd: 'run', pos: [], sets: [], throwers: ['cpu', 'human'], levels: ['beginner', 'club', 'pro'],
     surfaces: ['Grass'], seed: 1, jobs: availableParallelism(), maxturns: 40, list: 3 };
-  const cmds = new Set(['run', 'compare', 'sweep', 'bank', 'fit']);
+  const cmds = new Set(['run', 'compare', 'sweep', 'bank', 'fit', 'versus']);
   let i = 0;
   if (argv[0] && cmds.has(argv[0])) { o.cmd = argv[0]; i = 1; }
   for (; i < argv.length; i++) {
@@ -55,13 +58,17 @@ function parse(argv) {
     else if (a === '--maxturns') o.maxturns = Number(take());
     else if (a === '--list') o.list = Number(take());
     else if (a === '--engine') o.engine = resolve(take());
+    else if (a === '--a') o.a = take();
+    else if (a === '--b') o.b = take();
+    else if (a === '--probe') o.probe = Number(take());
     else if (a === '--write') o.write = true;
     else if (a === '--keep') o.keep = true;
     else if (a === '--gate') o.gate = true;
     else if (a.startsWith('--')) throw new Error(`gym: unknown option ${a}`);
     else o.pos.push(a);
   }
-  if (!o.n) o.n = o.mode === 'full' ? 300 : 40;
+  if (!o.n) o.n = o.mode === 'full' || o.cmd === 'versus' ? 300 : 40;
+  if (o.probe === undefined) o.probe = 2;
   o.mode = o.mode || (o.n >= 300 ? 'full' : 'quick');
   if (!o.model) o.model = join(here, 'gym', 'human-model.json');
   if (o.real === 'none') o.real = null;
@@ -339,6 +346,21 @@ async function main(argv) {
     }
     console.log(lines.join('\n'));
     if (o.json) writeFileSync(o.json, JSON.stringify(cards.map(([v, c]) => ({ value: v, card: c }))));
+    return 0;
+  }
+  if (o.cmd === 'versus') {
+    if (o.a === undefined || o.b === undefined) { console.error('usage: node tools/gym.mjs versus --a "<spec>" --b "<spec>" [--n 300] [--seed 1] [--surfaces Grass]'); return 2; }
+    const { parseSpec, versusRun, printVersus } = await import('./gym/versus.mjs');
+    const A = parseSpec(o.a, 'A'), B = parseSpec(o.b, 'B');
+    const runs = [];
+    for (const sf of o.surfaces) {
+      const r = await versusRun(o, A, B, sf);
+      console.log(printVersus(o, A, B, r));
+      runs.push(r);
+    }
+    if (o.json) writeFileSync(o.json, JSON.stringify({ tool: 'kubb-gym', format: 1, cmd: 'versus', created: new Date().toISOString(),
+      engine: { ...engineInfo(o.engine || root), ...(o.engine ? { dir: basename(o.engine) } : {}) }, n: o.n, seed: o.seed,
+      maxturns: o.maxturns, sets: o.sets, A, B, runs }));
     return 0;
   }
   if (o.cmd === 'bank') {

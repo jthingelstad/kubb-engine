@@ -14,6 +14,7 @@ Paths are from the repo root.
 | `node tools/gym.mjs --full` | 300 matches a configuration (about 6 minutes on a 10-core Mac) |
 | `node tools/gym.mjs compare <A> <B>` | two scorecards (`--json` files), engine folders or git refs; prints only what moved |
 | `node tools/gym.mjs sweep <path> <v1,v2,...>` | the scorecard once per value of one tuning number |
+| `node tools/gym.mjs versus --a "<spec>" --b "<spec>"` | two teams that play differently: games won, and each team's rows side by side (below) |
 | `node tools/gym.mjs fit <records> [--write]` | recovers recorded swings and fits the human thrower |
 | `node tools/gym.mjs bank <records>` | throws every recorded swing again (also `--records <dir>` on a run) |
 | `lua5.4 tools/gym/match.lua ... --repro M:T` | plays match M up to throw T and prints that throw in full |
@@ -202,6 +203,119 @@ level), `autothrow.tune.*` (`swingScale.pro`, ...), `world.tune.*`, `flight.tune
 strings and booleans; a number a module copies into a local when it is imported (it keeps the
 old value; the sweep still runs, and nothing moves); the session's tunes (`tune/pointer`: the
 gym does not play through the session); the human model (fit again, or pass `--model`).
+
+## Versus
+
+`run` plays one configuration against itself, so it can say a variant clears the field
+more often but not whether it wins. `versus` (2026-11-21) plays two teams that play
+differently against each other:
+
+    node tools/gym.mjs versus --a "level=pro" --b "level=pro;autothrow.tune.inkast.pro.row=0"
+
+A spec is one team: `level=` (beginner, club, pro; default club), `thrower=` (cpu or
+human; default cpu), `raise=` (the policy it raises the other team's kubbs with when it
+defends; default apart) and any number of `path=value` tune settings, the paths `--set`
+takes. Parts are split by `;` or `,`. Options: `--n` (seeds, default 300), `--seed`,
+`--surfaces`, `--maxturns`, `--jobs`, `--json`, `--set` (for both teams), `--probe N`
+(below), `--engine`.
+
+**What a team's spec reaches.** Its level and thrower make its throws (`autothrow.choose`
+or the human thrower at that level, so its target, stance, arc and swing). Its raising
+policy is given to the engine (`game.raisePolicy`) just before it raises; the Gym raises
+and places punishment kubbs itself, with that team's numbers in force, before
+`match.setup` (whose own settle then has nothing to do). Its tune settings are in force
+while it acts: its setup (with the settling of tilted pieces before its throw), its throw's
+plan, swing and physics, and the ruling on it; and, as the defender, its raising and its
+punishment kubb placement.
+
+**How the settings are switched** (`tools/gym/versus.lua`). Each set key is taken out of
+its table and served by the table's `__index`: the acting team's value, or the shipped one
+when that team does not set it or no team acts. No module can read the other team's number,
+whatever local it holds the table in. A `plan.levels.<level>` nerve or tumble goes to the
+computer's copy of the level too, as with `--set`. Every read is counted by team, and the
+run prints the counts.
+
+**What is refused.** Before the matches it plays `--probe` seeds (default 2) both ways
+round without forensics and refuses a spec that sets a number nothing reads while that
+team acts: a number a module copied into a local at import (`pitch.kubbLong`: core/raising
+keeps half of it), or one that team never reaches (`autothrow.tune.inkast.pro.row` on a
+club team). It also refuses a value equal to the shipped one, an unknown policy and a path
+that is not a number. A number read only rarely (a punishment kubb's grid) may need a larger
+`--probe`. What cannot be switched by team at all: code, strings and booleans, the session's
+tunes (the Gym does not play through the session), and anything the engine reads outside a
+team's action (none in a match today: the counts print reads outside an action, and they
+are 0).
+
+**Raising policies.** The engine's (`tw.raising.policies`: `apart`, the computer's and
+auto raise's; `together`; `first`) and two the Gym adds, which keep a row across the pitch
+a row: every kubb with a choice goes up on the same end, `away` on the end away from the
+centre line (deeper in the defender's half), `toward` on the end toward it. A kubb with
+one choice goes where the rules put it.
+
+**How the teams are swapped.** Every seed is played twice. In the first game team A
+plays side A and team B side B; in the second they change sides. The side that opens
+(match `i` of physmatch's rule) and the random stream are the seed's in both, so team A
+opens one game of the pair and team B the other, from the same pitch with the same draws:
+the opener's edge and the seed's luck fall on each team once. Two teams with the same
+spec play the same game both ways round, bit for bit (the game files match; the page says
+how many did), and come out at exactly 50%.
+
+**What it reports.** Games won by A and by B and games that hit the turn limit (the
+attacker resigns there). The interval is paired: each seed's two games give team A a
+score of 0, 0.5 or 1 (a game at the turn limit counts half), and the 95% interval is the
+normal one of the mean score over seeds; beside it, Wilson on the decided games as if they
+were independent. Then the same split by who opened. Then each team's own scorecard rows
+side by side: the `g.*` figures counted over that team's turns only (turns a game is its
+turns; ended on the king when it toppled the king), and every forensics row over the
+throws it made (its inkast's lying group; the standing group at its first baton, which it
+threw in and the other team raised). The z column is compare's: B less A over the two
+standard errors, `!` past 2.58. Last, each team's largest anomaly clusters with a
+replay command (`match.lua --a ... --b ... --swap 0|1 --repro M:T`).
+
+**What it cannot say.** The z of a scorecard row treats throws as independent; they are
+not (throws of one game, and the two teams play the same games), so read only a z well
+past 2.58, as compare's "moved". The wins are the measure. A team's turn-level figures
+depend on the other team too (the field it throws at is the other team's raise of its own
+inkast), so a row says what happened, not why. A game at the turn limit is a draw here,
+which a real match never is. The human thrower takes the computer's target and raise.
+
+### The first versus results (2026-11-21)
+
+Engine 0.11.0, the computer on grass, 300 seeds (600 games) each, seed 1, turn limit 40;
+20 to 90 s a pairing on 14 processes. A's score is the paired interval; a team's `raise`
+is how it stands up the other team's kubbs.
+
+| A | B | won A / B / limit | A's score |
+|---|---|---|---|
+| pro | club | 576 / 24 / 0 | 96.0 (94.5 to 97.5) |
+| club | beginner | 560 / 36 / 4 | 93.7 (91.8 to 95.5) |
+| pro | beginner | 598 / 2 / 0 | 99.7 (99.2 to 100) |
+| pro, row | pro, `inkast.pro.row=0` | 404 / 193 / 3 | 67.6 (64.2 to 71.0) |
+| club, row | club, `inkast.club.row=0` | 299 / 291 / 10 | 50.7 (47.1 to 54.3) |
+| pro, raise apart | pro, raise together | 141 / 455 / 4 | 23.8 (20.8 to 26.9) |
+| pro, raise apart | pro, raise first | 164 / 434 / 2 | 27.5 (24.3 to 30.7) |
+| pro, raise apart | pro, raise away | 163 / 435 / 2 | 27.3 (24.2 to 30.5) |
+| pro, raise apart | pro, raise toward | 146 / 453 / 1 | 24.4 (21.4 to 27.5) |
+| row, its kubbs raised away | line, raised away | 219 / 380 / 1 | 36.6 (33.2 to 39.9) |
+| row, raised apart | line, raised away | 330 / 268 / 2 | 55.2 (51.8 to 58.5) |
+| row, raised away | line, raised apart | 264 / 330 / 6 | 44.5 (41.1 to 47.9) |
+| pro | pro (the same spec) | 299 / 299 / 2 | 50.0, every pair split |
+
+- The levels are far apart: the weaker level wins 0.3 to 6% of games.
+- **Raising apart loses.** Against the computer, `apart` (the computer's own policy and
+  auto raise's) is the worst of the five: the team that raises any other way wins 72 to
+  76%. Kept together, a turn's kubbs stand flank to flank across the pitch about 10 cm
+  apart (touching another: 57 to 69% of them, against 4% raised apart), and the computer
+  takes them one at a time from the front (two with one baton 14 to 15% of field batons,
+  against 20 to 22% at a field raised apart; cleared 67 to 70% of turns against 82%).
+  The computer's lane (`autothrow.tune.laneHalf`, 7 cm) never joins two kubbs side by side.
+- **The row wins only through apart.** At pro the row beats the line 68 to 32 with both
+  raising apart, 55 to 45 when only the row is raised apart, and loses 37 to 63 when both
+  are raised away; at club it is even. So the row's worth is the defender's staggering,
+  as the 2026-11-21 measurement suspected.
+- The opener wins about 54.5% at pro (163 of 299 with the same spec both sides).
+- The grid inkast (`row=0`) gains energy on about 8 throws in 1000 (the row 1), most of
+  them drills (the one replayed came down on a kubb already lying).
 
 ## Speed
 

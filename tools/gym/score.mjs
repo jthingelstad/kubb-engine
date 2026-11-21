@@ -67,14 +67,18 @@ export function blankGames() {
   return o;
 }
 
-// One game's text into the score-sheet counters (realgames.mjs addGame's rules).
-export function addGameText(o, analyze, text) {
+// One game's text into the score-sheet counters (realgames.mjs addGame's rules). With
+// `side` ("A" or "B": a team in gym versus) only that side's turns are counted: its
+// turns a game, ended on the king when it toppled the king, resigned when it resigned.
+export function addGameText(o, analyze, text, side) {
   const g = analyze(text);
   if (!g.rows.length) return;
-  add(o['g.turns'], g.rows.length);
-  hit(o['g.king'], g.winHow === 'king');
-  hit(o['g.resigned'], g.winHow === 'resign' || g.winHow === 'resigned');
-  for (const r of g.rows) {
+  const rows = side ? g.rows.filter(r => r.team === side) : g.rows;
+  add(o['g.turns'], rows.length);
+  const resigned = /^resign/.test(g.winHow || '');
+  hit(o['g.king'], g.winHow === 'king' && (!side || g.winner === side));
+  hit(o['g.resigned'], resigned && (!side || g.winner !== side));
+  for (const r of rows) {
     if (r.startField > 0) {
       const cleared = r.btc !== null && r.btc !== undefined;
       hit(o['g.cleared'], cleared);
@@ -346,8 +350,11 @@ export function addThrow(o, t) {
   return an;
 }
 
-export function throwsOf(dir, onAnomaly) {
-  const o = blankThrows();
+// Every throw line of a worker's folder into the counters. keep(t), when given, picks
+// the throws counted (gym versus: one team's); lines that are not throws (a versus
+// worker's reads) are skipped. into: counters to add to (a fresh set when not given).
+export function throwsOf(dir, onAnomaly, keep, into) {
+  const o = into || blankThrows();
   let matches = 0;
   for (const f of readdirSync(dir).sort()) {
     if (!f.startsWith('throws-')) continue;
@@ -355,6 +362,8 @@ export function throwsOf(dir, onAnomaly) {
       if (!line) continue;
       const t = JSON.parse(line);
       if (t.over) { matches++; continue; }
+      if (!t.f) continue;
+      if (keep && !keep(t)) continue;
       const an = addThrow(o, t);
       if (onAnomaly) for (const a of an) onAnomaly(a, t);
     }
