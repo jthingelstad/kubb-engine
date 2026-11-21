@@ -201,10 +201,13 @@ Then plays, by what `gym versus` shows matters most. Its first results (2026-11-
    measured so far: the engine's `apart` policy loses about three games in four to any
    policy that keeps a row a row. It comes first because every inkast result depends on
    it (Q6 and Q7 are one contest).
-2. **The baton at a group** (`field.line`, `field.corner`, Q14). The reason `apart` loses
-   is a blind spot in the attacker: the computer cannot take two kubbs standing flank to
-   flank, and takes a tight fence one baton a kubb. This is also where the pro computer
-   is furthest from real play.
+2. **The baton at a group** (`field.line`, Q14). The reason `apart` loses is a blind spot
+   in the attacker: the computer cannot take two kubbs standing flank to flank, and takes
+   a tight fence one baton a kubb. This is also where the pro computer is furthest from
+   real play. The Gym has ruled one idea out: hitting the top front corner with the baton
+   half turned (`field.corner`) takes fewer kubbs in this physics, not more. A flatter arc
+   helps a little. The rest of the gap is a question for the physics before it is one for
+   the plays.
 3. **The inkast's shape, played again** against a defender who raises well: row, line and
    a wall in depth along the sideline.
 4. `inkast.deep` at club and `inkast.chase` at pro.

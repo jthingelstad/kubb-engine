@@ -61,7 +61,9 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Against:** Q14. PLAY.md has the half-turn throw arriving low, with top hits one in
   twenty or thirty (owner). ko-2017-dickinson#p1.10 trains a full turn with the head
   striking square.
-- **Levels:** Proposed: pro.
+- **Levels:** Proposed: none. In the Gym this arrival took fewer kubbs at a group than
+  the upright body hit the engine already makes (Q14). It stays here as what a strong
+  player says, not as something to build until the physics has been checked.
 - **Engine:** not modelled (0.11.0). The baton's centre is aimed through the kubb at 0.3
   of its height (`plan.tune.aimHeightShare`), the same for a single and a group, and the
   tumble is set by the level, not by the shot.
