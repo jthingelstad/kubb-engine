@@ -317,6 +317,46 @@ is how it stands up the other team's kubbs.
 - The grid inkast (`row=0`) gains energy on about 8 throws in 1000 (the row 1), most of
   them drills (the one replayed came down on a kubb already lying).
 
+### Raising by the attacker's batons (2026-11-21)
+
+Engine 0.11.2, `raising.policies.par` (raise.par; built, used by no level), the computer
+on grass, 300 seeds each, seed 1 with seed 2 beside it; `line` is
+`autothrow.tune.inkast.<level>.row=0` on that team. A team's `raise` is how it stands the
+other team's kubbs.
+
+| A | B | won A / B / limit (seed 1) | A's score, seed 1 | seed 2 |
+|---|---|---|---|---|
+| pro, raise par | pro, raise apart | 460 / 138 / 2 | 76.8 (73.8 to 79.9) | 75.1 (72.1 to 78.1) |
+| pro, raise par | pro, raise away | 326 / 267 / 7 | 54.9 (51.6 to 58.3) | 55.2 (51.7 to 58.6) |
+| pro, raise par | pro, raise together | 290 / 296 / 14 | 49.5 (46.1 to 52.9) | 50.6 (47.1 to 54.1) |
+| pro line, raise par | pro line, raise apart | 317 / 269 / 14 | 54.0 (50.8 to 57.2) | 52.1 (48.9 to 55.3) |
+| pro line, raise par | pro line, raise away | 391 / 204 / 5 | 65.6 (62.0 to 69.2) | 64.3 (60.9 to 67.6) |
+| pro row, raise par | pro line, raise par | 277 / 313 / 10 | 47.0 (43.2 to 50.8) | 43.3 (40.0 to 46.6) |
+| club, raise par | club, raise apart | 337 / 255 / 8 | 56.8 (53.6 to 60.1) | 59.1 (55.6 to 62.5) |
+| club, raise par | club, raise away | 337 / 256 / 7 | 56.8 (53.3 to 60.2) | 60.3 (56.8 to 63.7) |
+| club, raise par | club, raise together | 343 / 253 / 4 | 57.5 (54.0 to 61.0) | 60.4 (57.0 to 63.8) |
+| club line, raise par | club line, raise apart | 288 / 294 / 18 | 49.5 (46.3 to 52.7) | 53.4 (50.2 to 56.6) |
+| club line, raise par | club line, raise away | 372 / 220 / 8 | 62.7 (59.5 to 65.8) | 61.0 (57.6 to 64.4) |
+| pro, raise par | the same spec | 290 / 290 / 20 | 50.0, every pair split | |
+
+- **par does what apart did best and what the fence did best.** Against the row it wins
+  as the fence policies did against apart (77 to 23), and against `together` and `away`
+  it is even at pro and wins 57 to 60% at club. Against the line it is even with apart at
+  pro (the policy that did well there; 54.0 and 52.1, both intervals touching 50), even
+  to slightly ahead at club (49.5 and 53.4), and beats `away` 61 to 66%.
+- **How.** At pro, a field raised by par against one raised apart (the row): field
+  batons that took two 14.2% against 21.6%, three or more 2.3% against 4.4%, turns
+  cleared 70.0% against 83.1%, batons to clear 3.82 against 3.63.
+- **Against par, the line beats the row** (row's score 47.0 and 43.3): Q6's answer under a
+  defender who raises by the attacker's batons. The line's attacker clears 72 to 76% of
+  its turns against the row's 69 to 70%.
+- **What did not matter, against the computer.** par with only the straight-on view
+  (`parSide=0`: 77.3, 55.4, 52.0, 65.3 on the first four rows), or with no plan over the
+  kubbs still lying (`parSweeps=0`: 77.2, 56.3, 52.5, 65.8), or a wider lane (`parAcrossReach=0.18`:
+  76.0, 55.9, 54.6, 65.8): all within the intervals of the shipped numbers. The computer always stands
+  straight behind its target, so the side views cannot show against it; they are kept for
+  a person who throws from the end of the line.
+
 ## Speed
 
 On a 10-core Apple M4 (4 performance, 6 efficiency cores), one core, 12 matches each:

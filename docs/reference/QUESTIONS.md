@@ -90,7 +90,7 @@ census of 2026-11-21.
 
 ## Q6: A row across, or kubbs in depth?
 
-- **Status:** open: played side against side; the answer depends on the defender
+- **Status:** open: played side against side; depth wins once the defender raises well
 - **Asks:** Since 0.11.0 the club and pro computer lay their kubbs flank to flank in a
   row (`autothrow.tune.inkast`, `row = 1`). Two interviewees say depth matters more than
   closeness, because kubbs one behind another give doubles and a fence along the centre
@@ -113,19 +113,23 @@ census of 2026-11-21.
   loses to the line 37 to 63. At club the two shapes are level (50.7%, 47.1 to 54.3). One
   caution carried over: on 0.11's physics the line's drills land less accurately than the
   row's, so the line is being judged at a handicap.
+  Then, on engine 0.11.2, with both teams raising by the attacker's batons
+  (`raising.policies.par`): the row lost to the line, 47.0% (43.2 to 50.8) on seed 1 and
+  43.3% (40.0 to 46.6) on seed 2. `par` keeps the row a fence, which takes away the
+  stagger the row won by (docs/notes/gym.md, "Raising by the attacker's batons").
 - **Recommendation:** The players were right, and so was the first Gym run: both results
   are the same fact seen against two defenders. Depth beats a fence once the defender
-  defends. So the inkast cannot be settled before the raising is (Q7). When the computer
-  raises by the attacker's batons, play the shapes again and build the one that wins
-  against it. A wall in depth along the sideline, thrown down from that sideline, is
-  still untested: nothing builds it.
-- **Settle by:** `gym versus`, after `raise.par` exists: row, line and a sideline wall,
-  each against a defender who raises by the attacker's batons.
+  defends. Against a defender who raises well the line already wins, and it does so at a
+  handicap. So the computer's inkast should build depth: improve the line's accuracy
+  first (`inkast.depth`, `inkast.first`), then try a wall in depth along the sideline,
+  thrown down from that sideline, which nothing builds yet.
+- **Settle by:** `gym versus` against `raise=par`: the row, a line that lands as
+  accurately as the row does, and a sideline wall.
 - **Touches:** inkast.depth, inkast.corner, raise.across
 
 ## Q7: Raise kubbs apart, or as a tight fence?
 
-- **Status:** open: played side against side; `apart` lost
+- **Status:** open: `raise.par` built and proven; not yet switched on
 - **Asks:** The engine's raise policy is `apart`: each kubb stands on the end furthest
   from its neighbours (owner and coach, PLAY.md). Chris Hodges argues for counting the
   attacker's batons, and says space across the pitch is worth much more than space along
@@ -143,16 +147,20 @@ census of 2026-11-21.
   Q6's table: 67.6 against 55.2 for the team raising the line's kubbs). So no fixed
   policy is right: across beats apart against a row, and apart beats across against a
   line.
-- **Recommendation:** Build `raise.par`: for each kubb with a choice, the end that leaves
-  the attacker the fewest kubbs one behind another on a baton's path. It should choose
-  the fence against a row and the spread against a line without being told which it
-  faces. Then make it the computer's policy and the automatic one, if it beats `apart`
-  and is no worse than the fixed policies against both shapes. One caution: part of this
-  result is the computer's own blind spot at a fence. A thrower who could take a tight
-  row would change the sum, so the raising has to be played again whenever the baton at a
-  group improves (Q14).
-- **Settle by:** `gym versus`: `par` against `apart` and against the same-end policies,
-  facing the row and facing the line, at pro and at club.
+  Then `raise.par` was built (0.11.2, `raising.policies.par`, used by no level yet) and
+  played, 300 seeds each way, two seeds. At pro against the row it beats `apart` 76.8%
+  (73.8 to 79.9) and is level with `together` (49.5%) and a little ahead of the same-end
+  policy (54.9%). Against the line it is level with `apart` (54.0%, 50.8 to 57.2) and
+  beats the same-end policy 65.6%. At club it beats all three against the row (57 to 60%)
+  and is level with `apart` against the line. It met every bar set for it.
+- **Recommendation:** Switch it on. Pro raises by the attacker's batons; club keeps
+  `apart`, which is what a club player does; a beginner stands kubbs anyhow. A person's
+  automatic raising, and the end offered first when raising by hand, should be the
+  engine's best advice, `par`. One caution stands: part of the result is the computer's
+  own blind spot at a fence, so the raising has to be played again whenever the baton at
+  a group improves (Q16).
+- **Settle by:** done for the policy. What remains is the release that switches it on by
+  level, with the scorecard beside it.
 - **Touches:** raise.par, raise.across
 
 ## Q8: Where does a punishment kubb go?

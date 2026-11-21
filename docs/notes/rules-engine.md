@@ -52,7 +52,10 @@ local n = g:need()
   on the resigning team's own turn). `player` is an id or name; it defaults to the team's
   first player. Calling an action out of phase raises an error.
 - Raising policies (`tw.raising.policies`): `apart` (default: the end farthest from other
-  kubbs), `together`, `first`, or any `function(decision, ctx) -> index`. The punishment
+  kubbs), `par` (since 0.11.2, used by nothing yet: the end that leaves the attacker's
+  batons the fewest kubbs one behind another, its numbers `raising.tune.par*`),
+  `together`, `first`, or any `function(decision, ctx) -> index`. `g:context` gives each
+  other kubb's `kind`, so a policy can leave base kubbs out. The punishment
   policy is a `function(candidates, ctx) -> pose`; the default puts it deep in the half and
   away from other kubbs.
 

@@ -95,6 +95,19 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.11.2** (patch). A raising policy that counts the attacker's batons,
+  `raising.policies.par` (raise.par, raise.across), built switched off: the end that
+  leaves the fewest kubbs one behind another on a baton's path, seen straight down the
+  pitch and from both ends of the throwing line, with a plan over the kubbs still lying.
+  Its numbers are `raising.tune.par*`. A decision with eight kubbs still lying takes about
+  0.12 ms in desktop Lua (apart 0.001 ms, the `raising.options` every raise already pays
+  0.017 ms), a few hundred pair tests and a dozen small tables. `Game:context` gives each other kubb its `kind`,
+  so the policy leaves base kubbs out. Nothing uses `par` yet: `apart` is still every
+  level's policy and auto raise's, and all 532 golden action hashes match 0.11.1. The
+  Gym's measure is in docs/notes/gym.md, "Raising by the attacker's batons".
+
+  For clients: sync the tag; nothing else changes.
+
 - **0.11.1** (patch). The computer player in the parts its design calls for
   (docs/notes/computer-player.md), with no change in play: `core/read` (the situation:
   the field kubbs near each basket, the lying kubbs near one and the innermost of them,
