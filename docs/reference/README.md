@@ -33,8 +33,11 @@ source.
 3. **Nobody adds strategy from general knowledge.** If it is not in an observation, it is
    not in a play.
 4. **A disagreement between sources is a question, not a decision.** It goes in
-   `QUESTIONS.md` with both sides cited. Jamie's answer goes back in as an observation,
-   in his words, dated (`observations/owner-<date>.md`).
+   `QUESTIONS.md` with both sides cited, a recommendation, and what would settle it: the
+   rules text, a count from scored games, a comparison in the Gym, or a better source.
+   Jamie decides what the game should be; he is not asked to referee technique between
+   top players. What he does say goes in as an observation, in his words, dated
+   (`observations/owner-<date>.md`).
 5. **Originals stay out of this repository.** Magazine PDFs, transcripts and captions are
    other people's work. `sources.json` holds the link and, where we fetched a file, its
    sha256 and size, so the same file can be fetched again. Observations paraphrase; a
@@ -90,8 +93,8 @@ Front matter, then prose, then one or more tables of entries.
 picture" is a method.
 
 Each entry is a table row. The first column, `At`, is the entry's anchor: a timestamp
-(`1:30`) for sound or video, a page and a count (`p2.3`) for print. Anchors are unique in
-the file. A play cites an entry as `<source id>#<anchor>`.
+(`1:30`) for sound or video, a page and a count (`p2.3`) for print or a web page, a
+statement number (`s1`) for Jamie. Anchors are unique in the file. A play cites an entry as `<source id>#<anchor>`.
 
 | At | Who | Topic | What is said or shown | Mark |
 | --- | --- | --- | --- | --- |
@@ -145,10 +148,13 @@ In `QUESTIONS.md`, each question is a section:
     - **Status:** open
     - **Asks:** the question, with what each side says.
     - **So far:** what the sources and the Gym have said since. Optional.
+    - **Recommendation:** the working answer, and why.
+    - **Settle by:** what would close it: a rule, a count, a Gym comparison, a source.
     - **Touches:** the plays or files an answer would change.
 
-`Status` is `open`, or `answered` followed by the observation that holds Jamie's answer.
-Numbers are never reused.
+`Status` starts with `open` or `answered`. A question is `answered` only when what
+`Settle by` names has been done, with a pointer to the result; an accepted recommendation
+is still `open`. Numbers are never reused.
 
 ## Taking in a source
 

@@ -1130,6 +1130,19 @@
         "bytes": 9902705
       },
       "note": "The 2020 yearly issue. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "owner-2026-11-21": {
+      "title": "Jamie, 21 November 2026",
+      "kind": "owner",
+      "by": "Jamie Thingelstad",
+      "standing": "The game's owner; a club-level player",
+      "year": 2026,
+      "language": "en",
+      "status": "observed",
+      "covers": [
+        "levels"
+      ],
+      "note": "His statements on the aim of the work and on how its questions are settled."
     }
   }
 }
