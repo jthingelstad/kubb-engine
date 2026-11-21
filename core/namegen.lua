@@ -3,10 +3,11 @@
 --
 -- A name is text made from core/namewords' lists in one of a few shapes:
 --   player  "<adjective> <wood>"                  "Mighty Maple"
---   team    "<adjective> <noun>"                  "Stormy Inkasters"
+--   team    "<adjective> <noun>"                  "Wobbly Towers"
 --           "The <noun>"                          "The Lumberjacks"
 --           "<wood> <noun>"                       "Birch Batons"
--- and no longer than namegen.max[kind]. Nothing else is a name: `valid` is the
+-- no longer than namegen.max[kind], not in namewords.never, and with no word that
+-- begins with the one before it ("Pine Pinecones"). Nothing else is a name: `valid` is the
 -- check every place that shows a name to someone else makes (the room, the reel,
 -- the share card), so a client that sends free text is shown a default instead.
 --
@@ -80,7 +81,7 @@ function namegen.shapes(kind)
 end
 
 -- The text for parts { shape = id, a word per slot in order }, or nil and why
--- ("kind", "shape", "word", "long").
+-- ("kind", "shape", "word", "long", "never", "repeat").
 function namegen.make(kind, parts)
 	local shape = shapeOf(kind, parts and parts.shape)
 	if not SHAPES[kind] then return nil, "kind" end
@@ -94,6 +95,10 @@ function namegen.make(kind, parts)
 	end
 	local s = table.concat(out, " ")
 	if #s > namegen.max[kind] then return nil, "long" end
+	if setOf("never")[s] then return nil, "never" end
+	for i = 2, #out do
+		if out[i]:lower():sub(1, #out[i - 1]) == out[i - 1]:lower() then return nil, "repeat" end
+	end
 	return s
 end
 
@@ -116,7 +121,7 @@ function namegen.parse(kind, s)
 				if not setOf(list)[w] then ok = false break end
 				parts[i] = w
 			end
-			if ok then return parts end
+			if ok and namegen.make(kind, parts) == s then return parts end
 		end
 	end
 	return nil

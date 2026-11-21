@@ -44,7 +44,7 @@ word wang
 word dong
 word beech
 word horny
-word randy
+run randy
 word spunky
 word cocky
 word saucy
@@ -169,3 +169,38 @@ word cherry
 run badass
 run woodcock
 run peacock
+# From the full read of every name (2026-11-21): slurs and sound-alikes hidden across
+# joins or said aloud. The words that made them are gone (docs/NAMES.md "Words taken out").
+run chink
+run dink
+run kink
+run stink
+run jew
+run hole
+run ass
+run yanking
+run klan
+run slant
+run merkin
+run gash
+run lapp
+word apple
+word yew
+word knothole
+word knotholes
+word sassy
+word tiny
+word palm
+word hemlock
+word tumblers
+word woodpiles
+word picnickers
+phrase wandering yew
+phrase holly rollers
+phrase super kings
+phrase mossy oak
+phrase royal oak
+phrase happy pear
+phrase salty walnut
+phrase fuzzy walnut
+phrase bouncy pear
