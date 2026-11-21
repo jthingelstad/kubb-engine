@@ -1,0 +1,93 @@
+# Plays: raising
+
+The defender stands each thrown kubb on one end. It is the only defence against a group.
+These plays come from one long piece by Chris Hodges (`ko-2013-fence`); the inkastare's
+side of the same contest is `inkast.options`. Read them with Q7.
+
+Every `Levels` line is a proposal of ours, not a source's.
+
+## raise.par: Stand each kubb where the attacker needs the most batons
+
+- **When:** raise, a kubb with a choice of end.
+- **Play:** Judge the standing kubbs from where the attacker will throw, and count the
+  batons they will need: par. Choose the end that makes par highest. Count again after
+  each kubb, and look a baton or two ahead.
+- **Why:** Raising is playing the percentages. A group judged at three batons that keeps
+  falling to one means the judging is wrong, not the luck.
+- **Says who:** ko-2013-fence#p1.4, ko-2013-fence#p1.5, ko-2013-fence#p1.6,
+  ko-2013-fence#p1.18 (Chris Hodges)
+- **Basis:** player
+- **Against:** Q7.
+- **Levels:** Proposed: pro. Club spreads kubbs apart without counting.
+- **Engine:** not modelled (0.11.0). The policy is `apart`: the end farthest from the
+  nearest other kubb (`raising.policies`). It measures distance, not batons.
+- **Gym:** the attacker's `g.btc` and `g.cleared`, policy against policy.
+
+## raise.order: Forced kubbs first, and decide them all before standing one
+
+- **When:** raise, several kubbs to stand.
+- **Play:** Stand the kubbs that have no choice first. Then the ones that can plainly be
+  stood away from the group to cost a baton. For the rest, work out where every one goes
+  before standing any, because a later choice can undo an earlier one.
+- **Why:** A kubb once stood is committed. Giving away one kubb by poor placement is too
+  many.
+- **Says who:** ko-2013-fence#p1.2, ko-2013-fence#p1.3, ko-2013-fence#p1.16,
+  ko-2013-fence#p1.17 (Chris Hodges)
+- **Basis:** player
+- **Against:** nothing found.
+- **Levels:** Proposed: pro and club.
+- **Engine:** modelled in part (0.11.0). `raising.options` separates forced kubbs from
+  those with a choice, but each choice is then made kubb by kubb with no look at the
+  others still to stand.
+- **Gym:** nothing yet.
+
+## raise.across: Space across the pitch is worth more than space along it
+
+- **When:** raise, choosing between an end that separates kubbs across the pitch and one
+  that separates them along it.
+- **Play:** Prefer across. A fairly tight fence across the pitch beats a looser line
+  along it.
+- **Why:** A struck kubb is pushed up the pitch easily and across it hardly at all, so
+  kubbs one behind another fall together and kubbs side by side do not. This is the
+  defender's side of `inkast.depth`: depth is what the attacker wants.
+- **Says who:** ko-2013-fence#p1.11 (Chris Hodges)
+- **Basis:** player
+- **Against:** Q7. PLAY.md has the defender standing each kubb furthest from its
+  neighbours in any direction (owner, coach).
+- **Levels:** Proposed: pro and club.
+- **Engine:** not modelled (0.11.0). `apart` treats every direction alike.
+- **Gym:** `g.field2`, `g.field3` for the attacker, policy against policy.
+
+## raise.double: When a double cannot be avoided
+
+- **When:** raise, every choice for a kubb leaves two kubbs one baton can take.
+- **Play:** Make the line through the double point away from the other field kubbs. If
+  that does not decide it, choose the double that lies most across the pitch. Sometimes
+  give up one easy double on purpose to leave two kubbs isolated.
+- **Why:** A double pointed at other kubbs can become a triple. A shot across the pitch
+  is longer and sends less debris downrange. In his example of four kubbs lying in an X,
+  standing two toward the centre costs the attacker a baton more than standing all four
+  outward.
+- **Says who:** ko-2013-fence#p1.8, ko-2013-fence#p1.9, ko-2013-fence#p1.10,
+  ko-2013-fence#p1.12, ko-2013-fence#p1.13 (Chris Hodges)
+- **Basis:** player
+- **Against:** nothing found.
+- **Levels:** Proposed: pro.
+- **Engine:** not modelled (0.11.0).
+- **Gym:** nothing yet.
+
+## raise.square: Location before footing
+
+- **When:** raise, a choice between a firm footing and a better place.
+- **Play:** Take the better place. Only when the baton count is the same either way,
+  turn the kubb so the attacker has to hit it squarely.
+- **Why:** Costing the attacker a whole baton is worth more than a kubb that stands
+  firm but leaves a double. A leaning kubb falls to a touch a firm one would survive, so
+  footing still counts when nothing else does.
+- **Says who:** ko-2013-fence#p1.14, ko-2013-fence#p1.15 (Chris Hodges)
+- **Basis:** player
+- **Against:** nothing found.
+- **Levels:** Proposed: pro.
+- **Engine:** not modelled (0.11.0). A raised kubb faces the way it lay; nothing chooses
+  its facing.
+- **Gym:** nothing yet.

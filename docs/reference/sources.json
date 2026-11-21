@@ -3,14 +3,14 @@
   "updated": "2026-11-21",
   "sources": {
     "ko-2014-advantage1": {
-      "title": "Advantage, Efficiency, and Game Theory, part 1 of 3",
+      "title": "Advantage, Efficiency, and Game Theory (Part 1 of 3)",
       "url": "https://kubbon.com/2014/04/27/advantage-efficiency-and-game-theory-part-1-of-3/",
       "kind": "article",
-      "by": "Chris Hodges, Des Moines Kubb",
-      "standing": "unknown",
+      "by": "Chris Hodges",
+      "standing": "Kept throw-by-throw records for the Des Moines Kubb club; his figures rest on Planet Kubb's scored games",
       "year": 2014,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "field",
         "baseline",
@@ -19,14 +19,14 @@
       "note": "Average batons each situation costs (about 3.6 to clear four field kubbs, 2.85 for a base kubb from 8 m, 1.65 from an advantage line, 1.2 for the king); built on Planet Kubb games, so not independent of games-pk150."
     },
     "ko-2014-advantage2": {
-      "title": "Advantage, Efficiency, and Game Theory, part 2 of 3",
+      "title": "Advantage, Efficiency, and Game Theory (Part 2 of 3)",
       "url": "https://kubbon.com/2014/04/28/advantage-efficiency-and-game-theory-part-2-of-3/",
       "kind": "article",
-      "by": "Chris Hodges, Des Moines Kubb",
-      "standing": "unknown",
+      "by": "Chris Hodges",
+      "standing": "Kept throw-by-throw records for the Des Moines Kubb club; his figures rest on Planet Kubb's scored games",
       "year": 2014,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "field",
         "baseline",
@@ -35,14 +35,14 @@
       "note": "Part 2 of 3; see ko-2014-advantage1."
     },
     "ko-2014-advantage3": {
-      "title": "Advantage, Efficiency, and Game Theory, part 3 of 3",
+      "title": "Advantage, Efficiency, and Game Theory (Part 3 of 3)",
       "url": "https://kubbon.com/2014/04/29/advantage-efficiency-and-game-theory-part-3-of-3/",
       "kind": "article",
-      "by": "Chris Hodges, Des Moines Kubb",
-      "standing": "unknown",
+      "by": "Chris Hodges",
+      "standing": "Kept throw-by-throw records for the Des Moines Kubb club; his figures rest on Planet Kubb's scored games",
       "year": 2014,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "field",
         "baseline",
@@ -51,14 +51,14 @@
       "note": "Part 3 of 3; see ko-2014-advantage1."
     },
     "ko-2013-fence": {
-      "title": "Fence Building 101",
+      "title": "Fence Building 101 – (or #occupybatons!)",
       "url": "https://kubbon.com/2013/03/07/fence-building-101-or-occupybatons/",
       "kind": "article",
-      "by": "Chris Hodges, Des Moines Kubb",
-      "standing": "unknown",
+      "by": "Chris Hodges",
+      "standing": "Kept throw-by-throw records for the Des Moines Kubb club; his figures rest on Planet Kubb's scored games",
       "year": 2013,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "raise"
       ],
@@ -68,11 +68,11 @@
       "title": "On Punishment Kubbs",
       "url": "https://kubbon.com/2011/04/22/on-punishment-kubbs/",
       "kind": "article",
-      "by": "Chris Hodges, Des Moines Kubb",
-      "standing": "unknown",
+      "by": "Chris Hodges",
+      "standing": "Kept throw-by-throw records for the Des Moines Kubb club; his figures rest on Planet Kubb's scored games",
       "year": 2011,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "punish"
       ],
@@ -201,7 +201,7 @@
       "standing": "unknown",
       "year": 2017,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "inkast"
       ]
@@ -214,40 +214,42 @@
       "standing": "unknown",
       "year": 2017,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "inkast"
       ]
     },
     "ko-2025-worlds": {
-      "title": "1v1 Kubb World Championship 2025 recap and interviews",
+      "title": "1v1 Kubb World Championship 2025 Recap & Interviews",
       "url": "https://kubbon.com/2025/11/03/1v1-kubb-world-championship-2025-recap-interviews/",
       "kind": "interviews",
-      "by": "Kubb On",
+      "by": "Jason Larson",
       "speakers": [
-        "Trevor Bailey",
         "Barb Lancette",
-        "John Oman"
+        "Trevor Bailey",
+        "John Oman",
+        "Jake Skerletts",
+        "J.J. Weigel"
       ],
-      "standing": "Trevor Bailey: 2025 U.S. player of the year, best inkastare",
+      "standing": "The women's and men's winners of the 2025 1v1 World Championship in Chaska, Minnesota, and three other entrants",
       "year": 2025,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "inkast",
         "levels"
       ],
-      "note": "Current top players on drilling, risk and backup throws."
+      "note": "Mostly personal; little on technique. It does not address the corner, the roll, going out on purpose or deep kubbs."
     },
     "ko-2017-blasting": {
       "title": "Blasting: Finesse Style",
       "url": "https://kubbon.com/2017/04/07/blasting-finesse-style/",
       "kind": "article",
       "by": "Kyle Weakland",
-      "standing": "Kubb On co-founder",
+      "standing": "Blaster for the Kubb Squirrels from 2016; competing since 2015; a founder of Kubb On",
       "year": 2017,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "field",
         "levels"
@@ -259,10 +261,10 @@
       "url": "https://kubbon.com/2018/02/19/beginners-guide-inkasting/",
       "kind": "article",
       "by": "Kyle Weakland",
-      "standing": "Kubb On co-founder",
+      "standing": "Blaster for the Kubb Squirrels from 2016; competing since 2015; a founder of Kubb On",
       "year": 2018,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "inkast",
         "levels"
@@ -274,10 +276,10 @@
       "url": "https://kubbon.com/2018/07/23/how-i-practice-kyle-weakland/",
       "kind": "article",
       "by": "Kyle Weakland",
-      "standing": "Kubb On co-founder",
+      "standing": "Blaster for the Kubb Squirrels from 2016; competing since 2015; a founder of Kubb On",
       "year": 2018,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "practice",
         "levels"
@@ -288,10 +290,10 @@
       "url": "https://kubbon.com/2017/05/16/how-i-practice-phil-dickinson/",
       "kind": "article",
       "by": "Phil Dickinson",
-      "standing": "Author of \"Mastering Kubb\"",
+      "standing": "Playing since 2005; founder of the Great Lakes Kubb Club",
       "year": 2017,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "practice",
         "levels"
@@ -332,11 +334,11 @@
       "title": "The Answer",
       "url": "https://kubbon.com/2012/07/26/the-answer/",
       "kind": "article",
-      "by": "Chris Hodges, Des Moines Kubb",
-      "standing": "unknown",
+      "by": "Chris Hodges",
+      "standing": "Kept throw-by-throw records for the Des Moines Kubb club; his figures rest on Planet Kubb's scored games",
       "year": 2012,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "levels"
       ],
@@ -389,11 +391,11 @@
       "title": "New to Kubb: Team Roles",
       "url": "https://kubbon.com/2017/06/28/new-kubb-team-roles/",
       "kind": "article",
-      "by": "Kubb On",
+      "by": "Christopher Jones",
       "standing": "unknown",
       "year": 2017,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "field"
       ],
@@ -404,10 +406,10 @@
       "url": "https://kubbon.com/2023/02/09/ask-a-kubb-ref-field-to-baseline-situations/",
       "kind": "article",
       "by": "Jesse Fraim",
-      "standing": "Referee",
+      "standing": "Level 3 certified Kubb United referee",
       "year": 2023,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "field",
         "baseline",
