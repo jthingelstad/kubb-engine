@@ -212,12 +212,12 @@ function cases.all()
 				for _, dn in ipairs { -4, 0, 4 } do
 					local spin = taps * plan.tune.spinPerStep
 					local sol = drill.solveAt(0, 6, 0, loft, {}, 0, surf, spin)
-					local bd = drill.body(1, 1, spin, {})
+					local bd = drill.body(1, 1, spin, {}, loft)
 					local s = { world.drillLaunchState(0, 0, 0, loft, sol.speed, bd.noseDown + dn, bd.rollLand,
 						bd.spin, 0, 0, 0, 0, 0) }
 					add(list, { id = string.format("drill-%s-%d-%d-%d", surf, loft, taps, dn), scen = "drill",
 						group = string.format("%s loft %d", surf, loft),
-						params = { loft = loft, taps = taps, nose = dt.noseDownDeg + dn },
+						params = { loft = loft, taps = taps, nose = bd.noseDown + dn },
 						surface = surf, duration = 8,
 						extra = { markX = 0, markY = 6, land = sol.land },
 						bodies = { fromState("drill", "kubb", s, { projectile = true, aero = true }) } })
@@ -242,7 +242,7 @@ function cases.all()
 	end
 	for _, loft in ipairs { 30, 47 } do
 		for _, v in ipairs { 5, 7, 9 } do
-			local s = { world.drillLaunchState(0, 0, 0, loft, v, dt.noseDownDeg, 0, dt.spiral, 0, 0, 0, 0, 0) }
+			local s = { world.drillLaunchState(0, 0, 0, loft, v, drill.noseFor(loft), 0, dt.spiral, 0, 0, 0, 0, 0) }
 			local R, T = flight.carry(v, rad(loft), h - zCross, flight.tune.dragK.kubb)
 			add(list, { id = string.format("flight-kubb-%d-%d", loft, v), scen = "flight", group = "kubb loft " .. loft,
 				params = { loft = loft, v = v }, surface = "grass", duration = T + 0.15,

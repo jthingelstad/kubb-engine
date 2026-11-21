@@ -95,6 +95,55 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.10.0** (minor). Four fixed assumptions about a throw are replaced by what the
+  throw itself is doing (Jamie, 2026-11-20: "arc based on target is just obviously
+  wrong"), so the golden corpus is new. A 0.9 match replays differently on 0.10, and the
+  room refuses a match between 0.9 and 0.10.
+
+  What a player sees:
+  - A baton's default arc goes by how far away the target is, never by what it is. Half
+    past 5 at 2 m and under, 4 o'clock at 8 m, a line between (`plan.arcFor(kind, d)`,
+    `throw.defaultArc`). A 5 m field throw peaks about waist high. Until now a base kubb
+    was lobbed at 3 o'clock from any distance, the king at half past 3 and a field kubb
+    at 4 o'clock.
+  - A baton's nerves go by how far the throw is, not by how far back the arm went
+    (`plan.nervesBack`). A low throw needs more backswing than a lobbed one to the same
+    spot; it is no longer a wilder throw for it.
+  - A thrown kubb leaves the hand square to the arm: its nose is 90 less the loft below
+    the horizontal (`drill.noseFor`), whatever arc was planned. At the default arc that
+    is 43 degrees (it was 45); a low drill leaves nose well down and tumbles on more.
+  - The aim of a thrown kubb counts its spin (`drill.tune.slide` has a table per spin,
+    measured again). A spun kubb stops shorter; on grass from 6 m at the default arc it
+    runs on 0.72 m with no spin and 0.17 m with one tap, and until now both were aimed
+    0.75 m short.
+  - The computer spins every kubb one tap. Its spin went by its level's name
+    (beginner none, club one, pro two).
+
+  The Kubb Gym, 0.9.0 against 0.10.0 (300 matches a configuration; real games beside):
+  - Computer club: field batons missed 41.7% to 24.1% (real 24.7%); turns that cleared
+    the field 54.0% to 70.6% (real 83.4%); a baton taking two 4.7% to 12.3% (real
+    16.0%); king shots 74.2% to 91.4% (real 83.8%); kubb groups 1.05 m to 0.32 m from
+    their centre; kubbs rethrown 19.4% to 2.1% (real 14.1%); turns a game 22.4 to 17.1
+    (real 8.9).
+  - The human thrower at club: field batons missed 49.1% to 40.9%.
+  - Worse, and open: the computer now drills better than real players (2% rethrown
+    against 14%), the pro computer takes a base kubb from an advantage line 80% of the
+    time (real 51.7%), and the beginner's batons come down on a kubb's top more often
+    (human beginner 13.9% to 19.0% of batons at kubbs).
+
+  Not in this release: a thrown kubb's loft still does not go by its distance. At the
+  low arc a real 8 m kubb is thrown on (as high as the player), the engine's kubb lands
+  and runs on 1 to 2 m on grass, where real ones stop within 0.3 m. That is the landing
+  on grass, and it comes first.
+
+  For clients:
+  - Sync the tag. Rooms refuse mixed minors, so the web and the iPhone carry 0.10 next
+    to 0.9 for 0.9 matches.
+  - `view.aim.controls.arc.default` now moves as the stance or the circle moves, until
+    the player sets the arc. Nothing else in the view or the calls changes.
+  - `autothrow.tune.drillSpin` is a number, `plan.tune.arc` holds only `drill`, and
+    `drill.body`'s fifth argument is the loft, not a loft difference.
+
 - **0.9.0** (minor). Physics and the computer change what a seeded match does, so the
   golden corpus is new (13 matches, 523 action hashes, header 0.9.0). A 0.8 match
   replays differently on 0.9, and the room refuses a match between 0.8 and 0.9.

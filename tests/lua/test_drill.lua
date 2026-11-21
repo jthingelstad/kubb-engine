@@ -58,9 +58,11 @@ test("drill: a clean in-band swing rests about on the marker on average, near, m
 			local where = string.format("%s marker (%.1f, %.1f)", name, m[1], m[2])
 			-- (0.7 for an evening of 2026-11-16, while drill.tune.slide was measured with
 			-- no air drag: far marks rested up to 0.53 m short. Measured again with it:
-			-- -0.33 to +0.13 m along, 0.42 to 0.62 m off)
+			-- -0.33 to +0.13 m along, 0.42 to 0.62 m off. From 0.10 the nose goes by the
+			-- loft, drill.noseFor: these low drills, loft 26 to 30, leave nose 60 and more
+			-- down, tumble on landing and rest wider, 0.57 to 1.05 m off)
 			expect.truthy(math.abs(along / n) < 0.45, string.format("%s: rests %+.2f m along on average", where, along / n))
-			expect.truthy(far / n < 0.9, string.format("%s: rests %.2f m off on average", where, far / n))
+			expect.truthy(far / n < 1.25, string.format("%s: rests %.2f m off on average", where, far / n))
 		end
 	end
 end)
@@ -157,7 +159,7 @@ test("drill: the launch is from the baseline, the thrower behind the marker with
 		-- along the throw
 		local qw, qx, qy, qz = s[4], s[5], s[6], s[7]
 		local az = 1 - 2 * (qx * qx + qy * qy)
-		expect.near(math.deg(math.asin(-az)), drill.tune.noseDownDeg, 1e-6, "nose down")
+		expect.near(math.deg(math.asin(-az)), drill.noseFor(L.loft), 1e-6, "nose down: square to the arm")
 		local ax, ay = 2 * (qx * qz + qw * qy), 2 * (qy * qz - qw * qx)
 		expect.near(math.atan(ax, ay), L.swivel, 1e-6, "pointing along the throw")
 	end
@@ -190,7 +192,7 @@ local plan = tw.plan
 -- the nose's angle below the horizontal at release and at the touch.
 local function planDrill(mx, my, loft, taps, surface, seed, pieces)
 	local sol = drill.solveAt(mx, my, 0, loft, {}, nil, surface or "grass", taps * plan.tune.spinPerStep)
-	local L = drill.body(1, 1, taps * plan.tune.spinPerStep, {})
+	local L = drill.body(1, 1, taps * plan.tune.spinPerStep, {}, loft)
 	local w = world.new { surface = surface or "grass", groundSeed = seed, pieces = pieces }
 	local b = world.launchDrill(w, "d", sol.x, 0, sol.swivel, sol.loft, sol.speed, L.noseDown, L.rollLand,
 		L.spin, L.wobble)
@@ -238,11 +240,13 @@ test("drill: spin holds the drill's attitude to the touch; with little spin the 
 			sds[taps] = sd
 			local where = string.format("loft %d, %d taps: release %.0f, touch %.1f (sd %.1f) degrees down, nose first %d of %d",
 				loft, taps, rel / n, m, sd, first, n)
-			expect.truthy(abs(rel / n - drill.tune.noseDownDeg) < 3, "released at noseDownDeg: " .. where)
+			-- (from 0.10 the release is square to the arm, drill.noseFor: 60 at loft 30)
+			local nose = drill.noseFor(loft)
+			expect.truthy(abs(rel / n - nose) < 3, "released at noseFor: " .. where)
 			expect.truthy(first >= 0.9 * n, "nose first: " .. where)
 			if taps == 0 then
 				local steeper = loft < 40 and 5 or -3
-				expect.truthy(m > drill.tune.noseDownDeg + steeper and m < 80, "the air turns it steeper: " .. where)
+				expect.truthy(m > nose + steeper and m < 80, "the air turns it steeper: " .. where)
 			else
 				expect.truthy(abs(m - rel / n) < 5, "the spin holds the axis: " .. where)
 				expect.truthy(sd < 7, "a spun drill lands about the same: " .. where)
@@ -280,7 +284,9 @@ test("drill: spin moves a landed drill a little, either way; sand and snow hold 
 	for _, taps in ipairs { 3, -3 } do
 		local side, worst = across("grass", taps)
 		local where = string.format("%d taps: across %.2f m on average, worst %.2f", taps, side, worst)
-		expect.truthy(side < 0.28, where)
+		-- (0.28, a turn of the kubb, until 0.10: with the aim counting the spin a
+		-- spun drill lands farther out and faster; -3 taps measured 0.29, +3 0.25)
+		expect.truthy(side < 0.32, where)
 		expect.truthy(worst < 0.84, where)
 	end
 	local g3, s3 = across("grass", 3), across("sand", 3)
@@ -297,7 +303,7 @@ test("drill: a drill into a lying kubb stops by it", function()
 	for seed = 1, 10 do
 		local k = { id = "k", kind = "kubb", x = 0, y = 6.4, z = 0.035, qw = 1, qx = 0, qy = 0, qz = 0, toppled = true }
 		local sol = drill.solveAt(0, 6.4, 0, 47, {}, nil, "grass", 0)
-		local L = drill.body(1, 1, 0, {})
+		local L = drill.body(1, 1, 0, {}, 47)
 		local w = world.new { surface = "grass", groundSeed = seed, pieces = { k } }
 		local b = world.launchDrill(w, "d", sol.x, 0, sol.swivel, sol.loft, sol.speed, L.noseDown, L.rollLand,
 			L.spin, L.wobble)

@@ -319,13 +319,21 @@ local function forwardLimit(s)
 end
 throw.forwardLimit = forwardLimit
 
+-- The default release for the throw as it is planned now: a drill's, or a baton's
+-- for the distance from the stance to the circle (plan.arcFor).
+function throw.defaultArc(s)
+	if s.projectile == "kubb" then return plan.arcFor("drill") end
+	local dx, dy = s.markerX - s.playerX, s.markerY - s.playerY
+	return plan.arcFor("baton", math.sqrt(dx * dx + dy * dy))
+end
+
 local function replan(s)
 	local kubb = s.projectile == "kubb"
 	if not s.stanceSet then
 		local o = plan.stance(s.markerX, s.markerY, s.lineY, forwardLimit(s), throw.tune.halfWidth, {})
 		s.playerX, s.playerY = o.x, o.y
 	end
-	if not s.arcSet then s.release = plan.arcFor(kubb and "drill" or s.markerKind) end
+	if not s.arcSet then s.release = throw.defaultArc(s) end
 	local q = {
 		projectile = kubb and "kubb" or "baton",
 		px = s.playerX, py = s.playerY, tx = s.markerX, ty = s.markerY,
@@ -467,7 +475,7 @@ function throw.new(opts)
 		markerX = 0, markerY = 0, markerHeld = 0, markerSide = nil, markerFixed = false,
 		markerOnId = nil, markerSet = false, markerKind = "base", markerMoving = false,
 		stanceSet = false,
-		release = plan.arcFor("base"), arcSet = false, tilt = 0, spin = 0,
+		release = plan.arcFor("baton"), arcSet = false, tilt = 0, spin = 0,
 		sol = {}, planDirty = true, planLevel = nil,
 		lastBack = nil, lastStop = nil, showVerdicts = false,
 		vPower = 0, vRelease = 0, vSteady = true, restText = nil,
@@ -679,7 +687,7 @@ function throw.controls(s)
 	local kubb = s.projectile == "kubb"
 	local out = {
 		arc = { min = pt.releaseMinDeg, max = pt.releaseMaxDeg, value = s.release, set = s.arcSet and true or false,
-			default = plan.arcFor(kubb and "drill" or s.markerKind), tick = pt.arcTickDeg, step = pt.arcStepDeg,
+			default = throw.defaultArc(s), tick = pt.arcTickDeg, step = pt.arcStepDeg,
 			unit = "deg", scope = "throw" },
 	}
 	if kubb then

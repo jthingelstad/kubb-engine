@@ -101,7 +101,9 @@ test("the view gives each control's range, default, value, tick and step", funct
 end)
 
 test("a kubb's spin is continuous in the physics: no step at a former tap", function()
-	-- drill.body adds the planned spin to the spiral linearly; the plan's solve does not read it
+	-- drill.body adds the planned spin to the spiral linearly; the plan's solve aims a spun
+	-- kubb by how far it runs on (drill.slideFor, from 0.10), between its spins' tables,
+	-- so the speed moves a little at a time and the same either way
 	local q = { projectile = "kubb", px = 0, py = 0, tx = 0.3, ty = 6, release = 135, level = "club", surface = "grass" }
 	local prev
 	for i = -12, 12 do
@@ -110,9 +112,12 @@ test("a kubb's spin is continuous in the physics: no step at a former tap", func
 		local L = plan.launch(sol, tw.web.throw.CLEAN, { projectile = "kubb", spin = q.spin, level = "club" }, {})
 		expect.near(L.spin, tw.drill.tune.spiral + q.spin * pt.spinPerStep, 1e-9)
 		if prev then
-			expect.near(sol.speed, prev.speed, 1e-12, "the solve does not depend on spin")
+			expect.near(sol.speed, prev.speed, 0.15, "no step in the solve from one spin to the next")
 		end
-		prev = sol
+		local q2 = { projectile = "kubb", px = 0, py = 0, tx = 0.3, ty = 6, release = 135, level = "club",
+			surface = "grass", spin = -q.spin }
+		expect.near(plan.solve(q2, {}).speed, sol.speed, 1e-12, "the same aim for a spin either way")
+		prev = { speed = sol.speed }
 	end
 end)
 

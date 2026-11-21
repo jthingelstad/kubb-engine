@@ -21,7 +21,7 @@ end
 
 local function solveAt(d, level)
 	return plan.solve({ projectile = "baton", px = 0, py = 0, tx = 0, ty = d,
-		release = plan.arcFor("field"), level = level or "club", aimZ = plan.aimZFor("field") }, {})
+		release = plan.arcFor("baton", d), level = level or "club", aimZ = plan.aimZFor("field") }, {})
 end
 
 local function swing(back, stop, flick)
@@ -100,7 +100,7 @@ test("solve: a throw of nearM or more is planned as before", function()
 		expect.eq(sol.handZ, flight.tune.handHeight, "hand at " .. d)
 		expect.eq(sol.handFwd, 0, "fwd at " .. d)
 		expect.eq(sol.aimZ, plan.aimZFor("field"), "aim height at " .. d)
-		expect.eq(sol.loft, plan.loftFor(plan.arcFor("field")), "loft at " .. d)
+		expect.eq(sol.loft, plan.loftFor(plan.arcFor("baton", d)), "loft at " .. d)
 	end
 end)
 
@@ -123,7 +123,9 @@ test("the report's two swings at a kubb 0.353 m away now topple it", function()
 	local sol = solveAt(D)
 	expect.truthy(sol.handZ < 0.2 and sol.handFwd > 0.1 and sol.handTip > 0.5, "a low hand ahead of the feet")
 	for i, sw in ipairs { { 40.92, 57.10 }, { 51.39, 49.01 } } do
-		local L = plan.launch(sol, swing(sw[1], sw[2]), { level = "club" }, {})
+		-- (the stops were made at the 4 o'clock arc a field kubb had until 0.10: each
+		-- is kept as far from the plan's release as it was from that one)
+		local L = plan.launch(sol, swing(sw[1], sw[2] - 60 + sol.release), { level = "club" }, {})
 		expect.eq(L.releaseV, 0, "swing " .. i .. ": the stop is ON")
 		expect.truthy(fell(L, sol, YAW), "swing " .. i .. " toppled the kubb")
 		expect.truthy(fell(L, sol, 0), "swing " .. i .. " toppled a square kubb")

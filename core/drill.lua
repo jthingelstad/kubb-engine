@@ -53,18 +53,35 @@ drill.tune = {
 	-- how far out it lands (slideR, a column each), in a line between them and the
 	-- nearest outside them. A faster landing runs on farther until it digs in harder (on
 	-- sand soonest). Measured again once an impact's friction was solved in the bounce
-	-- (2026-11-16, tools/drillscatter.lua --only 5 --grounds 60: 3 lines x 60 grounds a
-	-- cell, aimed with none, the mean rest along the throw past the aimed landing; the
-	-- release attitude and spiral below).
+	-- (2026-11-16, and again 2026-11-20 for 0.10's nose and spins: tools/drillscatter.lua
+	-- --only 5 --grounds 60: 3 lines x 60 grounds a cell, aimed with none, the mean rest
+	-- along the throw past the aimed landing; the release attitude and spiral below).
+	-- From 0.10 the spin counts too (slideSpins, rad/s about the long axis either way,
+	-- a table each: none, and one, two and three taps): a spun kubb holds its nose to
+	-- the touch and stops shorter, and the aim that ignored it sent every spun drill
+	-- short of its mark by the difference.
+	slideSpins = { 0, 22, 44, 66 },
 	slideLofts = { 26, 37, 47, 57 },
 	slideR = { 1.5, 3, 4.5, 6, 7.5 },
 	slide = {
-		grass = { { 0.37, 1.21, 1.84, 1.38, 1.04 }, { 0.27, 0.71, 1.02, 1.00, 0.69 },
-			{ 0.18, 0.47, 0.70, 0.75, 0.31 }, { 0.11, 0.26, 0.49, 0.55, 0.40 } },
-		sand = { { 0.19, 0.65, 0.77, 0.32, 0.29 }, { 0.12, 0.39, 0.44, 0.23, 0.15 },
-			{ 0.07, 0.23, 0.27, 0.17, 0.07 }, { 0.04, 0.11, 0.21, 0.17, 0.08 } },
-		snow = { { 0.34, 1.13, 1.66, 1.63, 1.71 }, { 0.23, 0.73, 1.05, 1.23, 1.18 },
-			{ 0.13, 0.41, 0.68, 0.94, 0.87 }, { 0.09, 0.25, 0.49, 0.64, 0.72 } },
+		grass = {
+			{ { 0.54, 1.14, 1.84, 2.65, 2.12 }, { 0.36, 0.76, 1.08, 1.36, 0.78 }, { 0.15, 0.47, 0.69, 0.72, 0.27 }, { 0.07, 0.23, 0.45, 0.36, 0.19 } }, -- spin 0
+			{ { 0.64, 1.51, 2.16, 2.28, 2.26 }, { 0.31, 0.71, 0.98, 0.92, 0.75 }, { 0.11, 0.21, 0.24, 0.17, 0.07 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 22
+			{ { 0.69, 1.46, 2.26, 2.98, 2.89 }, { 0.34, 0.75, 1.14, 1.48, 1.56 }, { 0.12, 0.23, 0.38, 0.45, 0.41 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 44
+			{ { 0.64, 1.50, 2.28, 2.89, 3.24 }, { 0.33, 0.74, 1.17, 1.60, 1.86 }, { 0.12, 0.27, 0.43, 0.51, 0.61 }, { 0.00, 0.00, 0.00, 0.01, 0.00 } }, -- spin 66
+		},
+		sand = {
+			{ { 0.31, 0.70, 0.98, 0.82, 0.40 }, { 0.17, 0.40, 0.48, 0.37, 0.14 }, { 0.06, 0.21, 0.26, 0.17, 0.07 }, { 0.02, 0.09, 0.18, 0.08, 0.05 } }, -- spin 0
+			{ { 0.35, 0.81, 1.13, 1.28, 1.24 }, { 0.17, 0.41, 0.51, 0.54, 0.43 }, { 0.00, 0.08, 0.09, 0.09, 0.02 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 22
+			{ { 0.35, 0.77, 1.25, 1.49, 1.70 }, { 0.19, 0.44, 0.59, 0.76, 0.81 }, { 0.02, 0.11, 0.19, 0.26, 0.23 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 44
+			{ { 0.36, 0.77, 1.25, 1.58, 1.92 }, { 0.20, 0.46, 0.59, 0.84, 0.94 }, { 0.02, 0.14, 0.21, 0.29, 0.29 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 66
+		},
+		snow = {
+			{ { 0.44, 1.13, 1.74, 2.06, 1.88 }, { 0.27, 0.71, 1.09, 1.33, 1.18 }, { 0.12, 0.39, 0.69, 0.93, 0.85 }, { 0.07, 0.26, 0.51, 0.62, 0.53 } }, -- spin 0
+			{ { 0.45, 1.20, 1.70, 2.22, 2.33 }, { 0.25, 0.73, 1.01, 1.21, 1.18 }, { 0.06, 0.20, 0.31, 0.44, 0.52 }, { 0.00, 0.04, 0.07, 0.13, 0.21 } }, -- spin 22
+			{ { 0.43, 1.10, 1.75, 2.22, 2.66 }, { 0.25, 0.72, 0.91, 1.44, 1.66 }, { 0.07, 0.24, 0.40, 0.58, 0.55 }, { 0.00, 0.03, 0.06, 0.09, 0.10 } }, -- spin 44
+			{ { 0.48, 1.09, 1.76, 2.23, 2.61 }, { 0.29, 0.72, 1.00, 1.47, 1.66 }, { 0.09, 0.25, 0.42, 0.64, 0.61 }, { 0.00, 0.03, 0.07, 0.10, 0.12 } }, -- spin 66
+		},
 	},
 	slideRefM = 6,          -- m: the landing distance slideFor reads when given none
 	-- the body at release (world.drillLaunchState, 2026-11-16: the drill is a plain
@@ -73,13 +90,16 @@ drill.tune = {
 	-- air". Held by its back end at the bottom of an underhand swing, the kubb hangs
 	-- nose forward and down; the wrist's snap spirals it about its long axis, a
 	-- gyroscope, so it lands about as it left the hand: nose first.
-	noseDownDeg = 45,       -- the long axis this far below the horizontal at release on the
-	                        -- planned arc (Jamie's technique: it lands nose first at about 45).
+	noseSumDeg = 90,        -- the kubb hangs along the arm, and it leaves square to the arm: the
+	                        -- long axis is noseSumDeg less the loft below the horizontal at
+	                        -- release (drill.noseFor), whatever arc was planned. At the default
+	                        -- arc (loft 47) that is 43 (Jamie's technique: it lands nose first
+	                        -- at about 45); a low drill leaves nose well down, a high one nearly
+	                        -- level. Until 0.10 it was 45 at the planned arc, any arc.
 	                        -- A spun drill (a tap or more) holds it to the touch; with only the
 	                        -- small natural spiral the air turns the kubb toward broadside to its
-	                        -- fall, so it lands steeper (about 60 to 65) and less the same each
-	                        -- time. A later release (higher loft) lifts the nose with the arm,
-	                        -- degree for degree, an earlier one drops it.
+	                        -- fall, so it lands steeper and less the same each time.
+	noseDownDeg = 43,       -- drill.body's when it is given no loft: the default arc's
 	spiral = 3,             -- rad/s: the small spiral the wrist always gives a drill (+ = clockwise
 	                        -- from behind; Jamie: "even if the thrower indicates no spin, there
 	                        -- would always be some small, subtle amount of rotation"); B +
@@ -152,16 +172,19 @@ end
 
 -- How far a clean drill at this loft (degrees) runs on along the throw after
 -- it lands R m out (nil: slideRefM), on this ground (nil: grass):
--- tune.slide, between its rows and columns. spin is taken and not used:
--- spin moves a drill across more than along, and in no steady direction
--- (which corner strikes first decides more).
+-- tune.slide, between its spins (rad/s either way, nil: none), rows and
+-- columns.
+local function slideIn(rows, i, fi, j, fj)
+	local a, b = rows[i], rows[i + 1]
+	return lerp(lerp(a[j], a[j + 1], fj), lerp(b[j], b[j + 1], fj), fi)
+end
 function drill.slideFor(loftDeg, surface, spin, R)
 	local t = drill.tune
-	local rows = t.slide[surface or "grass"] or t.slide.grass
+	local tabs = t.slide[surface or "grass"] or t.slide.grass
+	local k, fk = between(t.slideSpins, abs(spin or 0))
 	local i, fi = between(t.slideLofts, loftDeg)
 	local j, fj = between(t.slideR, R or t.slideRefM)
-	local a, b = rows[i], rows[i + 1]
-	return max(0, lerp(lerp(a[j], a[j + 1], fj), lerp(b[j], b[j + 1], fj), fi))
+	return max(0, lerp(slideIn(tabs[k], i, fi, j, fj), slideIn(tabs[k + 1], i, fi, j, fj), fk))
 end
 
 -- The landing distance that runs on to d (m) at this loft: the R with
@@ -238,7 +261,13 @@ function drill.launch(sol, r, cut, out)
 	out.loft = sol.loft
 	-- A (+1) spins it positive about the forward long axis (clockwise from
 	-- behind), B the other way, on top of the wrist's spiral
-	return drill.body(r.smoothness or 1, pull, (cut or 0) * t.cutSpin, out)
+	return drill.body(r.smoothness or 1, pull, (cut or 0) * t.cutSpin, out, out.loft)
+end
+
+-- The long axis below the horizontal (degrees) as a drill leaves the hand at this
+-- loft (tune.noseSumDeg).
+function drill.noseFor(loftDeg)
+	return drill.tune.noseSumDeg - loftDeg
 end
 
 -- The drilled kubb's body at release (world.launchDrill's arguments after
@@ -246,13 +275,14 @@ end
 -- the long axis: as given plus the wrist's spiral), wobble and jerk (0..1). smoothness is the
 -- swing's (or the plan's effective smoothness: core/throwplan); under
 -- cleanAbove the kubb wobbles nose over tail, up to wobbleRate at 0 and
--- never more. pull (+1 or -1) is the wobble's sign.
-function drill.body(smoothness, pull, spin, out, dLoft)
+-- never more. pull (+1 or -1) is the wobble's sign. loftDeg is the loft it
+-- leaves at (drill.noseFor; nil: tune.noseDownDeg, the default arc's).
+function drill.body(smoothness, pull, spin, out, loftDeg)
 	local t = drill.tune
 	local jerk = (t.cleanAbove - smoothness) / t.cleanAbove
 	if jerk < 0 then jerk = 0 elseif jerk > 1 then jerk = 1 end
 	spin = (spin or 0) + t.spiral
-	out.noseDown, out.rollLand, out.spin = t.noseDownDeg - (dLoft or 0), 0, spin
+	out.noseDown, out.rollLand, out.spin = loftDeg and drill.noseFor(loftDeg) or t.noseDownDeg, 0, spin
 	out.jerk = jerk
 	out.wobble = pull * t.wobbleRate * jerk
 	return out

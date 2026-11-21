@@ -114,7 +114,7 @@ end
 local function solveFor(d, lv)
 	local kind = d >= 6 and "base" or "field"
 	return plan.solve({ projectile = "baton", px = 0, py = PY, tx = 0, ty = PY + d,
-		release = plan.arcFor(kind), level = lv, aimZ = plan.aimZFor(kind) }, {})
+		release = plan.arcFor("baton", d), level = lv, aimZ = plan.aimZFor(kind) }, {})
 end
 
 local function pct(a, b) return b > 0 and fmt("%3.0f%%", 100 * a / b) or "  - " end

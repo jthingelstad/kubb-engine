@@ -116,7 +116,7 @@ end
 
 function ref.solve(q, out)
 	local lv = levelOf(q.level)
-	local rel = plan.clampRelease(q.release or plan.tune.arc.base)
+	local rel = plan.clampRelease(q.release or plan.arcFor("baton"))
 	local loft = plan.loftFor(rel)
 	local px, py, tx, ty = q.px, q.py, q.tx, q.ty
 	if q.projectile == "kubb" then
@@ -203,7 +203,7 @@ function ref.sweep(opts)
 	for i = 1, 150 do ds[#ds + 1] = 2.5 + i * 0.05 end
 	for _, d in ipairs { 0, 0.01, 0.05, 0.1, 0.15, 0.1999, 1.9999, 2.0, 2.0001 } do ds[#ds + 1] = d end
 	local zs = { 0, plan.aimZFor("kubb"), plan.aimZFor("king"), 0.05, 0.12, 0.25 }
-	local rels = { plan.arcFor("field"), plan.arcFor("base"), plan.arcFor("king"), plan.tune.releaseMinDeg,
+	local rels = { 60, 90, 75, plan.arcFor("baton", 5), plan.tune.releaseMinDeg,
 		plan.tune.releaseMaxDeg, 40, 75 }
 	local levels = { "beginner", "club", "pro" }
 	local dirs = { { 0, 0, 0, 1 }, { 0.4, -0.3, 0.6, 0.8 }, { -1.1, 2.0, -0.28, 0.96 } }
