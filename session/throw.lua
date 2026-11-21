@@ -73,9 +73,18 @@ throw.tune = {
 	arcFitFrom = 6,       -- the plan view keeps the arc on screen from this point on
 }
 
+-- The level a thrower record names (s.level: a named player's; s.defaultLevel: the
+-- session's; throw.level otherwise). From 0.13 it changes nothing in a person's throw:
+-- every person plans and throws on one meter (throw.meterFor, plan.meters). It is kept
+-- so older callers and records still read and write it.
 throw.level = plan.tune.defaultLevel
 function throw.levelFor(s)
 	return s.level or s.defaultLevel or throw.level
+end
+-- The meter a person's throw is planned on (plan.meter): the same for every person,
+-- whatever throw.levelFor(s) says.
+function throw.meterFor(s)
+	return plan.meter()
 end
 
 -- ---------- pieces ----------
@@ -337,7 +346,7 @@ local function replan(s)
 	local q = {
 		projectile = kubb and "kubb" or "baton",
 		px = s.playerX, py = s.playerY, tx = s.markerX, ty = s.markerY,
-		release = s.release, level = throw.levelFor(s),
+		release = s.release, meter = throw.meterFor(s),
 		-- a drill runs on by the ground and less with spin (drill.slideFor)
 		surface = s.surface, spin = kubb and s.spin or 0,
 	}
@@ -361,7 +370,7 @@ local function replan(s)
 	local sol = plan.solve(q, {})
 	s.sol = sol
 	s.swivel, s.loftDeg = sol.swivel, sol.loft
-	s.planLevel, s.planDirty = q.level, false
+	s.planLevel, s.planDirty = throw.levelFor(s), false
 end
 throw.replan = replan
 
@@ -972,9 +981,10 @@ end
 -- fire): plan.launch against the solved plan. Returns L and how.
 function throw.playerLaunch(s, r)
 	local kubb = s.projectile == "kubb"
-	local o = { projectile = kubb and "kubb" or "baton", tilt = s.tilt, spin = s.spin, level = throw.levelFor(s) }
+	-- (no level: the solution's, the person's meter at this distance)
+	local o = { projectile = kubb and "kubb" or "baton", tilt = s.tilt, spin = s.spin }
 	o.nerves = nervesFor(s) or nil
-	if s.planDirty or s.planLevel ~= o.level then replan(s) end
+	if s.planDirty or s.planLevel ~= throw.levelFor(s) then replan(s) end
 	local L = plan.launch(s.sol, r, o, {})
 	return L, kubb and "drill" or "baton"
 end
