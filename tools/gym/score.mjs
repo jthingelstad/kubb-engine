@@ -147,14 +147,40 @@ FKEYS.push(['f.short.died', 'landed short and stopped before reaching it', 'p'])
 FKEYS.push(['f.short.run', 'run on after landing short (m)', 'm']);
 FKEYS.push(['f.landSpeed', 'speed landing on the ground first (m/s)', 'm']);
 FKEYS.push(['First touch of a standing piece (kubbs)']);
-FKEYS.push(['f.top', 'on its top (face or edge)', 'p']);
-FKEYS.push(['f.topFace', 'on the top face', 'p']);
+FKEYS.push(['f.top', 'first contact point within 1 cm of its top (face or edge)', 'p']);
+FKEYS.push(['f.topFace', 'first contact point on the top face, inside its edges', 'p']);
 FKEYS.push(['f.touchH', 'height up the kubb (m)', 'm']);
-FKEYS.push(['f.lean', 'baton lean from vertical (deg)', 'm']);
+FKEYS.push(['f.lean', 'baton lean from vertical, unsigned (deg)', 'm']);
 FKEYS.push(['f.touchSpeed', 'baton speed (m/s)', 'm']);
 FKEYS.push(['f.kept', 'baton speed kept 0.05 s later (share)', 'm']);
 for (const fate of ['toppled', 'rocked', 'slid', 'nudged', 'unmoved']) FKEYS.push([`f.fate.${fate}`, `the kubb ${fate === 'toppled' ? 'toppled' : fate === 'unmoved' ? 'did not move' : fate + ' and stood'}`, 'p']);
-FKEYS.push(['f.topStood', 'touched on the top: stood', 'p']);
+FKEYS.push(['f.topStood', 'contact within 1 cm of the top: the kubb stood', 'p']);
+// how the baton arrived (forensics' arrival): the classes a kubb player names
+export const ACLASS = ['down on top', 'clipped the top', 'body, upright', 'body, flat', 'ground first', 'other'];
+const ALABEL = { 'down on top': 'came down on top (its normal near vertical)', 'clipped the top': 'clipped the top going over',
+  'body, upright': 'body hit, baton upright (within 45 deg)', 'body, flat': 'body hit, baton lying flat or sideways',
+  'ground first': 'ground first, then the kubb', other: 'other (its bottom)' };
+FKEYS.push(['Arrival at a kubb, of batons thrown at field and base kubbs']);
+for (const c of ACLASS) FKEYS.push([`a.thr.${c}`, ALABEL[c], 'p']);
+FKEYS.push(['a.thr.none', 'touched no kubb', 'p']);
+FKEYS.push(['Arrival at a kubb, of first touches of a kubb']);
+for (const c of ACLASS) FKEYS.push([`a.tch.${c}`, ALABEL[c], 'p']);
+FKEYS.push(['a.downTopple', 'came down on top: the kubb toppled', 'p']);
+FKEYS.push(['a.upTopple', 'body hit, upright: the kubb toppled', 'p']);
+FKEYS.push(['Arrival, batons that met a kubb before the ground']);
+FKEYS.push(['a.part.lower end', 'met it with its lower end (lowest 30%)', 'p']);
+FKEYS.push(['a.part.middle', 'met it with its middle', 'p']);
+FKEYS.push(['a.part.upper end', 'met it with its upper end', 'p']);
+FKEYS.push(['a.half', 'a half turn, within 30 deg (180 deg since release)', 'p']);
+FKEYS.push(['a.turnErr', 'turn since release less 180 (deg)', 'm']);
+FKEYS.push(['a.turnAbs', 'its size (deg)', 'm']);
+FKEYS.push(['a.lean', 'signed lean: + upper end ahead of travel (deg)', 'm']);
+FKEYS.push(['a.leanAbs', 'lean from vertical (deg)', 'm']);
+FKEYS.push(['a.descent', 'descent angle (deg)', 'm']);
+FKEYS.push(['a.low', 'lowest point passing the near face (m; kubb 0.15 tall)', 'm']);
+FKEYS.push(['Hit window: field and base batons on line (centre within 10 cm across), by where its centre would have come down']);
+for (const [b, l] of [['s4', '30-60 cm short'], ['s2', '10-30 cm short'], ['on', 'within 10 cm'], ['l2', '10-30 cm long'], ['l4', '30-60 cm long']])
+  FKEYS.push([`w.${b}`, `would come down ${l}: toppled`, 'p']);
 FKEYS.push(['More than one kubb']);
 FKEYS.push(['f.multi', 'batons that toppled two or more', 'p']);
 FKEYS.push(['f.chainKubb', 'of those, one fell by kubb on kubb', 'p']);
@@ -169,7 +195,7 @@ FKEYS.push(['f.rest', 'time to rest, every throw (s)', 'm']);
 FKEYS.push(['Anomalies, per 1000 throws (tools/gym.mjs lists each)']);
 const ANOM = {
   hardUnmoved: `a touch at ${T.hardSpeed} m/s or more left the kubb unmoved`,
-  topVault: `a touch on the top at ${T.hardSpeed} m/s or more, the kubb stood`,
+  topVault: `a touch within 1 cm of the top at ${T.hardSpeed} m/s or more, the kubb stood`,
   propped: 'a kubb moved and rests standing, tilted past 10 deg',
   deadStop: `a baton landed at ${T.deadSpeed} m/s or more and stopped dead`,
   energy: `the world gained energy (over ${T.energyJ} J)`,
@@ -259,6 +285,33 @@ export function addThrow(o, t) {
       if (top) hit(o['f.topStood'], fi.fate !== 'toppled');
     }
     if (k === 'field' || k === 'base') {
+      const ar = fi && fi.kind === 'kubb' ? fi.arrival : null;
+      const cls = ar ? ar.class : (fi && fi.kind === 'kubb' ? 'other' : 'none');
+      for (const c of [...ACLASS, 'none']) hit(o[`a.thr.${c}`], cls === c);
+      if (ar) {
+        for (const c of ACLASS) hit(o[`a.tch.${c}`], ar.class === c);
+        if (ar.class === 'down on top') hit(o['a.downTopple'], fi.fate === 'toppled');
+        if (ar.class === 'body, upright') hit(o['a.upTopple'], fi.fate === 'toppled');
+        if (!fi.afterGround) {
+          for (const p of ['lower end', 'middle', 'upper end']) hit(o[`a.part.${p}`], ar.part === p);
+          if (ar.turn != null) {
+            const e = ar.turn - 180;
+            hit(o['a.half'], Math.abs(e) <= 30);
+            add(o['a.turnErr'], e);
+            add(o['a.turnAbs'], Math.abs(e));
+          }
+          add(o['a.lean'], ar.lean);
+          add(o['a.leanAbs'], Math.abs(ar.lean));
+          add(o['a.descent'], fi.descent);
+        }
+      }
+      if (f.lowAtFace != null && !f.faceAfterGround) add(o['a.low'], f.lowAtFace);
+      // the hit window: where the centre first came down (landing, or the touch) against toppling
+      const along = f.freeAlong;
+      if (along != null && Math.abs(f.freeAcross || 0) < 0.1 && Math.abs(along) < 0.6) {
+        const a = Math.abs(along), b = a < 0.1 ? 'on' : (along < 0 ? 's' : 'l') + (a < 0.3 ? '2' : '4');
+        hit(o[`w.${b}`], !!f.targetDown);
+      }
       hit(o['f.multi'], f.toppled >= 2);
       if (f.toppled >= 2) hit(o['f.chainKubb'], f.byKubb > 0);
     }
@@ -286,6 +339,15 @@ export function throwsOf(dir, onAnomaly) {
   return { o, matches };
 }
 
+// The owner's estimates from play (an experienced player, 2026-11-20): a reference
+// column beside the real games, his words, not measured.
+export const OWNER = {
+  'a.thr.down on top': 'at most 3-5',
+  'a.half': 'the aim',
+  'a.part.lower end': 'the hand end',
+  'a.downTopple': 'some of the time',
+};
+
 // ---------- the page ----------
 
 export const KEYS = [...GAME_KEYS, ...FKEYS];
@@ -305,7 +367,7 @@ export function page(columns, names, opts = {}) {
   for (const [k, label, t] of KEYS) {
     if (!t) { if (k) out.push([k]); continue; }
     if (opts.skip && opts.skip(k)) continue;
-    const cells = columns.map(c => (c && c[k]) ? cell(c[k]) : '');
+    const cells = columns.map(c => (c && c[k] != null) ? (typeof c[k] === 'string' ? c[k] : cell(c[k])) : '');
     if (cells.every(x => x === '' || x === '-')) continue;
     out.push([label, ...cells]);
   }
