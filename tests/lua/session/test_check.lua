@@ -303,6 +303,8 @@ test("checkThrow refuses a throw at 30 m/s and other throws the dial cannot make
 	refused(kub, function(a) a.launch.scatter = 0.01 end, "a hand steadier than the level's")
 	refused(kub, function(a) a.launch.scatter = false end, "a scatter that is not a number")
 	refused(kub, function(a) a.launch.scatter = "1" end, "a scatter that is a string")
+	refused(bat, function(a) a.launch.scatter = false end, "a baton with a scatter")
+	refused(bat, function(a) a.launch.scatter = 1 end, "a baton with a number for a scatter")
 	-- a replay with checkThrows reports the first such throw
 	local log = noH(m.log)
 	log[bat.i].a.launch.speed = 30

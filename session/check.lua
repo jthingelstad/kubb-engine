@@ -396,7 +396,7 @@ local function personThrow(s, a)
 			if not num(L[k]) then return fail("a kubb's launch." .. k .. " is not a number") end
 		end
 	else
-		for _, k in ipairs { "noseDown", "rollLand", "spin", "wobble" } do
+		for _, k in ipairs { "noseDown", "rollLand", "spin", "wobble", "scatter" } do
 			if L[k] ~= nil then return fail("a baton has no launch." .. k) end
 		end
 	end
