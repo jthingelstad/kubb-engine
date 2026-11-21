@@ -250,7 +250,7 @@ census of 2026-11-21.
 
 ## Q14: Where should a baton meet the front kubb of a group?
 
-- **Status:** open
+- **Status:** open: measured in the Gym; the engine's physics disagrees with the player
 - **Asks:** PLAY.md has the half-turn throw arriving low, a kubb hit low and hard, and top
   hits one in twenty or thirty (owner). Kyle Weakland aims at the top front corner with
   the baton halfway between upright and flat, so that it tumbles over and into the group,
@@ -258,13 +258,27 @@ census of 2026-11-21.
   ko-2017-blasting#p1.14, ko-2017-blasting#p1.22). Phil Dickinson trains a full turn with
   the head striking square, and hits high, low or on an edge by the reaction he wants
   (ko-2017-dickinson#p1.10, ko-2017-dickinson#p1.11).
-- **Recommendation:** Both can be true: low and hard for a single kubb, where only that
-  kubb has to fall, and high with a turning baton for a group, where the baton has to go
-  on. If so, the computer needs a hit height and a tumble chosen by the shot, not one
-  setting per level.
-- **Settle by:** the Gym. Its forensics already record how each baton arrives at a kubb;
-  split kubbs taken per baton by arrival height and baton angle, singles and groups
-  apart.
+- **So far:** The Gym, 2026-11-21, engine 0.11.0, the computer at club and pro, 300
+  matches a setting. In this physics the answer is no. At pro, a baton that first meets
+  a group on the kubb's body and near upright takes two or more 68% of the time; one that
+  clips the top edge 50%, falling to 20% as the baton leans to half turned; one that
+  comes down on top 3.5%. Making the computer hit as the player describes (aim at 0.6 of
+  the height, a tumble that arrives half turned) cut three-or-more at groups from 10.1%
+  to 4.7%. A low square hit does not stop the baton dead here: it keeps a third of its
+  speed and takes the most. And the engine's baton does not arrive low: about 60% of
+  first touches on a group at pro are within 1 cm of the top. What did help was a flatter,
+  harder throw: `plan.tune.arcFarDeg` at 15 lifted pro's three-or-more from 4.9% to 6.8%
+  and its base kubbs from 8 m from 34.7% to 42.0%, into the target. Nothing swept comes
+  near real top teams' 12 to 18% for three or more.
+- **Recommendation:** Do not build `field.corner` as written. Two things follow instead.
+  The arc is a lever worth playing side against side, level by level. And the gap that
+  remains is too large for any aim to close, so the next question is the physics: whether
+  a baton going through a standing group loses too much, or the engine's groups stand
+  too loose, compared with wood. The Gym measures the engine, not the pitch, and one
+  player's account against one simulator settles neither.
+- **Settle by:** `gym versus` on the arc; the reference engine (docs/notes/reference-engine.md)
+  on a baton through a standing group; and video of top blasters, once something can
+  watch it.
 - **Touches:** field.corner, field.sure
 
 ## Q15: May the defender turn a kubb when standing it up?
