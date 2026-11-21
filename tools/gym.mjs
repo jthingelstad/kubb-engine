@@ -197,8 +197,8 @@ export function printCard(card, real) {
   const names = card.configs.map(c => c.name);
   const cols = names.map(n => card.results[n]);
   const lines = [header(card), ''];
-  const head = real ? [...names, 'real games'] : names;
-  const cells = real ? [...cols, real] : cols;
+  const head = real ? [...names, 'real games', 'owner (est.)'] : [...names, 'owner (est.)'];
+  const cells = real ? [...cols, real, score.OWNER] : [...cols, score.OWNER];
   lines.push(score.page(cells, head));
   lines.push('', 'Anomaly clusters (most frequent first; each command replays that throw in full):');
   for (const n of names) {

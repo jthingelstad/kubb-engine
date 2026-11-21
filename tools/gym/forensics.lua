@@ -24,7 +24,16 @@
 --   first           the first standing piece it touched, or nil: { id, role, kind,
 --                   where = top-face | top-edge | body | bottom, h (height up the piece),
 --                   speed, lean (baton axis from vertical), descent, kept (speed 0.05 s
---                   later over speed before), fate }
+--                   later over speed before), fate, arrival (a baton: { class, part,
+--                   along (0 its lower tip, 1 its upper), lean (signed: + upper end ahead
+--                   of its travel), nz (the contact normal's vertical share), turn }) }
+--   turnAtGround    a baton's turn since release at its first ground contact (degrees;
+--                   + its upper end tipping forward; the half turn is 180)
+--   lowAtFace       a baton's lowest point as its centre passes the target's near face (m);
+--                   faceAfterGround, turnAtFace: it had landed by then, its turn there
+--   freeAlong       where a baton's centre would have come down with nothing in the way, along
+--                   the throw less the target's distance (from before its first contact);
+--                   freeAcross the same across
 --   touched         standing pieces the projectile touched (count)
 --   hard            touches of standing pieces at >= forensics.tune.hardSpeed: { { id, speed, fate, where } }
 --   toppled         pieces toppled this throw (count); byBaton, byKubb: how each fell
@@ -58,6 +67,9 @@ forensics.tune = {
 	proppedDeg = 10,    -- a kubb counted standing but tilted past this rests propped
 	topMargin = 0.01,   -- m: a touch within this of a piece's top is on the top
 	innerMargin = 0.008, -- m: ... on the face when this far inside its edges, else the edge
+	downNz = 0.7,       -- a top contact whose normal is this near vertical: came down on top
+	uprightDeg = 45,    -- a body hit with the baton within this of vertical: upright
+	nearFace = 0.035,   -- m: the target's near face, this far short of its centre
 }
 
 local function pieceRole(p)
@@ -104,9 +116,42 @@ local function contactOn(p, b)
 		if not best or C.sep[i] < best then best, bi = C.sep[i], i end
 	end
 	local px, py, pz = bi and C.px[bi], bi and C.py[bi], bi and C.pz[bi]
+	local nx, ny, nz = bi and C.nx[bi], bi and C.ny[bi], bi and C.nz[bi]
 	C.n = 0
 	if not bi then return nil end
-	return whereOn(b, px, py, pz)
+	local w, h = whereOn(b, px, py, pz)
+	return w, h, px, py, pz, nx, ny, nz
+end
+
+-- The baton's arrival at its first touch of a kubb (docs/notes/gym.md "Arrival"):
+-- which part met it, its signed lean, how it met the kubb, and the class a kubb
+-- player would name. p: the baton; (px, py, pz) the contact point, (nx, ny, nz) the
+-- contact normal; vx, vy the baton's ground velocity before the step; where, the
+-- contact's place on the kubb (whereOn); afterGround: it had met the ground already.
+local function arrivalOf(p, px, py, pz, nx, ny, nz, vx, vy, where, afterGround)
+	local a = {}
+	local ax, ay, az = p.r13, p.r23, p.r33
+	if az < 0 then ax, ay, az = -ax, -ay, -az end   -- the upper end's way
+	local hl = p.hl
+	-- along the baton from its lower tip (0) to its upper tip (1)
+	local s = (px - p.x) * ax + (py - p.y) * ay + (pz - p.z) * az
+	a.along = (s + hl + p.r) / (2 * (hl + p.r))
+	a.part = a.along < 0.3 and "lower end" or a.along > 0.7 and "upper end" or "middle"
+	-- signed lean: + the upper end ahead of the way it travels, - behind
+	local vh = sqrt(vx * vx + vy * vy)
+	local fwd = vh > 1e-6 and (ax * vx + ay * vy) / vh or 0
+	a.lean = deg(atan(fwd, az))
+	local nn = sqrt(nx * nx + ny * ny + nz * nz)
+	a.nz = nn > 0 and abs(nz) / nn or 0      -- 1: met from above or below, 0: from the side
+	local t = forensics.tune
+	local top = where == "top-face" or where == "top-edge"
+	if afterGround then a.class = "ground first"
+	elseif top and a.nz >= t.downNz then a.class = "down on top"
+	elseif top then a.class = "clipped the top"
+	elseif where == "body" and abs(a.lean) <= t.uprightDeg then a.class = "body, upright"
+	elseif where == "body" then a.class = "body, flat"
+	else a.class = "other" end
+	return a
 end
 
 local function fateOf(tr, toppled)
@@ -150,9 +195,20 @@ function forensics.run(w, ctx, pieces)
 	if tgt then tAlong = (tgt.x - sx) * ux + (tgt.y - sy) * uy end
 
 	local rec = { touched = 0, hard = {}, toppled = 0, byBaton = 0, byKubb = 0, eRise = 0, propped = {} }
+	-- a baton's turn since release (degrees, + its upper end tipping forward), read
+	-- in the throw's vertical plane from the axis that was up at release
+	local isBaton = proj.shape == 2
+	local sgn = proj.r33 < 0 and -1 or 1
+	local function planeAngle()
+		local ax, ay, az = sgn * proj.r13, sgn * proj.r23, sgn * proj.r33
+		return atan(ax * ux + ay * uy, az)
+	end
+	local turn, lastAng = 0, nil
+	local crossed = false
+	if isBaton then lastAng = planeAngle(); turn = deg(lastAng) end
 	-- the projectile's state before the step (for what it was doing at a contact)
 	local pvx, pvy, pvz, pr33 = proj.vx, proj.vy, proj.vz, proj.r33
-	local ppx, ppy = proj.x, proj.y
+	local ppx, ppy, ppz = proj.x, proj.y, proj.z
 	local landCX, landCY -- its centre at the step it met the ground
 	local groundT, firstPieceT, keptBase, firstTr
 	local landX, landY
@@ -188,6 +244,7 @@ function forensics.run(w, ctx, pieces)
 				pending[nPending] = tr
 				local vh = sqrt(pvx * pvx + pvy * pvy)
 				tr.lean, tr.descent, tr.afterGround = deg(acos(min(1, abs(pr33)))), deg(atan(-pvz, vh)), groundT ~= nil
+				tr.vx, tr.vy = pvx, pvy
 				if not firstPieceT then
 					firstPieceT = time
 					firstTr = tr
@@ -203,15 +260,46 @@ function forensics.run(w, ctx, pieces)
 	local each = ctx.each
 	repeat
 		pvx, pvy, pvz, pr33 = proj.vx, proj.vy, proj.vz, proj.r33
-		ppx, ppy = proj.x, proj.y
+		ppx, ppy, ppz = proj.x, proj.y, proj.z
 		world.step(w)
 		if each then each(w) end
+		if isBaton and not firstPieceT and not groundT then
+			local ang = planeAngle()
+			local d = ang - lastAng
+			if d > math.pi then d = d - 2 * math.pi elseif d < -math.pi then d = d + 2 * math.pi end
+			turn, lastAng = turn + deg(d), ang
+		end
+		if isBaton and rec.freeAlong == nil and (groundT or firstPieceT) then
+			-- where its centre would have come down (to lying height) with nothing in the
+			-- way, from its state before the first contact (no drag over that short way)
+			local g = 9.81
+			local h = ppz - proj.r
+			local tf = h > 0 and (pvz + sqrt(pvz * pvz + 2 * g * h)) / g or 0
+			local fx, fy = ppx + pvx * tf - sx, ppy + pvy * tf - sy
+			rec.freeAlong = fx * ux + fy * uy - tAlong
+			rec.freeAcross = fx * uy - fy * ux
+		end
+		if isBaton and tgt and not crossed then
+			local along = (proj.x - sx) * ux + (proj.y - sy) * uy
+			if along >= tAlong - t.nearFace then
+				crossed = true
+				-- its lowest point as its centre passes the target's near face
+				rec.lowAtFace = proj.z - abs(proj.r33) * proj.hl - proj.r
+				rec.faceAfterGround = groundT ~= nil or nil
+				rec.turnAtFace = turn
+			end
+		end
 		-- where each newly touched piece was met: the narrow phase between steps, as
 		-- tools/physcheck does (world.step clears that buffer before it uses it)
 		for k = 1, nPending do
 			local tr = pending[k]
 			pending[k] = nil
-			tr.where, tr.h = contactOn(proj, tr.b)
+			local px, py, pz, nx, ny, nz
+			tr.where, tr.h, px, py, pz, nx, ny, nz = contactOn(proj, tr.b)
+			if tr == firstTr and isBaton and px then
+				tr.arrival = arrivalOf(proj, px, py, pz, nx, ny, nz, tr.vx, tr.vy, tr.where, tr.afterGround)
+				tr.arrival.turn = turn
+			end
 		end
 		nPending = 0
 		if not hooked and not polling and w.firstContact then polling = true; rec.polled = true end
@@ -227,7 +315,7 @@ function forensics.run(w, ctx, pieces)
 			for k = 1, nTracked do
 				local tr = tracked[k]
 				if not tr.projT then
-					local where, h = contactOn(proj, tr.b)
+					local where, h, px, py, pz, nx, ny, nz = contactOn(proj, tr.b)
 					if where then
 						tr.projT = w.time
 						tr.projSpeed = sqrt(pvx * pvx + pvy * pvy + pvz * pvz)
@@ -235,11 +323,18 @@ function forensics.run(w, ctx, pieces)
 						rec.touched = rec.touched + 1
 						local vh = sqrt(pvx * pvx + pvy * pvy)
 						tr.lean, tr.descent, tr.afterGround = deg(acos(min(1, abs(pr33)))), deg(atan(-pvz, vh)), groundT ~= nil
-						if not firstPieceT then firstPieceT, firstTr, keptBase = w.time, tr, tr.projSpeed end
+						if not firstPieceT then
+							firstPieceT, firstTr, keptBase = w.time, tr, tr.projSpeed
+							if isBaton then
+								tr.arrival = arrivalOf(proj, px, py, pz, nx, ny, nz, pvx, pvy, where, tr.afterGround)
+								tr.arrival.turn = turn
+							end
+						end
 					end
 				end
 			end
 		end
+		if groundT and isBaton and rec.turnAtGround == nil then rec.turnAtGround = turn end
 		if landPending then
 			-- the contact point when the ground was its first contact, else its centre
 			landPending = false
@@ -332,6 +427,7 @@ function forensics.run(w, ctx, pieces)
 		f.id, f.role, f.kind, f.speed, f.fate = firstTr.b.id, firstTr.role, firstTr.b.kind, firstTr.projSpeed, firstTr.fate
 		f.tilt, f.moved = deg(firstTr.maxTilt), firstTr.maxD
 		f.kept = rec.kept
+		f.arrival = firstTr.arrival
 		rec.first = f
 	end
 	return rec, res

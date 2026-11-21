@@ -53,14 +53,17 @@ with their repro commands.
 Every throw is stepped as `world.run` steps it, with `w.onContact` listening, and the
 narrow phase called between steps to find where a touched piece was met.
 `lua5.4 tools/gym/match.lua --selftest` throws a few matches with and without forensics and
-checks that every body ends bit for bit the same; it does (440 throws). Cost: about 10% over
+checks that every body ends bit for bit the same; it does (665 throws). Cost: about 10% over
 a bare match. Per throw it records:
 
 - the ground first or a piece first; where it landed against its target's centre (along the
-  throw: short or past; across: wide), its speed landing and how far it ran on
+  throw: short or past; across: wide), its speed landing and how far its centre ran on
+  (centre at the landing step to centre at rest: from the contact point, a nose-first
+  landing's tip would read as the baton going back)
 - the first standing piece it touched: top face, top edge, body or bottom, how high, the
   baton's speed, its lean from vertical and how steeply it came down, the speed it kept
   0.05 s later, and the kubb's fate (toppled, rocked, slid, nudged, did not move)
+- a baton's arrival at its first kubb (below)
 - how many fell, and how each fell: touched by the projectile, or only by another kubb
 - every hard touch (3 m/s or more) and its fate; kubbs that moved and rest standing tilted
   past 10 degrees (propped); the time to rest; the largest rise in the world's energy
@@ -74,6 +77,32 @@ it, or landed short or past (more than 0.15 m along) or wide (more than 0.10 m a
 whichever is the larger share of its limit. "Meter all good" is power and release on target
 and steady (the verdicts a player sees).
 
+### Arrival
+
+Where on the kubb the first contact point is (within 1 cm of the top, the face, the body)
+does not say what the baton was doing: a baton's end coming down onto the top and its
+shaft meeting the upper front corner as it travels both read as "top". So a baton's first
+touch of a kubb also records its arrival: the part of the baton that met it (from its
+lower tip, 0, to its upper tip, 1), its signed lean (+ the upper end ahead of its travel),
+its descent, the contact normal's vertical share, its turn since release (read in the
+throw's plane; the half turn is 180), its lowest point as its centre passes the target's
+near face, and where its centre would have come down with nothing in the way (the hit
+window). From these, one class each, the names a kubb player uses:
+
+| class | when |
+|---|---|
+| came down on top | the contact is within 1 cm of the top and its normal is within about 45 degrees of vertical |
+| clipped the top going over | within 1 cm of the top, the normal mostly sideways |
+| body hit, upright | on the body, the baton within 45 degrees of vertical (the intended hit) |
+| body hit, flat or sideways | on the body, the baton leaning more |
+| ground first, then the kubb | it had met the ground before |
+
+The page gives each as a share of throws and of touches, beside an "owner (est.)" column:
+an experienced player's estimates from play (a baton comes down on top at most 1 in 20 to
+30 throws; the throw makes a half turn and the hand end meets the kubb; a top hit topples
+some of the time). The engine releases a baton upright and turns it upper end forward, so
+after its half turn the end that was up at release is the lower one.
+
 ## Anomalies
 
 Each is counted per 1000 throws, clustered by kind, piece, where and distance band, ranked,
@@ -83,7 +112,7 @@ step, as physfuzz's dump):
 | kind | what | gate |
 |---|---|---|
 | hardUnmoved | a touch at 3 m/s or more left the kubb unmoved | no |
-| topVault | a touch on the top at 3 m/s or more, the kubb stood | no |
+| topVault | a touch within 1 cm of the top at 3 m/s or more, the kubb stood | no |
 | propped | a kubb moved and rests standing, tilted past 10 degrees | no |
 | deadStop | a baton landed at 4 m/s or more and went under 0.15 m | no |
 | energy | the world's energy rose more than 0.02 J above its low | no |
