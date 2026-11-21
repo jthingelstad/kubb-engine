@@ -436,8 +436,10 @@
       "length": "9:09",
       "status": "observed",
       "covers": [
-        "inkast"
-      ]
+        "inkast",
+        "field"
+      ],
+      "note": "The title in the video itself is \"How To Inkast Kubbs — The Drill Technique\"; no year is shown in it."
     },
     "yt-KnLTnKVVPMg": {
       "title": "How To Play Kubb: Inkasting Tip 13 / Baton Throwing Tip #3 - The Pythagorean Theorem",
