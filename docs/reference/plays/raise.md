@@ -18,15 +18,19 @@ Every `Levels` line is a proposal of ours, not a source's.
   ko-2013-fence#p1.18 (Chris Hodges)
 - **Basis:** player
 - **Against:** Q7.
-- **Levels:** Proposed: pro. Club spreads kubbs apart without counting.
-- **Engine:** built, used by no level (0.11.2; the raising by level that can give it to a
-  side, `core/cpu.raising`, `cpu.advice` and `match.raisePolicy`, is built switched off in
-  0.11.3, every side `apart`): `raising.policies.par`, the end that
-  leaves the attacker's batons the fewest kubbs one behind another, a pair weighed by how
-  close it is across the baton's path and how far along it (`raising.tune.par*`). It
-  counts pairs in line, not batons, and looks no baton ahead. The game's policy is still
-  `apart`: the end farthest from the nearest other kubb. It measures distance, not batons.
-  The Gym's first measure is in docs/notes/gym.md, "Raising by the attacker's batons".
+- **Levels:** pro (0.12.0). Club spreads kubbs apart without counting, as in 0.11.2. A
+  person's side, raised by the engine, takes it as the engine's best advice at every
+  level (owner-2026-11-21#s5).
+- **Engine:** modelled (0.12.0): the pro computer raises by it (`core/cpu.raising`,
+  `cpu.raise`, why `raise.par` in `cpu.last`), and so does a person's side at every level
+  when the engine raises it, and it is the end a client offers first by hand
+  (`cpu.advice`, `match.raisePolicy`). `raising.policies.par` (built 0.11.2) is the end that leaves the
+  attacker's batons the fewest kubbs one behind another, a pair weighed by how close it
+  is across the baton's path and how far along it (`raising.tune.par*`). It counts pairs
+  in line, not batons, and looks no baton ahead. Club raises `apart` (the end farthest
+  from the nearest other kubb: distance, not batons) and beginner `first`, standing in
+  for a random end. The Gym's measures are in docs/notes/gym.md, "Raising by the
+  attacker's batons" and "Raising by level".
 - **Gym:** the attacker's `g.btc` and `g.cleared`, policy against policy.
 
 ## raise.order: Forced kubbs first, and decide them all before standing one
@@ -44,9 +48,10 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Levels:** Proposed: pro and club.
 - **Engine:** modelled in part (0.11.0). `raising.options` separates forced kubbs from
   those with a choice, but each choice is then made kubb by kubb with no look at the
-  others still to stand, in id order, forced or not. `par` (0.11.2, used by no level)
-  plans every kubb still lying before it answers for one, so a later kubb's place counts;
-  the rules still ask in id order.
+  others still to stand, in id order, forced or not. `par` (the pro computer's and a
+  person's automatic raising since 0.12.0) plans every kubb still lying before it answers
+  for one, so a later kubb's place counts; the rules still ask in id order, and club
+  (`apart`) and beginner (`first`) look at no other kubb still to stand.
 - **Gym:** nothing yet.
 
 ## raise.across: Space across the pitch is worth more than space along it
@@ -65,9 +70,9 @@ Every `Levels` line is a proposal of ours, not a source's.
   turned a row lying across the pitch into kubbs staggered in depth, which helped the
   attacker (Q6).
 - **Levels:** Proposed: pro and club.
-- **Engine:** not modelled in play (0.11.0). `apart` treats every direction alike.
-  `par` (0.11.2, used by no level) counts a pair side by side across the pitch as no
-  double and a pair one behind another as one.
+- **Engine:** modelled at pro (0.12.0), through `par`, which counts a pair side by side
+  across the pitch as no double and a pair one behind another as one; so does a person's
+  automatic raising. Club's `apart` treats every direction alike.
 - **Gym:** `g.field2`, `g.field3` for the attacker, policy against policy.
 
 ## raise.double: When a double cannot be avoided

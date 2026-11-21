@@ -34,9 +34,8 @@ with their repro commands.
 
 - **Configurations**: thrower x level x surface, by default the computer and the human
   thrower at beginner, club and pro on grass. Each match is both teams of that thrower at
-  that level, raising as the engine raises such a side (since 0.11.3: the computer by its
-  level, `cpu.raising`, the human thrower by the engine's advice, `cpu.advice`; both
-  `apart` until they are switched on). Match `i` of
+  that level, raising as the engine raises such a side (since 0.12.0: the computer by its
+  level, pro `par`, club `apart`, beginner `first`; the human thrower `par`). Match `i` of
   seed `s` is the same match whichever process plays it; the computer's matches are
   `tools/physmatch.lua`'s to the bit (its game files are identical; it raises by the level
   too), so the computer's column is the one `docs/notes/real-games.md` reports.
@@ -217,9 +216,9 @@ differently against each other:
 
 A spec is one team: `level=` (beginner, club, pro; default club), `thrower=` (cpu or
 human; default cpu), `raise=` (the policy it raises the other team's kubbs with when it
-defends; default, since 0.11.3, what the engine does for such a side: the computer by its
-level, `cpu.raising`, and the human thrower, a person whose kubbs the engine raises, by
-`cpu.advice`; in 0.11.3, and on an engine before it, `apart`) and any number of `path=value` tune settings, the paths `--set`
+defends; default, since 0.12.0, what the engine does for such a side: the computer by its
+level, pro `par`, club `apart`, beginner `first`, and the human thrower, a person whose
+kubbs the engine raises, `par`; on an engine before 0.12, `apart`) and any number of `path=value` tune settings, the paths `--set`
 takes. Parts are split by `;` or `,`. Options: `--n` (seeds, default 300), `--seed`,
 `--surfaces`, `--maxturns`, `--jobs`, `--json`, `--set` (for both teams), `--probe N`
 (below), `--engine`.
@@ -251,8 +250,9 @@ tunes (the Gym does not play through the session), and anything the engine reads
 team's action (none in a match today: the counts print reads outside an action, and they
 are 0).
 
-**Raising policies.** The engine's (`tw.raising.policies`: `apart`, every side's in
-0.11.3 and before; `par`, built switched off; `first`; `together`) and two the Gym adds, which keep a row across the pitch
+**Raising policies.** The engine's (`tw.raising.policies`: `par`, the pro computer's and
+a person's automatic raising since 0.12.0; `apart`, club's, and every side's before;
+`first`, beginner's; `together`) and two the Gym adds, which keep a row across the pitch
 a row: every kubb with a choice goes up on the same end, `away` on the end away from the
 centre line (deeper in the defender's half), `toward` on the end toward it. A kubb with
 one choice goes where the rules put it.
@@ -283,13 +283,7 @@ past 2.58, as compare's "moved". The wins are the measure. A team's turn-level f
 depend on the other team too (the field it throws at is the other team's raise of its own
 inkast), so a row says what happened, not why. A game at the turn limit is a draw here,
 which a real match never is. The human thrower takes the computer's target, and raises
-as a person raised by the engine does (`cpu.advice`).
-
-The next two sections measure what 0.11.3 builds switched off: the raising by level and
-the two attacking plays, switched on in the Gym as they are to be enabled (pro `par`,
-club `apart`, beginner `first`, a person `par`, Jamie's decisions of 2026-11-21:
-owner-2026-11-21#s5, Q7; `field.line` and `inkast.depth` at pro). "On" in their tables
-is that engine; 0.11.3 as shipped plays exactly as 0.11.2, so its rows are 0.11.2's.
+as a person raised by the engine does (`par`).
 
 ### The first versus results (2026-11-21)
 
@@ -371,17 +365,16 @@ other team's kubbs.
 
 ### Raising by level (2026-11-21)
 
-The raising switched on, against 0.11.2: the computer raises by its level (pro `par`,
-club `apart`, beginner `first`) and a person's side raised by the engine by `par`;
-before, every side raised `apart`. Grass, seed 1, 300 matches a configuration (600 games a pairing), turn
+Engine 0.12.0 against 0.11.2: the computer raises by its level (pro `par`, club `apart`,
+beginner `first`) and a person's side raised by the engine by `par`; before, every side
+raised `apart`. Grass, seed 1, 300 matches a configuration (600 games a pairing), turn
 limit 40. The scorecard is `node tools/gym.mjs --throwers cpu,human --levels
-beginner,club,pro --full --seed 1` on the engine with `cpu.raising` and `cpu.advice` set
-so, the before run on 0.11.2's engine (`--engine`).
+beginner,club,pro --full --seed 1`, the before run on 0.11.2's engine (`--engine`).
 
 The computer's rows that moved past 2.58 standard errors, beside the level's target
 (`docs/reference/play-levels.json`). Club raises `apart` as before: none of its rows moved.
 
-| level | row | 0.11.2 | on | target | |
+| level | row | 0.11.2 | 0.12.0 | target | |
 |---|---|---|---|---|---|
 | pro | field batons that took two | 22.2% | 13.6% | 17 to 23 (measured) | away: out of range |
 | pro | ... took three or more | 4.9% | 1.8% | 12 to 18 (measured) | away |
@@ -422,10 +415,10 @@ what is short, and it is the next item of work (docs/notes/computer-player.md).
   random end, when Choose has its own stream, may land between the two.
 
 The human thrower at each level against the computer at the same level (the person's
-kubbs raised by the engine), on 0.11.2 (both `apart`) and with the raising on (the person
-`par`, the computer by its level):
+kubbs raised by the engine), on 0.11.2 (both `apart`) and on 0.12.0 (the person `par`,
+the computer by its level):
 
-| level | 0.11.2: won A / B / limit, A's score | on | the computer's field batons that took two |
+| level | 0.11.2: won A / B / limit, A's score | 0.12.0 | the computer's field batons that took two |
 |---|---|---|---|
 | beginner | 585 / 12 / 3, 97.8 (96.6 to 98.9) | 586 / 13 / 1, 97.8 (96.6 to 98.9) | 6.8% to 6.3% |
 | club | 73 / 526 / 1, 12.3 (9.6 to 14.9) | 91 / 503 / 6, 15.7 (12.8 to 18.6) | 11.8% to 9.5% |
@@ -438,20 +431,20 @@ batons took two 4.4% to 3.5%.
 
 ### The attacker's plays (2026-11-21)
 
-`field.line` (pro) and `inkast.depth` (club and pro, as first switched on; club's column
-is left out of what is to be enabled, below), the plays in `cpu.tune`
-(docs/notes/computer-player.md), with the raising on. Grass, 300 seeds (600 games) a pairing, seed 1
+Engine 0.12.0 with `field.line` (pro) and `inkast.depth` (club and pro, as first switched
+on; club's was switched off before the release, below), the plays in `cpu.tune`
+(docs/notes/computer-player.md). Grass, 300 seeds (600 games) a pairing, seed 1
 with seed 2 beside it, turn limit 40. Both pro teams defend with `par`, both club teams
-with `apart` (the levels' raising, on). "Without" is the level with the play switched
-off, as 0.11.3 ships it; with it is `--set cpu.tune.<play>.<level>=1`.
+with `apart` (the levels' defaults). "Without" is the level with the play switched off
+(`cpu.tune.<play>.<level>=0`).
 
 | A | B | A's score, seed 1 | seed 2 |
 |---|---|---|---|
 | pro, `inkast.depth` | pro without either | 74.5 (71.3 to 77.7) | 74.5 (71.4 to 77.6) |
 | pro, `field.line` | pro without either | 54.8 (51.5 to 58.0) | 56.9 (53.7 to 60.2) |
-| pro, both (as to be enabled) | pro without either | 79.4 (76.4 to 82.4) | 79.9 (77.0 to 82.8) |
+| pro, both (0.12.0) | pro without either | 79.4 (76.4 to 82.4) | 79.9 (77.0 to 82.8) |
 | pro, both | pro, `inkast.depth` only | 59.5 (56.3 to 62.7) | 61.4 (58.2 to 64.7) |
-| club, `inkast.depth` (as first switched on) | club without | 58.8 (55.2 to 62.4) | 62.0 (58.3 to 65.7) |
+| club, `inkast.depth` (0.12.0) | club without | 58.8 (55.2 to 62.4) | 62.0 (58.3 to 65.7) |
 | club, `field.line` | club without either | 53.1 (49.9 to 56.3) | 50.6 (47.4 to 53.8) |
 | club, both | club, `inkast.depth` only | 52.0 (48.8 to 55.2) | 50.5 (47.2 to 53.8) |
 
@@ -491,30 +484,29 @@ The designs tried, in order (pro against pro, seed 1 unless named):
 | `field.line` 2: the lane weighed as `par` weighs a pair | pro | 53.3 (50.2 to 56.5); seed 2 55.0 (51.7 to 58.3) |
 | design 2 against design 1 | | 52.2 (49.0 to 55.3) |
 | design 2 on top of the column (gap 0.04), before the own-half rule | pro, column | 54.7 (51.3 to 58.1); seed 2 53.5 (50.4 to 56.6) |
-| design 2 with the own-half rule and the step aside (built) | pro, column | 59.5 (56.3 to 62.7); seed 2 61.4 (58.2 to 64.7) |
+| design 2 with the own-half rule and the step aside (shipped) | pro, column | 59.5 (56.3 to 62.7); seed 2 61.4 (58.2 to 64.7) |
 | `inkast.depth`, gap 0.02 | pro | 71.3 (67.9 to 74.6) |
 | against gap 0.02: gap 0, 0.04; run 3, 5; `x` 2.2; `back` 0.3 | the same, gap 0.02 | 38.8; 57.2; 50.3; 49.8; 52.8; 48.2 |
 | against gap 0.04: gap 0.06, 0.08; `x` 2.2 | the same, gap 0.04 | 46.6; 43.7; 49.8 |
 | gap 0.04 | pro | 77.8 (74.7 to 80.8); seed 2 75.8 (72.8 to 78.8) |
-| gap 0.04, held at 4.35 m (built) | pro | 74.5 (71.3 to 77.7); seed 2 74.5 (71.4 to 77.6) |
-| held at 4.05 m | built | 55.4 (52.2 to 58.6), but 3.6% forfeit when both teams do it |
+| gap 0.04, held at 4.35 m (shipped) | pro | 74.5 (71.3 to 77.7); seed 2 74.5 (71.4 to 77.6) |
+| held at 4.05 m | shipped | 55.4 (52.2 to 58.6), but 3.6% forfeit when both teams do it |
 
 **Club without the column (Jamie's decision of 2026-11-21).** With `inkast.depth` the
 club computer beat the club without it 59 to 62 games in 100, but moved a little away
 from real play (turns a game 15.5 to 17.8 against 8 to 14, took two 13.1% to 15.6%
 against 8 to 13, turns cleared 73.1% to 70.6%), and a person at club won 10 games in 100
 against it where the owner's new target for club is about 40 (owner-2026-11-21#s6). Club
-is to be retuned as a whole against that target in a later release; until then it is to
-play as in 0.11.2 (`cpu.tune.depth.club = 0`): it raises `apart`, lays the row and
-stands straight behind its target. Pro is to have all three plays.
+is to be retuned as a whole against that target in a later release; until then it plays
+as in 0.11.2 (`cpu.tune.depth.club = 0`): it raises `apart`, lays the row and stands
+straight behind its target. Pro keeps all three plays.
 
-**Everything switched on, against 0.11.2.** `node tools/gym.mjs compare v0.11.2 <ref>
---throwers cpu,human --levels beginner,club,pro --full --seed 1`, the ref an engine with
-every switch set as it is to be enabled. The computer's rows beside their target; an "on"
-figure in bold moved past 2.58 standard errors from 0.11.2. "Raising only" is the
-raising on and no attacking play (`par` at pro).
+**The release against 0.11.2.** `node tools/gym.mjs compare v0.11.2 HEAD --throwers
+cpu,human --levels beginner,club,pro --full --seed 1`. The computer's rows beside their
+target; a 0.12.0 figure in bold moved past 2.58 standard errors from 0.11.2. "Held" is
+0.12.0 with the raising only (`par` at pro, no attacking plays).
 
-| level | row | 0.11.2 | raising only | on | target |
+| level | row | 0.11.2 | 0.12.0 held | 0.12.0 | target |
 |---|---|---|---|---|---|
 | pro | field batons that took two | 22.2% | 13.6% | 22.2% | 17 to 23 (measured) |
 | pro | ... took three or more | 4.9% | 1.8% | **6.8%** | 12 to 18 (measured) |
@@ -545,7 +537,7 @@ raising on and no attacking play (`par` at pro).
 Old pro is 0.11.2's pro as `versus` can stage it: `raise=apart`, both plays off (so the
 row).
 
-| A | B | on, seed 1 | seed 2 | raising only | 0.11.2 |
+| A | B | 0.12.0, seed 1 | seed 2 | 0.12.0 held | 0.11.2 |
 |---|---|---|---|---|---|
 | pro | old pro | 79.0 (76.0 to 82.0) | 81.3 (78.4 to 84.1) | 76.8 | |
 | pro | club | 97.0 (95.7 to 98.3) | 97.2 (95.9 to 98.5) | 96.8 | 96.0 |
@@ -555,16 +547,16 @@ row).
 | human club | computer club | 15.7 (12.8 to 18.6) | 16.8 (13.7 to 19.8) | 15.7 | 12.3 |
 | human pro | computer pro | 0.2 (0.0 to 0.5) | 0.0 | 0.0 | 0.0 |
 
-Club against beginner and the human thrower against club are the raising-only figures exactly,
+Club against beginner and the human thrower against club are the held figures exactly,
 as they should be: neither side throws a new play. The new pro beats the old 79 and 81
 games in 100; its own rows against it (seed 1): took two 22.5% against 14.3%, three or
 more 6.9% against 2.2%, turns cleared 84.2% against 70.2%. A person at club wins about
-16 games in 100, against a target of about 40: club's retuning is to follow.
+16 games in 100, against a target of about 40: club's retuning is the next release.
 
-**The defence played again** (pro, both teams with the plays on; club with
-`inkast.depth` on, as first switched on):
+**The defence played again** (pro, both teams with the plays; club with `inkast.depth`,
+before club's was switched off):
 
-| A | B | on, seed 1 | seed 2 | against the raising-only attacker |
+| A | B | 0.12.0, seed 1 | seed 2 | against 0.12.0 held's attacker |
 |---|---|---|---|---|
 | pro, raise par | pro, raise apart | 50.3 (47.1 to 53.6) | 51.8 (48.7 to 55.0) | 76.8, 75.1 |
 | pro, raise par | pro, raise away | 56.8 (53.5 to 60.2) | | 54.9, 55.2 |
@@ -575,8 +567,8 @@ more 6.9% against 2.2%, turns cleared 84.2% against 70.2%. A person at club wins
 `par`'s 77-to-23 win over `apart` was the old attacker's blind spot: against an attacker
 that lays columns and stands where the kubbs line up, the two are level. `par` now beats
 the policies that keep every kubb on one end (55 to 57), which it only matched before,
-and it is no worse than `apart` anywhere. So `par` is still the pro's and a person's
-raising to enable; its case is now that it never loses, not that it wins by three games in four.
+and it is no worse than `apart` anywhere. So `par` stays the pro's and a person's
+raising; its case is now that it never loses, not that it wins by three games in four.
 
 ## Speed
 

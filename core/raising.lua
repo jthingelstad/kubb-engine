@@ -35,8 +35,8 @@ raising.tune = {
 	searchMax = 0.6,         -- m, give up beyond this
 	punishGrid = 0.1,        -- m, spacing of candidate punishment spots
 	-- raising.policies.par (raise.par, raise.across): the end that leaves the attacker's
-	-- batons the fewest kubbs one behind another. Not the game's policy (apart is), and no
-	-- side's yet (core/cpu.raising and cpu.advice choose it for a side: none in 0.11.3).
+	-- batons the fewest kubbs one behind another. The pro computer's and a person's
+	-- (core/cpu.raising); the game's own policy, for a match that names no sides, is apart.
 	-- Two kubbs are a pair on a baton's path by how far apart they are across that path
 	-- and along it; see parPair below.
 	parAcrossFull = 0.04,    -- m across: closer than this, one is squarely behind the other
@@ -477,8 +477,8 @@ raising.parPair = parPair
 
 raising.policies = {
 	apart = apart,
-	-- Count the attacker's batons (raise.par): built switched off, measured in the Gym;
-	-- core/cpu.raising and core/match.raisePolicy give it to a side (none in 0.11.3).
+	-- Count the attacker's batons (raise.par): the pro computer's, and a person's when
+	-- the engine raises for them (core/cpu.raising, core/match.raisePolicy; 0.12.0).
 	par = par,
 	-- Group them (for drills and tests).
 	together = function(dec, ctx)

@@ -6,7 +6,7 @@ import "core/throwplan"
 
 local cpu, plays, autothrow, plan = tw.cpu, tw.plays, tw.autothrow, tw.plan
 
--- These cases are the choices 0.11.1 made, with the plays 0.11.3 built switched off
+-- These cases are the choices 0.11.1 made, with the plays 0.12.0 added switched off
 -- (test_cpu_plays has those): run fn with every cpu.tune play's on = 0.
 local function plain(fn)
 	return function()
@@ -49,16 +49,9 @@ test("every play is a phase's play with levels and a sentence", function()
 	for id, p in pairs(plays) do
 		n = n + 1
 		expect.eq(id:match("^([a-z]+)%."), p.phase, id .. "'s phase")
-		expect.truthy(type(p.levels) == "table" and type(p.say) == "string" and #p.say > 0, id)
+		expect.truthy(#p.levels > 0 and type(p.say) == "string" and #p.say > 0, id)
 	end
-	expect.eq(n, 6, "0.11.3 holds six plays (raise.par, field.line, inkast.depth built)")
-	-- built switched off: no level uses them yet, and the table says so
-	for _, id in ipairs { "raise.par", "field.line", "inkast.depth" } do
-		expect.eq(#plays[id].levels, 0, id .. " is used by no level")
-	end
-	for _, id in ipairs { "inkast.corner", "inkast.roll", "field.roles" } do
-		expect.truthy(#plays[id].levels > 0, id)
-	end
+	expect.eq(n, 6, "0.12.0 carries out six plays (raise.par, field.line, inkast.depth)")
 end)
 
 test("a toss beside a kubb already down: inkast.roll, with the basket and the kubb", plain(function()

@@ -1,5 +1,5 @@
 {
-  "version": "0.11.0",
+  "version": "0.12.0",
   "tune": "pointer",
   "matches": [
     {
@@ -539,7 +539,7 @@
       ]
     },
     {
-      "name":"m13-grass-off-A-near","start":"6e56172d","turns":8,"winner":{"hits":10,"minutes":0,"thrown":19,"turns":8,"winner":"B","winnerName":"Computer"},
+      "name":"m13-grass-off-A-near","start":"6e56172d","turns":8,"winner":{"hits":11,"minutes":0,"thrown":20,"turns":8,"winner":"B","winnerName":"Computer"},
       "actions": [
         {"hash":"b7c25a7d","type":"throw"},
         {"hash":"881a39c0","type":"throw"},
@@ -592,11 +592,88 @@
         {"hash":"3c179eb7","type":"throw"},
         {"hash":"72a0bd0b","type":"throw"},
         {"hash":"6787f4cc","type":"throw"},
-        {"hash":"5b59729f","type":"raise"},
-        {"hash":"199efb76","type":"raise"},
-        {"hash":"d870cfbc","type":"throw"},
-        {"hash":"fdcc44e7","type":"throw"},
-        {"hash":"87140406","type":"throw"}
+        {"hash":"a4b8758d","type":"raise"},
+        {"hash":"726457c4","type":"raise"},
+        {"hash":"c7b73234","type":"throw"},
+        {"hash":"f4512a59","type":"throw"},
+        {"hash":"d7cea1b9","type":"throw"},
+        {"hash":"a8e209ff","type":"throw"}
+      ]
+    },
+    {
+      "name":"m14-grass-off-B-auto-pro","start":"3255ce24","turns":5,"winner":{"hits":9,"minutes":0,"thrown":12,"turns":5,"winner":"B","winnerName":"Computer"},
+      "actions": [
+        {"hash":"cfc61520","type":"throw"},
+        {"hash":"85745620","type":"throw"},
+        {"hash":"dac3526e","type":"throw"},
+        {"hash":"28e945a8","type":"throw"},
+        {"hash":"6d585ab4","type":"throw"},
+        {"hash":"72ff57c6","type":"throw"},
+        {"hash":"6ee04e77","type":"throw"},
+        {"hash":"59cdc15f","type":"throw"},
+        {"hash":"9258a95b","type":"throw"},
+        {"hash":"138d7e7c","type":"throw"},
+        {"hash":"8e73130c","type":"throw"},
+        {"hash":"acedc183","type":"throw"},
+        {"hash":"60667d73","type":"throw"},
+        {"hash":"01b35f2e","type":"throw"},
+        {"hash":"393e84a4","type":"throw"},
+        {"hash":"1fd570c1","type":"throw"},
+        {"hash":"a9802a16","type":"throw"},
+        {"hash":"e4682511","type":"throw"},
+        {"hash":"d266bc35","type":"throw"},
+        {"hash":"a81b8171","type":"throw"},
+        {"hash":"4c08c15d","type":"throw"},
+        {"hash":"9a00e3bc","type":"throw"},
+        {"hash":"18a48d98","type":"throw"},
+        {"hash":"7f1bb019","type":"throw"},
+        {"hash":"1392c163","type":"throw"},
+        {"hash":"6f26a0c4","type":"throw"},
+        {"hash":"54ba8a01","type":"throw"},
+        {"hash":"5e8ea26b","type":"throw"},
+        {"hash":"bc67a7b7","type":"throw"},
+        {"hash":"757601dc","type":"throw"},
+        {"hash":"f94d10fd","type":"throw"}
+      ]
+    },
+    {
+      "name":"m15-sand-off-A-beginner","start":"77f06d86","turns":7,"winner":{"hits":4,"minutes":0,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
+      "actions": [
+        {"hash":"01d4591a","type":"throw"},
+        {"hash":"d02775a0","type":"throw"},
+        {"hash":"3ef371e6","type":"throw"},
+        {"hash":"e0c8d62e","type":"throw"},
+        {"hash":"7fba3d56","type":"throw"},
+        {"hash":"1d51d453","type":"throw"},
+        {"hash":"d7eced2b","type":"throw"},
+        {"hash":"fc31831e","type":"throw"},
+        {"hash":"5d8d885c","type":"throw"},
+        {"hash":"7d022112","type":"throw"},
+        {"hash":"ec278414","type":"throw"},
+        {"hash":"822b0c17","type":"throw"},
+        {"hash":"b53ec09f","type":"throw"},
+        {"hash":"a4d203c0","type":"throw"},
+        {"hash":"6a65098c","type":"throw"},
+        {"hash":"ff657ff3","type":"throw"},
+        {"hash":"bef569f7","type":"throw"},
+        {"hash":"436bec3e","type":"throw"},
+        {"hash":"cdbb1f24","type":"throw"},
+        {"hash":"2c9edb8d","type":"throw"},
+        {"hash":"4a1bd4e4","type":"throw"},
+        {"hash":"1c77b6f7","type":"throw"},
+        {"hash":"bd8226fa","type":"throw"},
+        {"hash":"61ef39db","type":"throw"},
+        {"hash":"1917453a","type":"throw"},
+        {"hash":"751c4f2a","type":"throw"},
+        {"hash":"6a6b8e29","type":"throw"},
+        {"hash":"5c4a1e46","type":"throw"},
+        {"hash":"6f67f462","type":"throw"},
+        {"hash":"51b778eb","type":"throw"},
+        {"hash":"8b26e1cf","type":"throw"},
+        {"hash":"919f04e1","type":"throw"},
+        {"hash":"c7259757","type":"throw"},
+        {"hash":"e76cc8e8","type":"throw"},
+        {"hash":"64689d63","type":"throw"}
       ]
     }
   ]

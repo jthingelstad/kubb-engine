@@ -40,25 +40,23 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Basis:** player, coach
 - **Against:** nothing found.
 - **Levels:** Proposed: club and pro. It is the difference between a group and a double.
-- **Engine:** built, switched off (0.11.3, `core/cpu` lineChoice; `cpu.tune.line`, no level
-  knows it). In play the stance is still straight behind the target, clamped to the line's
-  ends (`plan.stance`), and a lane counts only kubbs within 7 cm across and 0.6 m behind
-  the front one as seen from straight on (`laneHalf`, `laneDeep`): two kubbs on a
-  diagonal are two singles to the computer. Switched on, for each standing field kubb the
-  computer tries the stance straight behind it and, for each kubb beyond it within 1.2 m,
-  the point on its throwing line (the baseline or the advantage line, inside the stakes)
-  that puts the two one behind the other. It reads the lane along that true line
-  (`read.lineLane`: within 7 cm across, to 0.6 m beyond), weighs the kubbs behind the
-  front one as `raise.par` weighs a pair, and scores the stance by that times the chance
-  of hitting the front kubb from there (the nerves and the swing's pull at that range),
-  never a line through the king, past a kubb in front, or within 0.3 m of a field kubb in
-  its own half (II.B.11: touching one forfeits the baton); when straight behind is no
-  good it steps along the line. At ten field kubbs a decision makes at most 55 lane
+  Since 0.12.0 the pro computer knows it; club does not (the Gym found no gain there,
+  and club plays as in 0.11.2 until it is retuned as a whole: owner-2026-11-21#s6).
+- **Engine:** modelled at pro only (0.12.0, `core/cpu` lineChoice; `cpu.tune.line`). For each
+  standing field kubb the computer tries the stance straight behind it and, for each kubb
+  beyond it within 1.2 m, the point on its throwing line (the baseline or the advantage
+  line, inside the stakes) that puts the two one behind the other. It reads the lane along
+  that true line (`read.lineLane`: within 7 cm across, to 0.6 m beyond), weighs the kubbs
+  behind the front one as `raise.par` weighs a pair, and scores the stance by that times
+  the chance of hitting the front kubb from there (the nerves and the swing's pull at that
+  range), never a line through the king, past a kubb in front, or within 0.3 m of a field
+  kubb in its own half (II.B.11: touching one forfeits the baton); when straight behind
+  is no good it steps along the line. At ten field kubbs a decision makes at most 55 lane
   tests, and four more for each kubb whose straight stance is no good. In the Gym (300
-  seeds, seeds 1 and 2), switched on, it wins 54.8% and 56.9% alone at pro and 59.5% and
-  61.4% on top of `inkast.depth`; at club it adds nothing (52.0% and 50.5% on top of
-  `inkast.depth`, 53.1% and 50.6% alone). The second half of the play (hit the front kubb
-  on the side that sends the baton on) is not modelled.
+  seeds, seeds 1 and 2) it wins 54.8% and 56.9% alone at pro and 59.5% and 61.4% on top
+  of `inkast.depth`; at club it adds nothing (52.0% and 50.5% on top of `inkast.depth`,
+  53.1% and 50.6% alone), so club does not know it. The second half of the play (hit
+  the front kubb on the side that sends the baton on) is not modelled.
 - **Gym:** `g.field2`, `g.field3`, first-baton take by field size.
 
 ## field.corner: Meet the kubb high, with the baton half turned

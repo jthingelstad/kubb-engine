@@ -90,7 +90,8 @@ census of 2026-11-21.
 
 ## Q6: A row across, or kubbs in depth?
 
-- **Status:** open: played side against side; depth wins once the defender raises well
+- **Status:** answered for the computer (0.12.0): pro lays kubbs in depth, in columns
+  down the baton's path (`inkast.depth`); club keeps the row until it is retuned
 - **Asks:** Since 0.11.0 the club and pro computer lay their kubbs flank to flank in a
   row (`autothrow.tune.inkast`, `row = 1`). Two interviewees say depth matters more than
   closeness, because kubbs one behind another give doubles and a fence along the centre
@@ -117,19 +118,33 @@ census of 2026-11-21.
   (`raising.policies.par`): the row lost to the line, 47.0% (43.2 to 50.8) on seed 1 and
   43.3% (40.0 to 46.6) on seed 2. `par` keeps the row a fence, which takes away the
   stagger the row won by (docs/notes/gym.md, "Raising by the attacker's batons").
+  Then, on 0.12.0, `inkast.depth`, built with the row's dead landing and roll: the kubbs
+  end to end in columns of four down the baton's path, which no choice of ends can take
+  out of one lane. Its drills rest 0.06 m from their marks at pro (the row's 0.07), and it
+  beats the row 74.5% at pro on seeds 1 and 2 (defender `par`) and 58.8% and 62.0% at
+  club (defender `apart`). The sideline wall in its simplest form (the column 0.3 m
+  nearer the sideline, thrown down from straight behind) did no better than the column at
+  the basket (49.8%); `field.line` lets the thrower stand wherever a column's kubbs line
+  up (docs/notes/gym.md, "The attacker's plays"). Club was left out of the release
+  (Jamie, 2026-11-21): the column made the club computer stronger and moved it away from
+  real play (turns a game 15.5 to 17.8, took two 13.1% to 15.6%, both above the range),
+  and club is to be retuned as a whole against its new target (owner-2026-11-21#s6).
 - **Recommendation:** The players were right, and so was the first Gym run: both results
   are the same fact seen against two defenders. Depth beats a fence once the defender
-  defends. Against a defender who raises well the line already wins, and it does so at a
-  handicap. So the computer's inkast should build depth: improve the line's accuracy
-  first (`inkast.depth`, `inkast.first`), then try a wall in depth along the sideline,
-  thrown down from that sideline, which nothing builds yet.
-- **Settle by:** `gym versus` against `raise=par`: the row, a line that lands as
-  accurately as the row does, and a sideline wall.
+  defends. Done in 0.12.0 for pro (`inkast.depth`); club, which wins with it too, takes
+  it or not when it is retuned as a whole. Left: a wall right on the
+  sideline (a kubb on the line can only be raised into the pitch, `inkast.corner`), which
+  needs a computer that aims at a line (`inkast.chase`), and `inkast.first`.
+- **Settle by:** done for the shape; the sideline wall waits for a computer that aims at
+  a line.
 - **Touches:** inkast.depth, inkast.corner, raise.across
 
 ## Q7: Raise kubbs apart, or as a tight fence?
 
-- **Status:** open: `raise.par` built and proven; not yet switched on
+- **Status:** answered for the policy (0.12.0): pro raises by `raise.par`, club `apart`,
+  beginner `first`, a person's automatic raising `par` at every level
+  (owner-2026-11-21#s5; docs/notes/computer-player.md, "The order of work";
+  docs/notes/gym.md, "Raising by level")
 - **Asks:** The engine's raise policy is `apart`: each kubb stands on the end furthest
   from its neighbours (owner and coach, PLAY.md). Chris Hodges argues for counting the
   attacker's batons, and says space across the pitch is worth much more than space along
@@ -159,8 +174,16 @@ census of 2026-11-21.
   engine's best advice, `par`. One caution stands: part of the result is the computer's
   own blind spot at a fence, so the raising has to be played again whenever the baton at
   a group improves (Q16).
-- **Settle by:** done for the policy. What remains is the release that switches it on by
-  level, with the scorecard beside it.
+- **Settle by:** done for the policy, and switched on by level in 0.12.0 with the
+  scorecard beside it (docs/notes/gym.md, "Raising by level"). Played again against
+  0.12.0's attacker (`inkast.depth`, `field.line`): `par` and `apart` are level at pro
+  (50.3% and 51.8%), and `par` beats the same-end policies 55 to 57; at club (measured
+  with the column, which club does not ship) it leads `apart` 53.5% and 56.3%. So `par`
+  stays, as the policy that never loses (docs/notes/gym.md, "The attacker's plays"). A
+  person's kubbs raised by the engine take it at every level, the engine's best advice
+  (owner-2026-11-21#s5): against the club computer the human thrower wins about 16 games
+  in 100 (15.7%, 16.8%) where it won 12.3 on 0.11.2. Still open: a beginner's random end,
+  which waits for Choose's own random stream, and club's own raising when club is retuned.
 - **Touches:** raise.par, raise.across
 
 ## Q8: Where does a punishment kubb go?
@@ -307,7 +330,8 @@ census of 2026-11-21.
 
 ## Q16: Why does the pro computer take three kubbs so rarely?
 
-- **Status:** open: investigated in the Gym and against the reference engine; three causes
+- **Status:** open: investigated in the Gym and against the reference engine; three causes;
+  0.12.0's plays take the pro to 6.8% (the target is 12 to 18)
 - **Asks:** The top third of tournament teams take three or more kubbs with 12 to 18% of
   their field batons. The pro computer does with 4.9%, and no aim closes the gap (Q14).
 - **So far:** 2026-11-21, engine 0.11.0. One reading first: the turn's first baton at a
@@ -335,9 +359,18 @@ census of 2026-11-21.
      column of six is far too stable (0.10 toppled against 0.62 to 0.74 under pro's
      nerves). MuJoCo's own variants disagree on deep piles, so this is a lead, not a
      verdict.
+  Then 0.12.0: the raising by level (`par` at pro) and two attacking plays,
+  `inkast.depth` and `field.line`. `par` alone took the pro's three or more down to 1.8%;
+  with the plays it is 6.8% (0.11.2: 4.9%), took two 22.2% (in range), turns cleared
+  78.5% and turns a game 12.3, where 0.11.2 had them and still short of real play (87 to
+  94% cleared, 6 to 10 turns). The standing groups are tighter (30% of kubbs touching
+  another, 4% on 0.11.2; the owner's range 60 to 90), so cause 1 is partly met; causes 2
+  and 3 are untouched (docs/notes/gym.md, "The attacker's plays"). The plays are the pro
+  computer's only: the club computer throws as on 0.11.2 (1.9% three or more, against 3
+  to 7) until it is retuned.
 - **Recommendation:** Take them in the order the plays allow. The raising comes first and
-  will change how groups stand, so measure again after `raise.par`. The flatter throw is
-  the cheapest real gain and has an owner's word behind it (a baton at 5 m is thrown
+  will change how groups stand, so measure again after `raise.par` (done, with the plays
+  that answer it: 6.8%). The flatter throw is now the cheapest real gain and has an owner's word behind it (a baton at 5 m is thrown
   "fairly low", `core/throwplan.lua`); make it the computer's choice by level, not the
   plan's default, so a person's aim does not move. The kubb-to-kubb transfer is a physics
   change that moves every golden hash: do it last, and only with a measurement of real

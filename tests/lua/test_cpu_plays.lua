@@ -1,7 +1,5 @@
--- The plays 0.11.3 builds into Choose (core/cpu), switched off: field.line and
--- inkast.depth, on hand-made setups with a known right answer, each with its level switch
--- and its off switch. No level knows either by default, so each test switches the play
--- on for a level, as the Gym's --set does (`--set cpu.tune.line.pro=1`).
+-- The plays 0.12.0 adds to Choose (core/cpu): field.line and inkast.depth, on hand-made
+-- setups with a known right answer, each with its level switch and its off switch.
 import "core/tw"
 import "core/cpu"
 import "core/throwplan"
@@ -47,23 +45,19 @@ local function diagonal()
 		{ id = "king", kind = "king", role = "king", x = 0, y = 4 } }, { "front", "back", "lone" }
 end
 
-test("field.line: no level knows it by default; switched on, pro does", function()
+test("field.line: the levels that know it (pro), and off for the others", function()
 	local pieces, targets = diagonal()
-	for _, lv in ipairs { "beginner", "club", "pro" } do
-		expect.eq(cpu.tune.line[lv], 0, lv .. " does not know field.line (built switched off)")
-	end
-	for _, lv in ipairs { "beginner", "club", "pro" } do
+	expect.eq(cpu.tune.line.pro, 1, "pro knows field.line")
+	for _, lv in ipairs { "beginner", "club" } do
 		local d = cpu.decide(baton(pieces, targets), rng(1), lv)
 		expect.eq(d.why.play, "field.roles", lv)
 		expect.eq(d.why.facts.lane, 1, lv)
 		expect.eq(d.intent.on, "front", lv .. ": the nearest front on a tie")
 		expect.near(d.intent.stance.x, 1.0, 0, lv .. ": straight behind")
 	end
-	with("line", "pro", 1, function()
+	with("line", "pro", 0, function()
 		local d = cpu.decide(baton(pieces, targets), rng(1), "pro")
-		expect.eq(d.why.play, "field.line", "pro with field.line switched on")
-		expect.eq(cpu.decide(baton(pieces, targets), rng(1), "club").why.play, "field.roles",
-			"club still does not")
+		expect.eq(d.why.play, "field.roles", "pro with field.line switched off")
 	end)
 end)
 
@@ -159,21 +153,18 @@ end)
 
 local HALF = math.pi / 2  -- a kubb lying along the throw
 
-test("inkast.depth: no level knows it by default (the row, as in 0.11.2); switched on, columns", function()
-	for _, lv in ipairs { "beginner", "club", "pro" } do
-		expect.eq(cpu.tune.depth[lv], 0, lv .. " does not know inkast.depth (built switched off)")
-	end
+test("inkast.depth: the level that knows it (pro), and the row without it", function()
+	expect.eq(cpu.tune.depth.pro, 1)
+	expect.eq(cpu.tune.depth.club, 0, "club lays the row, as in 0.11.2")
 	local s = toss({ k("f1", "B", 1.9, 4.75, true, HALF) }, 6, 2)
-	for _, lv in ipairs { "club", "pro" } do
-		local c = cpu.decide(s, rng(1), lv)
-		expect.eq(c.why.play, "inkast.roll", lv)
-		expect.eq(c.why.facts.spot, "row", lv)
-	end
-	with("depth", "pro", 1, function()
-		expect.eq(cpu.decide(s, rng(1), "pro").why.play, "inkast.depth", "pro with it switched on")
-		local c = cpu.decide(s, rng(1), "club")
-		expect.eq(c.why.play, "inkast.roll", "club still lays the row")
-		expect.eq(c.why.facts.spot, "row")
+	expect.eq(cpu.decide(s, rng(1), "pro").why.play, "inkast.depth")
+	local c = cpu.decide(s, rng(1), "club")
+	expect.eq(c.why.play, "inkast.roll")
+	expect.eq(c.why.facts.spot, "row")
+	with("depth", "pro", 0, function()
+		local d = cpu.decide(s, rng(1), "pro")
+		expect.eq(d.why.play, "inkast.roll")
+		expect.eq(d.why.facts.spot, "row")
 	end)
 	with("depth", "club", 1, function()
 		expect.eq(cpu.decide(s, rng(1), "club").why.play, "inkast.depth", "the switch reaches club")

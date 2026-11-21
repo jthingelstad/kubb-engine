@@ -96,7 +96,7 @@ autothrow.tune = {
 	-- field kubbs in it, at the front one.
 	laneHalf = 0.07,         -- m: kubbs within this across of the front one are in its lane ...
 	laneDeep = 0.6,          -- ... and within this behind it
-	-- field.line's lane along the true line (read.lineLane, 0.11.3)
+	-- field.line's lane along the true line (read.lineLane, 0.12.0)
 	lineLevel = 0.04,        -- m: a kubb in the lane less than this nearer the stance than the
 	                         -- front kubb is level with it, not in front of it
 	lineKing = 0.2,          -- m across the line: a king this near the baton's path ...

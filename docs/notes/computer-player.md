@@ -3,9 +3,8 @@
 How the engine decides what to do with a kubb or a baton, at each level, and what it asks
 of a game surface. A design, written 2026-11-21 for engine 0.11.0; the sections say which
 parts exist. Since 0.11.1 three of the four parts do (Read, Choose, Throw, with the plays
-table); Value does not yet. Since 0.11.3 Choose also has the raising by level and two
-attacking plays, `field.line` and `inkast.depth`, built switched off: no level uses any of
-them yet. Read `docs/reference/README.md` first: the plays this design
+table); Value does not yet. Since 0.12.0 Choose also raises, by level, and carries out
+two attacking plays, `field.line` and `inkast.depth`. Read `docs/reference/README.md` first: the plays this design
 carries out live there, each with the players who said it.
 
 ## The aim
@@ -48,7 +47,7 @@ The computer player is four parts, each a module in `core/`, pure Lua like the r
 | --- | --- | --- | --- |
 | Read | `core/read.lua` | What is the situation? | 0.11.1, what 0.11.0 read |
 | Value | `core/value.lua` | What is a position worth, in batons? | not yet |
-| Choose | `core/cpu.lua` | Which play, and why? | 0.11.1, the choices 0.11.0 made; raising by level and two plays built switched off, 0.11.3 |
+| Choose | `core/cpu.lua` | Which play, and why? | 0.11.1, the choices 0.11.0 made; raising by level, 0.12.0 |
 | Throw | `core/autothrow.lua` | What does the hand do with that intent? | yes |
 
 0.11.1 cut them out of `autothrow.choose` with no change in play: `test_cpu_regression`
@@ -58,7 +57,7 @@ golden hashes held. What exists of each:
 - **Read** has what `autothrow` worked out about the pitch: the field kubbs near each
   basket (`read.basketCounts`), the lying kubbs near one and their middle
   (`read.lyingNear`), the innermost of them (`read.innermostLying`), the clear spot test
-  (`read.spotClear`) and a front kubb's lane (`read.lane`); since 0.11.3 also the lane
+  (`read.spotClear`) and a front kubb's lane (`read.lane`); since 0.12.0 also the lane
   along the true line from any stance (`read.lineLane`, for `field.line`: the kubbs in
   it, the same lane weighed as `raise.par` weighs a pair, and whether the king, a kubb in
   front or a kubb of the thrower's own half rules the stance out). Its tune numbers stay
@@ -66,28 +65,29 @@ golden hashes held. What exists of each:
 - **Choose** is `cpu.decide(s, r, level)`: the basket (`cpu.basket`), the spot
   (`cpu.spot`), the spin, the field target by lane, the stance line and the arc, with
   `why`. It draws from the throw's stream only for the basket's coin on a tie, as 0.11.0
-  did. Neither play 0.11.3 builds draws (a level knows a play or does not), so its own
-  stream comes with the first play a level uses only some of the time, or a beginner's
-  random raise. `cpu.last` holds the last decision: the session exposing it to a client
-  is a later step.
-- **Choose's plays** (0.11.3, switched off) sit in `cpu.tune`, each switched by level and
-  off entirely (`on = 0`), with its numbers beside its switches, so the Gym reaches them
-  (`--set cpu.tune.line.pro=1`). `field.line`: for each standing field kubb, the stance
-  straight behind it and, for each kubb beyond it, the point on the throwing line that
-  puts the two one behind the other (and a step or two along the line when straight
+  did. 0.12.0 changes play, but neither of its plays draws (a level knows a play or does
+  not), so Choose still has no stream of its own: it comes with the first play a level
+  uses only some of the time, or a beginner's random raise. `cpu.last` holds the last
+  decision: the session exposing it to a client is a later step.
+- **Choose's plays** (0.12.0) sit in `cpu.tune`, each switched by level and off entirely
+  (`on = 0`), with its numbers beside its switches, so the Gym reaches them
+  (`--set cpu.tune.line.pro=0`). `field.line` (pro): for each standing field kubb, the
+  stance straight behind it and, for each kubb beyond it, the point on the throwing line
+  that puts the two one behind the other (and a step or two along the line when straight
   behind is no good); each scored by its lane times the chance of hitting the front kubb
-  from there. `inkast.depth`: the kubbs end to end in columns down the baton's path, four
-  to a column, held 4.35 m from the baseline. No level knows either yet.
-- **Choose raises** (0.11.3, switched off): `cpu.raising` is the level table and
-  `cpu.raise(dec, ctx, level)` the decision, kept in `cpu.last` with `kind = "raise"`
-  and, for a level that raises `par`, `why.play = "raise.par"` (facts: the level, the
-  policy, the ends, how much each leaves in line, whether it was a tie). `cpu.advice` is
-  a person's side. Which side is which is the match's: `match.raisePolicy(m, side)`
-  (docs/notes/rules-engine.md). Every level and the advice are `apart`, so every side
-  raises as before.
+  from there. `inkast.depth` (pro): the kubbs end to end in columns down the baton's path,
+  four to a column, held 4.35 m from the baseline. Club knows neither and plays as in
+  0.11.2 (Jamie, 2026-11-21: it is to be retuned as a whole against its new target).
+- **Choose raises** (0.12.0): `cpu.raising` is the level table (pro `par`, club `apart`,
+  beginner `first`) and `cpu.raise(dec, ctx, level)` the decision, kept in `cpu.last`
+  with `kind = "raise"` and, at pro, `why.play = "raise.par"` (facts: the level, the
+  policy, the ends, how much each leaves in line, whether it was a tie). `cpu.advice`
+  (`par`) is a person's side. Which side is which is the match's:
+  `match.raisePolicy(m, side)` (docs/notes/rules-engine.md). A beginner's `first` stands
+  in for a random end, which needs Choose's own stream.
 - **The plays table** (`core/plays.lua`) holds the three plays 0.11.0 carries out:
-  `inkast.corner`, `inkast.roll` and `field.roles`, and since 0.11.3 `raise.par`,
-  `field.line` and `inkast.depth`, built and with no levels: no level uses them yet. A baton at a base kubb and the king
+  `inkast.corner`, `inkast.roll` and `field.roles`, and since 0.12.0 `raise.par`,
+  `field.line` and `inkast.depth`. A baton at a base kubb and the king
   shot carry out no play in the reference, so their `why` has facts and no play.
 - **Throw** is `autothrow.choose`: Choose, then the stance, the solve, the swing and the
   launch.
@@ -225,13 +225,13 @@ Then plays, by what `gym versus` shows matters most. Its first results (2026-11-
    it (Q6 and Q7 are one contest). Built switched off in 0.11.2
    (`raising.policies.par`) and proven side against side: it beats `apart` 77 to 23
    against the row and matches it against the line (docs/notes/gym.md, "Raising by the
-   attacker's batons"). 0.11.3 builds the raising by side, switched off: `match.settle`
-   raises with the defender's policy (`match.raisePolicy`), the computer's by its level
-   (`cpu.raising`) and a person's by the engine's advice (`cpu.advice`), every one `apart`
-   for now. Switched on in the Gym as Jamie decided (pro `par`, club `apart`, beginner
-   `first`, a person `par`: owner-2026-11-21#s5), it is measured in docs/notes/gym.md,
-   "Raising by level"; against the attacker below, `par` and `apart` are level at pro and
-   `par` beats the same-end policies 55 to 57, so `par` is still the one to enable.
+   attacker's batons"). Switched on by level in 0.12.0: pro `par`, club `apart`, beginner
+   `first`, a person's automatic raising and by-hand default `par`; `match.settle` raises
+   with the defender's policy (`match.raisePolicy`). Done; the scorecard is in
+   docs/notes/gym.md, "Raising by level". Played again against 0.12.0's attacker: `par`
+   and `apart` are now level at pro (the 77 to 23 was the old attacker's blind spot), and
+   `par` beats the same-end policies 55 to 57, so it stays. What it leaves: a beginner's
+   random end (Choose's own stream).
 2. **The baton at a group** (`field.line`, Q14). The reason `apart` loses is a blind spot
    in the attacker: the computer cannot take two kubbs standing flank to flank, and takes
    a tight fence one baton a kubb. This is also where the pro computer is furthest from
@@ -240,22 +240,35 @@ Then plays, by what `gym versus` shows matters most. Its first results (2026-11-
    found three causes of the gap (Q16): the groups stand too loose once `apart` has
    spread them; the computer throws softer and higher than the flattest throw a person
    can make, which wins about two games in three side against side; and a blow passes
-   from kubb to kubb less readily than in the reference engine. `field.line` is built
-   switched off in 0.11.3: switched on at pro it wins 54.8% and 56.9% alone and 59.5% and
-   61.4% on top of `inkast.depth`; at club it adds nothing (docs/notes/gym.md, "The
-   attacker's plays").
+   from kubb to kubb less readily than in the reference engine. `field.line` is built and
+   on at pro in 0.12.0: it wins 54.8% and 56.9% alone and 59.5% and 61.4% on top of
+   `inkast.depth`; at club it adds nothing, and club knows neither play. Left: the flatter
+   throw by level, and the kubb-to-kubb transfer.
 3. **The inkast's shape, played again** against a defender who raises well: row, line and
    a wall in depth along the sideline. Against `par` the 0.10 line beat the row, about 55
-   to 45. `inkast.depth` (built switched off in 0.11.3), columns down the baton's path
-   landed with the row's dead landing and roll, beats the row 74.5% at pro and 59 to 62%
-   at club when switched on; at club it also moved the computer away from real play and
-   from the owner's new target for club (owner-2026-11-21#s6), so it is to be switched on
-   at pro only (Jamie, 2026-11-21; docs/notes/gym.md, "The attacker's plays").
-4. `inkast.deep` at club and `inkast.chase` at pro.
+   to 45; `inkast.depth`, columns down the baton's path landed with the row's dead landing
+   and roll, beats the row 74.5% at pro and 59 to 62% at club. It is on at pro only in
+   0.12.0: at club it moved the computer away from real play (longer games, more doubles)
+   and further from the owner's new target for club (a typical online player wins about
+   four in ten; owner-2026-11-21#s6), so club plays as in 0.11.2 until it is retuned as a
+   whole (Jamie, 2026-11-21). With both plays the pro computer is back where 0.11.2 had it
+   on took two, turns cleared and turns a game, and ahead on three or more (6.8% against
+   4.9%), still short of real play on cleared turns (78.5% against 87 to 94) and game
+   length (12.3 turns against 6 to 10); it beats 0.11.2's pro 79 and 81 games in 100
+   (docs/notes/gym.md, "The attacker's plays"). The wall right on the
+   sideline waits for a computer that aims at a line.
+4. **Club, retuned as a whole** against its target: a typical online player wins about
+   four games in ten against it (0.12.0: about 16 in 100). `inkast.deep` at club and
+   `inkast.chase` at pro.
 5. `inkast.first` and `inkast.steer`.
 6. The punishment plays, and `king.corner` as a Gym experiment.
 
-The levels are far apart: pro beats club 96 games in 100 and club beats beginner 94.
+The levels are far apart: pro beats club 97 games in 100 and club beats beginner 94
+(0.12.0, seeds 1 and 2). The owner's targets (owner-2026-11-21#s6): a new player wins
+about two games in three against beginner, a typical online player about four in ten
+against club, and pro is left hard, with no extra level yet. Today the human thrower (the Gym's
+person, at the same level) wins about 98 in 100 against beginner, 16 against club and
+none against pro.
 Whether a level should beat the one below it that often is a product question (Q11 and
 the levels) and is not settled here.
 

@@ -85,25 +85,19 @@ test('a team\'s number is served only while that team acts', () => {
     table.sort(keys)
     print(table.concat(out, " ") .. " pairs=" .. table.concat(keys, ","))
     print(type(versus.policy(B)), versus.policy(A))
-    -- a team's raising unless its spec names one: the engine's for such a side (0.11.3:
-    -- apart, built switched off), then with the engine's raising switched on as decided
-    local specs = { "level=beginner", "level=club", "level=pro", "level=pro;thrower=human",
-      "level=beginner;thrower=human", "level=pro;raise=apart", "level=club;raise=default" }
-    for pass = 1, 2 do
-      if pass == 2 then
-        tw.cpu.raising, tw.cpu.advice = { beginner = "first", club = "apart", pro = "par" }, "par"
-      end
-      local d = {}
-      for _, sp in ipairs(specs) do d[#d + 1] = versus.parse(sp, "A").raise end
-      print(table.concat(d, ","))
-    end`;
+    -- a team's raising unless its spec names one: the engine's for such a side (0.12.0)
+    local d = {}
+    for _, sp in ipairs { "level=beginner", "level=club", "level=pro", "level=pro;thrower=human",
+      "level=beginner;thrower=human", "level=pro;raise=apart", "level=club;raise=default" } do
+      d[#d + 1] = versus.parse(sp, "A").raise
+    end
+    print(table.concat(d, ","))`;
   const out = execFileSync(LUA, ['-e', script], { encoding: 'utf8' }).trim().split('\n');
   const m = out[0].match(/A=0,0\.123,0\.123 B=1,([\d.]+),\1 none=1,\1,\1 pairs=group,hand,row,spin/);
   assert.ok(m, out[0]);
   assert.notEqual(m[1], '0.123');
-  assert.equal(out[1], 'function\tapart');
-  assert.equal(out[2], 'apart,apart,apart,apart,apart,apart,apart');
-  assert.equal(out[3], 'first,apart,par,par,par,apart,apart');
+  assert.equal(out[1], 'function\tpar');
+  assert.equal(out[2], 'first,apart,par,par,par,apart,apart');
 });
 
 // a few short games (the turn limit keeps them quick)
@@ -121,18 +115,17 @@ test('the same spec both sides: even, and the same game both ways round', async 
   assert.ok(Object.values(r.z).every(z => Math.abs(z) < 1e-9));
 });
 
-test('the same spec both sides at pro, with raising par and both plays switched on: even', async () => {
-  const spec = 'level=pro;raise=par;cpu.tune.depth.pro=1;cpu.tune.line.pro=1';
-  const A = parseSpec(spec), B = parseSpec(spec);
+test('the same spec both sides at pro (raising par by default): even', async () => {
+  const A = parseSpec('level=pro'), B = parseSpec('level=pro');
   const r = await versusRun(o, A, B, 'Grass');
   assert.equal(r.mirror.same, r.mirror.pairs);
   assert.deepEqual([r.tally.paired.lo, r.tally.paired.v, r.tally.paired.hi], [0.5, 0.5, 0.5]);
 });
 
 test('the same seed gives the same result twice; a team\'s settings are read by it alone', async () => {
-  // (inkast.depth, built switched off in 0.11.3, is read at every pro toss; B switches
-  // it on)
-  const A = parseSpec('level=pro'), B = parseSpec('level=pro;cpu.tune.depth.pro=1');
+  // (inkast.depth, on at pro since 0.12.0, is read at every pro toss; with it on, the
+  // row's switch is never read)
+  const A = parseSpec('level=pro'), B = parseSpec('level=pro;cpu.tune.depth.pro=0');
   const r1 = await versusRun(o, A, B, 'Grass');
   const r2 = await versusRun(o, A, B, 'Grass');
   assert.deepEqual(r1.tally, r2.tally);

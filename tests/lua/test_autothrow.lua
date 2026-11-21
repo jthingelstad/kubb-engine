@@ -206,9 +206,8 @@ test("a toss goes beside a kubb lying at the basket, never onto it or over it", 
 	expect.truthy(not (math.abs(x - lying.x) < t.spotLane and y > lying.y and y - lying.y < t.spotShortLying))
 	-- (the clear spots are the policy of 0.10, kept for a level whose inkast has row = 0.
 	-- From 0.11 club and pro lay a row: flank to flank with the lying kubb, on its
-	-- inner side, at its depth; a beginner throws at the basket itself. A level that
-	-- knows inkast.depth (0.11.3, switched off) lays a column instead (test_cpu_plays):
-	-- the row is with it switched off)
+	-- inner side, at its depth; a beginner throws at the basket itself. Since 0.12.0 pro
+	-- lays a column (inkast.depth, test_cpu_plays): its row is with it switched off)
 	local depthOn = tw.cpu.tune.depth.on
 	tw.cpu.tune.depth.on = 0
 	for _, level in ipairs { "club", "pro" } do

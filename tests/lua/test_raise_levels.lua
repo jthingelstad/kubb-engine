@@ -1,27 +1,11 @@
--- Raising by side (0.11.3, switched off): the computer by its level (core/cpu.raising), a
--- person by the engine's advice (cpu.advice), the defender's policy in match.settle
--- (match.raisePolicy), and a match that names no sides raising as before. Built switched
--- off, every level and a person raise apart, so the engine raises as 0.11.2 did; the
--- tests of what each side does once switched on set the tables inside the test
--- (decided), as the Gym would.
+-- Raising by side (0.12.0): the computer by its level (core/cpu.raising), a person by the
+-- engine's advice (cpu.advice), the defender's policy in match.settle
+-- (match.raisePolicy), and a match that names no sides raising as before.
 import "core/match"
 import "core/cpu"
 import "core/raising"
 import "core/autothrow"
 local match, cpu, raising, autothrow = tw.match, tw.cpu, tw.raising, tw.autothrow
-
--- The raising as Jamie decided it (Q7, owner-2026-11-21#s5), switched on for one test:
--- pro par, club apart, beginner first, a person par.
-local DECIDED = { beginner = "first", club = "apart", pro = "par" }
-local function decided(fn)
-	return function()
-		local was, advice = cpu.raising, cpu.advice
-		cpu.raising, cpu.advice = DECIDED, "par"
-		local ok, err = pcall(fn)
-		cpu.raising, cpu.advice = was, advice
-		if not ok then error(err, 0) end
-	end
-end
 
 local MISS = {}
 local function topple(...) return { toppled = { ... } } end
@@ -83,27 +67,7 @@ local function picks(angle)
 	return out
 end
 
-test("built switched off: every level and a person raise apart, as 0.11.2 did", function()
-	for _, level in ipairs { "beginner", "club", "pro", "kid" } do
-		expect.eq(cpu.raisePolicy(level), "apart", level)
-	end
-	expect.eq(cpu.raisePolicy(nil), "apart")
-	expect.eq(cpu.advice, "apart", "a person: apart until the advice is switched on")
-	expect.eq(#tw.plays["raise.par"].levels, 0, "raise.par: no level uses it yet")
-	-- whatever the match says of its sides, every kubb goes up as the game's own policy
-	-- (apart) puts it
-	local p0, pi_ = picks(0), picks(math.pi)
-	for _, o in ipairs { { cpu = { "B" }, levelB = "pro" }, { cpu = { "B" }, levelB = "beginner" },
-		{ cpu = { "A" }, levelA = "pro" }, { cpu = {} }, { mode = "Vs Playdate", levelB = "pro" } } do
-		for _, c in ipairs { { 0, p0.apart }, { math.pi, pi_.apart } } do
-			local m = newMatch(o)
-			toRaise(m, c[1])
-			expect.near(settledX(m), c[2], 1e-9, "apart (angle " .. c[1] .. ")")
-		end
-	end
-end)
-
-test("the computer's raising by level, and a person's (switched on)", decided(function()
+test("the computer's raising by level, and a person's", function()
 	expect.eq(cpu.raisePolicy("beginner"), "first")
 	expect.eq(cpu.raisePolicy("club"), "apart")
 	expect.eq(cpu.raisePolicy("pro"), "par")
@@ -114,9 +78,10 @@ test("the computer's raising by level, and a person's (switched on)", decided(fu
 		expect.truthy(raising.policies[name], level .. "'s policy " .. name .. " is the engine's")
 	end
 	expect.truthy(tw.plays["raise.par"], "raise.par is a play the computer carries out")
-end))
+	expect.eq(tw.plays["raise.par"].levels[1], "pro")
+end)
 
-test("match.raisePolicy: which side the computer plays decides, its level picks", decided(function()
+test("match.raisePolicy: which side the computer plays decides, its level picks", function()
 	-- named sides, a list or a set
 	local m = newMatch { cpu = { "B" }, levelB = "pro", levelA = "beginner" }
 	expect.eq(type(match.raisePolicy(m, "B")), "function", "the computer: cpu.raise at its level")
@@ -143,9 +108,9 @@ test("match.raisePolicy: which side the computer plays decides, its level picks"
 	expect.eq(match.raisePolicy(m, "A"), "par")
 	expect.eq(match.sideLevel(newMatch { levelB = "club" }, "B"), "club")
 	expect.eq(match.sideLevel(newMatch {}, "B"), nil)
-end))
+end)
 
-test("match.settle raises with the defender's policy (switched on)", decided(function()
+test("match.settle raises with the defender's policy", function()
 	local p0, pi_ = picks(0), picks(math.pi)
 	expect.near(p0.apart, 1.04, 1e-9, "apart: the foot farther from the nearest kubb")
 	expect.near(p0.par, 1.26, 1e-9, "par: out of the first kubb's line")
@@ -168,9 +133,9 @@ test("match.settle raises with the defender's policy (switched on)", decided(fun
 	m = newMatch { mode = "Vs Playdate", levelB = "pro" }
 	toRaise(m)
 	expect.near(settledX(m), p0.par, 1e-9, "VS PLAYDATE: the Playdate at pro")
-end))
+end)
 
-test("the computer's raise keeps its reason in cpu.last, a person's does not", decided(function()
+test("the computer's raise keeps its reason in cpu.last, a person's does not", function()
 	cpu.last = nil
 	local m = newMatch { cpu = { "B" }, levelB = "pro" }
 	toRaise(m)
@@ -205,7 +170,7 @@ test("the computer's raise keeps its reason in cpu.last, a person's does not", d
 	expect.eq(cpu.last, nil)
 	-- and none of it reaches the game
 	expect.eq(m.game.raisePolicy, "apart")
-end))
+end)
 
 test("a match built the old way raises exactly as before", function()
 	-- no cpu, no raising, no levels: the game's one policy, apart, for both sides, as
@@ -229,7 +194,7 @@ test("a match built the old way raises exactly as before", function()
 	expect.near(settledX(m), picks(0).first, 1e-9)
 end)
 
-test("a saved match: cpu and raising are not saved, the mode is", decided(function()
+test("a saved match: cpu and raising are not saved, the mode is", function()
 	import "core/save"
 	local m = newMatch { cpu = { "B" }, levelB = "pro", raising = { A = "first" } }
 	local d = tw.save.pack(m)
@@ -240,4 +205,4 @@ test("a saved match: cpu and raising are not saved, the mode is", decided(functi
 	local vs = tw.save.unpack(tw.save.pack(newMatch { mode = "Vs Playdate", levelB = "pro" }))
 	expect.eq(type(match.raisePolicy(vs, "B")), "function", "VS PLAYDATE survives a resume")
 	expect.eq(match.raisePolicy(vs, "A"), "par")
-end))
+end)

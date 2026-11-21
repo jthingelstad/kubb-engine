@@ -1,8 +1,6 @@
--- Raising by side through the session (0.11.3, switched off): a person raising by hand is
--- offered the engine's advice first, and a raise action with no choice takes it; a
--- person's kubbs raised automatically go up by the advice; the computer's by its level.
--- Switched off, the advice and every level are apart, as in 0.11.2; the tests of the
--- raising as decided (a person par, pro par) switch it on inside the test (decided).
+-- Raising by side through the session (0.12.0): a person raising by hand is offered the
+-- engine's advice (par) first, and a raise action with no choice takes it; a person's
+-- kubbs raised automatically go up by par; the computer's by its level.
 import "session/session"
 import "session/json"
 import "core/autothrow"
@@ -11,18 +9,6 @@ tw.web.session.useTune("pointer")
 local session, json, autothrow, raising = tw.web.session, tw.web.json, tw.autothrow, tw.raising
 
 local START = { year = 2026, month = 11, day = 21, hour = 12, min = 0 }
-
--- The raising as Jamie decided it (Q7, owner-2026-11-21#s5), switched on for one test.
-local function decided(fn)
-	return function()
-		local cpu = tw.cpu
-		local was, advice = cpu.raising, cpu.advice
-		cpu.raising, cpu.advice = { beginner = "first", club = "apart", pro = "par" }, "par"
-		local ok, err = pcall(fn)
-		cpu.raising, cpu.advice = was, advice
-		if not ok then error(err, 0) end
-	end
-end
 
 local function vsComputer(o)
 	local m = { mode = "match", seed = 21, cpu = "B", computer = "pro", start = START, raising = "hand",
@@ -61,21 +47,7 @@ local function playOut(s, onRaise)
 	error("the match did not end")
 end
 
-test("by hand, switched off: the end offered first is apart's, as in 0.11.2", function()
-	local asked = 0
-	local s = vsComputer { seed = 21 }
-	playOut(s, function(s2, n)
-		local g = s2.m.game
-		local need = g:need()
-		local ctx = g:context(need.side, need.kubb)
-		expect.eq(n.default, raising.choose(need.decision, ctx, "apart"), "the default is apart's")
-		asked = asked + 1
-		return { type = "raise" }
-	end)
-	expect.truthy(asked > 0, "the person raised by hand")
-end)
-
-test("by hand, switched on: the end offered first is par's, and a raise with no choice takes it", decided(function()
+test("by hand: the end offered first is par's, and a raise with no choice takes it", function()
 	local asked, differ = 0, 0
 	for _, seed in ipairs { 21, 22, 23 } do
 		local s = vsComputer { seed = seed }
@@ -94,7 +66,7 @@ test("by hand, switched on: the end offered first is par's, and a raise with no 
 	end
 	expect.truthy(asked > 0, "the person raised by hand")
 	expect.truthy(differ > 0, "and par and apart differed at least once (" .. differ .. " of " .. asked .. ")")
-end))
+end)
 
 test("a raise with no choice stands the kubb on the end offered", function()
 	local checked = 0
@@ -114,7 +86,7 @@ test("a raise with no choice stands the kubb on the end offered", function()
 	expect.truthy(checked > 0)
 end)
 
-test("automatic, switched on: a person's kubbs by par, the computer's by its level; restored the same", decided(function()
+test("automatic: a person's kubbs by par, the computer's by its level; restored the same", function()
 	local seen = { A = {}, B = {} }
 	local orig = raising.choose
 	raising.choose = function(dec, ctx, policy)
@@ -138,23 +110,4 @@ test("automatic, switched on: a person's kubbs by par, the computer's by its lev
 	expect.eq(seen.A.apart, nil, "never apart")
 	expect.truthy((seen.B.cpu or 0) > 0, "B, the computer, raised as the computer")
 	expect.eq(tw.cpu.raisePolicy("pro"), "par")
-end))
-
-test("automatic, switched off: every kubb goes up apart, the person's and the computer's", function()
-	local seen = { A = {}, B = {} }
-	local orig = raising.choose
-	raising.choose = function(dec, ctx, policy)
-		if #dec.choices > 1 then
-			local name = policy
-			if type(policy) == "function" then name = "cpu:" .. tw.cpu.raisePolicy("pro") end
-			seen[ctx.half][tostring(name)] = (seen[ctx.half][tostring(name)] or 0) + 1
-		end
-		return orig(dec, ctx, policy)
-	end
-	local ok, err = pcall(function() playOut(vsComputer { raising = "auto", seed = 23 }) end)
-	raising.choose = orig
-	assert(ok, err)
-	expect.truthy((seen.A.apart or 0) > 0, "A, the person, raised apart")
-	expect.eq(seen.A.par, nil, "never par")
-	expect.truthy((seen.B["cpu:apart"] or 0) > 0, "B, the computer at pro, raised apart")
 end)

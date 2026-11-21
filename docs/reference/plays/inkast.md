@@ -159,22 +159,33 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
 - **Against:** Q6. Others aim for kubbs so close the raiser has no choice
   (kn-drill-2012#p6.9, kn-drill-2012#p2.10), which may be the same goal or a different
   one.
-- **Levels:** Proposed: pro.
-- **Engine:** modelled another way (0.11.0). Club and pro lay a row, each kubb flank to
-  flank with the innermost one lying (`row = 1`, `rowStep`). It lies as a fence, and the
-  defender's `apart` raise staggers it into depth. In the Gym it gave more doubles and
-  triples than 0.10's line or cluster (Q6). The play itself is built, switched off
-  (0.11.3, `core/cpu` depthSpot; `cpu.tune.depth`, no level knows it): the kubbs lie end
-  to end in a column down the baton's path, the first in the basket, each later one aimed
-  to rest 4 cm in front of the column's front kubb with the row's dead landing and roll,
-  four to a column, none nearer the centre line than 4.35 m (the baskets face each other:
-  two columns grown to the centre line stand a hand apart, and a baton at one touches the
-  other team's column in the thrower's own half, II.B.11); then the next column starts
-  flank to flank with the innermost column's back kubb. A defender raises a lying kubb
-  only along its length, so a column stands in one lane whichever ends are chosen. In
-  the Gym, switched on, the pro computer laying columns beats the pro computer laying
-  the row 74.5% on seeds 1 and 2 alike (at club 58.8% and 62.0%; docs/notes/gym.md, "The
-  attacker's plays").
+- **Levels:** Proposed: pro. Since 0.12.0 the pro computer lays columns; club does not.
+  It wins at club too, but it made the club computer stronger and moved it away from
+  real play (longer games, more doubles), and club is to be retuned as a whole against
+  its new target (owner-2026-11-21#s6), so club lays the row as in 0.11.2 (Jamie's
+  decision of 2026-11-21).
+- **Engine:** modelled at pro (0.12.0, `core/cpu` depthSpot; `cpu.tune.depth`, `club = 0`).
+  The kubbs lie end to end in a column down the baton's path: the first in the basket,
+  each later one aimed to rest 4 cm in front of the column's front kubb, with the row's
+  dead landing and roll (one tap toward the sideline, the plan aiming short by the run on
+  and aside by the roll), so one that runs on is stopped by the kubb behind it. Four to a
+  column (they fill the computer's 0.6 m lane), none nearer the centre line than 4.35 m;
+  then the next column starts flank to flank with the innermost column's back kubb and
+  grows forward beside it. A drill lies along its throw, and a defender raises a lying
+  kubb only along its length, so a column stands in one lane whichever ends are chosen:
+  `raise.par` counts its pairs as exposed every way (a pair lying 0.17 m apart scores 1.0 to
+  2.0, a row stood level 0.47). In the Gym the pro computer's drills rest 0.06 m from
+  their marks laying columns against 0.07 m laying the row, and with the column it beats
+  the pro computer laying the row 74.5% on seeds 1 and 2 alike (at club, switched on by
+  hand, 58.8% and 62.0%). Until 0.12.0 club and pro laid a row (`row = 1`), which wins
+  only while the defender staggers it (Q6); club, which does not know `inkast.depth`,
+  still does. Held
+  to 4.35 m because the baskets face each other: two columns grown to the centre line
+  stand a hand apart, and a baton at one touches the other team's column in the
+  thrower's own half (II.B.11). A column grown to 4.05 m wins 55.4% against one held
+  back, but with both teams doing it 3.6% of pro batons are forfeit, against none in real
+  games. A wall along the sideline (the column 0.3 m nearer the
+  sideline, `depth.x = 2.2`) did no better than at the basket (49.8%, before the hold).
 - **Gym:** first-baton take by field size (`firstBaton.*`), `g.btc`; compare `row = 1`
   with `row = 0`.
 

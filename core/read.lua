@@ -146,7 +146,7 @@ function read.lane(s, pos, f)
 	return n, lo, hi
 end
 
--- field.line (0.11.3): the lane along the true line from a stance (sx, sy) through front
+-- field.line (0.12.0): the lane along the true line from a stance (sx, sy) through front
 -- kubb f, as a person sees it who has moved along the throwing line (ko-2017-blasting
 -- p1.17, p1.18). read.lane looks straight down the pitch; this looks down the line the
 -- baton will fly. Of the standing field kubbs (s.targets), those within laneHalf across
