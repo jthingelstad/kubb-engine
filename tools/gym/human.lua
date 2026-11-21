@@ -13,7 +13,7 @@
 --
 --   local human = dofile("tools/gym/human.lua")    -- after core/autothrow is imported
 --   local model = human.load(path)                 -- the fitted model (JSON)
---   local a = human.choose(setup, r, level, model) -- the same table autothrow.choose makes
+--   local a = human.choose(setup, r, level, model [, hand]) -- the same table autothrow.choose makes
 --
 -- The model, per throw level and projectile (baton, drill), holds the
 -- measured distribution of each part of a swing as 21 quantiles (0, 5%, ...,
@@ -85,6 +85,27 @@ function human.swing(sol, p, r, out)
 	return out
 end
 
+-- A swing's misses about the target centre times k (2: a newcomer, 0.5: a master; nil
+-- or 1: the swing as recorded): the backswing and the stop off the targets' centres,
+-- the shake and the flick's shortfall. Changes and returns sw.
+function human.scale(sw, sol, k)
+	if not k or k == 1 then return sw end
+	local st = swing.tune
+	sw.back = sol.back + k * (sw.back - sol.back)
+	if sw.back > st.backswingMaxDeg then sw.back = st.backswingMaxDeg end
+	if sw.back < 0 then sw.back = 0 end
+	sw.releaseAngle = sol.release + k * (sw.releaseAngle - sol.release)
+	if sw.releaseAngle < 1 then sw.releaseAngle = 1 end
+	sw.how = sw.releaseAngle >= st.skyDeg and "sky" or "stopped"
+	local shake = (sw.shake or 0) * k
+	if shake > 1 then shake = 1 end
+	sw.shake, sw.smoothness = shake, 1 - shake
+	local f = 1 - k * (1 - (sw.flickFrac or 1))
+	if f < st.minFlickFrac then f = st.minFlickFrac elseif f > 1 then f = 1 end
+	sw.flickFrac, sw.flickDps = f, nil
+	return sw
+end
+
 -- The standing kubb or king nearest a plan's aim point: the target of an engine whose
 -- autothrow does not name it (before 0.8).
 function human.nearest(s, P)
@@ -100,9 +121,9 @@ function human.nearest(s, P)
 end
 
 -- A throw for match setup s at throw level `level` (a name) by a person
--- whose swing is drawn from model. Returns what autothrow.choose returns
+-- whose swing is drawn from model, its misses times hand (human.scale; nil: 1). Returns what autothrow.choose returns
 -- (autothrow.launch puts it into a world), with a.human = the model level used.
-function human.choose(s, r, level, model)
+function human.choose(s, r, level, model, hand)
 	-- the computer's choice of target and stance, thrown clean (scale 0: no
 	-- mistakes, no nerves; it still draws its numbers from r)
 	local a0 = autothrow.choose(s, r, 0, level)
@@ -138,7 +159,7 @@ function human.choose(s, r, level, model)
 	end
 	local sol = plan.solve(q, {})
 	local part, used = human.part(model, level, kubb and "drill" or "baton")
-	local sw = human.swing(sol, part, r, {})
+	local sw = human.scale(human.swing(sol, part, r, {}), sol, hand)
 	-- the player's launch (session/throw playerLaunch): nerves seeded by the swing
 	local L = plan.launch(sol, sw, { projectile = q.projectile, tilt = 0, spin = taps,
 		level = not q.meter and level or nil, nerves = true }, {})

@@ -13,6 +13,7 @@ const LEVELS = ['beginner', 'club', 'pro'];
 const THROWERS = ['cpu', 'human'];
 
 // A team's spec: "level=pro;thrower=cpu;raise=apart;autothrow.tune.inkast.pro.row=0"
+// (hand=k: the human thrower's recorded misses times k, tools/gym/human.lua human.scale)
 // (parts split by ';' or ','). Returns { level, thrower, raise, sets: [[path, value]],
 // text } with text the normal form the worker is given. Raising policy names and tune
 // paths are checked by the worker, which has the engine.
@@ -37,12 +38,16 @@ export function parseSpec(str, label = 'A') {
     } else if (k === 'raise') {
       if (!/^\w+$/.test(v)) throw new Error(`gym versus: team ${label}: raise is a policy name, got ${v}`);
       spec.raise = v;
+    } else if (k === 'hand') {
+      if (v === '' || !(Number(v) > 0)) throw new Error(`gym versus: team ${label}: hand is a positive number, got ${v}`);
+      spec.hand = Number(v);
     } else if (k.includes('.')) {
       if (v === '' || !Number.isFinite(Number(v))) throw new Error(`gym versus: team ${label}: ${k} is not set to a number: ${v}`);
       spec.sets.push([k, Number(v)]);
-    } else throw new Error(`gym versus: team ${label}: unknown part ${k} (level, thrower, raise or a tune path)`);
+    } else throw new Error(`gym versus: team ${label}: unknown part ${k} (level, thrower, raise, hand or a tune path)`);
   }
-  spec.text = [`level=${spec.level}`, `thrower=${spec.thrower}`, `raise=${spec.raise}`, ...spec.sets.map(([p, v]) => `${p}=${v}`)].join(';');
+  spec.text = [`level=${spec.level}`, `thrower=${spec.thrower}`, `raise=${spec.raise}`,
+    ...(spec.hand !== undefined ? [`hand=${spec.hand}`] : []), ...spec.sets.map(([p, v]) => `${p}=${v}`)].join(';');
   return spec;
 }
 
