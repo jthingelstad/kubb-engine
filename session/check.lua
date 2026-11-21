@@ -206,8 +206,12 @@ local function tryTilt(ctx, levelName, sol, ptilt, taps)
 			or abs(body.wobble - L.wobble) > TOL then
 			return false, 5, "the kubb's nose, spin, roll or wobble is not what the drill gives"
 		end
-		-- the hand's steadiness is the level's (0.11)
-		if abs((L.scatter or 1) - (lv.drillScatter or 1)) > TOL then
+		-- the hand's steadiness is the level's (0.11); absent means 1, anything else must be a
+		-- finite number (a `false` would pass `or` and then break applyThrow)
+		local sc = L.scatter
+		if sc == nil then sc = 1 end
+		if type(sc) ~= "number" or sc ~= sc or abs(sc) == math.huge
+			or abs(sc - (lv.drillScatter or 1)) > TOL then
 			return false, 5, "the kubb's scatter is not the level's"
 		end
 	end
