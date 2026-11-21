@@ -47,9 +47,11 @@ this throw: "HOW TO THROW" below).
   circle, snapping onto a standing target within `snapRadius`), `setStance`, `setArc`, `setTilt`, `setSpin`.
 - **The level.** `throw.levelFor(s)`: `s.level` (a named player's, later) or `throw.level`,
   which `main.lua` sets from the System Menu's "Level" (`beginner`, `club`, `pro`; the
-  datastore "level", club by default).
+  datastore "level", club by default). From 0.13 it changes nothing in a person's throw:
+  every person plans and throws on one meter (`throw.meterFor`, "The person's meter"
+  below). The field is still read and written so older callers and records keep working.
 - **The throw.** On a release `launch(s, r)` takes `plan.launch(s.sol, r, {projectile,
-  tilt, spin, level})` and `fire` launches `world.launchBaton` or `world.launchDrill` with
+  tilt, spin})` (the solution's level: the person's meter at this distance) and `fire` launches `world.launchBaton` or `world.launchDrill` with
   its outputs (and the flight prediction the cameras use with the same speed, loft and
   swivel). The swing's let-downs (stopped at or before 6) throw nothing. The recorder adds
   no samples in the swing's cooldown.
@@ -295,9 +297,10 @@ Every number that is a guess lives in one table per module, with a comment:
   limit, the shake's tilt and pull, overpower, STEADY, the baton's tumble (`tumbleTurns`,
   `armR`, `wristShare`, `tumbleMin`: "The baton's tumble"), the height a clean baton's
   centre goes through a standing piece (`aimHeightShare` 0.3, 0.5 until 0.9: "Aimed through the piece");
-  `tw.plan.levels` (beginner, club, pro: the targets' half widths, the error inside a
-  target, the shake and overpower costs, the nerves and `tumbleSd`; `plan.LEVELS` in menu
-  order).
+  `tw.plan.levels` (beginner, club, pro: the computer's standard, `autothrow.cpuLevel`;
+  the targets' half widths, the error inside a target, the shake and overpower costs, the
+  nerves and `tumbleSd`; `plan.LEVELS` in menu order); `tw.plan.meters` (the person's
+  meter: "The person's meter").
 - `tw.flight.tune` (`source/core/flight.lua`): gravity, hand height, the hand at a short throw
   (`nearM`, `nearHandHeight`, `nearReach`, `nearFlatten`, `nearAimZ`, `nearAimRef`,
   `nearSpeed`, `nearLoftDeg`, `nearTip`, `nearLow`, `nearTurnM`, `nearTurnDeg`,
@@ -547,9 +550,10 @@ to kubbs touching. By spinning they land and then roll into each other."
   landing"): a spun drill that arrives nose first, on line and not tumbling stops where
   it touches and rolls the way it was spun. One that flies wrong bounces with its spin.
 - **The hand** is the level's: `plan.levels` `drillScatter` multiplies the release
-  scatter (beginner 2, club 1, pro 0.35), for a player's throw and the computer's. It
-  travels in a throw action's launch as `scatter`, and `checkThrow` holds it to the
-  level's.
+  scatter (beginner 2, club 1, pro 0.35) for the computer's throw. It travels in a throw
+  action's launch as `scatter`. Until 0.13 a player's hand was the level's too; from 0.13
+  a person's is the meter's (`plan.scatterFor`: "The person's meter"), and `checkThrow`
+  works it out again from the swing.
 - **The aim** counts the run-on and the roll (`drill.slideFor`, `drill.rollFor`), so a
   marker is where a clean drill rests, whatever its taps.
 - **The computer** (`autothrow.tune.inkast`): a beginner throws every kubb at the basket
@@ -560,3 +564,84 @@ to kubbs touching. By spinning they land and then roll into each other."
   above). `row = 0` in a level's entry brings back 0.10's clear spots and into-the-group
   aim, for the Gym to compare.
 - **The Gym's human thrower** spins as the computer at its level does.
+
+## The person's meter (0.13)
+
+The owner, 2026-11-21 (`docs/reference/observations/owner-2026-11-21.md` `s8`): "player
+level really should only mean for the computer opponent. It doesn't mean anything for the
+human player. The human player should be playing based on their capabilities." Measured on
+0.12.0, a person's perfect swing at a lone kubb 8 m away felled it 13% of the time at
+beginner, 38% at club and 63% at pro (`build/meter-seed/perfectprobe.lua`, 400 throws): the
+level's nerves were drawn on every throw, the person's as well as the computer's, and the
+level also set the person's bars, so picking a harder computer made the person's own throw
+harder.
+
+- **A level is the computer's standard only.** `plan.levels` describes how the computer
+  throws (`autothrow.cpuLevel`: pro's gauge with the level's nerves, tumble and hand). The
+  computer's throws are unchanged (`tests/fixtures/cpu/choose.txt` passes untouched; the 13
+  golden matches without a person keep every hash).
+- **Every person throws on one meter.** The session plans a person's throw with
+  `q.meter = throw.meterFor(s)` (`plan.meter()`, `plan.tune.meter` = `"standard"`), and
+  `plan.solve` turns the meter into a level-shaped table for the throw's distance and
+  projectile (`plan.meterLevel`), kept as the solution's `level`; `plan.launch` reads it
+  from there as it reads a level. `throw.levelFor`, `s.level`, `defaultLevel`, a player's
+  `level`, `Session:setLevel` and practice's `level` are still taken and kept, and change
+  nothing in a person's throw. A second, wider meter (a Kid mode) would be another entry in
+  `plan.meters` and a `throw.meterFor` that picks it; nothing else needs to change.
+- **The bars carry the difficulty by distance.** The half widths are `powerHalf8` (2
+  degrees) and `releaseHalf8` (7.5) at 8 m, times `1 + widen x (8 - d)` (`widen` 0.7,
+  never under `narrowMin` 0.5), the distance from the stance to the circle held to `nearM`
+  .. `farM` (3 to 10 m); a kubb's the same (`kubbPower`, `kubbRelease` 1). So 9 / 34 at
+  3 m and under, 7.6 / 28.5 at 4 m, 4.8 / 18 at 6 m, 2 / 7.5 at 8 m. The session's bands
+  are the solution's `powerLo..powerHi` and `releaseLo..releaseHi` as before
+  (`bandEdges`, the aim view's `plan`), and `replan` runs when the circle or the stance
+  moves, so a surface draws the new bars with no new field.
+- **The meter is honest.** Inside a bar an error counts `inGain` (0.1) of itself; past it,
+  in full from the edge, as before. A steady swing's shake counts `shakeIn` (0.1) of itself
+  (`plan.shakeCounts`: `plan.shrink` with `steadyBelow` as the bar), so a steady swing does
+  not tilt or pull the baton off a kubb; a shaky one counts in full past `steadyBelow`. The
+  nerves are small and the same for every person: `nervesDeg` 0.12 (the brief started from
+  0.2; at 0.2 a steady dead-centre swing at 8 m came back PULLED 4% of the time, at 0.12
+  none in 400), `nervesLen` 0.008, `tumbleSd` 0.015, tumble 0.5 turns. So every miss has
+  a readable cause: SHORT, LONG, LOW, HIGH or SHAKY.
+- **The thrown kubb.** One standard for every person, the bars by distance. The release
+  scatter is `plan.scatterFor`: `drillScatter` 0.35 (pro's: a clean swing lands dead as
+  pro's does) times `1 + scatterGain x` the shake as it counts `+ roughGain x` how far past
+  a bar the swing went as a share of that bar (the larger of the two, at most `roughMax`
+  2): `scatterGain` 3, `roughGain` 6. Inside both bars and steady it keeps the clean hand.
+  `checkThrow` works it out again from the action's swing and tilt.
+
+Measured with `lua5.4 tools/meterprobe.lua --n 400 --ranges 2,4,6,8` (seed 1, a lone
+standing kubb on grass, turned 0 to 90 degrees):
+
+| | 2 m | 4 m | 6 m | 8 m |
+|---|---|---|---|---|
+| a perfect swing, fell | 100% | 100% | 100% | 100% |
+| steady swings evenly inside both bars, fell | 100% | 100% | 100% | 99% |
+| a dead-centre steady swing, fell | 100% | 100% | 100% | 100% |
+| steady swings inside both bars, PULLED | 0% | 0% | 0% | 0% |
+| the recorded hand x2 (a newcomer), fell | 60% | 50% | 28% | 18% |
+| the recorded hand x1, fell | 86% | 82% | 56% | 38% |
+| the recorded hand x0.5 (a master), fell | 94% | 93% | 85% | 67% |
+
+The recorded hand is the Gym's fitted human thrower's club baton part (its misses about the
+target centre scaled). The targets were about 50 / 30 / 18, 80 / 60 / 40 and 92 / 85 / 70 at
+4 / 6 / 8 m. On 0.12.0 the same hand at club (club's bars, inGain and nerves) felled 59 /
+44 / 22 (x1), 26 / 20 / 10 (x2), 89 / 73 / 27 (x0.5). Even with no forgiveness at all the
+recorded hand fells about a third of 8 m kubbs; the reference's club row for a base kubb
+from 8 m (19 to 27%, measured from tournament games) is below what an honest meter can give
+these swings, and 0.12's club met it only through club's large nerves.
+
+A drilled kubb onto the basket's spot (1.9 m out, 4.75 m), one tap of spin, 400 drills:
+
+| thrower | median rest from the spot | within 0.3 m | landed dead | scatter |
+|---|---|---|---|---|
+| a person, the recorded hand (club drill part) | 8 cm | 72% | 71% | 0.90 |
+| a person, steady swings inside both bars | 5 cm | 98% | 95% | 0.36 |
+| a person, dead-centre steady | 2 cm | 98% | 96% | 0.36 |
+| the computer at club | 8 cm | 80% | 55% | 1.00 |
+| the computer at pro | 3 cm | 98% | 96% | 0.35 |
+
+In the Gym (docs/notes/gym.md "The person's meter") the recorded hand's inkast has 8.5% of
+its kubbs rethrown (club's reference row 11 to 18%; 0.12's person at club 9.5%) and 38 to
+40% of its lying kubbs touching another before raising (the club computer 39 to 40%).

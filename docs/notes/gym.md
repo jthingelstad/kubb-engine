@@ -41,11 +41,13 @@ with their repro commands.
   too), so the computer's column is the one `docs/notes/real-games.md` reports.
 - **The computer** is `core/autothrow` as the game plays it.
 - **The human thrower** (`tools/gym/human.lua`) is a person at the meter. It picks the
-  target and stance as the computer does, plans the throw at its own level as the session
-  plans a player's (the level's gauge forgiveness, the default arc for the distance, no tilt or
-  spin), draws a swing from the fitted model, and makes the launch as `throw.playerLaunch`
-  does, nerves seeded by the swing. So it plays through the same forgiveness and nerves a
-  person gets; only the swing is drawn instead of cranked.
+  target and stance as the computer does, plans the throw on the person's meter as the
+  session plans a player's (from 0.13 `plan.meter()`: the bars for the distance, the
+  default arc for the distance, no tilt or spin; before 0.13 the level's gauge), draws a
+  swing from the fitted model, and makes the launch as `throw.playerLaunch` does, nerves
+  seeded by the swing. So it plays through the same forgiveness and nerves a person gets;
+  only the swing is drawn instead of cranked. Its level picks only which fitted part of the
+  model the swing is drawn from (on an engine before 0.13 it also picks the gauge).
 - **Desktop Lua 5.4** plays the matches (stock `lua5.4`, many processes). Results are
   statistics, so the few-ulp differences from the reference do not matter. Everything
   compared with a recorded hash uses wasmoon, the reference (`docs/DETERMINISM.md`): the
@@ -569,6 +571,53 @@ that lays columns and stands where the kubbs line up, the two are level. `par` n
 the policies that keep every kubb on one end (55 to 57), which it only matched before,
 and it is no worse than `apart` anywhere. So `par` stays the pro's and a person's
 raising; its case is now that it never loses, not that it wins by three games in four.
+
+### The person's meter (2026-11-21)
+
+Engine 0.13.0: every person throws on one meter, the bars by distance and nothing by level
+(docs/notes/throw.md "The person's meter"); the computer is unchanged. The recorded human
+(the human thrower at club: the model's club parts, most of the recorded swings) against
+the computer at each level, grass, 300 seeds each way round (600 games), turn limit 40;
+A's score is the paired interval. 0.12.0 is the same pairing on 0.12.0 (`--engine`: the
+person on club's gauge and nerves).
+
+| B (computer) | 0.13.0, seed 1 | seed 2 | 0.12.0 | target |
+|---|---|---|---|---|
+| beginner | 585 / 15 / 0, 97.5 (96.3 to 98.7) | 587 / 12 / 1, 97.9 (96.8 to 99.0) | | about 67 |
+| club | 489 / 104 / 7, 82.1 (79.0 to 85.1) | 495 / 97 / 8, 83.2 (80.1 to 86.2) | 91 / 503 / 6, 15.7 (12.8 to 18.6) | about 40 |
+| pro | 67 / 533 / 0, 11.2 (8.6 to 13.7) | 62 / 538 / 0, 10.3 (8.0 to 12.6) | | hard |
+
+The recorded human's own rows (seed 1; seed 2 within a point), beside the computer it
+played and the reference's club row (docs/reference/PLAY.md):
+
+| row | person vs beginner | person vs club | person vs pro | person on 0.12.0 vs club | computer club | club reference |
+|---|---|---|---|---|---|---|
+| base kubb from the baseline (8 m) | 39.1 | 38.8 | 39.0 | 17.4 | 18.9 | 19 to 27 |
+| field batons that missed | 26.3 | 25.2 | 27.0 | 40.4 | 28.2 | 30 to 40 |
+| field batons that took two | 10.4 | 14.0 | 11.6 | | 11.5 | 8 to 13 |
+| turns with field kubbs cleared | 83.4 | 71.8 | 58.7 | 56.1 | 67.1 | 68 to 80 |
+| kubbs rethrown | 7.2 | 8.5 | 8.6 | 9.5 | 1.1 | 11 to 18 |
+| drill rests from its mark (m) | 0.45 | 0.47 | 0.46 | 0.57 | 0.21 | |
+| lying kubbs touching another (inkast of 3+) | 38 | 38 | 41 | 14 | 40 | |
+
+- **The targets are missed, and by the person's side.** A typical person now wins about 4
+  games in 5 against club (target 4 in 10) and nearly every game against beginner (target
+  2 in 3); pro stays hard (1 in 9). The person's 8 m hit rate is near pro's reference
+  (39 to 48), not club's: the honest meter puts the recorded swings where they were aimed
+  far more often than 0.12's club nerves did, and with no forgiveness at all those swings
+  still fell about a third of lone 8 m kubbs (meterprobe). The field game is between club
+  and pro.
+- **What to change (a separate change).** The computer, not the meter: the person's
+  throw is now what the person's hand makes it. Club's computer would need to be about as
+  good as the recorded people (8 m near 35 to 40%, field misses near 25%, turns cleared
+  near 75%) and beginner's about as good as club's is now, for the standing targets to
+  hold. That is a retune of `plan.levels` club and beginner nerves and
+  `autothrow.tune.swingScale` (and moves the reference's club row from a target for the
+  computer to the floor of what a typical online player beats). The other lever, a meter
+  harsher than honest (past-the-bar errors counted more than in full, or larger nerves for
+  everyone), goes against the owner's decision. The recorded swings were made on 0.12's
+  wider club bars; people may swing differently on the narrower long bars, which a refit
+  after the release would show.
 
 ## Speed
 
