@@ -96,6 +96,9 @@ iPhone app (the bundle: core, room, session and tune).
   docs/notes/computer-player.md, "How a play gets in": built switched off, proven in the
   Gym side against side, then switched on in its own pull request. What the game is (its
   levels and modes, and when a client takes a new tag) is Jamie's call.
+- `node tools/batonvalue.mjs <games dir> [--json] [--tiers]` (`make batonvalue`): the batons a
+  position costs, from scored games or the Gym's, beside Hodges' 2014 table, with bootstrap
+  intervals and by tier (docs/notes/real-games.md "Baton value").
 - `docs/reference/PLAY.md` and `play-levels.json`: how kubb is played at beginner, club
   and pro, with a target range per Gym row and its basis (measured, owner, coach or
   estimate). `node tools/realtiers.mjs <real games dir> --json` reproduces the measured
