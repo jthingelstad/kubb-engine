@@ -140,7 +140,9 @@ Every client shows its own version with the engine's beside it, in one form:
   about 0.11 ms (0.016 ms without) and a pro `inkast.depth` toss about 0.018 ms (0.003).
 
   For clients: sync the tag; nothing else changes. The session passes its `cpu` option to
-  the core; a client passes nothing new.
+  the core; a client passes nothing new. This is also the first tagged version to carry
+  the name generator (`core/namegen`, `core/namewords`, docs/NAMES.md), which reached
+  main after 0.11.2 was tagged and changes nothing a seeded match does.
 
 - **0.11.2** (patch). A raising policy that counts the attacker's batons,
   `raising.policies.par` (raise.par, raise.across), built switched off: the end that
