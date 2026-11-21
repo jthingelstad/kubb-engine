@@ -177,7 +177,9 @@ on desktop Lua to show how far desktop agrees with the reference.
 
 `compare` takes two `--json` scorecards, or two git refs: it writes each ref's engine (core,
 session, tune, room, version.lua) to a temporary folder, plays it with this checkout's gym
-tools (`match.lua --engine DIR`), and removes the folder. An engine folder (a prototype
+tools (`match.lua --engine DIR`), and removes the folder. With `--json` or `--keep` the
+engine goes to `build/gym/engine-<commit>` and stays, so the saved replay commands still
+run. An engine folder (a prototype
 copy holding core, session, tune, room and version.lua) is played as it is; `run`, `bank`
 and `--records` take one too (`--engine DIR`), so a candidate that is not a commit can be
 scored, compared and banked. It prints only the figures whose

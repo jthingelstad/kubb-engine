@@ -266,15 +266,24 @@ async function cardFor(spec, o) {
   // folder, thrown by this checkout's gym tools
   const sha = git(['rev-parse', '--verify', `${spec}^{commit}`]);
   if (!sha) throw new Error(`gym compare: ${spec} is neither a scorecard file nor a git ref`);
-  const tmp = mkdtempSync(join(tmpdir(), 'kubb-gym-'));
+  // A saved scorecard's replay commands name the engine folder, so a run that is kept
+  // (--json, --keep) puts the ref's engine where it stays: build/gym/engine-<commit>.
+  const kept = refEngineDir(sha, o);
+  const dir = kept || mkdtempSync(join(tmpdir(), 'kubb-gym-'));
   try {
-    extractEngine(sha, tmp);
-    const card = await scorecard({ ...o, engine: tmp, out: join(root, 'build', 'gym', `ref-${sha.slice(0, 10)}-${process.pid}`) });
-    card.engine = { version: engineInfo(tmp).version, commit: sha, ref: spec };
+    if (kept) { rmSync(kept, { recursive: true, force: true }); mkdirSync(kept, { recursive: true }); }
+    extractEngine(sha, dir);
+    const card = await scorecard({ ...o, engine: dir, out: join(root, 'build', 'gym', `ref-${sha.slice(0, 10)}-${process.pid}`) });
+    card.engine = { version: engineInfo(dir).version, commit: sha, ref: spec };
     return card;
   } finally {
-    rmSync(tmp, { recursive: true, force: true });
+    if (!kept) rmSync(dir, { recursive: true, force: true });
   }
+}
+
+// Where a git ref's engine is written when the comparison's scorecards outlive the run.
+export function refEngineDir(sha, o) {
+  return o.json || o.keep ? join(root, 'build', 'gym', `engine-${sha.slice(0, 10)}`) : null;
 }
 
 // ---------- main ----------

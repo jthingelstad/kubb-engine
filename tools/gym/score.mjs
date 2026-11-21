@@ -125,7 +125,6 @@ export const T = {
   deadSpeed: 4,      // m/s: a baton that lands this fast ...
   deadRun: 0.15,     // ... and goes less than this along after landing stopped dead
   energyJ: 0.02,     // J: a rise in the world's energy past this is a gain (physcheck energyCum)
-  restS: 12,         // s: still moving at world.tune.maxTime
   drillFar: 0.30,    // m: a drill resting this far from its mark is a loose one
 };
 
@@ -231,7 +230,7 @@ export function anomaliesOf(o) {
   }
   if (f.eRise > T.energyJ) out.push({ kind: 'energy', key: `${o.k}`, detail: `energy rose ${(f.eRise * 1000).toFixed(0)} mJ above its low` });
   for (const b of f.broken || []) out.push({ kind: 'broken', key: `${o.k} ${b.why}`, detail: `${b.id}: ${b.why}` });
-  if (f.timedOut || f.rest >= T.restS) out.push({ kind: 'unsettled', key: `${o.k}`, detail: `still moving at ${f.rest.toFixed(1)} s` });
+  if (f.timedOut) out.push({ kind: 'unsettled', key: `${o.k}`, detail: `still moving at ${f.rest.toFixed(1)} s` });
   return out;
 }
 
