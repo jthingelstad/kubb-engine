@@ -147,11 +147,12 @@ export function tiers(games) {
   const teams = {};
   for (const g of games) for (const side of ['A', 'B']) {
     const st = g.stats[side], key = norm(g.teamName[side]);
-    const t = teams[key] || (teams[key] = { batons: 0, hits: 0 });
-    t.batons += st.batons; t.hits += st.hits;
+    const t = teams[key] || (teams[key] = { batons: 0, kubbs: 0 });
+    // kubbs toppled, field and base: kubb.js's `hits` counts a baton once whatever it took
+    t.batons += st.batons; t.kubbs += st.field + st.base;
   }
   const ranked = Object.entries(teams).filter(([, t]) => t.batons >= MIN_BATONS)
-    .sort((a, b) => b[1].hits / b[1].batons - a[1].hits / a[1].batons);
+    .sort((a, b) => b[1].kubbs / b[1].batons - a[1].kubbs / a[1].batons);
   const total = ranked.reduce((n, [, t]) => n + t.batons, 0);
   const tierOf = {}, count = { top: 0, mid: 0, low: 0 };
   let acc = 0;

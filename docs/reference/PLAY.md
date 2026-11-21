@@ -25,9 +25,11 @@ Three limits to keep in mind.
 - All 150 games are tournament games. The weakest third of those teams still drills
   and throws a half-turn baton. It stands in for club play; it is not beginners.
 - **There is no beginner data at all.** Every beginner number is an estimate.
-- Teams are ranked by field kubbs a baton, so the hit-rate rows are partly circular:
-  the top third hits more because that is how it was picked. The rows the ranking did
-  not use (8 m, king, rethrows, clearing, game length) are the honest comparison.
+- Teams are ranked by kubbs toppled a baton, field and base together, so the field
+  and 8 m rows are partly circular: the top third hits more because that is how it
+  was picked. The rows the ranking did not use (games won, the king, rethrows, game
+  length) are the honest comparison. The top third won 67% of its games and the low
+  third 44%.
 
 ## The shape of a game
 
@@ -43,7 +45,7 @@ usually ends there.
   very likely lose."
 - A game is 8 or 9 turns (median 8; one in ten is over in 5, one in ten runs past 16).
 - The most kubbs on the field at once in a typical game is 7.
-- When a team clears, it has 2.5 to 2.8 batons left for the baseline, at every level.
+- When a team clears, it has 2.5 to 2.7 batons left for the baseline, at every level.
   Better teams do not save more batons. They face bigger fields and still clear them,
   and they hit more from 8 m with what is left.
 
@@ -52,12 +54,12 @@ Clearing gets hard fast as the field fills, and that is where levels separate:
 | Field kubbs | All | Top third | Middle | Low third |
 | --- | --- | --- | --- | --- |
 | 2-3 | 94% | 100% | 99% | 90% |
-| 4-5 | 87% | 97% | 90% | 74% |
-| 6-7 | 76% | 90% | 81% | 40% |
-| 8+  | 60% | 72% | 52% | 44% |
+| 4-5 | 86% | 95% | 93% | 75% |
+| 6-7 | 76% | 89% | 86% | 34% |
+| 8+  | 60% | 70% | 55% | 30% |
 
 Share of turns that cleared the field (measured). A low-tier team facing six kubbs
-clears less than half the time; a top team still clears nine in ten.
+clears a third of the time; a top team still clears nine in ten.
 
 ## The three levels
 
@@ -75,7 +77,7 @@ clears less than half the time; a top team still clears nine in ten.
 | Punishment kubbs | 3-8% | 1-2.5% | 0.5-1.5% |
 | Turns from an advantage line | 30-50% | 15-22% | 8-15% |
 | Opening six batons, base kubbs down | 0.4-0.8 | 0.9-1.4 | 2.1-2.7 |
-| Game length, turns | 14-24 | 8-13 | 6-10 |
+| Game length, turns | 14-24 | 8-14 | 6-10 |
 
 **Beginner.** Owner: beginners "toss" kubbs, "there is really no group to get", and
 they "almost never hit combos". The kubbs land spread across the half, so every baton
@@ -83,14 +85,14 @@ is a single at 3 to 6 m, and the field is often left standing. Games are long.
 
 **Club.** Owner: "the kubbs are less controlled", with "some combos but rare to see
 more than a triple". They drill to the corner and get a loose group: the first baton
-at four or five kubbs takes two or more less than half the time (46%). They hold up
+at four or five kubbs takes two or more less than half the time (41%). They hold up
 at small fields and fall apart at six.
 
 **Pro.** Owner: "a good driller can get 6-7 kubbs all touching each other in the
 basket", and a kubb goes out only by a bad bounce or a risk taken on purpose. The
-first baton at four or five kubbs takes two or more 71% of the time, and 81% at six
+first baton at four or five kubbs takes two or more 71% of the time, and 80% at six
 or seven. Owner accepted the computer's pro at 80% from an advantage line and 96% at
-the king as "just right", above the measured 60% and 85%, which rest on few throws.
+the king as "just right", above the measured 58% and 85%, which rest on few throws.
 
 ## The inkast
 
@@ -127,8 +129,9 @@ The inkast is where the levels differ most (owner), and it is what the videos te
    down and what is in hand and build where one baton takes the most (coach). A club
    player keeps to the plan too long.
 8. **The first throw is a free look.** A kubb out of bounds is thrown again, so the
-   first throw can chase the lines. Measured: the top third rethrows 15.6% of its
-   kubbs, and half its inkasts have at least one rethrow, as many as anyone. The share
+   first throw can chase the lines. Measured: the top third rethrows 15.8% of its
+   kubbs, more than the middle (13.2%) or the low third (12.4%), and half its inkasts
+   have at least one rethrow. The share
    climbs with the kubbs in hand, from one in ten to more than one in six. Out twice
    is a punishment kubb, and that stays rare at every tournament level (1.3%).
 9. **Deep kubbs.** A team that cannot clear what it holds should throw the ones it
@@ -159,9 +162,8 @@ The inkast is where the levels differ most (owner), and it is what the videos te
 ## The baseline and the king
 
 - From 8 m a base kubb falls a third of the time across all teams: 44% for the top
-  third, 23% for the low third. This row was not used to rank teams, and it spreads
-  as widely as the field rows do.
-- The six opening batons take 1.9 base kubbs on average: 2.4 for the top third, 1.1
+  third, 23% for the low third.
+- The six opening batons take 1.9 base kubbs on average: 2.4 for the top third, 1.2
   for the low third. A game between good teams starts with two or three kubbs in play.
 - Teams that reach the king take it. About one king shot a game.
 
@@ -184,11 +186,11 @@ The inkast is where the levels differ most (owner), and it is what the videos te
 
 ## Open questions for Jamie
 
-1. **Pro rethrows.** The best third of teams rethrows 16% of kubbs. Is that risk
+1. **Pro rethrows.** The best third of teams rethrows 16% of kubbs, more than the weaker teams. Is that risk
    taken on purpose, as the coach describes, and should the pro computer do it?
 2. **Is the low third "club"?** Or does club sit below any tournament team, with these
    numbers too kind to it?
 3. **Beginner numbers.** All estimates. Which look wrong from the pitch?
 4. **Deep kubbs.** Should the weaker computer levels throw them?
-5. **Advantage line at pro.** Measured 60% over 67 batons; the computer's 80% read
+5. **Advantage line at pro.** Measured 58% over 72 batons; the computer's 80% read
    "just right". The range keeps both. Narrow it?
