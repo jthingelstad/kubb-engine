@@ -97,9 +97,9 @@
    "targets": {
     "g.turns": {
      "lo": 8,
-     "hi": 13,
+     "hi": 14,
      "basis": "measured",
-     "note": "games with a low-tier team in them average 9.8 turns"
+     "note": "games with a low-tier team in them average 10.3 turns"
     },
     "g.fieldMiss": {
      "lo": 30,
@@ -141,7 +141,7 @@
      "lo": 62,
      "hi": 75,
      "basis": "measured",
-     "note": "37 shots only"
+     "note": "42 shots only"
     },
     "g.rethrown": {
      "lo": 11,
@@ -170,8 +170,8 @@
      "note": "47 turns only"
     },
     "clearBy.6-7": {
-     "lo": 35,
-     "hi": 55,
+     "lo": 30,
+     "hi": 50,
      "basis": "measured",
      "note": "47 turns only"
     },
@@ -191,7 +191,7 @@
      "lo": 6,
      "hi": 10,
      "basis": "measured",
-     "note": "games between two top-tier teams average 8.3 turns"
+     "note": "games between two top-tier teams average 8.2 turns"
     },
     "g.fieldMiss": {
      "lo": 12,
@@ -227,19 +227,19 @@
      "lo": 58,
      "hi": 82,
      "basis": "owner",
-     "note": "measured 59.7 over 67 batons; owner: the computer at 80 'read just right'"
+     "note": "measured 58.3 over 72 batons; owner: the computer at 80 'read just right'"
     },
     "g.kingHit": {
      "lo": 84,
      "hi": 96,
      "basis": "owner",
-     "note": "measured 85.1 over 74 shots; owner accepted 96"
+     "note": "measured 84.9 over 73 shots; owner accepted 96"
     },
     "g.rethrown": {
      "lo": 8,
      "hi": 17,
      "basis": "measured",
-     "note": "OPEN: measured 15.6, and half of top-tier inkasts have a rethrow; owner says a pro kubb goes out only by a bad bounce or a risk taken on purpose. Read together: the risk is taken often"
+     "note": "OPEN: measured 15.8, the most of any tier, and half of top-tier inkasts have a rethrow; owner says a pro kubb goes out only by a bad bounce or a risk taken on purpose. Read together: the risk is taken often"
     },
     "g.punish": {
      "lo": 0.5,
@@ -406,19 +406,19 @@
   },
   "turnsByWeakerTeam": {
    "top": {
-    "games": 19,
-    "mean": 8.3,
+    "games": 21,
+    "mean": 8.2,
     "p50": 8
    },
    "mid": {
-    "games": 38,
-    "mean": 9.7,
-    "p50": 9
+    "games": 41,
+    "mean": 9.3,
+    "p50": 8
    },
    "low": {
-    "games": 42,
-    "mean": 9.8,
-    "p50": 9
+    "games": 37,
+    "mean": 10.3,
+    "p50": 10
    }
   },
   "mostFieldKubbsInAGame": {
@@ -574,349 +574,75 @@
     }
    },
    "top": {
-    "teamGames": 93,
-    "won": 67.7,
-    "turns": 382,
-    "batons": 2238,
-    "g.fieldMiss": 15.7,
-    "g.field1": 49.1,
-    "g.field2": 20,
-    "g.field3": 15.2,
-    "fieldKubbsABaton": 1.43,
-    "fieldBatons": 1233,
-    "g.cleared": 90.6,
+    "teamGames": 92,
+    "won": 67.4,
+    "turns": 380,
+    "batons": 2229,
+    "g.fieldMiss": 15.9,
+    "g.field1": 48.3,
+    "g.field2": 20.3,
+    "g.field3": 15.5,
+    "fieldKubbsABaton": 1.44,
+    "fieldBatons": 1236,
+    "g.cleared": 89.4,
     "g.btc": 3.5,
     "batonsLeftWhenCleared": 2.5,
-    "kubbsLeftWhenNotCleared": 1.42,
-    "g.advTurns": 13.6,
+    "kubbsLeftWhenNotCleared": 1.4,
+    "g.advTurns": 14.2,
     "g.baseLine": 43.8,
-    "baseLineBatons": 861,
-    "g.baseAdv": 59.7,
-    "baseAdvBatons": 67,
-    "g.kingHit": 85.1,
-    "kingShots": 74,
-    "g.rethrown": 15.6,
-    "g.punish": 1.2,
+    "baseLineBatons": 845,
+    "g.baseAdv": 58.3,
+    "baseAdvBatons": 72,
+    "g.kingHit": 84.9,
+    "kingShots": 73,
+    "g.rethrown": 15.8,
+    "g.punish": 1.3,
     "rescues": 0,
-    "kubbsThrownIn": 1792,
-    "inkastsWithARethrow": 50.2,
-    "inkastsWithAPunishment": 5.7,
+    "kubbsThrownIn": 1807,
+    "inkastsWithARethrow": 51.1,
+    "inkastsWithAPunishment": 6.4,
     "opener": {
      "n": 48,
      "took": [
       1,
-      5,
-      21,
+      6,
+      20,
       17,
       4,
       0
      ],
-     "mean": 2.38
+     "mean": 2.35
     },
     "clearBy": {
      "1": {
-      "n": 10,
+      "n": 9,
       "cleared": 100,
       "batons": 1.7
      },
      "2-3": {
-      "n": 63,
+      "n": 61,
       "cleared": 100,
       "batons": 2.4
      },
      "4-5": {
-      "n": 89,
-      "cleared": 96.6,
-      "batons": 3.4
+      "n": 86,
+      "cleared": 95.3,
+      "batons": 3.3
      },
      "6-7": {
-      "n": 109,
-      "cleared": 89.9,
+      "n": 110,
+      "cleared": 89.1,
       "batons": 4
      },
      "8+": {
-      "n": 60,
-      "cleared": 71.7,
+      "n": 63,
+      "cleared": 69.8,
       "batons": 4.6
      }
     },
     "firstBatonBy": {
      "1": {
-      "n": 10,
-      "missed": 50,
-      "one": 50,
-      "two": 0,
-      "threePlus": 0,
-      "kubbs": 0.5
-     },
-     "2-3": {
-      "n": 63,
-      "missed": 20.6,
-      "one": 47.6,
-      "two": 30.2,
-      "threePlus": 1.6,
-      "kubbs": 1.13
-     },
-     "4-5": {
-      "n": 89,
-      "missed": 10.1,
-      "one": 19.1,
-      "two": 34.8,
-      "threePlus": 36,
-      "kubbs": 2.09
-     },
-     "6-7": {
-      "n": 109,
-      "missed": 9.2,
-      "one": 10.1,
-      "two": 32.1,
-      "threePlus": 48.6,
-      "kubbs": 2.54
-     },
-     "8+": {
-      "n": 60,
-      "missed": 8.3,
-      "one": 11.7,
-      "two": 18.3,
-      "threePlus": 61.7,
-      "kubbs": 2.88
-     }
-    },
-    "inkastBy": {
-     "1": {
-      "n": 10,
-      "rethrown": 10,
-      "punish": 0
-     },
-     "2-3": {
-      "n": 63,
-      "rethrown": 13.2,
-      "punish": 1.3
-     },
-     "4-5": {
-      "n": 92,
-      "rethrown": 13.8,
-      "punish": 0.7
-     },
-     "6-7": {
-      "n": 107,
-      "rethrown": 16.5,
-      "punish": 1.7
-     },
-     "8+": {
-      "n": 59,
-      "rethrown": 16.9,
-      "punish": 1
-     }
-    }
-   },
-   "mid": {
-    "teamGames": 76,
-    "won": 55.3,
-    "turns": 369,
-    "batons": 2177,
-    "g.fieldMiss": 20.6,
-    "g.field1": 52.4,
-    "g.field2": 17.7,
-    "g.field3": 9.4,
-    "fieldKubbsABaton": 1.2,
-    "fieldBatons": 1250,
-    "g.cleared": 84.8,
-    "g.btc": 3.5,
-    "batonsLeftWhenCleared": 2.5,
-    "kubbsLeftWhenNotCleared": 1.78,
-    "g.advTurns": 14.9,
-    "g.baseLine": 30.7,
-    "baseLineBatons": 774,
-    "g.baseAdv": 67.6,
-    "baseAdvBatons": 105,
-    "g.kingHit": 89.4,
-    "kingShots": 47,
-    "g.rethrown": 11.9,
-    "g.punish": 1.4,
-    "rescues": 0,
-    "kubbsThrownIn": 1539,
-    "inkastsWithARethrow": 36.2,
-    "inkastsWithAPunishment": 6.8,
-    "opener": {
-     "n": 45,
-     "took": [
-      2,
-      14,
-      14,
-      11,
-      4,
-      0
-     ],
-     "mean": 2.02
-    },
-    "clearBy": {
-     "1": {
-      "n": 15,
-      "cleared": 100,
-      "batons": 1.4
-     },
-     "2-3": {
-      "n": 85,
-      "cleared": 98.8,
-      "batons": 2.9
-     },
-     "4-5": {
-      "n": 91,
-      "cleared": 90.1,
-      "batons": 3.6
-     },
-     "6-7": {
-      "n": 84,
-      "cleared": 81,
-      "batons": 4.3
-     },
-     "8+": {
-      "n": 48,
-      "cleared": 52.1,
-      "batons": 4.5
-     }
-    },
-    "firstBatonBy": {
-     "1": {
-      "n": 15,
-      "missed": 26.7,
-      "one": 73.3,
-      "two": 0,
-      "threePlus": 0,
-      "kubbs": 0.73
-     },
-     "2-3": {
-      "n": 85,
-      "missed": 17.6,
-      "one": 55.3,
-      "two": 23.5,
-      "threePlus": 3.5,
-      "kubbs": 1.13
-     },
-     "4-5": {
-      "n": 91,
-      "missed": 13.2,
-      "one": 27.5,
-      "two": 31.9,
-      "threePlus": 27.5,
-      "kubbs": 1.74
-     },
-     "6-7": {
-      "n": 84,
-      "missed": 4.8,
-      "one": 22.6,
-      "two": 38.1,
-      "threePlus": 34.5,
-      "kubbs": 2.24
-     },
-     "8+": {
-      "n": 48,
-      "missed": 8.3,
-      "one": 16.7,
-      "two": 22.9,
-      "threePlus": 52.1,
-      "kubbs": 2.69
-     }
-    },
-    "inkastBy": {
-     "1": {
-      "n": 15,
-      "rethrown": 6.7,
-      "punish": 0
-     },
-     "2-3": {
-      "n": 85,
-      "rethrown": 10.5,
-      "punish": 1.4
-     },
-     "4-5": {
-      "n": 98,
-      "rethrown": 11.6,
-      "punish": 0.7
-     },
-     "6-7": {
-      "n": 86,
-      "rethrown": 10.8,
-      "punish": 1.5
-     },
-     "8+": {
-      "n": 39,
-      "rethrown": 15.2,
-      "punish": 2.4
-     }
-    }
-   },
-   "low": {
-    "teamGames": 68,
-    "won": 36.8,
-    "turns": 338,
-    "batons": 1994,
-    "g.fieldMiss": 35.9,
-    "g.field1": 47.6,
-    "g.field2": 10.7,
-    "g.field3": 5.9,
-    "fieldKubbsABaton": 0.89,
-    "fieldBatons": 1152,
-    "g.cleared": 74.7,
-    "g.btc": 3.18,
-    "batonsLeftWhenCleared": 2.82,
-    "kubbsLeftWhenNotCleared": 1.87,
-    "g.advTurns": 18.3,
-    "g.baseLine": 23.4,
-    "baseLineBatons": 666,
-    "g.baseAdv": 38.1,
-    "baseAdvBatons": 139,
-    "g.kingHit": 67.6,
-    "kingShots": 37,
-    "g.rethrown": 14.5,
-    "g.punish": 1.4,
-    "rescues": 1,
-    "kubbsThrownIn": 1090,
-    "inkastsWithARethrow": 37.5,
-    "inkastsWithAPunishment": 4.7,
-    "opener": {
-     "n": 39,
-     "took": [
-      12,
-      13,
-      12,
-      2,
-      0,
-      0
-     ],
-     "mean": 1.1
-    },
-    "clearBy": {
-     "1": {
-      "n": 27,
-      "cleared": 100,
-      "batons": 1.6
-     },
-     "2-3": {
-      "n": 99,
-      "cleared": 89.9,
-      "batons": 3
-     },
-     "4-5": {
-      "n": 105,
-      "cleared": 74.3,
-      "batons": 3.6
-     },
-     "6-7": {
-      "n": 47,
-      "cleared": 40.4,
-      "batons": 4.1
-     },
-     "8+": {
-      "n": 18,
-      "cleared": 44.4,
-      "batons": 3.8
-     }
-    },
-    "firstBatonBy": {
-     "1": {
-      "n": 27,
+      "n": 9,
       "missed": 44.4,
       "one": 55.6,
       "two": 0,
@@ -924,63 +650,337 @@
       "kubbs": 0.56
      },
      "2-3": {
-      "n": 99,
-      "missed": 23.2,
-      "one": 60.6,
-      "two": 14.1,
-      "threePlus": 2,
-      "kubbs": 0.95
+      "n": 61,
+      "missed": 21.3,
+      "one": 42.6,
+      "two": 34.4,
+      "threePlus": 1.6,
+      "kubbs": 1.16
      },
      "4-5": {
-      "n": 105,
-      "missed": 24.8,
-      "one": 29.5,
-      "two": 24.8,
-      "threePlus": 21,
-      "kubbs": 1.5
+      "n": 86,
+      "missed": 9.3,
+      "one": 19.8,
+      "two": 33.7,
+      "threePlus": 37.2,
+      "kubbs": 2.12
      },
      "6-7": {
-      "n": 47,
-      "missed": 21.3,
-      "one": 29.8,
-      "two": 23.4,
-      "threePlus": 25.5,
-      "kubbs": 1.66
+      "n": 110,
+      "missed": 9.1,
+      "one": 10.9,
+      "two": 30.9,
+      "threePlus": 49.1,
+      "kubbs": 2.54
      },
      "8+": {
-      "n": 18,
-      "missed": 5.6,
-      "one": 16.7,
-      "two": 16.7,
-      "threePlus": 61.1,
-      "kubbs": 3.22
+      "n": 63,
+      "missed": 7.9,
+      "one": 11.1,
+      "two": 20.6,
+      "threePlus": 60.3,
+      "kubbs": 2.92
      }
     },
     "inkastBy": {
      "1": {
-      "n": 30,
-      "rethrown": 6.7,
+      "n": 9,
+      "rethrown": 11.1,
       "punish": 0
      },
      "2-3": {
-      "n": 108,
-      "rethrown": 15,
-      "punish": 1.9
+      "n": 61,
+      "rethrown": 13.5,
+      "punish": 1.3
      },
      "4-5": {
-      "n": 113,
-      "rethrown": 11.9,
-      "punish": 1.2
-     },
-     "6-7": {
-      "n": 33,
-      "rethrown": 15.5,
+      "n": 89,
+      "rethrown": 14.3,
       "punish": 1
      },
+     "6-7": {
+      "n": 107,
+      "rethrown": 16.2,
+      "punish": 1.7
+     },
      "8+": {
-      "n": 12,
-      "rethrown": 26.3,
-      "punish": 2
+      "n": 63,
+      "rethrown": 17.1,
+      "punish": 1.1
+     }
+    }
+   },
+   "mid": {
+    "teamGames": 79,
+    "won": 49.4,
+    "turns": 363,
+    "batons": 2137,
+    "g.fieldMiss": 20,
+    "g.field1": 50.2,
+    "g.field2": 18.6,
+    "g.field3": 11.1,
+    "fieldKubbsABaton": 1.26,
+    "fieldBatons": 1185,
+    "g.cleared": 86.4,
+    "g.btc": 3.4,
+    "batonsLeftWhenCleared": 2.6,
+    "kubbsLeftWhenNotCleared": 1.79,
+    "g.advTurns": 11.6,
+    "g.baseLine": 31.4,
+    "baseLineBatons": 829,
+    "g.baseAdv": 72.2,
+    "baseAdvBatons": 79,
+    "g.kingHit": 90.7,
+    "kingShots": 43,
+    "g.rethrown": 13.2,
+    "g.punish": 1.3,
+    "rescues": 0,
+    "kubbsThrownIn": 1538,
+    "inkastsWithARethrow": 39.6,
+    "inkastsWithAPunishment": 6.3,
+    "opener": {
+     "n": 44,
+     "took": [
+      2,
+      12,
+      17,
+      10,
+      3,
+      0
+     ],
+     "mean": 2
+    },
+    "clearBy": {
+     "1": {
+      "n": 13,
+      "cleared": 100,
+      "batons": 1.5
+     },
+     "2-3": {
+      "n": 82,
+      "cleared": 98.8,
+      "batons": 2.7
+     },
+     "4-5": {
+      "n": 85,
+      "cleared": 92.9,
+      "batons": 3.4
+     },
+     "6-7": {
+      "n": 83,
+      "cleared": 85.5,
+      "batons": 4.2
+     },
+     "8+": {
+      "n": 53,
+      "cleared": 54.7,
+      "batons": 4.3
+     }
+    },
+    "firstBatonBy": {
+     "1": {
+      "n": 13,
+      "missed": 38.5,
+      "one": 61.5,
+      "two": 0,
+      "threePlus": 0,
+      "kubbs": 0.62
+     },
+     "2-3": {
+      "n": 82,
+      "missed": 15.9,
+      "one": 57.3,
+      "two": 23.2,
+      "threePlus": 3.7,
+      "kubbs": 1.15
+     },
+     "4-5": {
+      "n": 85,
+      "missed": 16.5,
+      "one": 16.5,
+      "two": 36.5,
+      "threePlus": 30.6,
+      "kubbs": 1.88
+     },
+     "6-7": {
+      "n": 83,
+      "missed": 4.8,
+      "one": 19.3,
+      "two": 34.9,
+      "threePlus": 41,
+      "kubbs": 2.35
+     },
+     "8+": {
+      "n": 53,
+      "missed": 9.4,
+      "one": 15.1,
+      "two": 18.9,
+      "threePlus": 56.6,
+      "kubbs": 2.81
+     }
+    },
+    "inkastBy": {
+     "1": {
+      "n": 13,
+      "rethrown": 7.7,
+      "punish": 0
+     },
+     "2-3": {
+      "n": 82,
+      "rethrown": 10.7,
+      "punish": 1
+     },
+     "4-5": {
+      "n": 90,
+      "rethrown": 12.1,
+      "punish": 0.7
+     },
+     "6-7": {
+      "n": 87,
+      "rethrown": 12,
+      "punish": 1.3
+     },
+     "8+": {
+      "n": 44,
+      "rethrown": 17.8,
+      "punish": 2.2
+     }
+    }
+   },
+   "low": {
+    "teamGames": 66,
+    "won": 43.9,
+    "turns": 346,
+    "batons": 2043,
+    "g.fieldMiss": 35.3,
+    "g.field1": 50.7,
+    "g.field2": 9.8,
+    "g.field3": 4.1,
+    "fieldKubbsABaton": 0.84,
+    "fieldBatons": 1214,
+    "g.cleared": 74.8,
+    "g.btc": 3.3,
+    "batonsLeftWhenCleared": 2.7,
+    "kubbsLeftWhenNotCleared": 1.88,
+    "g.advTurns": 21.1,
+    "g.baseLine": 22.5,
+    "baseLineBatons": 627,
+    "g.baseAdv": 40.6,
+    "baseAdvBatons": 160,
+    "g.kingHit": 69,
+    "kingShots": 42,
+    "g.rethrown": 12.4,
+    "g.punish": 1.4,
+    "rescues": 1,
+    "kubbsThrownIn": 1076,
+    "inkastsWithARethrow": 33.1,
+    "inkastsWithAPunishment": 4.6,
+    "opener": {
+     "n": 40,
+     "took": [
+      12,
+      14,
+      10,
+      3,
+      1,
+      0
+     ],
+     "mean": 1.18
+    },
+    "clearBy": {
+     "1": {
+      "n": 30,
+      "cleared": 100,
+      "batons": 1.6
+     },
+     "2-3": {
+      "n": 104,
+      "cleared": 90.4,
+      "batons": 3.1
+     },
+     "4-5": {
+      "n": 114,
+      "cleared": 74.6,
+      "batons": 3.8
+     },
+     "6-7": {
+      "n": 47,
+      "cleared": 34,
+      "batons": 4.5
+     },
+     "8+": {
+      "n": 10,
+      "cleared": 30,
+      "batons": 4.3
+     }
+    },
+    "firstBatonBy": {
+     "1": {
+      "n": 30,
+      "missed": 40,
+      "one": 60,
+      "two": 0,
+      "threePlus": 0,
+      "kubbs": 0.6
+     },
+     "2-3": {
+      "n": 104,
+      "missed": 24,
+      "one": 61.5,
+      "two": 12.5,
+      "threePlus": 1.9,
+      "kubbs": 0.92
+     },
+     "4-5": {
+      "n": 114,
+      "missed": 21.9,
+      "one": 36.8,
+      "two": 22.8,
+      "threePlus": 18.4,
+      "kubbs": 1.4
+     },
+     "6-7": {
+      "n": 47,
+      "missed": 21.3,
+      "one": 34,
+      "two": 31.9,
+      "threePlus": 12.8,
+      "kubbs": 1.47
+     },
+     "8+": {
+      "n": 10,
+      "missed": 0,
+      "one": 30,
+      "two": 20,
+      "threePlus": 50,
+      "kubbs": 2.7
+     }
+    },
+    "inkastBy": {
+     "1": {
+      "n": 33,
+      "rethrown": 6.1,
+      "punish": 0
+     },
+     "2-3": {
+      "n": 113,
+      "rethrown": 14.5,
+      "punish": 2.1
+     },
+     "4-5": {
+      "n": 124,
+      "rethrown": 11.2,
+      "punish": 0.9
+     },
+     "6-7": {
+      "n": 32,
+      "rethrown": 13.4,
+      "punish": 1.5
+     },
+     "8+": {
+      "n": 3,
+      "rethrown": 12.5,
+      "punish": 4.2
      }
     }
    },
