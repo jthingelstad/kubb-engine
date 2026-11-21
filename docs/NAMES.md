@@ -233,7 +233,8 @@ In order, each its own pull request:
 2. **The room's check.** The web ports `parse`, takes the words from `names.words`, and
    checks names on join, `me` and START (section 6). The reel's and the share's checks
    call the engine they already run.
-3. **The clients.** Typed names go on the web and the iPhone (section 10, decided).
+3. **The clients.** Typed names go on the web, the iPhone and the Playdate (section 10,
+   decided).
    First run rolls a name, kept on the device. A name row with Shuffle,
    each word a picker (the crank on the Playdate), a lock per word: Toontown's name shop
    was scroll lists and Shuffle, and players who wanted "their" word in a pure-random
@@ -273,10 +274,13 @@ The engine decides how names are made. What the game asks of players is Jamie's:
    clients can end up public. No typed name is left on either client: the lobby, the
    solo set-up, Settings' "Your name" and the reel's share card all take a generated
    name.
-2. **The Playdate.** Its names never leave the device, so typing is harmless there.
-   Recommended: switch anyway, for one game everywhere. Saved players keep their typed
-   names until someone renames them. Its 10-letter limit (`core/names`) needs to reach
-   16, or its HUD needs a shorter set.
+2. **The Playdate.** Decided by Jamie, 2026-11-21: it switches too, for one game
+   everywhere, though its names never leave the device. The Names board rolls a name
+   and the crank steps a word (`namegen.step`). Saved players keep their typed names
+   until someone renames them. Its 10-letter limit (`core/names`) has to reach 16, so
+   the Playdate client measures the widest name in its own font first; if the HUD
+   cannot fit 16, the engine gets a shorter `namegen.max` for it rather than a second
+   word list.
 3. **The old generator.** Recommended: a README note pointing here, then archive the repo.
    Its domain is gone.
 4. **A public name page** on throwingwood.com for real teams (section 9). Recommended:
