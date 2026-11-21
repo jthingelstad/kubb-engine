@@ -95,6 +95,43 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.13.0** (minor). A level is the computer's standard only, and every person throws on
+  one meter (the owner, 2026-11-21: "player level really should only mean for the
+  computer opponent. It doesn't mean anything for the human player. The human player
+  should be playing based on their capabilities."; docs/notes/throw.md "The person's
+  meter"). On 0.12 a person's perfect swing at a lone kubb 8 m away felled it 13%, 38% or
+  63% of the time by the level picked, because the level's nerves were drawn on the
+  person's throw and the level set the person's bars. The computer throws exactly as in
+  0.12.0.
+
+  What a player sees:
+  - **One meter for everyone.** The level a player, a thrower or `setLevel` names no
+    longer changes their throw.
+  - **The bars go by distance.** Wide for a short throw, narrow for a long one: about 7.6
+    and 28.5 degrees either side at 4 m, 4.8 and 18 at 6 m, 2 and 7.5 at 8 m.
+  - **An honest meter.** A steady swing inside both bars goes where it was aimed (a
+    perfect swing fells a lone kubb at 4, 6 and 8 m every time; steady swings anywhere
+    inside both bars 99 to 100%) and never comes back PULLED; outside a bar the error
+    counts as before, so a miss reads SHORT, LONG, LOW, HIGH or SHAKY.
+  - **A person's kubb** keeps a clean hand (pro's) inside both bars and steady, and
+    scatters with the shake and with how far past a bar the swing went.
+
+  How: `plan.meters`, `plan.meter`, `plan.meterLevel`; `plan.solve` takes `q.meter` and
+  keeps the meter's table for the distance as the solution's `level`; `plan.shakeCounts`,
+  `plan.unshake` and `plan.scatterFor`. The session plans a person's throw on
+  `throw.meterFor(s)`, and `checkThrow` holds a person's throw to the meter. The Gym's
+  human thrower plans on the meter too. `tools/meterprobe.lua` measures the meter.
+
+  Golden corpus: the matches with a person's throws move (m13 from its first action, m14
+  from action 3); the 13 computer-only matches keep every hash. 15 matches, 583 action
+  hashes. `tests/fixtures/cpu/choose.txt` is unchanged.
+
+  For clients: sync the tag. A person's level picker has no effect on their throw any more
+  and can go (the fields are still taken and kept, so nothing breaks if it stays). The
+  bands are the aim view's `plan.powerLo..powerHi` and `releaseLo..releaseHi` as before;
+  they now change with the throw's distance, so draw them from every view, not once a
+  throw. Web and iPhone must both be on 0.13 to share a match.
+
 - **0.12.0** (minor). The defender's raising goes by who defends (raise.par, Q7;
   Jamie's decision of 2026-11-21), and the pro computer attacks with two new plays, so
   that a pro who defends well also attacks well: `inkast.depth` (it lays its kubbs in

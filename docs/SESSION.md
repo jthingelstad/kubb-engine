@@ -238,9 +238,20 @@ All return `{ aim, camera }`, and do nothing unless this browser may aim now.
 | `stepSide(step)`               | A step: a baton's tilt by `tiltStepDeg`, a kubb's spin by one tap.                                  |
 | `setTilt(deg)`, `setSpin(spin)` | Since 0.9: a baton's tilt (degrees) or a kubb's spin (taps, fractions too), any value, clamped to the range; each does nothing for the other projectile. |
 | `freshPlan()`                  | Back to the plan's own release and arc.                                                                              |
-| `setLevel(level)`              | The thrower's level (practice: the default level).                                                                   |
+| `setLevel(level)`              | The thrower's level (practice: the default level). Kept and stored; from 0.13 it changes nothing in a person's throw (below). |
 
 Practice also has `setDrill(on)`, `reset()` and `setSurface(name)`, which return a view.
+
+**Levels and the person's meter** (0.13; docs/notes/throw.md "The person's meter"). A
+level (`beginner`, `club`, `pro`) is the computer's standard only: the `computer` option, a
+computer side's players. Every person throws on one meter, whatever level `newPractice`,
+a player's entry, a thrower or `setLevel` names; those fields are still taken, kept and
+returned (the view's `plan.level`, `need.level`, `thrower.level`), so older callers do not
+break, and a person's level picker can go. The bars carry the difficulty by distance: wide
+for a short throw, narrow for a long one. The aim view's `plan.powerLo..powerHi` and
+`releaseLo..releaseHi` (and the dial's) are the bars for the throw as it is aimed now and
+change whenever the circle or the stance moves, so a surface redraws its bands from every
+view, as it already does; there is no new field.
 
 **The controls** (since 0.9; Jamie, 2026-11-20: "more analog allow the slider to select
 any value in a range"). `aim.controls` gives a slider its numbers from the engine:
@@ -310,7 +321,8 @@ Since 0.7.2:
   (`"A1"`); `match.engine` is this engine's major.minor.
 - `checkThrow(action)` returns `{ ok, why, computer, levels, level, atLevel }`: could
   `action` be the next throw of the match as it stands now (`levels` the player levels
-  that fit it).
+  that fit it: from 0.13 a person's throw is on one meter, so one that fits lists every
+  level and `atLevel` is true).
 - `checkStart({ start })` returns `{ ok, why }`: is `start` a match's first snapshot,
   exactly what `newMatch` makes from the options inside it?
 - `renameStart({ start, names: { A: "Ann" }, log? })` returns `{ start, ids, log? }`: the same first
@@ -341,14 +353,15 @@ log. A server (a highlight reel) can replay it in the engine and check this much
   keeps the swing's back and stop but not its flick, shake or pull, and the nerves' draws
   are seeded from them. `checkThrow` holds it to bounds worked out from the code that
   makes a throw (`session/check.lua` lists each with its source): the plan solved again
-  for the stance and target with every release, tilt (or spin) and level a player can
-  choose (since 0.9 any value in range, the action's `plan` tried first); the loft pinned by the stop (since 0.8.0, a baton planned under 2 m with the
+  for the stance and target with every release and tilt (or spin) a player can choose
+  (since 0.9 any value in range, the action's `plan` tried first), on the person's meter
+  (from 0.13; every level before); the loft pinned by the stop (since 0.8.0, a baton planned under 2 m with the
   plan's flatter share of it and the heave of a swing past the power target, as
   `plan.launch` gives them); the tilt pinning the shake and the pull; the
   swivel, speed and tumble within the nerves' largest draw (and never under the floors
   the throw clamps to: a tumble under `tumbleMin`, a length draw under `lenMin`), `ZMAX` = sqrt(-2 ln 1e-12),
   about 7.43 sds (`plan.rng`'s normal floors u1 at 1e-12); the flick between
-  `minFlickFrac` and 1 and matching the power verdict; a kubb's `scatter` the level's (`plan.levels` `drillScatter`, from 0.11); a kubb's nose, spin and wobble
+  `minFlickFrac` and 1 and matching the power verdict; a kubb's `scatter` the one the swing gives (from 0.13 `plan.scatterFor` of the shake and how far past a bar the swing went; 0.11 and 0.12: the level's `drillScatter`); a kubb's nose, spin and wobble
   exactly `drill.body`'s; the backswing 30 to 200 degrees; the stance on the ground the
   rules allow (an unset stance straight behind the target); the target in the marker's
   area or on a piece. Touch, the linear meter and STAND feed the same swing and
