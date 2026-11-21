@@ -295,7 +295,7 @@ export function addThrow(o, t) {
         if (!fi.afterGround) {
           for (const p of ['lower end', 'middle', 'upper end']) hit(o[`a.part.${p}`], ar.part === p);
           if (ar.turn != null) {
-            const e = ar.turn - 180;
+            const e = Math.abs(ar.turn) - 180; // either way round: a tumble the other way reads negative
             hit(o['a.half'], Math.abs(e) <= 30);
             add(o['a.turnErr'], e);
             add(o['a.turnAbs'], Math.abs(e));
