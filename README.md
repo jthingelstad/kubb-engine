@@ -61,6 +61,7 @@ Needs Lua 5.4 and Node; run `npm ci` once (wasmoon, for the wasm tests).
 - `make games`: 500 seeded rules-only games and 5 physics matches, every one gated.
 - `make physfuzz`: the physics fuzzer (a measuring tool).
 - `make realgames`: optional; needs a pk-kubb-score checkout (`PK_KUBB_SCORE`).
+- `make gym`: the Kubb Gym's scorecard (docs/notes/gym.md), a measuring tool.
 - `make mjref`: optional; needs a Python with `mujoco` and `numpy` (`MJPY`).
 
 The notes in `docs/notes/` explain the rules engine, the physics and the tools.
