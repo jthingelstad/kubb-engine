@@ -143,7 +143,9 @@ census of 2026-11-21.
   by the score: on the baseline when well behind, by a sideline when even, behind the
   king when ahead (ko-2011-punishment#p1.6, ko-2011-punishment#p1.7,
   ko-2011-punishment#p1.10). He turns a flat face to the thrower and notes that others
-  turn an edge (ko-2011-punishment#p1.19, ko-2011-punishment#p1.20). Josh Feathers says most teams put it on their
+  turn an edge (ko-2011-punishment#p1.19, ko-2011-punishment#p1.20). The Planet Kubb wiki
+  adds a fourth place: on the centre line, far from the group, when the attacker will
+  need all six batons for the group anyway (pk-strategy#p1.13). Josh Feathers says most teams put it on their
   baseline, and plans his own inkast around that (kn-drill-2012#p3.9).
 - **Recommendation:** The engine's default is what most teams do; leave it. Placement by
   the score is a pro refinement worth little: punishment kubbs are about one kubb in a
@@ -154,9 +156,10 @@ census of 2026-11-21.
 ## Q9: Does throwing first decide the game?
 
 - **Status:** open: recommendation accepted
-- **Asks:** One club's count has the first team winning about three games in four. A
-  larger count has 55 to 45, against 65 to 35 in the same author's simulator
-  (ko-2012-baseline, ko-2014-advantage1, ko-2014-advantage3; none yet observed).
+- **Asks:** One club's footage has the first team winning 75% of games between similar
+  teams, with no count given (ko-2012-baseline#p1.13). Two years later the same analyst,
+  from about 100 scored games, has 55 to 45, against 65 to 35 in his own simulator
+  (ko-2014-advantage1#p1.10, ko-2014-advantage1#p1.11).
 - **Recommendation:** Count it, do not argue it. The engine already offers both openings
   (2-4-6 and six batons). If the first team wins much more than 55% in the Gym at pro
   under one of them, that opening is the wrong default for pro play.
@@ -241,4 +244,20 @@ census of 2026-11-21.
   split kubbs taken per baton by arrival height and baton angle, singles and groups
   apart.
 - **Touches:** field.corner, field.sure
+
+## Q15: May the defender turn a kubb when standing it up?
+
+- **Status:** open
+- **Asks:** Josh Feathers and Chris Hodges both treat a kubb's facing as something the
+  defender sets: a corner toward the attacker on the front kubb of a double, a flat face
+  when nothing else differs (ko-2012-doubles#p1.16, ko-2013-fence#p1.15). The engine
+  raises a kubb by tipping it onto one end about that end's bottom edge (U.S. rules
+  II.D.1 as the engine reads them), which fixes its facing by how it lay. Were they
+  choosing a facing, or choosing which kubb to stand where?
+- **Recommendation:** Go by the rule text the engine plays. If it fixes the facing, then
+  facing is something the inkastare and the bounce decide, and the defender only reads
+  it. The physics already makes it matter.
+- **Settle by:** the current U.S. rules and the 2012 rules these pieces were written
+  under, read side by side.
+- **Touches:** raise.facing, raise.square
 

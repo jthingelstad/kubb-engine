@@ -50,10 +50,12 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Why:** A struck kubb is pushed up the pitch easily and across it hardly at all, so
   kubbs one behind another fall together and kubbs side by side do not. This is the
   defender's side of `inkast.depth`: depth is what the attacker wants.
-- **Says who:** ko-2013-fence#p1.11 (Chris Hodges)
+- **Says who:** ko-2013-fence#p1.11 (Chris Hodges); pk-strategy#p1.10 (Planet Kubb wiki)
 - **Basis:** player
 - **Against:** Q7. PLAY.md has the defender standing each kubb furthest from its
-  neighbours in any direction (owner, coach).
+  neighbours in any direction (owner, coach). In the Gym the engine's `apart` policy
+  turned a row lying across the pitch into kubbs staggered in depth, which helped the
+  attacker (Q6).
 - **Levels:** Proposed: pro and club.
 - **Engine:** not modelled (0.11.0). `apart` treats every direction alike.
 - **Gym:** `g.field2`, `g.field3` for the attacker, policy against policy.
@@ -91,3 +93,25 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Engine:** not modelled (0.11.0). A raised kubb faces the way it lay; nothing chooses
   its facing.
 - **Gym:** nothing yet.
+
+## raise.facing: Mind which way each kubb is turned
+
+- **When:** raise, a kubb that will stand in front of another on the attacker's line.
+- **Play:** Have the front kubb of a likely double stand with a corner toward the
+  attacker, not a flat face.
+- **Why:** A front kubb struck square on a flat face is driven straight back through the
+  one behind: an easy double. Struck on a corner, the baton glances one way and the kubb
+  goes the other, and the kubb behind stays up. The cost: a corner-facing kubb shows more
+  surface and falls to a throw a few centimetres off.
+- **Says who:** ko-2012-doubles#p1.5, ko-2012-doubles#p1.8, ko-2012-doubles#p1.10,
+  ko-2012-doubles#p1.11, ko-2012-doubles#p1.16 (Josh Feathers); ko-2013-fence#p1.5,
+  ko-2013-fence#p1.15 (Chris Hodges); pk-strategy#p1.9 (Planet Kubb wiki)
+- **Basis:** player
+- **Against:** Q15. Under the rule the engine follows, a kubb is tipped up on one end
+  with that end's bottom edge on the ground, so its facing is set by how it lay and the
+  defender chooses only the end.
+- **Levels:** Proposed: pro, if the rules allow the choice at all.
+- **Engine:** the physics has it: kubbs are boxes, so a corner and a face meet a baton
+  differently. Nothing chooses or reads a facing (0.11.0).
+- **Gym:** needs a row: kubbs taken per baton by the front kubb's facing.
+
