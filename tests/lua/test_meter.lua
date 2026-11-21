@@ -190,3 +190,25 @@ test("meter: a degree past the power bar costs more on a long throw, one for one
 	local L = plan.launch(sol, sw, nil, {})
 	expect.near(L.release, sol.release + sol.level.releaseHalf * m.inGain + 5, 1e-9)
 end)
+
+test("meter: the recorded hand fells a lone kubb about as the reference's club rows say", function()
+	local here = debug.getinfo(1, "S").source:match("^@(.*)/[^/]*$") or "."
+	local human = dofile(here .. "/../../tools/gym/human.lua")
+	local model = human.load(here .. "/../../tools/gym/human-model.json")
+	local p = human.part(model, "club", "baton")
+	-- tools/meterprobe.lua's TARGETS for the recorded hand (x1), at 200 throws a range:
+	-- within 8 points (twice the 4 the meter is tuned to, for the smaller sample)
+	for _, c in ipairs { { 4, 72 }, { 6, 48 }, { 8, 27 } } do
+		local d = c[1]
+		local sol = personSol(d)
+		local r, nr, yr = plan.rng(500 + d * 13), plan.rng(900 + d * 7), plan.rng(77 + d)
+		local fell, n = 0, 200
+		for _ = 1, n do
+			local L = plan.launch(sol, human.swing(sol, p, r, {}), { nerves = nr }, {})
+			local yaw = yr.next() * math.pi / 2
+			if L.legal and fells(d, yaw, L) then fell = fell + 1 end
+		end
+		local pc = 100 * fell / n
+		expect.truthy(math.abs(pc - c[2]) <= 8, string.format("%d m: %.0f%% against %d", d, pc, c[2]))
+	end
+end)

@@ -11,8 +11,9 @@
 --             PULLED; then a dead-centre swing with the same shakes
 --   hand      the Gym's fitted human thrower (tools/gym/human-model.json, the --hand
 --             part, club by default), its misses about the target centre scaled x2 (a
---             newcomer), x1 (the recorded people) and x0.5 (a master): the share that
---             fell, and in brackets the share inside both bars and steady
+--             newcomer), x1 (the recorded people) and x0.5 (a master; human.scale): the
+--             share that fell, and in brackets the share inside both bars and steady,
+--             beside the reference row each should land on (TARGETS)
 --   drill     a drilled kubb (the inkast) onto a spot in the far half's corner, one tap
 --             of spin, into an empty half: the recorded hand (the --hand drill part)
 --             on the person's meter, steady swings drawn evenly inside both bars and a
@@ -163,6 +164,12 @@ end
 
 local scaled = function(sw, sol, k) return human.scale(sw, sol, k) end
 
+-- What each hand should fell at 4 / 6 / 8 m: the reference's rows (docs/reference
+-- PLAY.md, play-levels.json g.baseLine and g.fieldMiss), a newcomer on beginner's, the
+-- recorded people on club's, a master on pro's; the recorded hand within about 4 points,
+-- the other two as guides (docs/notes/throw.md "The person's meter").
+local TARGETS = { [2] = { 45, 22, 10 }, [1] = { 72, 48, 27 }, [0.5] = { 88, 70, 45 } }
+
 if parts.hand then
 	local p = human.part(model, hand, "baton")
 	print(fmt("\nthe recorded hand (%s baton part): fell (in both bars and steady)", hand))
@@ -187,6 +194,8 @@ if parts.hand then
 			end
 			line = line .. fmt(" %3.0f%% (%2.0f) |", pct(F, n), pct(I, n))
 		end
+		local tg = TARGETS[hk[2]]
+		if tg then line = line .. fmt("  target at 4 / 6 / 8 m: %d / %d / %d", tg[1], tg[2], tg[3]) end
 		print(line)
 	end
 end
