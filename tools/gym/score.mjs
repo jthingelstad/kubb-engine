@@ -174,6 +174,7 @@ const ANOM = {
   deadStop: `a baton landed at ${T.deadSpeed} m/s or more and stopped dead`,
   energy: `the world gained energy (over ${T.energyJ} J)`,
   unsettled: 'still moving when the throw ran out of time',
+  broken: 'a body not a number or under the ground',
 };
 export const ANOM_KINDS = Object.keys(ANOM);
 for (const k of ANOM_KINDS) FKEYS.push([`a.${k}`, ANOM[k], 'r']);
@@ -203,7 +204,8 @@ export function anomaliesOf(o) {
     out.push({ kind: 'deadStop', key: `${o.k} ${band}`, detail: `landed at ${f.landSpeed.toFixed(1)} m/s, went ${(f.runOn * 100).toFixed(0)} cm on` });
   }
   if (f.eRise > T.energyJ) out.push({ kind: 'energy', key: `${o.k}`, detail: `energy rose ${(f.eRise * 1000).toFixed(0)} mJ above its low` });
-  if (f.rest >= T.restS) out.push({ kind: 'unsettled', key: `${o.k}`, detail: `still moving at ${f.rest.toFixed(1)} s` });
+  for (const b of f.broken || []) out.push({ kind: 'broken', key: `${o.k} ${b.why}`, detail: `${b.id}: ${b.why}` });
+  if (f.timedOut || f.rest >= T.restS) out.push({ kind: 'unsettled', key: `${o.k}`, detail: `still moving at ${f.rest.toFixed(1)} s` });
   return out;
 }
 
