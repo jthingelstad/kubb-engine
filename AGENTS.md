@@ -93,6 +93,10 @@ iPhone app (the bundle: core, room, session and tune).
   replayed through `core/swing` by `test_swing`.
 - Measuring tools (`tools/physfuzz.lua`, `clusters.lua`, `realgames.mjs` and the rest)
   change nothing in the engine; what to tune from them is Jamie's call.
+- `docs/reference/PLAY.md` and `play-levels.json`: how kubb is played at beginner, club
+  and pro, with a target range per Gym row and its basis (measured, owner, coach or
+  estimate). `node tools/realtiers.mjs <real games dir> --json` reproduces the measured
+  block. Guidance for the computer player and the Gym, not a rule.
 - The Kubb Gym (`make gym`, `node tools/gym.mjs`; docs/notes/gym.md): seeded matches by
   the computer and a human thrower fitted from recorded swings, forensics on every throw,
   anomalies with a replay command each, the real-games comparison on one page; `gym
