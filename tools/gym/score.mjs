@@ -241,7 +241,7 @@ export function addThrow(o, t) {
       const mk = missKind(f);
       for (const w of ['short', 'over', 'wide', 'touched']) hit(o[`f.miss.${w}`], mk === w);
       if (mk === 'short' && f.runOn != null) {
-        hit(o['f.short.died'], f.landAlong + f.runOn < -T.shortM);
+        hit(o['f.short.died'], (f.restAlong != null ? f.restAlong : f.landAlong + f.runOn) < -T.shortM);
         add(o['f.short.run'], f.runOn);
       }
     }

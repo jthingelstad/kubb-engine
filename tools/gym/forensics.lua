@@ -19,6 +19,8 @@
 --   landAcross      the same across the throw (+ right of the line)
 --   landSpeed       its speed just before that ground contact
 --   runOn           how far its centre went along the throw from that contact to rest
+--                   (its centre at the step it landed to its centre at rest)
+--   restAlong       where its centre came to rest, along the throw, minus the target's distance
 --   first           the first standing piece it touched, or nil: { id, role, kind,
 --                   where = top-face | top-edge | body | bottom, h (height up the piece),
 --                   speed, lean (baton axis from vertical), descent, kept (speed 0.05 s
@@ -150,6 +152,8 @@ function forensics.run(w, ctx, pieces)
 	local rec = { touched = 0, hard = {}, toppled = 0, byBaton = 0, byKubb = 0, eRise = 0, propped = {} }
 	-- the projectile's state before the step (for what it was doing at a contact)
 	local pvx, pvy, pvz, pr33 = proj.vx, proj.vy, proj.vz, proj.r33
+	local ppx, ppy = proj.x, proj.y
+	local landCX, landCY -- its centre at the step it met the ground
 	local groundT, firstPieceT, keptBase, firstTr
 	local landX, landY
 	local pairHit = {}   -- piece id -> true: touched by another piece (not the projectile)
@@ -164,6 +168,7 @@ function forensics.run(w, ctx, pieces)
 			if a == proj and not groundT then
 				groundT = time
 				rec.landSpeed = sqrt(pvx * pvx + pvy * pvy + pvz * pvz)
+				landCX, landCY = ppx, ppy
 				landPending = true
 			end
 			contactSeen = true
@@ -198,6 +203,7 @@ function forensics.run(w, ctx, pieces)
 	local each = ctx.each
 	repeat
 		pvx, pvy, pvz, pr33 = proj.vx, proj.vy, proj.vz, proj.r33
+		ppx, ppy = proj.x, proj.y
 		world.step(w)
 		if each then each(w) end
 		-- where each newly touched piece was met: the narrow phase between steps, as
@@ -215,6 +221,7 @@ function forensics.run(w, ctx, pieces)
 				groundT = fc.t
 				rec.landSpeed = sqrt(pvx * pvx + pvy * pvy + pvz * pvz)
 				landX, landY = fc.x, fc.y
+				landCX, landCY = ppx, ppy
 			end
 			contactSeen = true
 			for k = 1, nTracked do
@@ -288,8 +295,11 @@ function forensics.run(w, ctx, pieces)
 		local ax, ay = landX - sx, landY - sy
 		rec.landAlong = ax * ux + ay * uy - tAlong
 		rec.landAcross = ax * uy - ay * ux
-		local rx, ry = proj.x - landX, proj.y - landY
-		rec.runOn = rx * ux + ry * uy
+		-- centre to centre: from the contact point it would read a nose-first landing's
+		-- tip, about a half length ahead of the centre, as the baton going backwards
+		local cx, cy = landCX or landX, landCY or landY
+		rec.runOn = (proj.x - cx) * ux + (proj.y - cy) * uy
+		rec.restAlong = (proj.x - sx) * ux + (proj.y - sy) * uy - tAlong
 	end
 	local down = {}
 	for _, id in ipairs(res.toppled) do down[id] = true end
