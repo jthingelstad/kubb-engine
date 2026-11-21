@@ -104,11 +104,12 @@ end
 local function pct(a, b) return b > 0 and 100 * a / b or 0 end
 
 print(fmt("meterprobe: the person's meter, %d throws a cell, seed %d", n, seed))
-print("bars by range (half widths, degrees): power / release")
+print("bars by range (half widths, degrees): power / release, and past the power bar")
 for _, d in ipairs(ranges) do
 	local sol = solveAt(d)
-	print(fmt("  %4.1f m  %5.1f / %5.1f   (power target %.1f..%.1f, release %.1f..%.1f)", d,
-		sol.level.powerHalf, sol.level.releaseHalf, sol.powerLo, sol.powerHi, sol.releaseLo, sol.releaseHi))
+	print(fmt("  %4.1f m  %5.1f / %5.1f  x%.2f   (power target %.1f..%.1f, release %.1f..%.1f)", d,
+		sol.level.powerHalf, sol.level.releaseHalf, sol.level.outGain or 1, sol.powerLo, sol.powerHi,
+		sol.releaseLo, sol.releaseHi))
 end
 
 if parts.perfect then
@@ -160,18 +161,7 @@ if parts.honest then
 	end
 end
 
--- a recorded swing with its misses about the target centre scaled by k
-local function scaled(sw, sol, k)
-	sw.back = sol.back + k * (sw.back - sol.back)
-	sw.releaseAngle = sol.release + k * (sw.releaseAngle - sol.release)
-	if sw.releaseAngle < 1 then sw.releaseAngle = 1 end
-	sw.how = sw.releaseAngle >= tw.swing.tune.skyDeg and "sky" or "stopped"
-	sw.shake = min(1, (sw.shake or 0) * k)
-	sw.smoothness = 1 - sw.shake
-	sw.flickFrac = max(tw.swing.tune.minFlickFrac, 1 - k * (1 - (sw.flickFrac or 1)))
-	sw.flickDps = nil
-	return sw
-end
+local scaled = function(sw, sol, k) return human.scale(sw, sol, k) end
 
 if parts.hand then
 	local p = human.part(model, hand, "baton")

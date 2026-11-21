@@ -179,7 +179,7 @@ local function tryTilt(ctx, sol, ptilt, taps)
 	local back = ctx.back
 	local loft = L.loft
 	-- the power as it counts and the overpower
-	local effBack = sol.back + plan.shrink(back - sol.back, lv.powerHalf, lv.inGain)
+	local effBack = sol.back + plan.shrink(back - sol.back, lv.powerHalf, lv.inGain, lv.outGain, lv.outCap)
 	local past = back - sol.powerHi
 	local m = 1 + lv.overGain * (past > 0 and past or 0) / t.overPerDeg
 	-- the shake from the tilt
@@ -224,7 +224,7 @@ local function tryTilt(ctx, sol, ptilt, taps)
 	local lo, hi = swing.tune.minFlickFrac, 1
 	local base = plan.speedFor(effBack)
 	if base <= 0 then
-		if L.speed > EPS then return false, 6, "no power, yet a speed" end
+		if abs(L.speed) > EPS then return false, 6, "no power, yet a speed" end
 	else
 		local ratio = L.speed / base
 		local lenLo = max(t.lenMin, -check.ZMAX * sdLen)

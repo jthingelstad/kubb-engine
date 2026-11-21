@@ -158,3 +158,35 @@ test("meter: a person's kubb keeps the clean hand inside the bars and scatters o
 			plan.levels[name].drillScatter, name)
 	end
 end)
+
+test("meter: a degree past the power bar costs more on a long throw, one for one up to outFromM", function()
+	local m = plan.meter()
+	-- what one more degree past the edge does to the backswing as it counts
+	local function past(d)
+		local sol = personSol(d)
+		local h = sol.level.powerHalf
+		local function eff(e)
+			local sw = { back = sol.back + e, releaseAngle = sol.release, flickFrac = 1, smoothness = 1, shake = 0,
+				pull = 1, how = "stopped" }
+			return plan.launch(sol, sw, nil, {}).back
+		end
+		return eff(h + 2) - eff(h + 1), eff(h + m.outCapDeg + 2) - eff(h + m.outCapDeg + 1), eff(h * 0.5) - sol.back
+	end
+	local a4, b4, in4 = past(4)
+	local a8, b8, in8 = past(8)
+	expect.near(a4, 1, 1e-9, "4 m: one for one")
+	expect.near(a8, m.outGain8, 1e-9, "8 m: outGain8")
+	expect.near(b8, 1, 1e-9, "past outCapDeg: one for one again")
+	expect.near(b4, 1, 1e-9)
+	-- inside the bar nothing changes: inGain at every range
+	expect.near(in4, plan.meterLevel(m, 4, "baton").powerHalf * 0.5 * m.inGain, 1e-9)
+	expect.near(in8, m.powerHalf8 * 0.5 * m.inGain, 1e-9)
+	-- the release past its bar counts one for one at every range (the loft stays pinned by
+	-- the stop, so checkThrow can hold it)
+	local sol = personSol(8)
+	expect.eq(sol.level.outGain > 1, true)
+	local sw = { back = sol.back, releaseAngle = sol.releaseHi + 5, flickFrac = 1, smoothness = 1, shake = 0, pull = 1,
+		how = "stopped" }
+	local L = plan.launch(sol, sw, nil, {})
+	expect.near(L.release, sol.release + sol.level.releaseHalf * m.inGain + 5, 1e-9)
+end)

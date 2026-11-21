@@ -207,9 +207,9 @@ plan.LEVELS = { "beginner", "club", "pro" }
 -- would be another entry here.
 plan.meters = {
 	standard = {
-		powerHalf8 = 2, releaseHalf8 = 7.5, widen = 0.7, nearM = 3, farM = 10, narrowMin = 0.5,
-		kubbPower = 1, kubbRelease = 1,
-		inGain = 0.1, shakeIn = 0.1, shakeGain = 0.75, overGain = 0.75,
+		powerHalf8 = 2, releaseHalf8 = 7.5, widen = 0.45, nearM = 3, farM = 10, narrowMin = 0.5,
+		kubbPower = 1.35, kubbRelease = 1.35,
+		inGain = 0.1, outFromM = 5, outGain8 = 3.5, outCapDeg = 10, shakeIn = 0.1, shakeGain = 0.75, overGain = 0.75,
 		nervesDeg = 0.12, nervesLen = 0.008, tumbleTurns = 0.50, tumbleSd = 0.015,
 		drillScatter = 0.35, scatterGain = 3, roughGain = 6, roughMax = 2,
 	},
@@ -224,7 +224,7 @@ end
 -- The level-shaped table a person's throw at distance d (m) with projectile ("baton"
 -- or "kubb") is planned and launched on, from meter m (plan.meters). Fills and
 -- returns out (a new table when nil): powerHalf, releaseHalf, inGain, shakeIn,
--- shakeGain, overGain, nervesDeg, nervesLen, tumbleTurns, tumbleSd, drillScatter,
+-- outGain, outCap, shakeGain, overGain, nervesDeg, nervesLen, tumbleTurns, tumbleSd, drillScatter,
 -- scatterGain, roughGain, roughMax, and meter = m.
 function plan.meterLevel(m, d, projectile, out)
 	out = out or {}
@@ -236,6 +236,11 @@ function plan.meterLevel(m, d, projectile, out)
 	if projectile == "kubb" then kp, kr = m.kubbPower or 1, m.kubbRelease or 1 end
 	out.powerHalf, out.releaseHalf = m.powerHalf8 * k * kp, m.releaseHalf8 * k * kr
 	out.inGain, out.shakeIn, out.shakeGain, out.overGain = m.inGain, m.shakeIn, m.shakeGain, m.overGain
+	-- past the power bar: one for one up to outFromM, rising on a line to outGain8 at 8 m
+	-- (and on past it to farM), over the first outCapDeg degrees past the edge
+	local o = 1
+	if d > m.outFromM then o = 1 + (m.outGain8 - 1) * (d - m.outFromM) / (8 - m.outFromM) end
+	out.outGain, out.outCap = o, m.outCapDeg
 	out.nervesDeg, out.nervesLen, out.tumbleTurns, out.tumbleSd = m.nervesDeg, m.nervesLen, m.tumbleTurns, m.tumbleSd
 	out.drillScatter, out.scatterGain, out.roughGain, out.roughMax = m.drillScatter, m.scatterGain, m.roughGain, m.roughMax
 	out.meter = m
@@ -662,10 +667,21 @@ end
 -- The launch (once per throw)
 
 -- An error e against a target half width h: inside the target it counts
--- inGain of itself; outside, the part beyond the edge counts in full. The two
--- meet at the edge (continuous).
-function plan.shrink(e, h, inGain)
+-- inGain of itself; outside, the part beyond the edge counts in full (times
+-- outGain when given). The two meet at the edge (continuous).
+-- outGain (a person's meter, nil: 1) multiplies the first outCap degrees beyond the
+-- edge (all of them when outCap is nil); past those they count one for one again: on a
+-- long throw a degree past the bar costs more (plan.meters outGain8, outCapDeg), and a
+-- wild swing is not made wilder than its own error.
+function plan.shrink(e, h, inGain, outGain, outCap)
 	if e >= -h and e <= h then return e * inGain end
+	if outGain then
+		local x = e > 0 and e - h or -(e + h)
+		local c = (outCap and x > outCap) and outCap or x
+		x = x + (outGain - 1) * c
+		if e > 0 then return h * inGain + x end
+		return -h * inGain - x
+	end
 	if e > 0 then return h * inGain + (e - h) end
 	return -h * inGain + (e + h)
 end
@@ -719,7 +735,7 @@ function plan.launch(sol, r, opts, out)
 	local back = r.back or 0
 	-- power: the backswing, forgiven inside the target, sets the speed; the
 	-- flick delivers its share of it
-	local effBack = sol.back + shrink(back - sol.back, lv.powerHalf, lv.inGain)
+	local effBack = sol.back + shrink(back - sol.back, lv.powerHalf, lv.inGain, lv.outGain, lv.outCap)
 	out.speed = plan.speedFor(effBack) * flick
 	-- release: where the crank stopped, forgiven inside the target, sets the
 	-- loft; a sky ball counts skyExtraDeg past 12 o'clock or where it stopped
