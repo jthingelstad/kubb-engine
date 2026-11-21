@@ -111,12 +111,15 @@ function workerArgs(o, c, from, to, out) {
   return a;
 }
 
-function reproOf(o, c, t) {
-  const parts = ['lua5.4 tools/gym/match.lua', `--thrower ${c.thrower}`, `--level ${c.level}`];
-  if (c.surface !== 'Grass') parts.push(`--surface ${c.surface}`);
-  parts.push(`--seed ${o.seed}`);
+// The command that replays one throw: every option that shapes the simulation, so it
+// plays the same match (paths inside this checkout are written relative to it).
+export function reproOf(o, c, t) {
+  const rel = p => (p.startsWith(root + '/') ? p.slice(root.length + 1) : p);
+  const parts = ['lua5.4 tools/gym/match.lua', `--thrower ${c.thrower}`, `--level ${c.level}`,
+    `--surface ${c.surface}`, `--seed ${o.seed}`, `--maxturns ${o.maxturns}`];
+  if (c.thrower === 'human') parts.push(`--model ${rel(o.model)}`);
   for (const s of o.sets) parts.push(`--set ${s}`);
-  if (o.engine) parts.push(`--engine ${o.engine}`);
+  if (o.engine) parts.push(`--engine ${rel(o.engine)}`);
   parts.push(`--repro ${t.m}:${t.t}`);
   return parts.join(' ');
 }
@@ -225,7 +228,9 @@ export function compareCards(A, B, zBar = 2.58) {
       if (!a || !b || !a.n || !b.n) continue;
       const ia = score.interval(a), ib = score.interval(b);
       const se = Math.hypot(ia.se, ib.se);
-      if (!(se > 0)) continue;
+      // constant on both sides: a change with no noise at all is reported (z infinite),
+      // the same constant is not
+      if (!(se > 0)) { if (ia.v !== ib.v) rows.push({ config: n, key: k, label, a: score.cell(a), b: score.cell(b), z: ib.v > ia.v ? Infinity : -Infinity }); continue; }
       const z = (ib.v - ia.v) / se;
       if (Math.abs(z) >= zBar) rows.push({ config: n, key: k, label, a: score.cell(a), b: score.cell(b), z });
     }
@@ -242,7 +247,7 @@ function printCompare(A, B, rows, nameA, nameB) {
   const table = [];
   for (const r of rows) {
     if (r.config !== last) { table.push([r.config]); last = r.config; }
-    table.push([r.label, r.a, r.b, (r.z > 0 ? '+' : '') + r.z.toFixed(1)]);
+    table.push([r.label, r.a, r.b, Number.isFinite(r.z) ? (r.z > 0 ? '+' : '') + r.z.toFixed(1) : (r.z > 0 ? '+' : '-') + 'exact']);
   }
   l.push('', score.render(table, ['A', 'B', 'z']));
   return l.join('\n');
