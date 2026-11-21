@@ -194,18 +194,26 @@ is scheduled.
 First the split itself, with no change in play: Read, Choose and Throw cut out of
 `autothrow.choose`, `why` returned, every golden hash as recorded. Done in 0.11.1.
 
-Then plays, largest measured gap first:
+Then plays, by what `gym versus` shows matters most. Its first results (2026-11-21,
+0.11.0, docs/notes/gym.md "Versus") reordered this list:
 
-1. `field.line`: stand where kubbs line up. The lane test from any stance, not only
-   straight on.
-2. `field.corner` and Q14: how the baton meets the front kubb of a group.
-3. Raising by the attacker's batons (`raise.par`, `raise.across`), played against the
-   inkast shapes (Q6 and Q7 are one contest).
+1. **Raising by the attacker's batons** (`raise.par`, `raise.across`). The largest effect
+   measured so far: the engine's `apart` policy loses about three games in four to any
+   policy that keeps a row a row. It comes first because every inkast result depends on
+   it (Q6 and Q7 are one contest).
+2. **The baton at a group** (`field.line`, `field.corner`, Q14). The reason `apart` loses
+   is a blind spot in the attacker: the computer cannot take two kubbs standing flank to
+   flank, and takes a tight fence one baton a kubb. This is also where the pro computer
+   is furthest from real play.
+3. **The inkast's shape, played again** against a defender who raises well: row, line and
+   a wall in depth along the sideline.
 4. `inkast.deep` at club and `inkast.chase` at pro.
 5. `inkast.first` and `inkast.steer`.
 6. The punishment plays, and `king.corner` as a Gym experiment.
 
-The order will move as `gym versus` reports. It is recorded here when it does.
+The levels are far apart: pro beats club 96 games in 100 and club beats beginner 94.
+Whether a level should beat the one below it that often is a product question (Q11 and
+the levels) and is not settled here.
 
 ## Not decided here
 

@@ -90,7 +90,7 @@ census of 2026-11-21.
 
 ## Q6: A row across, or kubbs in depth?
 
-- **Status:** open: the first comparison is in, and it went against our reading
+- **Status:** open: played side against side; the answer depends on the defender
 - **Asks:** Since 0.11.0 the club and pro computer lay their kubbs flank to flank in a
   row (`autothrow.tune.inkast`, `row = 1`). Two interviewees say depth matters more than
   closeness, because kubbs one behind another give doubles and a fence along the centre
@@ -98,42 +98,61 @@ census of 2026-11-21.
   Haraldsson). Others want kubbs so close the raiser has no choice (kn-drill-2012#p6.9,
   kn-drill-2012#p2.10). The coach builds "a wall along the side" (yt-Io-rxbSB3Ns#1:13)
   and has the baton thrower throw down it (yt-Io-rxbSB3Ns#1:30).
-- **So far:** The Gym, 2026-11-21, engine 0.11.0, the computer at club and pro, 300
-  matches each, seed 1: the row as shipped against `row = 0` (0.10's line for two or
-  three kubbs and cluster for more) and against `row = 0` with `clusterFrom = 99` (always
-  a line along the throw). The row won on every row that bears on doubles. At pro, field
-  batons that took two: 22.2% against 17.1% and 15.9%; three or more: 4.9% against 3.0%
-  and 2.1%; turns that cleared: 77.0% against 72.8% and 71.2%; batons to clear: 3.70
-  against 4.08 and 4.14. Club moved the same way by less. Why: the row lies as a fence,
-  but the defender's `apart` policy then stands neighbours on opposite ends, which
-  staggers it 15 cm in depth. Standing, it has as much depth on the baton's path as the
-  line, and it is tighter (spread 0.23 m against 0.32 and 0.36 at pro). Two cautions.
-  The line variants also land their drills worse on 0.11's physics (0.17 m from the mark
-  against 0.06), so shape and accuracy are mixed. And each variant played itself, so
-  there is no win rate.
-- **Recommendation:** Keep the row. Our reading that it is the fence the players warn
-  against was wrong for the game as the engine plays it. What the result does show is
-  that the worth of an inkast shape depends on how the defender raises: the row works
-  because `apart` staggers it. A defender who kept it a fence, as `raise.across` advises,
-  might undo that. So Q6 and Q7 are one contest and have to be played as one.
-- **Settle by:** the Gym, attacker against defender: the row against the line, each under
-  `apart` and under a raise that keeps kubbs across. That needs matches where the two
-  sides play differently, which the Gym cannot yet do. A wall in depth along the
-  sideline, thrown down from that sideline, is still untested: nothing builds it.
+- **So far:** The Gym, 2026-11-21, engine 0.11.0, the computer at pro, 300 seeds played
+  both ways round (`gym versus`). The row against 0.10's line and cluster (`row = 0`):
+
+  | The row's kubbs are raised | The line's kubbs are raised | The row wins |
+  | --- | --- | --- |
+  | apart | apart | 67.6% (64.2 to 71.0) |
+  | apart | kept across | 55.2% (51.8 to 58.5) |
+  | kept across | apart | 44.5% (41.1 to 47.9) |
+  | kept across | kept across | 36.6% (33.2 to 39.9) |
+
+  The row wins only while the defender stands its kubbs `apart`, which staggers a row
+  lying across the pitch into depth. Against a defender who keeps it a fence, the row
+  loses to the line 37 to 63. At club the two shapes are level (50.7%, 47.1 to 54.3). One
+  caution carried over: on 0.11's physics the line's drills land less accurately than the
+  row's, so the line is being judged at a handicap.
+- **Recommendation:** The players were right, and so was the first Gym run: both results
+  are the same fact seen against two defenders. Depth beats a fence once the defender
+  defends. So the inkast cannot be settled before the raising is (Q7). When the computer
+  raises by the attacker's batons, play the shapes again and build the one that wins
+  against it. A wall in depth along the sideline, thrown down from that sideline, is
+  still untested: nothing builds it.
+- **Settle by:** `gym versus`, after `raise.par` exists: row, line and a sideline wall,
+  each against a defender who raises by the attacker's batons.
 - **Touches:** inkast.depth, inkast.corner, raise.across
 
 ## Q7: Raise kubbs apart, or as a tight fence?
 
-- **Status:** open: recommendation accepted
+- **Status:** open: played side against side; `apart` lost
 - **Asks:** The engine's raise policy is `apart`: each kubb stands on the end furthest
   from its neighbours (owner and coach, PLAY.md). Chris Hodges argues for counting the
   attacker's batons, and says space across the pitch is worth much more than space along
-  it (ko-2013-fence#p1.4, ko-2013-fence#p1.11).
-- **Recommendation:** Keep `apart` for now. The better rule is the one both sides are
-  reaching for: stand each kubb where the attacker needs the most batons. The engine can
-  count that with the same lane test its own batons aim by.
-- **Settle by:** the Gym: a `par` policy against `apart` on the attacker's `g.btc` and
-  `g.cleared`.
+  it (ko-2013-fence#p1.4, ko-2013-fence#p1.11). The Planet Kubb wiki has defenders
+  standing kubbs to minimise depth (pk-strategy#p1.10).
+- **So far:** The Gym, 2026-11-21, engine 0.11.0, both teams the pro computer throwing
+  the shipped row, 300 seeds played both ways round. The team raising `apart` won 23.8%
+  against one raising `together`, 27.5% against `first`, and 27.3% and 24.4% against two
+  Gym policies that stand every kubb with a choice on the same end. Every interval is
+  clear of 50; the four are not different from one another. Why: kept as a fence, six
+  kubbs stand side by side about 10 cm apart, and the computer takes them one baton each.
+  Its aim counts only kubbs straight behind the front one, and never joins two standing
+  flank to flank. Staggered by `apart`, the same kubbs give it doubles. But against the
+  line, raising `apart` did better than keeping kubbs on one end (the first two rows of
+  Q6's table: 67.6 against 55.2 for the team raising the line's kubbs). So no fixed
+  policy is right: across beats apart against a row, and apart beats across against a
+  line.
+- **Recommendation:** Build `raise.par`: for each kubb with a choice, the end that leaves
+  the attacker the fewest kubbs one behind another on a baton's path. It should choose
+  the fence against a row and the spread against a line without being told which it
+  faces. Then make it the computer's policy and the automatic one, if it beats `apart`
+  and is no worse than the fixed policies against both shapes. One caution: part of this
+  result is the computer's own blind spot at a fence. A thrower who could take a tight
+  row would change the sum, so the raising has to be played again whenever the baton at a
+  group improves (Q14).
+- **Settle by:** `gym versus`: `par` against `apart` and against the same-end policies,
+  facing the row and facing the line, at pro and at club.
 - **Touches:** raise.par, raise.across
 
 ## Q8: Where does a punishment kubb go?
@@ -160,6 +179,9 @@ census of 2026-11-21.
   teams, with no count given (ko-2012-baseline#p1.13). Two years later the same analyst,
   from about 100 scored games, has 55 to 45, against 65 to 35 in his own simulator
   (ko-2014-advantage1#p1.10, ko-2014-advantage1#p1.11).
+- **So far:** In the Gym at pro, with both teams playing alike under the default opening,
+  the team that opened won 163 of 299 decided games, about 54.5%. That is the larger
+  count's figure, not the club's.
 - **Recommendation:** Count it, do not argue it. The engine already offers both openings
   (2-4-6 and six batons). If the first team wins much more than 55% in the Gym at pro
   under one of them, that opening is the wrong default for pro play.
