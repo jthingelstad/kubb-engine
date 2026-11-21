@@ -21,7 +21,9 @@ It has four layers, and knowledge moves through them in one direction:
 the summary by level and its numbers; PLAY.md's claims move into `plays/` as they gain a
 source.
 
-`make refcheck` (in `make test`) fails when a layer breaks the rules below.
+`make refcheck` (in `make test`) fails when a layer breaks the rules below, and when
+`core/plays.lua`, the plays the computer player carries out, names an id that is not a play
+in `plays/`.
 
 ## Rules
 

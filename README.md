@@ -2,7 +2,8 @@
 
 The rules, physics, notation and session of Kubb: Throwing Wood, as pure Lua 5.4: the
 rules engine (`core/rules`), the physics (`core/world`, `core/collide`, `core/body`), the
-throw and the computer thrower (`core/throwplan`, `core/autothrow`), matches
+throw and the computer player (`core/throwplan`; `core/read`, `core/plays`, `core/cpu` and
+`core/autothrow`, docs/notes/computer-player.md), matches
 (`core/match`) and the Planet Kubb Notation writer (`core/notation`, `core/gamefile`);
 the session (`session/`), a practice pitch or a match behind one door, `kubbCall`,
 with JSON in and out (docs/SESSION.md); and the room (`room/`), a shared pitch's

@@ -1,8 +1,10 @@
 // The play reference's checker (docs/reference/README.md is its specification): that
 // sources.json, the observations, the plays and QUESTIONS.md keep the rules between them,
 // so a play cannot cite an entry that is not there and an observed source cannot lack its
-// observation. It reads the tree and changes nothing.
-//   node tools/refcheck.mjs [--root <dir>]   default: docs/reference beside this script
+// observation; and that every play the computer player carries out (core/plays.lua) is a
+// play here. It reads the tree and changes nothing.
+//   node tools/refcheck.mjs [--root <dir>] [--plays <file>|--no-plays]
+//   default: docs/reference and core/plays.lua beside this script
 // Prints one `<file>:<line>: <problem>` per problem and exits 1, or a one-line summary.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -97,7 +99,19 @@ function keyLine(text, key, from = 0) {
   return 1;
 }
 
-export function checkReference(root) {
+// The play ids core/plays.lua holds: its `["<id>"] = {` keys, with their lines.
+export function enginePlays(text) {
+  const out = [];
+  text.split('\n').forEach((line, i) => {
+    const m = line.match(/^\s*\[\s*"([^"]+)"\s*\]\s*=\s*\{/);
+    if (m) out.push({ id: m[1], line: i + 1 });
+  });
+  return out;
+}
+
+// opts.playsLua: core/plays.lua's path (its problems are reported against `core/plays.lua`);
+// left out, the engine's plays are not checked.
+export function checkReference(root, opts = {}) {
   const problems = [];
   const bad = (file, line, msg) => problems.push({ file, line, msg });
   const counts = { sources: 0, observations: 0, entries: 0, plays: 0, questions: 0 };
@@ -280,6 +294,21 @@ export function checkReference(root) {
     checkCitations(rel, text);
   }
 
+  // core/plays.lua: every play the computer carries out is a play here.
+  if (opts.playsLua) {
+    const PL = 'core/plays.lua';
+    const plText = read(opts.playsLua);
+    if (plText === null) bad(PL, 1, `missing: ${opts.playsLua}`);
+    else {
+      const ids = enginePlays(plText);
+      if (ids.length === 0) bad(PL, 1, 'holds no plays (no ["<id>"] = { entries)');
+      for (const { id, line } of ids) {
+        counts.engine = (counts.engine || 0) + 1;
+        if (!keys.has(id)) bad(PL, line, `${id} is not a play in plays/`);
+      }
+    }
+  }
+
   problems.sort((a, b) => (a.file < b.file ? -1 : a.file > b.file ? 1 : a.line - b.line));
   return { problems, counts };
 }
@@ -287,16 +316,22 @@ export function checkReference(root) {
 function main() {
   const args = process.argv.slice(2);
   let root = path.join(repo, 'docs', 'reference');
+  let playsLua = path.join(repo, 'core', 'plays.lua');
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--root' && args[i + 1]) root = path.resolve(args[++i]);
-    else { console.error('usage: node tools/refcheck.mjs [--root <dir>]'); process.exit(2); }
+    else if (args[i] === '--plays' && args[i + 1]) playsLua = path.resolve(args[++i]);
+    else if (args[i] === '--no-plays') playsLua = null;
+    else { console.error('usage: node tools/refcheck.mjs [--root <dir>] [--plays <file>|--no-plays]'); process.exit(2); }
   }
-  const { problems, counts } = checkReference(root);
-  // Paths relative to where it was run, so an editor can open them from the terminal.
-  for (const p of problems) console.log(`${path.relative(process.cwd(), path.join(root, p.file))}:${p.line}: ${p.msg}`);
+  const { problems, counts } = checkReference(root, { playsLua });
+  // Paths relative to where it was run, so an editor can open them from the terminal; the
+  // engine's plays file is reported where it is.
+  const where = (f) => (f === 'core/plays.lua' ? playsLua : path.join(root, f));
+  for (const p of problems) console.log(`${path.relative(process.cwd(), where(p.file))}:${p.line}: ${p.msg}`);
   if (problems.length) process.exit(1);
   const c = counts;
-  console.log(`refcheck: ${c.sources} sources, ${c.observations} observations (${c.entries} entries), ${c.plays} plays, ${c.questions} questions; no problems`);
+  const engine = playsLua ? `; ${c.engine || 0} played by the engine` : '';
+  console.log(`refcheck: ${c.sources} sources, ${c.observations} observations (${c.entries} entries), ${c.plays} plays, ${c.questions} questions${engine}; no problems`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

@@ -95,6 +95,26 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.11.1** (patch). The computer player in the parts its design calls for
+  (docs/notes/computer-player.md), with no change in play: `core/read` (the situation:
+  the field kubbs near each basket, the lying kubbs near one and the innermost of them,
+  the clear spot test, a front kubb's lane), `core/plays` (the three plays 0.11.0
+  carries out: `inkast.corner`, `inkast.roll`, `field.roles`) and `core/cpu`
+  (`cpu.decide(s, r, level)`: the choices `autothrow.choose` made, in the same order,
+  returned as an intent and a reason). `autothrow.choose` keeps its signature and its
+  result, and is now `cpu.decide` then the hand; `autothrow.basket` and `autothrow.spot`
+  stay as names for `cpu.basket` and `cpu.spot`. Every tune number stays in
+  `autothrow.tune`. The reason is not on the throw's table, which reaches the session's
+  actions and recordings: the last decision is `cpu.last`. `make refcheck` also checks
+  that every id in `core/plays.lua` is a play in `docs/reference/plays/`.
+  `tests/fixtures/cpu/choose.txt`, written by 0.11.0, holds every field of
+  `autothrow.choose`'s result and the next number of its stream over 480 seeded setups;
+  0.11.1 matches it line for line. All 532 golden action hashes match 0.11.0, and
+  `tools/physdump.lua`'s output is the same byte for byte.
+
+  For clients: sync the tag; nothing else changes. The core has three more files, all
+  imported by `core/autothrow`.
+
 - **0.11.0** (minor). A thrown kubb can land dead and roll, and the three levels throw
   their kubbs in differently (Jamie, 2026-11-21: "Spinning is the key to kubbs touching.
   By spinning they land and then roll into each other"). Every drilled kubb lands

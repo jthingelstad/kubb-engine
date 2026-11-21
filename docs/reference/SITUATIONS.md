@@ -14,10 +14,10 @@ A turn is a sequence of phases. Each play belongs to one, and `plays/<phase>.md`
 
 | Phase | The moment | In the engine |
 | --- | --- | --- |
-| `inkast` | Throwing the kubbs in: where each should rest, and how it is thrown | `match.setup` with `kind = "toss"`; `autothrow.basket`, `autothrow.spot` |
+| `inkast` | Throwing the kubbs in: where each should rest, and how it is thrown | `match.setup` with `kind = "toss"`; `cpu.basket`, `cpu.spot` |
 | `raise` | The defender stands each thrown kubb on one end | `raising.choose` and its `raisePolicy` |
 | `punish` | The defender places a kubb that went out twice | `raising.autoPunishment` |
-| `field` | Batons at field kubbs: which, in what order, from where | `kind = "baton"` with field kubbs in `targets`; `autothrow.choose` |
+| `field` | Batons at field kubbs: which, in what order, from where | `kind = "baton"` with field kubbs in `targets`; `cpu.decide`, `read.lane` |
 | `baseline` | Batons at base kubbs, from 8 m or from an advantage line | `kind = "baton"` with only base kubbs in `targets` |
 | `king` | The throw at the king | `kingShot` |
 

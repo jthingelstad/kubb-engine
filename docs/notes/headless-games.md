@@ -22,7 +22,7 @@ so games have kubbs knocked in before the round is judged; `make games` prints
 `knockedIn`/`knockedOut` and the sheets' `R`, `P`, `Q`, `N` counts.
 
 `core/autothrow.lua` is the computer thrower, and it throws the player's way (DESIGN 4):
-for a match setup it picks a target, stands behind it (`plan.stance`), takes the default arc
+for a match setup it picks a target (since 0.11.1 by `cpu.decide`, docs/notes/computer-player.md), stands behind it (`plan.stance`), takes the default arc
 (`plan.arcFor`), solves the plan at a level (`plan.solve` with `autothrow.cpuLevel`,
 `autothrow.tune.level`, club; "The computer's levels" under "Real games"),
 makes a synthetic swing (`autothrow.swing`: core/swing's result fields with seeded mistakes)
