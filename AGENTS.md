@@ -92,7 +92,10 @@ iPhone app (the bundle: core, room, session and tune).
 - `tests/fixtures/traces/device-*.jsonl` are crank traces recorded on a Playdate,
   replayed through `core/swing` by `test_swing`.
 - Measuring tools (`tools/physfuzz.lua`, `clusters.lua`, `realgames.mjs` and the rest)
-  change nothing in the engine; what to tune from them is Jamie's call.
+  change nothing in the engine. A change to how the computer plays follows
+  docs/notes/computer-player.md, "How a play gets in": built switched off, proven in the
+  Gym side against side, then switched on in its own pull request. What the game is (its
+  levels and modes, and when a client takes a new tag) is Jamie's call.
 - `docs/reference/PLAY.md` and `play-levels.json`: how kubb is played at beginner, club
   and pro, with a target range per Gym row and its basis (measured, owner, coach or
   estimate). `node tools/realtiers.mjs <real games dir> --json` reproduces the measured
@@ -115,7 +118,8 @@ iPhone app (the bundle: core, room, session and tune).
 ## Notes
 
 `docs/notes/` holds the subsystem notes (rules engine, physics, physics fuzz, the
-reference engine, real games, headless games, the throw, the Kubb Gym). Read the note before changing
+reference engine, real games, headless games, the throw, the Kubb Gym, the computer
+player). Read the note before changing
 the part it covers. `docs/SESSION.md` is the session's API, `docs/ROOM.md` the room's,
 `docs/VERSIONING.md` and `docs/DETERMINISM.md` the version rules and the reference
 platform. Code comments also
