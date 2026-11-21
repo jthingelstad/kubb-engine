@@ -169,13 +169,17 @@ plan.tune = {
 --   nervesLen    sd of the length error, a share of the throw, the same way
 --   tumbleSd     sd of the tumble, in turns over the planned flight, times the
 --                swing's roughness and the overpower (plan.tune "the baton's tumble")
+--   drillScatter how unsteady the hand leaves a drilled kubb: the release scatter
+--                (drill.tune pitchSdDps, yawSdDps, spinSd, noseSdDeg) times this
+--                (0.11). It decides how often the kubb lands dead (world.tune
+--                deadLanding): pro nearly always, club about half, beginner seldom
 plan.levels = {
 	beginner = { powerHalf = 15, releaseHalf = 30, inGain = 0.1, shakeGain = 0.5,  overGain = 0.5,
-		nervesDeg = 1.6, nervesLen = 0.06, tumbleTurns = 0.62, tumbleSd = 0.10 },
+		nervesDeg = 1.6, nervesLen = 0.06, tumbleTurns = 0.62, tumbleSd = 0.10, drillScatter = 2 },
 	club     = { powerHalf = 8,  releaseHalf = 18, inGain = 0.3, shakeGain = 0.75, overGain = 0.75,
-		nervesDeg = 0.8, nervesLen = 0.03, tumbleTurns = 0.50, tumbleSd = 0.06 },
+		nervesDeg = 0.8, nervesLen = 0.03, tumbleTurns = 0.50, tumbleSd = 0.06, drillScatter = 1 },
 	pro      = { powerHalf = 4,  releaseHalf = 10, inGain = 0.6, shakeGain = 1,    overGain = 1,
-		nervesDeg = 0.5, nervesLen = 0.02, tumbleTurns = 0.50, tumbleSd = 0.035 },
+		nervesDeg = 0.5, nervesLen = 0.02, tumbleTurns = 0.50, tumbleSd = 0.035, drillScatter = 0.35 },
 }
 plan.LEVELS = { "beginner", "club", "pro" }
 
@@ -681,6 +685,7 @@ function plan.launch(sol, r, opts, out)
 		out.legal = true
 		out.tumble = 0
 		drill.body(1 - se, pull, (opts.spin or 0) * t.spinPerStep, out, out.loft)
+		out.scatter = lv.drillScatter or 1
 	else
 		local tilt = (opts.tilt or 0) + pull * shakeTilt
 		out.tilt = tilt

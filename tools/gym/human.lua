@@ -106,8 +106,14 @@ function human.choose(s, r, level, model)
 	local a0 = autothrow.choose(s, r, 0, level)
 	local P = a0.plan
 	local kubb = s.kind == "toss"
+	-- a kubb's spin is the computer's for the level (from 0.11 the taps set the roll,
+	-- and a person at the level spins as its computer does); none on an older engine
+	local taps = 0
+	if kubb and a0.drill and tw.drill.plannedSpin then
+		taps = tw.drill.plannedSpin(a0.drill.spin) / plan.tune.spinPerStep
+	end
 	local q = { projectile = kubb and "kubb" or "baton", px = P.px, py = P.py, tx = P.tx, ty = P.ty,
-		level = level, surface = s.surface, spin = 0 }
+		level = level, surface = s.surface, spin = taps }
 	if kubb then
 		q.release = plan.arcFor("drill")
 	else
@@ -132,12 +138,12 @@ function human.choose(s, r, level, model)
 	local part, used = human.part(model, level, kubb and "drill" or "baton")
 	local sw = human.swing(sol, part, r, {})
 	-- the player's launch (session/throw playerLaunch): nerves seeded by the swing
-	local L = plan.launch(sol, sw, { projectile = q.projectile, tilt = 0, spin = 0, level = level, nerves = true }, {})
+	local L = plan.launch(sol, sw, { projectile = q.projectile, tilt = 0, spin = taps, level = level, nerves = true }, {})
 	local a = { x = P.px, y = P.py, swivel = L.swivel, loftDeg = L.loft, speed = L.speed, tumbleRate = L.tumble,
 		tilt = L.tilt, legal = L.legal, plan = sol, swing = sw, launch = L, on = a0.on, human = used }
 	if kubb then
 		a.drill = { markerX = P.tx, markerY = P.ty - s.lineY, noseDown = L.noseDown, rollLand = L.rollLand,
-			spin = L.spin, wobble = L.wobble }
+			spin = L.spin, wobble = L.wobble, scatter = L.scatter }
 	end
 	return a
 end

@@ -183,6 +183,8 @@ for (const [b, l] of [['s4', '30-60 cm short'], ['s2', '10-30 cm short'], ['on',
 FKEYS.push(['More than one kubb']);
 FKEYS.push(['f.multi', 'batons that toppled two or more', 'p']);
 FKEYS.push(['f.chainKubb', 'of those, one fell by kubb on kubb', 'p']);
+FKEYS.push(['f.triple', 'batons that toppled three or more', 'p']);
+FKEYS.push(['f.quad', 'batons that toppled four or more', 'p']);
 FKEYS.push(['Drills and groups']);
 FKEYS.push(['d.dist', 'drill rests from its mark (m)', 'm']);
 FKEYS.push(['d.far', `drill rests over ${T.drillFar} m from its mark`, 'p']);
@@ -190,6 +192,16 @@ FKEYS.push(['d.along', 'drill rest along the throw, past the mark (m)', 'm']);
 FKEYS.push(['d.landShort', 'drill met the ground before its mark', 'p']);
 FKEYS.push(['d.spread', 'field group, mean distance to its centre (m)', 'm']);
 FKEYS.push(['d.far2', 'field group, farthest two kubbs apart (m)', 'm']);
+FKEYS.push(['d.need', 'field group of 3 or more: batons it takes at best (chains of kubbs within 20 cm)', 'm']);
+FKEYS.push(['d.needShare', '... as a share of its kubbs (1: every kubb its own baton)', 'm']);
+FKEYS.push(['d.one', '... one baton could take it all', 'p']);
+FKEYS.push(['d.touching', '... share of its kubbs touching another', 'm']);
+FKEYS.push(['d.touchMost', '... most kubbs touching in one chain', 'm']);
+FKEYS.push(['l.n', 'kubbs lying after an inkast of 3 or more, before raising', 'm']);
+FKEYS.push(['l.touching', '... share of them touching another', 'm']);
+FKEYS.push(['l.most', '... most kubbs touching in one chain', 'm']);
+FKEYS.push(['l.three', '... three or more touching in one chain', 'p']);
+FKEYS.push(['l.five', '... five or more touching in one chain', 'p']);
 FKEYS.push(['f.rest', 'time to rest, every throw (s)', 'm']);
 FKEYS.push(['Anomalies, per 1000 throws (tools/gym.mjs lists each)']);
 const ANOM = {
@@ -312,10 +324,22 @@ export function addThrow(o, t) {
         hit(o[`w.${b}`], !!f.targetDown);
       }
       hit(o['f.multi'], f.toppled >= 2);
+      hit(o['f.triple'], f.toppled >= 3);
+      hit(o['f.quad'], f.toppled >= 4);
       if (f.toppled >= 2) hit(o['f.chainKubb'], f.byKubb > 0);
     }
   }
   if (t.group && t.group.n >= 2) { add(o['d.spread'], t.group.mean); add(o['d.far2'], t.group.far); }
+  if (t.lying && t.lying.n >= 3) {
+    const g = t.lying;
+    add(o['l.n'], g.n); add(o['l.touching'], g.touching / g.n); add(o['l.most'], g.most);
+    hit(o['l.three'], g.most >= 3); hit(o['l.five'], g.most >= 5);
+  }
+  if (t.group && t.group.n >= 3 && t.group.need != null) {
+    const g = t.group;
+    add(o['d.need'], g.need); add(o['d.needShare'], g.need / g.n); hit(o['d.one'], g.need === 1);
+    add(o['d.touching'], g.touching / g.n); add(o['d.touchMost'], g.touch);
+  }
   const an = anomaliesOf(t);
   const kinds = new Set(an.map(a => a.kind));
   for (const k of ANOM_KINDS) hit(o[`a.${k}`], kinds.has(k));
