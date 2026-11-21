@@ -12,6 +12,13 @@
 --   lua5.4 tools/gym/match.lua ... --repro <match>:<throw> [--dump file] [--every 1]
 --   lua5.4 tools/gym/match.lua --selftest [--to 3]
 --   (any of them) --engine DIR   the engine's Lua from DIR instead of this checkout
+--   versus (two teams that play differently; tools/gym/versus.lua):
+--   lua5.4 tools/gym/match.lua --a SPEC --b SPEC --swap 0|1 ... [--probe]
+--     SPEC: "level=pro;thrower=cpu;raise=apart;path=value...". --swap 0 puts team A on
+--     side A and team B on side B, --swap 1 the other way round; the side that opens and
+--     the random stream are the match's either way, so a seed's two games differ only in
+--     which team plays which side. --probe plays the matches without forensics and prints
+--     how often each team's tune settings were read while that team acted (JSON).
 --
 -- Match i of seed s is the same match whichever worker plays it: its stream is
 -- autothrow.rng(s * 7919 + i) and its teams are physmatch's (Team A (i - 1) % 6 + 1
@@ -76,6 +83,10 @@ while i <= #arg do
 	elseif a == "--every" then opt.every = tonumber(v); i = i + 1
 	elseif a == "--engine" then i = i + 1
 	elseif a == "--selftest" then opt.selftest = true
+	elseif a == "--a" then opt.specA = v; i = i + 1
+	elseif a == "--b" then opt.specB = v; i = i + 1
+	elseif a == "--swap" then opt.swap = tonumber(v); i = i + 1
+	elseif a == "--probe" then opt.probe = true
 	else error("unknown argument " .. a) end
 	i = i + 1
 end
@@ -101,8 +112,30 @@ for _, s in ipairs(opt.sets) do
 	end
 end
 
+-- versus: each team's spec, installed in the tune tables (switched by versus.use)
+local versus, teams, entries, entryOrder
+if opt.specA or opt.specB then
+	versus = dofile(here .. "/versus.lua")
+	local ok, err = pcall(function()
+		teams = { A = versus.parse(opt.specA, "A"), B = versus.parse(opt.specB, "B") }
+		entries, entryOrder = versus.install(teams, LEVEL_TO_CPU)
+	end)
+	if not ok then
+		io.stderr:write(tostring(err), "\n")
+		os.exit(2)
+	end
+	opt.swap = opt.swap or 0
+end
+
+-- The team (its spec) that plays side `side` of this match.
+local function teamOf(side)
+	if opt.swap == 1 then side = side == "A" and "B" or "A" end
+	return teams[side]
+end
+
 local human, model
-if opt.thrower == "human" then
+local needHuman = opt.thrower == "human" or (teams and (teams.A.thrower == "human" or teams.B.thrower == "human"))
+if needHuman then
 	human = dofile(here .. "/human.lua")
 	model = human.load(opt.model)
 elseif opt.thrower ~= "cpu" then
@@ -168,8 +201,13 @@ end
 
 local function choose(s, r)
 	local a
-	if human then a = human.choose(s, r, opt.level, model)
-	else a = autothrow.choose(s, r, opt.scatter, opt.level) end
+	local level, thrower = opt.level, opt.thrower
+	if teams then
+		local t = teamOf(s.side)
+		level, thrower = t.level, t.thrower
+	end
+	if thrower == "human" then a = human.choose(s, r, level, model)
+	else a = autothrow.choose(s, r, opt.scatter, level) end
 	if not a.on and s.kind ~= "toss" then a.on = nearestTarget(s, a.plan) end
 	return a
 end
@@ -341,6 +379,19 @@ local function play(gi, each)
 			match.resign(m)
 			break
 		end
+		if teams then
+			-- the defender raises the turn's kubbs and places its punishment kubbs with
+			-- its own policy and numbers (match.setup's settle then finds nothing to do);
+			-- the rest of the setup, the throw and its ruling are the attacker's
+			local n = m.game:need()
+			if n.kind == "raise" or n.kind == "punish" then
+				local d = teamOf(m.game.defender)
+				versus.use(d.label)
+				m.game.raisePolicy = versus.policy(d)
+				match.settle(m)
+			end
+			versus.use(teamOf(m.game.attacker).label)
+		end
 		local s = match.setup(m)
 		if not s then break end
 		local a = choose(s, r)
@@ -360,7 +411,7 @@ local function play(gi, each)
 		match.resolve(m, res, not a.legal)
 		if rec then
 			local P = a.plan or {}
-			local o = { m = gi, t = ti, turn = turn, side = s.side, k = targetRole(s, a), n = s.n, of = s.of,
+			local o = { m = gi, t = ti, turn = turn, side = s.side, team = teams and teamOf(s.side).label, k = targetRole(s, a), n = s.n, of = s.of,
 				legal = a.legal, adv = (s.forwardY or 0) > s.lineY,
 				dist = P.tx and sqrt((P.tx - a.x) ^ 2 + (P.ty - a.y) ^ 2) or nil, f = rec }
 			if a.launch then
@@ -382,6 +433,7 @@ local function play(gi, each)
 			throws[#throws + 1] = o
 		end
 	end
+	if teams then versus.use(nil) end
 	return m, throws, false
 end
 
@@ -432,7 +484,12 @@ if opt.repro then
 	gi, want = tonumber(gi), tonumber(want)
 	play(gi, function(s, a, ti, m)
 		if ti < want then return "plain" end
-		print(fmt("match %d of seed %d (%s at %s, %s), throw %d: turn %d, %s", gi, opt.seed, opt.thrower, opt.level,
+		local who = fmt("%s at %s", opt.thrower, opt.level)
+		if teams then
+			local t = teamOf(s.side)
+			who = fmt("versus, swap %d: team %s (%s at %s, raise %s)", opt.swap, t.label, t.thrower, t.level, t.raise)
+		end
+		print(fmt("match %d of seed %d (%s, %s), throw %d: turn %d, %s", gi, opt.seed, who,
 			opt.surface, ti, m.game.turn, s.label))
 		for _, p in ipairs(s.pieces) do
 			if p.kind ~= "baton" then
@@ -477,6 +534,25 @@ if opt.repro then
 	os.exit(0)
 end
 
+-- How often each team's settings were read while each team acted (versus).
+local function readsJson()
+	local out = {}
+	for _, path in ipairs(entryOrder or {}) do
+		local e = entries[path]
+		out[path] = { base = e.base, A = e.val.A, B = e.val.B, reads = e.reads }
+	end
+	return out
+end
+
+-- ---------- --probe (versus): which settings are read, no forensics ----------
+
+if opt.probe then
+	assert(teams, "--probe needs --a and --b")
+	for gi = opt.from, opt.to do play(gi, function() return "plain" end) end
+	print(json { probe = true, swap = opt.swap, from = opt.from, to = opt.to, sets = readsJson() })
+	os.exit(0)
+end
+
 -- ---------- a run ----------
 
 assert(opt.out, "--out DIR")
@@ -495,7 +571,15 @@ for gi = opt.from, opt.to do
 	f:close()
 	for _, o in ipairs(throws) do jf:write(json(o), "\n") end
 	nThrows = nThrows + #throws
-	jf:write(json { m = gi, over = true, turns = m.game.turn, how = m.game.how, winner = m.game.winner }, "\n")
+	local over = { m = gi, over = true, turns = m.game.turn, how = m.game.how, winner = m.game.winner }
+	if teams then
+		over.swap, over.first = opt.swap, m.game.first
+		over.limit = m.game.turn > opt.maxTurns
+		over.winnerTeam = m.game.winner and teamOf(m.game.winner).label
+		over.firstTeam = teamOf(m.game.first).label
+	end
+	jf:write(json(over), "\n")
 end
+if teams then jf:write(json { reads = readsJson() }, "\n") end
 jf:close()
 print(fmt("gym: matches %d-%d, %d throws, %.2f s", opt.from, opt.to, nThrows, os.clock() - t0))
