@@ -30,6 +30,19 @@ test("namewords: every word is one capitalised word of letters, once per list", 
 	end
 end)
 
+test("namewords: every never-pair is a name the lists could otherwise make", function()
+	for _, s in ipairs(words.never) do
+		local a, b = s:match("^(%u%l+) (%u%l+)$")
+		expect.truthy(a, "never: two words: " .. s)
+		local inList = function(list, w)
+			for _, x in ipairs(words[list]) do if x == w then return true end end
+		end
+		local made = (inList("adjectives", a) or inList("woods", a))
+			and (inList("woods", b) or inList("teams", b))
+		expect.truthy(made, "never: not a name the lists make: " .. s)
+	end
+end)
+
 test("namewords: no word is in two lists, so a name parses one way", function()
 	local where = {}
 	for _, list in ipairs { "adjectives", "woods", "teams" } do
@@ -79,7 +92,7 @@ test("namegen: text that is not a name is refused", function()
 	expect.truthy(namegen.valid("player", "Mighty Maple"))
 	expect.truthy(namegen.valid("team", "The Lumberjacks"))
 	expect.truthy(namegen.valid("team", "Birch Batons"))
-	expect.truthy(namegen.valid("team", "Stormy Inkasters"))
+	expect.truthy(namegen.valid("team", "Wobbly Towers"))
 	expect.eq(namegen.valid("player", "mighty maple"), false, "capitals are the words'")
 	expect.eq(namegen.valid("player", "Mighty  Maple"), false, "one space")
 	expect.eq(namegen.valid("player", " Mighty Maple"), false)
@@ -90,6 +103,12 @@ test("namegen: text that is not a name is refused", function()
 	expect.eq(namegen.valid("player", "Magnificent Mahogany"), false, "too long")
 	expect.eq(select(2, namegen.make("player", { shape = "adj", "Magnificent", "Mahogany" })), "long")
 	expect.eq(namegen.valid("player", nil), false)
+	expect.eq(namegen.valid("player", "Salty Walnut"), false, "a pair in namewords.never")
+	expect.eq(select(2, namegen.make("player", { shape = "adj", "Salty", "Walnut" })), "never")
+	expect.truthy(namegen.valid("player", "Salty Maple"), "each word alone is fine")
+	expect.eq(select(2, namegen.make("team", { shape = "wood", "Pine", "Pinecones" })), "repeat")
+	expect.eq(namegen.valid("team", "Pine Pinecones"), false)
+	expect.truthy(namegen.valid("team", "Pine Batons"))
 	expect.eq(namegen.valid("coach", "Mighty Maple"), false)
 end)
 

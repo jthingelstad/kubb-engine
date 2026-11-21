@@ -30,7 +30,7 @@ words.adjectives = {
 	"Jolly", "Kind", "Lively", "Proud", "Silly", "Thankful", "Victorious", "Witty",
 	"Zealous", "Mighty", "Magnificent",
 	-- Throwing Wood.
-	"Bold", "Breezy", "Bright", "Bouncy", "Brisk", "Busy",
+	"Bold", "Breezy", "Bright", "Brisk", "Busy",
 	"Careful", "Cheery", "Clever", "Cosy", "Crafty", "Curious",
 	"Dapper", "Daring", "Dashing", "Dizzy", "Dreamy",
 	"Early", "Epic",
@@ -45,9 +45,9 @@ words.adjectives = {
 	"Patient", "Peppy", "Plucky", "Polite",
 	"Quick", "Quiet", "Quirky",
 	"Rapid", "Rowdy", "Royal", "Rustic", "Rusty",
-	"Salty", "Sassy", "Shiny", "Sleepy", "Sly", "Snappy", "Speedy", "Spry", "Steady",
-	"Stormy", "Sunny", "Super", "Swift",
-	"Tidy", "Tiny", "Trusty", "Tumbling",
+	"Salty", "Shiny", "Sleepy", "Sly", "Snappy", "Speedy", "Spry", "Steady",
+	"Stormy", "Sunny", "Swift",
+	"Tidy", "Trusty", "Tumbling",
 	"Upbeat",
 	"Valiant",
 	"Wandering", "Wily", "Windy", "Wobbly", "Wonky",
@@ -58,33 +58,44 @@ words.adjectives = {
 
 -- A player is an adjective and a wood: "Mighty Maple". Trees and timbers only.
 words.woods = {
-	"Alder", "Apple", "Ash", "Aspen", "Balsa", "Banyan", "Baobab", "Birch",
+	"Alder", "Ash", "Aspen", "Balsa", "Baobab", "Birch",
 	"Cedar", "Chestnut", "Cypress", "Elder", "Elm", "Fir",
-	"Ginkgo", "Hazel", "Hemlock", "Hickory", "Holly", "Juniper", "Kapok", "Larch",
-	"Laurel", "Linden", "Mahogany", "Maple", "Myrtle", "Oak", "Olive", "Palm",
+	"Ginkgo", "Hazel", "Hickory", "Holly", "Juniper", "Kapok", "Larch",
+	"Laurel", "Linden", "Mahogany", "Maple", "Myrtle", "Oak", "Olive",
 	"Pear", "Pine", "Plum", "Poplar", "Redwood", "Sequoia",
-	"Spruce", "Sumac", "Sycamore", "Tamarack", "Teak", "Walnut", "Willow", "Yew",
+	"Spruce", "Sumac", "Sycamore", "Tamarack", "Teak", "Walnut", "Willow",
 }
 
--- A team is "<adjective> <noun>", "The <noun>" or "<wood> <noun>": "Stormy Inkasters",
+-- A team is "<adjective> <noun>", "The <noun>" or "<wood> <noun>": "Wobbly Towers",
 -- "The Lumberjacks", "Birch Batons". Plural nouns from the game and the backyard.
 words.teams = {
 	-- The game.
-	"Batons", "Kings", "Kubbs", "Inkasters", "Drillers", "Blasters", "Helicopters", "Corners",
-	"Baseliners", "Fielders", "Eights", "Stakes", "Towers", "Fences", "Toppers", "Tumblers",
+	"Batons", "Kings", "Kubbs", "Drillers", "Blasters", "Helicopters", "Corners",
+	"Baseliners", "Fielders", "Eights", "Stakes", "Towers", "Fences", "Toppers",
 	"Wobblers", "Rollers",
 	-- Blends, after the 2012 generator's dictionary of "-kubb" words.
 	"Kubbsters", "Kubblets", "Kubbinators", "Driftkubbs", "Ironkubbs", "Pinekubbs",
 	"Firekubbs", "Wildkubbs", "Cedarkubbs", "Teakkubbs", "Torchkubbs", "Kingkubbs",
 	"Kubbernauts", "Kubbcakes", "Kubbteers",
 	-- Wood and the woods.
-	"Lumberjacks", "Woodchucks", "Woodpiles", "Woodcutters", "Whittlers", "Carvers",
+	"Lumberjacks", "Woodchucks", "Woodcutters", "Whittlers", "Carvers",
 	"Splinters", "Stumps", "Timbers", "Acorns", "Pinecones", "Saplings", "Branches",
-	"Twigs", "Knotholes", "Logrollers", "Owls", "Moose", "Badgers", "Foxes", "Otters",
+	"Twigs", "Logrollers", "Owls", "Moose", "Badgers", "Foxes", "Otters",
 	-- The north kubb comes from.
-	"Trolls", "Longboats", "Farfars", "Cloudberries", "Kanelbullar",
+	"Trolls", "Longboats", "Cloudberries", "Kanelbullar",
 	-- The backyard.
-	"Picnickers", "Lawnmowers", "Sprinklers", "Hammocks", "Lanterns", "Campers",
+	 "Lawnmowers", "Sprinklers", "Hammocks", "Campers",
+}
+
+-- Whole names that are never made, though each word is fine: a pair that reads badly,
+-- sounds like something else, or is someone's name. core/namegen refuses them, so a
+-- good word need not go for one bad partner. Each says why (docs/NAMES.md "Safety").
+words.never = {
+	"Salty Walnut", "Salty Chestnut", "Fuzzy Walnut", "Fuzzy Chestnut", "Fuzzy Plum", -- nut jokes
+	"Holly Rollers",                     -- "holy rollers", a jibe at a faith
+	"Mossy Oak", "Royal Oak", "Happy Pear", -- brands
+	"Daring Ash", "Dashing Ash", "Thundering Ash", "Tumbling Ash", "Wandering Ash", -- run together: "gash"
+	"Midsummer Kings", "Midsummer Kingkubbs", -- run together: "merkin"
 }
 
 tw.namewords = words

@@ -42,13 +42,14 @@ stays as it is, and its README can point here.
 
 | Kind   | Shape                  | Example          | Names |
 | ------ | ---------------------- | ---------------- | ----: |
-| player | `<adjective> <wood>`   | Mighty Maple     | 4,860 |
-| team   | `<adjective> <noun>`   | Stormy Inkasters | 5,570 |
-| team   | `<wood> <noun>`        | Birch Batons     | 2,237 |
-| team   | `The <noun>`           | The Lumberjacks  |    65 |
+| player | `<adjective> <wood>`   | Mighty Maple     | 4,133 |
+| team   | `<adjective> <noun>`   | Wobbly Towers    | 4,730 |
+| team   | `<wood> <noun>`        | Birch Batons     | 1,742 |
+| team   | `The <noun>`           | The Lumberjacks  |    58 |
 
 At most 16 characters (`namegen.max`), the room's and the reel's limit. A pairing that is
-longer is not a name, and the picker skips it.
+longer is not a name, and the picker skips it. So is a pair in `namewords.never`
+(section 5), and a name whose second word begins with its first ("Pine Pinecones").
 
 Why these shapes:
 
@@ -61,11 +62,11 @@ Why these shapes:
   repetition backfires (section 11).
 - **Never a number.** Xbox's suggested gamertags padded names with digits and were
   mocked for it. Two players with one name are sorted out in the lobby (section 8).
-- **Kubb words for teams.** The pieces and the plays (Batons, Kings, Inkasters, Eights,
+- **Kubb words for teams.** The pieces and the plays (Batons, Kings, Eights, Towers,
   Helicopters), the woods and the woodshed (Lumberjacks, Splinters), the backyard
-  (Picnickers, Lawnmowers), the north the game comes from (Farfars, Longboats,
+  (Lawnmowers, Hammocks), the north the game comes from (Trolls, Longboats,
   Kanelbullar), and the best of 2012's blends (Kubbsters, Kubblets).
-- **"The ___" is rare on purpose.** It has 65 names, so `roll` draws it one time in ten,
+- **"The ___" is rare on purpose.** It has 58 names, so `roll` draws it one time in ten,
   or a lobby would see the same one twice.
 
 Real names are a little longer: a median of 12 characters, with a tenth over 19. 16 keeps
@@ -105,7 +106,7 @@ The lists are the policy, so the rules for a word come first. It is:
 - **safe beside every word it can meet**, which is the hard part. "Hard" is a fine word,
   and "Morning" is a fine word.
 
-Three checks hold the line:
+Four checks hold the line:
 
 1. **Every name is committed.** `make names` writes `tests/names/player.txt` and
    `team.txt`, and `make names-check` (in `make test`) fails when they are stale. A pull
@@ -114,12 +115,24 @@ Three checks hold the line:
    phrases ("morning wood", "pitch slap") and **runs**: fragments looked for in the name
    with its spaces taken out, so a word hidden across the join is caught. No name may
    hold one (`test_namegen`).
-3. **The runs work.** Drafting these lists, they caught three names no word list would:
-   Bamboo with B- nouns (b**oob**atons), Rowan with K- nouns (ro**wank**ings) and
-   Sturdy with A- woods (s**turd**yalder). The words went; the runs stay.
+3. **Pairs that never are.** `namewords.never` lists whole names `namegen` refuses
+   though each word is fine: "Salty Walnut" (a nut joke), "Holly Rollers" (a jibe at a
+   faith), "Royal Oak" (a brand), "Dashing Ash" (runs into "gash"). Then one bad
+   partner does not cost a good word. A test checks each pair is one the lists could
+   make, so the list never fills with dead entries.
+4. **A full read before release.** Someone who did not write the lists reads every name,
+   aloud and run together, in English and with the Nordic and German ears kubb's crowd
+   has. The first read (2026-11-21) is why the table below is long.
 
-The blocklist is a net, not the policy: a name a review dislikes goes by removing a word,
-and the near miss goes in the blocklist so it cannot come back.
+The runs work. Drafting these lists, they caught names no word list would: Bamboo with
+B- nouns (b**oob**atons), Rowan with K- nouns (ro**wank**ings), Sturdy with A- woods
+(s**turd**yalder). The full read caught worse that the drafting missed: "Inkasters" after
+any word ending in -ch, -d or -k hides two ethnic slurs once the spaces go, and "Yew" said aloud, as many Nordic speakers say an English "j",
+is "Jew", which beside Wandering, Sly or Crafty is an antisemitic trope.
+
+When a review finds a near miss: remove the word if it is the problem with every
+partner, or add the pair to `never` if it is one partner; then put the near miss in the
+blocklist so it cannot come back.
 
 Others learned this the slow way. Terraform's pet names (adjective and nature noun, our
 shape) made "massive-woodcock" and "throbbing-tulip" before it checked every word at
@@ -140,8 +153,25 @@ read in full, so we do.
 | Prickly | adjectives | "prick"                                              |
 | Pecan   | woods      | said aloud                                           |
 | Drillas | teams      | not the game's word: real players say drilling, drillers |
+| Inkasters | teams    | run together after -ch, -d, -k: two ethnic slurs, "kink", "stink" |
+| Yew     | woods      | said aloud, "Jew": "Wandering Yew", "Sly Yew"; "grandyew" |
+| Knotholes | teams    | an insult, and innuendo with most adjectives        |
+| Sassy   | adjectives | "Sassy Ash", "Sassy Birch" said aloud; the only "ass" run |
+| Tiny    | adjectives | "Tiny Willow" said aloud; a size word a child is teased with |
+| Palm    | woods      | a body part, and "Handy Palm"                        |
+| Banyan  | woods      | "Banyan Kings" runs into "yanking"                   |
+| Lanterns | teams     | run together: "klan", and an anti-Asian slur         |
+| Apple   | woods      | a brand, and "-l Apple" runs into a slur for the Sami |
+| Super   | adjectives | "Super Kings", a cricket team                        |
+| Bouncy  | adjectives | "Bouncy Pear" said aloud                             |
+| Hemlock | woods      | the poison                                           |
+| Tumblers | teams     | drinking: "Fizzy Tumblers", "Wobbly Tumblers"        |
+| Woodpiles | teams    | a racist idiom                                       |
+| Picnickers | teams   | a racist false etymology, and "pick knickers" aloud  |
+| Farfars | teams      | Swedish for "grandpa's", not "grandpas"              |
 
-All of these went while the lists were drafted; none was ever released.
+None of these was ever released: the first ones went while the lists were drafted, the
+rest after the first full read.
 
 ## 6. The check at every boundary
 

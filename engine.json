@@ -39,9 +39,9 @@
     "core/lineup.lua": "c7c96c0c228d0e584a05dfa72508f998d8492a83af3770ca5db4cab178d11a48",
     "core/match.lua": "1e1cc359f27f826c15958118fce6c810cfb908533362adc9570cb9612b3aac16",
     "core/matchopts.lua": "8c24a85bfdeba0f6ed727adb57ea07e9fba50312741053f11fc257b8211dc619",
-    "core/namegen.lua": "f0c4ffe19878205da0033c7ba1e12ab8df957b18a832da0b59c7b9e92c87f5d4",
+    "core/namegen.lua": "de631b2123a931a8060a1d7180b5e754a40a556a4fcc31b571cc71c5b1e9d493",
     "core/names.lua": "faec8d960119704c95bd9a72f6462bc2b62daa30e19ff9cedc657a80e452848d",
-    "core/namewords.lua": "5a73cfa48bf55689bfc8c7a7ecc9525108cf191eaaf872e08dc19bdf0aea0df1",
+    "core/namewords.lua": "421c4203e423a3f9bfe61af7552e0ef0f6aa833a3873f4ce98efbd77702f88b6",
     "core/notation.lua": "dc13b45fe7372792d845cdaff3dc1b0ee47c86f7f44c3b04b070131e497cef51",
     "core/order.lua": "9bcaef4c6424aed8fc66f618ee9e04629e0242b61c9d5efcaad89c224532865b",
     "core/outcome.lua": "6d5694f45e49ac26fece9379f7d94ecb4cd5213821ef6bcd2a41d4ff9c6c210c",
@@ -81,6 +81,6 @@
     "version.lua": "685ebe1b48a96050faa13ddee98e5106649d54eebe83f23efa3b162a46081c71"
   },
   "bundle": {
-    "sha256": "66ba07d44619daf59f9d9e1473dc7d9684bcb892aa3377415cdbbaec83e2db3c"
+    "sha256": "1760348a0bda70a01ec00a9cd2a267ac2410cc48901964f767e906f06416c164"
   }
 }
