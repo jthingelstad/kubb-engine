@@ -201,12 +201,12 @@ end
 
 local function choose(s, r)
 	local a
-	local level, thrower = opt.level, opt.thrower
+	local level, thrower, hand = opt.level, opt.thrower, opt.hand
 	if teams then
 		local t = teamOf(s.side)
-		level, thrower = t.level, t.thrower
+		level, thrower, hand = t.level, t.thrower, t.hand
 	end
-	if thrower == "human" then a = human.choose(s, r, level, model)
+	if thrower == "human" then a = human.choose(s, r, level, model, hand)
 	else a = autothrow.choose(s, r, opt.scatter, level) end
 	if not a.on and s.kind ~= "toss" then a.on = nearestTarget(s, a.plan) end
 	return a

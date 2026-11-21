@@ -3,7 +3,8 @@
 -- changes nothing in the engine's files; while a match is played it puts a team's
 -- numbers in the engine's tune tables only while that team acts.
 --
--- A spec is "level=pro;thrower=cpu;raise=apart;autothrow.tune.inkast.pro.row=0" (parts
+-- A spec is "level=pro;thrower=cpu;raise=apart;autothrow.tune.inkast.pro.row=0" (hand=k:
+-- the human thrower's recorded misses times k, human.scale; parts
 -- split by ';' or ','; tune paths are --set's: a number reachable from tw by its path).
 -- raise= left out (or raise=default) is the engine's own for that team
 -- (versus.defaultRaise).
@@ -81,12 +82,16 @@ function versus.parse(str, label)
 					error("versus: team " .. label .. ": no raising policy " .. v .. " (" .. table.concat(names, ", ") .. ")", 0)
 				end
 				spec.raise = v
+			elseif k == "hand" then
+				local n = tonumber(v)
+				if not (n and n > 0) then error("versus: team " .. label .. ": hand is a positive number, got " .. v, 0) end
+				spec.hand = n
 			elseif k:find(".", 1, true) then
 				local n = tonumber(v)
 				if not n then error("versus: team " .. label .. ": " .. k .. " is not set to a number: " .. v, 0) end
 				spec.sets[#spec.sets + 1] = { path = k, value = n }
 			else
-				error("versus: team " .. label .. ": unknown part " .. k .. " (level, thrower, raise or a tune path)", 0)
+				error("versus: team " .. label .. ": unknown part " .. k .. " (level, thrower, raise, hand or a tune path)", 0)
 			end
 		end
 	end
