@@ -252,7 +252,7 @@ tick, step, unit, scope }` (`arc` also `set`, `spin` also `radPerTap` and `baseR
 | ------- | ----- | ------- | ---- | ---- | ---------- |
 | `arc` | 15 to 165 clock degrees (half past 5 to half past 12) | the plan's own: 90 at base kubbs, 75 the king, 60 field kubbs, 135 a drilled kubb | 5 | 15 | the release target; the loft is `plan.loftFor` of it, about 7 to 57 degrees |
 | `tilt` | -20 to 20 degrees | 0 | 1 | 5 | the baton's spin plane tipped, before the shake's tilt; over 30 with the shake is a helicopter |
-| `spin` | -3 to 3 taps | 0 | 0.25 | 1 | 22 rad/s a tap about the kubb's long axis, + clockwise from behind (rolls right), on top of the wrist's 3 rad/s spiral: -63 to +69 rad/s |
+| `spin` | -3 to 3 taps | 0 | 0.25 | 1 | 22 rad/s a tap about the kubb's long axis, + clockwise from behind (rolls right), on top of the wrist's 3 rad/s spiral, which goes the spin's way from 0.11: -69 to +69 rad/s. From 0.11 a spun kubb that lands dead rolls that way, about 5 cm for one tap, 16 for two and 33 for three on grass, and the aim allows for it (`drill.rollFor`) |
 
 The value a client sends is applied as it is (clamped), and the throw's action carries
 the launch it made, so a fractional value needs no wire precision of its own: every
@@ -346,7 +346,7 @@ log. A server (a highlight reel) can replay it in the engine and check this much
   swivel, speed and tumble within the nerves' largest draw (and never under the floors
   the throw clamps to: a tumble under `tumbleMin`, a length draw under `lenMin`), `ZMAX` = sqrt(-2 ln 1e-12),
   about 7.43 sds (`plan.rng`'s normal floors u1 at 1e-12); the flick between
-  `minFlickFrac` and 1 and matching the power verdict; a kubb's nose, spin and wobble
+  `minFlickFrac` and 1 and matching the power verdict; a kubb's `scatter` the level's (`plan.levels` `drillScatter`, from 0.11); a kubb's nose, spin and wobble
   exactly `drill.body`'s; the backswing 30 to 200 degrees; the stance on the ground the
   rules allow (an unset stance straight behind the target); the target in the marker's
   area or on a piece. Touch, the linear meter and STAND feed the same swing and

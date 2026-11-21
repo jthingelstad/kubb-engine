@@ -68,6 +68,14 @@ a bare match. Per throw it records:
 - every hard touch (3 m/s or more) and its fate; kubbs that moved and rest standing tilted
   past 10 degrees (propped); the time to rest; the largest rise in the world's energy
 - a drill's rest against its mark; the field group's spread at the turn's first baton
+- the group as a thrower reads it (2026-11-21, from the inkast videos: judge a group by
+  the batons it needs). Standing, at the first baton, for groups of 3 or more: the
+  batons it takes at best (chains of kubbs within 20 cm of each other), the share
+  touching another (within 11 cm) and the longest touching chain. Lying, after an inkast
+  of 3 or more and before the kubbs are raised: the share touching another (each kubb
+  as three 7 cm discs along its long axis, within 2 cm), the longest chain, and how
+  often 3 or more and 5 or more touch. Raising spreads a tight lying group, so the two
+  are counted apart. Batons that toppled three or more and four or more are rows too.
 
 Engines before 0.4.1 have no `onContact` (the bank throws on them): forensics finds touches
 by the narrow phase each step, and the landing only when the ground was the first contact.

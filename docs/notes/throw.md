@@ -534,3 +534,29 @@ four; full flick on a kubb turned 45 degrees at 1.5 to 1.75 m is 78 to 65%, a fe
 under the first two passes; and a king standing up to 0.6 m behind a kubb 1.5 to 1.9 m away
 falls about as often as it does behind one at 2 m (about a quarter of ON ON swings), where
 it used to fall less.
+
+## The inkast by level in 0.11.0
+
+Jamie, 2026-11-21: the inkast is where the three levels differ most. A beginner tosses
+the kubbs out: no group, almost no combinations. A club player knows the technique but
+controls it less: some combinations, rarely more than a triple. A pro is precise, with
+tight clusters, "6-7 kubbs all touching each other in the basket". "Spinning is the key
+to kubbs touching. By spinning they land and then roll into each other."
+
+- **The dead landing and the roll** are in the physics (docs/notes/physics.md "The dead
+  landing"): a spun drill that arrives nose first, on line and not tumbling stops where
+  it touches and rolls the way it was spun. One that flies wrong bounces with its spin.
+- **The hand** is the level's: `plan.levels` `drillScatter` multiplies the release
+  scatter (beginner 2, club 1, pro 0.35), for a player's throw and the computer's. It
+  travels in a throw action's launch as `scatter`, and `checkThrow` holds it to the
+  level's.
+- **The aim** counts the run-on and the roll (`drill.slideFor`, `drill.rollFor`), so a
+  marker is where a clean drill rests, whatever its taps.
+- **The computer** (`autothrow.tune.inkast`): a beginner throws every kubb at the basket
+  with no spin and wide swing mistakes (0.5 of a baton's). Club and pro spin one tap
+  toward the sideline and lay a row: each kubb is aimed to rest flank to flank
+  (`rowStep`, 7.5 cm) with the innermost kubb already lying by the basket. They differ
+  in the hand (swing mistakes 0.26 and 0.06 of a baton's, and the release scatter
+  above). `row = 0` in a level's entry brings back 0.10's clear spots and into-the-group
+  aim, for the Gym to compare.
+- **The Gym's human thrower** spins as the computer at its level does.

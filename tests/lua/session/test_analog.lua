@@ -110,7 +110,9 @@ test("a kubb's spin is continuous in the physics: no step at a former tap", func
 		q.spin = i * 0.25
 		local sol = plan.solve(q, {})
 		local L = plan.launch(sol, tw.web.throw.CLEAN, { projectile = "kubb", spin = q.spin, level = "club" }, {})
-		expect.near(L.spin, tw.drill.tune.spiral + q.spin * pt.spinPerStep, 1e-9)
+		-- (from 0.11 the spiral goes the spin's way, so the launch's spin steps by twice
+		-- the spiral, 6 rad/s, across no spin: under what a dead landing needs either side)
+		expect.near(L.spin, (q.spin < 0 and -1 or 1) * tw.drill.tune.spiral + q.spin * pt.spinPerStep, 1e-9)
 		if prev then
 			expect.near(sol.speed, prev.speed, 0.15, "no step in the solve from one spin to the next")
 		end

@@ -529,7 +529,10 @@ test("spin about a thrown kubb's long axis carries it sideways, less on sand", f
 	local sp, sm = drift("sand", 25), drift("sand", -25)
 	expect.truthy(math.abs(gp) > 0.1 and math.abs(gm) > 0.1, string.format("grass drift %.2f %.2f", gp, gm))
 	expect.truthy(gp * gm < 0, "opposite spin, opposite side")
-	expect.truthy(math.abs(sp) < 0.6 * math.abs(gp) and math.abs(sm) < 0.6 * math.abs(gm),
+	-- (under 0.6 of grass until 0.11: the turf no longer stops a rolling kubb's spin
+	-- about its long axis in a step, world.tune.kubbSpinHold, and sand's share rose
+	-- to 0.69)
+	expect.truthy(math.abs(sp) < 0.8 * math.abs(gp) and math.abs(sm) < 0.8 * math.abs(gm),
 		string.format("sand %.2f %.2f vs grass %.2f %.2f", sp, sm, gp, gm))
 end)
 

@@ -49,6 +49,7 @@ local match, world, autothrow = tw.match, tw.world, tw.autothrow
 local fmt, sqrt = string.format, math.sqrt
 
 local n, matches, seed, only, grounds, surfaceOnly = 300, 40, 2, nil, 24, nil
+local hand = 0   -- part 5: the release scatter of the hand (plan.levels drillScatter; 0: a clean hand)
 local sets = {}
 local i = 1
 while i <= #arg do
@@ -58,6 +59,7 @@ while i <= #arg do
 	elseif a == "--seed" then seed = tonumber(arg[i + 1]); i = i + 1
 	elseif a == "--only" then only = tonumber(arg[i + 1]); i = i + 1
 	elseif a == "--grounds" then grounds = tonumber(arg[i + 1]); i = i + 1
+	elseif a == "--hand" then hand = tonumber(arg[i + 1]); i = i + 1
 	elseif a == "--surface" then surfaceOnly = arg[i + 1]; i = i + 1
 	elseif a == "--set" then
 		-- a number in drill.tune (or autothrow.tune with "auto.") for the run
@@ -452,35 +454,41 @@ for k = 1, #t.slideSpins do
 	end
 end
 t.slide = { grass = zero, sand = zero, snow = zero }
+t.roll = { grass = zero, sand = zero, snow = zero }
 local MX = { -1.5, 0, 1.5 }
 print(fmt("drillscatter 5: the aim allowance, %d lines x %d grounds a cell (m past the aimed landing; sd of the mean in brackets)", #MX, grounds))
 for _, surface in ipairs { "grass", "sand", "snow" } do
 	if not surfaceOnly or surfaceOnly == surface then
 	print(fmt("\t\t%s = {", surface))
 	for _, spin in ipairs(t.slideSpins) do
-		local rows, notes = {}, {}
+		local rows, notes, arows = {}, {}, {}
 		for li, loft in ipairs(t.slideLofts) do
-			local row, nrow = {}, {}
+			local row, nrow, arow = {}, {}, {}
 			for j, R in ipairs(t.slideR) do
-				local a = acc()
+				local a, ac = acc(), acc()
 				for _, mx in ipairs(MX) do
 					for g = 1, grounds do
 						local sol = drill.solveAt(mx, R, 0, loft, {}, nil, surface, spin)
 						local L = drill.body(1, 1, spin, {}, loft)
 						local w = world.new { surface = surface, groundSeed = g * 6151 + 29 }
 						local b = world.launchDrill(w, "d", sol.x, 0, sol.swivel, sol.loft, sol.speed, L.noseDown, L.rollLand,
-							L.spin, L.wobble)
+							L.spin, L.wobble, hand)
 						world.run(w)
 						add(a, (b.x - sol.x) * math.sin(sol.swivel) + b.y * math.cos(sol.swivel) - sol.land)
+						-- to the right of the throw's line (drill.tune.roll)
+						add(ac, (b.x - sol.x) * math.cos(sol.swivel) - b.y * math.sin(sol.swivel))
 					end
 				end
+				arow[j] = fmt("%.2f", mean(ac))
 				row[j] = fmt("%.2f", math.max(0, mean(a)))
 				nrow[j] = fmt("%+.2f (%.2f)", mean(a), sd(a) / sqrt(a.n))
 			end
 			rows[li] = "{ " .. table.concat(row, ", ") .. " }"
+			arows[li] = "{ " .. table.concat(arow, ", ") .. " }"
 			notes[li] = fmt("    -- spin %d loft %d: %s", spin, loft, table.concat(nrow, "  "))
 		end
 		print(fmt("\t\t\t{ %s }, -- spin %d", table.concat(rows, ", "), spin))
+		print(fmt("roll\t\t\t{ %s }, -- spin %d", table.concat(arows, ", "), spin))
 		for _, l in ipairs(notes) do print(l) end
 	end
 	print("\t\t},")

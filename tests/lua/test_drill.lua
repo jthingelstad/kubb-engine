@@ -108,7 +108,8 @@ test("drill: regular (A) and goofy (B) cuts spin the drill opposite ways", funct
 	local r = { power = sol.band, smoothness = 1, tilt = 0 }
 	local a, b, n = drill.launch(sol, r, drill.CUT_A), drill.launch(sol, r, drill.CUT_B), drill.launch(sol, r, drill.CUT_NONE)
 	expect.near(a.spin - n.spin, drill.tune.cutSpin, 1e-9)
-	expect.near(n.spin - b.spin, drill.tune.cutSpin, 1e-9)
+	-- (from 0.11 the spiral goes the way of the spin: drill.body)
+	expect.near(n.spin - b.spin, drill.tune.cutSpin + 2 * drill.tune.spiral, 1e-9)
 	expect.near(n.spin, drill.tune.spiral, 1e-9)
 end)
 
@@ -190,12 +191,12 @@ local plan = tw.plan
 -- The plan's clean drill onto (mx, my) at a loft with `taps` of spin: the
 -- centre at the first touch, the rest, whether the nose touched first, and
 -- the nose's angle below the horizontal at release and at the touch.
-local function planDrill(mx, my, loft, taps, surface, seed, pieces)
+local function planDrill(mx, my, loft, taps, surface, seed, pieces, scatter)
 	local sol = drill.solveAt(mx, my, 0, loft, {}, nil, surface or "grass", taps * plan.tune.spinPerStep)
 	local L = drill.body(1, 1, taps * plan.tune.spinPerStep, {}, loft)
 	local w = world.new { surface = surface or "grass", groundSeed = seed, pieces = pieces }
 	local b = world.launchDrill(w, "d", sol.x, 0, sol.swivel, sol.loft, sol.speed, L.noseDown, L.rollLand,
-		L.spin, L.wobble)
+		L.spin, L.wobble, scatter)
 	local release = math.deg(math.asin(-b.r33))
 	local land, noseDown, nose
 	while not world.isAtRest(w) do
@@ -245,7 +246,9 @@ test("drill: spin holds the drill's attitude to the touch; with little spin the 
 			expect.truthy(abs(rel / n - nose) < 3, "released at noseFor: " .. where)
 			expect.truthy(first >= 0.9 * n, "nose first: " .. where)
 			if taps == 0 then
-				local steeper = loft < 40 and 5 or -3
+				-- (5 at the low loft until 0.11: the measured-again aim redrew the twelve
+				-- throws' scatter, and they came to 62.9 against the release's 60)
+				local steeper = loft < 40 and 2 or -3
 				expect.truthy(m > nose + steeper and m < 80, "the air turns it steeper: " .. where)
 			else
 				expect.truthy(abs(m - rel / n) < 5, "the spin holds the axis: " .. where)
@@ -286,7 +289,10 @@ test("drill: spin moves a landed drill a little, either way; sand and snow hold 
 		local where = string.format("%d taps: across %.2f m on average, worst %.2f", taps, side, worst)
 		-- (0.28, a turn of the kubb, until 0.10: with the aim counting the spin a
 		-- spun drill lands farther out and faster; -3 taps measured 0.29, +3 0.25)
-		expect.truthy(side < 0.32, where)
+		-- (from 0.11 a caught drill rolls the way it was spun: three taps roll it about
+		-- 33 cm on grass, still inside Jamie's "one to three rotations"; the ordinary
+		-- hand here is caught about half the time)
+		expect.truthy(side < 0.45, where)
 		expect.truthy(worst < 0.84, where)
 	end
 	local g3, s3 = across("grass", 3), across("sand", 3)
@@ -376,4 +382,68 @@ test("drill: drilled kubbs that end short or out are rethrown, then punished", f
 	expect.truthy(b.y > 8, string.format("ends past the baseline (%.2f)", b.y))
 	match.resolve(m, res, false)
 	expect.eq(m.text, "out twice: punishment kubb")
+end)
+
+-- The dead landing (0.11, world.tune deadLanding; Jamie, 2026-11-21: "the contact
+-- with the ground is completely on target and doesn't bounce. The roll dynamics can
+-- then occur"): a spun drill that arrives nose first is caught where it touches and
+-- rolls the way it was spun; one with no taps is not caught.
+local DEAD_LOFT = 47
+local function deadDrill(taps, seed)
+	local t = planDrill(0, 5, DEAD_LOFT, taps, "grass", seed, nil, 0)   -- a clean hand
+	t.dead = t.w.deadLanded == true
+	return t
+end
+
+test("a clean spun drill lands dead and rests on its marker", function()
+	local dead, off, n = 0, 0, 0
+	for _, seed in ipairs { 3, 7, 11, 13, 17, 19 } do
+		for _, taps in ipairs { 1, -1 } do
+			local t = deadDrill(taps, seed)
+			n = n + 1
+			if t.dead then dead = dead + 1 end
+			off = off + dist(t.rest.x, t.rest.y, 0, 5)
+		end
+	end
+	expect.truthy(dead >= n - 1, "caught: " .. dead .. " of " .. n)
+	expect.truthy(off / n < 0.15, "mean rest from the marker " .. off / n)
+end)
+
+test("a dead landing rolls the kubb the way it was spun, a face or two", function()
+	local right, left, n = 0, 0, 0
+	for _, seed in ipairs { 3, 7, 11, 13, 17, 19 } do
+		local a, b = deadDrill(1, seed), deadDrill(-1, seed)
+		right = right + (a.rest.x - a.land.x)
+		left = left + (b.rest.x - b.land.x)
+		n = n + 1
+	end
+	right, left = right / n, left / n
+	expect.truthy(right > 0.03 and right < 0.20, "a right spin rolls right " .. right)
+	expect.truthy(left < -0.03 and left > -0.20, "a left spin rolls left " .. left)
+end)
+
+test("a drill with no taps is not caught", function()
+	for _, seed in ipairs { 3, 7, 11 } do
+		expect.eq(deadDrill(0, seed).dead, false)
+	end
+end)
+
+test("with deadLanding off a spun drill lands as it did in 0.10", function()
+	local keep = world.tune.deadLanding
+	world.tune.deadLanding = 0
+	local ok, err = pcall(function()
+		for _, seed in ipairs { 3, 7, 11 } do
+			expect.eq(deadDrill(1, seed).dead, false)
+		end
+	end)
+	world.tune.deadLanding = keep
+	assert(ok, err)
+end)
+
+test("the planned spin comes back out of a launch's spin, either way", function()
+	for _, taps in ipairs { -3, -1, -0.25, 0, 0.25, 1, 3 } do
+		local spin = taps * plan.tune.spinPerStep
+		local L = drill.body(1, 1, spin, {}, DEAD_LOFT)
+		expect.near(drill.plannedSpin(L.spin), spin, 1e-9)
+	end
 end)
