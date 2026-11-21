@@ -12,7 +12,7 @@ Paths are from the repo root.
 |---|---|
 | `make gym` or `node tools/gym.mjs` | the scorecard, quick: 40 matches a configuration, about a minute |
 | `node tools/gym.mjs --full` | 300 matches a configuration (about 6 minutes on a 10-core Mac) |
-| `node tools/gym.mjs compare <A> <B>` | two scorecards (`--json` files) or two git refs; prints only what moved |
+| `node tools/gym.mjs compare <A> <B>` | two scorecards (`--json` files), engine folders or git refs; prints only what moved |
 | `node tools/gym.mjs sweep <path> <v1,v2,...>` | the scorecard once per value of one tuning number |
 | `node tools/gym.mjs fit <records> [--write]` | recovers recorded swings and fits the human thrower |
 | `node tools/gym.mjs bank <records>` | throws every recorded swing again (also `--records <dir>` on a run) |
@@ -148,7 +148,10 @@ on desktop Lua to show how far desktop agrees with the reference.
 
 `compare` takes two `--json` scorecards, or two git refs: it writes each ref's engine (core,
 session, tune, room, version.lua) to a temporary folder, plays it with this checkout's gym
-tools (`match.lua --engine DIR`), and removes the folder. It prints only the figures whose
+tools (`match.lua --engine DIR`), and removes the folder. An engine folder (a prototype
+copy holding core, session, tune, room and version.lua) is played as it is; `run`, `bank`
+and `--records` take one too (`--engine DIR`), so a candidate that is not a commit can be
+scored, compared and banked. It prints only the figures whose
 difference is past 2.58 standard errors (99%: a page has about 80 figures, so at 95% four
 would move by chance). Both sides use the same seed, so the matches start alike.
 
