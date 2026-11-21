@@ -180,7 +180,10 @@ words.
    refuses to write inside it: these are other people's words and a model's account, not
    ours to publish. A video already answered with the same prompt version and model is
    skipped unless `--force`. The prompts are `tools/watch/prompts/<kind>-v<n>.txt`; a
-   changed prompt is a new version, never an edit.
+   changed prompt is a new version, never an edit. On 2026-11-21 the free tier allowed
+   20 requests a day for this model, and calls refused as busy (HTTP 503) counted
+   against them; a video with a transcript is two requests. The tool stops on either
+   answer and never retries by itself.
 2. Read the private answer beside the video itself. The transcript, not YouTube's
    captions, is what a `said` entry is checked against: the captions misspell the game's
    words.
