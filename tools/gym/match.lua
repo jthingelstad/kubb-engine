@@ -365,12 +365,19 @@ end
 
 local base = { year = 2026, month = 11, day = 20, hour = 9, min = 0 }
 
+-- The raising of both sides in a plain run (tools/gym/versus.lua's defaultRaise).
+local plainRaise = dofile(here .. "/versus.lua").defaultRaise(opt.level, opt.thrower)
+
 -- Plays match gi. each(s, a, ti) is called before every throw and returns how to
 -- throw it: "plain" (world.run), "forensics", or "stop".
 local function play(gi, each)
 	local start = notation.addMinutes(base, (gi - 1) * 41)
 	local m = match.new { start = start, first = (gi % 2 == 0) and "B" or "A", surface = opt.surface,
 		teams = { A = team("A", (gi - 1) % 6 + 1), B = team("B", (gi + 1) % 6 + 1) } }
+	-- a plain run: both sides raise as the engine raises such a side (since 0.11.3: the
+	-- computer by its level, the human thrower by the engine's advice, both apart until
+	-- switched on), so a run scores the level as it plays. versus sets each team's own below
+	if not teams then m.game.raisePolicy = plainRaise end
 	local r = autothrow.rng(opt.seed * 7919 + gi)
 	local ti = 0
 	local throws = {}
@@ -484,7 +491,7 @@ if opt.repro then
 	gi, want = tonumber(gi), tonumber(want)
 	play(gi, function(s, a, ti, m)
 		if ti < want then return "plain" end
-		local who = fmt("%s at %s", opt.thrower, opt.level)
+		local who = fmt("%s at %s, raise %s", opt.thrower, opt.level, plainRaise)
 		if teams then
 			local t = teamOf(s.side)
 			who = fmt("versus, swap %d: team %s (%s at %s, raise %s)", opt.swap, t.label, t.thrower, t.level, t.raise)

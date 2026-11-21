@@ -6,14 +6,15 @@
 -- checked against the throwing order's rules (core/order: II.A.4, II.B.5).
 --
 --   lua5.4 tools/physmatch.lua [--n 3] [--seed 1] [--out build/physgames] [--maxturns 40]
---     [--surface Grass|Sand|Snow] [--scatter 1] [--raise apart|together]
+--     [--surface Grass|Sand|Snow] [--scatter 1] [--raise apart|par|together|first]
 --     [--level beginner|club|pro] [-v]
 --
 -- --scatter multiplies every mistake of the computer's swing (core/autothrow's
 -- scale): 1 is the game's Playdate, lower a steadier thrower. --level is the
 -- throw level both teams solve at (tw.plan.levels; autothrow.tune.level, club,
 -- when not given). The recorded tournament games are the pro level (Jamie,
--- 2026-11-17).
+-- 2026-11-17). Both teams raise by the level's policy (core/cpu.raising; apart at every
+-- level in 0.11.3) unless --raise names another.
 
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local sourceDir = here .. "/.."
@@ -86,7 +87,9 @@ for gi = 1, n do
 	local start = notation.addMinutes(base, (gi - 1) * 41)
 	local m = match.new { start = start, first = (gi % 2 == 0) and "B" or "A", surface = surface,
 		teams = { A = team("A", (gi - 1) % 6 + 1), B = team("B", (gi + 1) % 6 + 1) } }
-	if raise then m.game.raisePolicy = raise end
+	-- both teams are the computer at `level`, so both raise by its policy (0.11.3,
+	-- core/cpu.raising) unless --raise names one: the Gym's plain run does the same
+	m.game.raisePolicy = raise or tw.cpu.raisePolicy(level)
 	local r = autothrow.rng(seed * 7919 + gi)
 	while not match.over(m) do
 		if m.game.turn > maxTurns then

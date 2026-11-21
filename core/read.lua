@@ -17,6 +17,7 @@
 --   read.byId(s)                      -> { [id] = piece }
 --   read.lane(s, pos, f)              -> n, lo, hi: front kubb f's lane
 import "core/tw"
+import "core/raising"  -- field.line weighs a lane as raise.par weighs a pair
 
 -- autothrow (for its tune) is imported at the end, once tw.read is set: autothrow
 -- imports core/cpu, which needs core/read, so whichever of the three a host imports
@@ -143,6 +144,76 @@ function read.lane(s, pos, f)
 		end
 	end
 	return n, lo, hi
+end
+
+-- field.line (0.11.3): the lane along the true line from a stance (sx, sy) through front
+-- kubb f, as a person sees it who has moved along the throwing line (ko-2017-blasting
+-- p1.17, p1.18). read.lane looks straight down the pitch; this looks down the line the
+-- baton will fly. Of the standing field kubbs (s.targets), those within laneHalf across
+-- that line and from level with f to laneDeep beyond it are in the lane (f among them).
+-- Returns n, lo and hi (the least and greatest signed offset across the line among
+-- them, + to the thrower's right, f's being 0), the range from the stance to f, and
+-- whether the stance is no good: a standing field kubb in the lane short of f (more than
+-- lineLevel nearer the stance: the baton meets it first, so f is not the front), or the
+-- king within lineKing across of the line anywhere from the stance to lineKingPast beyond
+-- f (a king toppled before the field is cleared loses the game), or a field kubb in the
+-- thrower's own half within lineOwn of the line from just behind the stance on (II.B.11:
+-- a baton that touches one is forfeit); and the lane weighed as
+-- raise.par weighs it (w: the other kubbs' raising.parPair weights along this line,
+-- summed). Makes no tables.
+function read.lineLane(s, pos, f, sx, sy)
+	local t = autothrow.tune
+	local ux, uy = f.x - sx, f.y - sy
+	local range = math.sqrt(ux * ux + uy * uy)
+	if range < 1e-6 then return 0, 0, 0, range, true, 0 end
+	ux, uy = ux / range, uy / range
+	local half, deep, level = t.laneHalf, t.laneDeep, t.lineLevel
+	local n, lo, hi = 0, 0, 0
+	for _, id in ipairs(s.targets) do
+		local p = pos[id]
+		if p and p.role == "field" then
+			local rx, ry = p.x - f.x, p.y - f.y
+			local across = rx * uy - ry * ux
+			if across < half and across > -half then
+				local along = rx * ux + ry * uy
+				if along >= -1e-9 and along <= deep then
+					n = n + 1
+					if across < lo then lo = across elseif across > hi then hi = across end
+				elseif along < -level and along > -range then
+					return n, lo, hi, range, true, 0
+				end
+			end
+		end
+	end
+	-- the lane weighed as raise.par weighs a pair (raising.parPair along this line): how
+	-- much each other standing kubb within its reach lies behind f, 0 to 1, summed
+	local w = 0
+	local rt, parPair = tw.raising.tune, tw.raising.parPair
+	for _, id in ipairs(s.targets) do
+		local p = pos[id]
+		if p and p ~= f and p.role == "field" then
+			local rx, ry = p.x - f.x, p.y - f.y
+			if rx * ux + ry * uy >= -level then w = w + parPair(f.x, f.y, p.x, p.y, ux, uy, rt) end
+		end
+	end
+	for _, p in ipairs(s.pieces) do
+		local rx, ry = p.x - f.x, p.y - f.y
+		local across = rx * uy - ry * ux
+		local along = rx * ux + ry * uy
+		if p.role == "king" then
+			if across < t.lineKing and across > -t.lineKing and along > -range and along < t.lineKingPast then
+				return n, lo, hi, range, true, w
+			end
+		elseif p.role == "field" and p.half == s.side then
+			-- a field kubb in the thrower's own half (left by the other team: the advantage
+			-- line stands on the nearest of them): a baton that touches it is forfeit
+			-- (II.B.11), and from a stance beside one it starts out over it
+			if across < t.lineOwn and across > -t.lineOwn and along > -range - t.lineOwn then
+				return n, lo, hi, range, true, w
+			end
+		end
+	end
+	return n, lo, hi, range, false, w
 end
 
 tw.read = read

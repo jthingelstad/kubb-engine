@@ -321,7 +321,7 @@ function session.new(o)
 		teams[side] = { name = t.name, players = ps }
 	end
 	s.m = cmatch.new { start = s.opts.start, surface = SURFACES[s.opts.surface], opening = s.opts.opening,
-		teams = teams, first = s.opts.first, mode = mode }
+		teams = teams, first = s.opts.first, mode = mode, cpu = s.opts.cpu }
 	s.byHand = s.opts.raising == "hand"
 	s.side, s.lastThrower = nil, nil
 	s:advance()
@@ -539,7 +539,9 @@ function Session:raiseInfo()
 	local side = n.side
 	local ctx = g:context(side, n.kubb)
 	local dec = n.decision
-	local default = raising.choose(dec, ctx, g.raisePolicy) or 1
+	-- the end the engine would stand it on for this side: a person's, the engine's best
+	-- advice (cpu.advice; apart in 0.11.3, as before)
+	local default = raising.choose(dec, ctx, cmatch.raisePolicy(self.m, side) or g.raisePolicy) or 1
 	local choices = {}
 	for i, c in ipairs(dec.choices) do
 		choices[i] = { which = c.which, pose = viewPose(side, c.pose), displaced = c.displaced or false,
@@ -1115,9 +1117,11 @@ function Session:apply(a)
 	if t == "raise" then
 		assert(self.phase == "settle" and self.settle.mode == "raise", "no kubb to raise")
 		local choice = a.choice and I(a.choice) or nil
-		local dec = g:need().decision
+		local n = g:need()
+		local dec = n.decision
 		assert(choice == nil or dec.choices[choice], "no raising choice " .. tostring(choice))
-		g:raise(choice)
+		-- no choice: the default raiseInfo offered (the side's policy, match.raisePolicy)
+		g:raise(choice, cmatch.raisePolicy(self.m, n.side))
 		self.settle.raised = self.settle.raised + 1
 		self.card = nil
 		if not settleBegin(self) then self.settle = nil; self:advance() end
@@ -1334,6 +1338,8 @@ function session.restore(text, control)
 	s.resignPending = d.resignPending
 	local m, why = save.unpack(d.save)
 	assert(m, why)
+	-- the sides the computer plays (match.raisePolicy): not in the save, so from the options
+	m.cpu = s.opts.cpu
 	s.m = m
 	s.byHand = s.opts.raising == "hand"
 	s.ts = throw.new { surface = s.opts.surface, set = s.opts.set }

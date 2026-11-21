@@ -6,6 +6,18 @@ import "core/throwplan"
 
 local cpu, plays, autothrow, plan = tw.cpu, tw.plays, tw.autothrow, tw.plan
 
+-- These cases are the choices 0.11.1 made, with the plays 0.11.3 built switched off
+-- (test_cpu_plays has those): run fn with every cpu.tune play's on = 0.
+local function plain(fn)
+	return function()
+		local saved = {}
+		for name, p in pairs(cpu.tune) do saved[name] = p.on; p.on = 0 end
+		local ok, err = pcall(fn)
+		for name, p in pairs(cpu.tune) do p.on = saved[name] end
+		if not ok then error(err, 0) end
+	end
+end
+
 local function k(id, half, x, y, toppled, role)
 	return { id = id, kind = "kubb", role = role or "field", half = half, x = x, y = y, toppled = toppled }
 end
@@ -37,12 +49,19 @@ test("every play is a phase's play with levels and a sentence", function()
 	for id, p in pairs(plays) do
 		n = n + 1
 		expect.eq(id:match("^([a-z]+)%."), p.phase, id .. "'s phase")
-		expect.truthy(#p.levels > 0 and type(p.say) == "string" and #p.say > 0, id)
+		expect.truthy(type(p.levels) == "table" and type(p.say) == "string" and #p.say > 0, id)
 	end
-	expect.eq(n, 3, "0.11.1 carries out three plays")
+	expect.eq(n, 6, "0.11.3 holds six plays (raise.par, field.line, inkast.depth built)")
+	-- built switched off: no level uses them yet, and the table says so
+	for _, id in ipairs { "raise.par", "field.line", "inkast.depth" } do
+		expect.eq(#plays[id].levels, 0, id .. " is used by no level")
+	end
+	for _, id in ipairs { "inkast.corner", "inkast.roll", "field.roles" } do
+		expect.truthy(#plays[id].levels > 0, id)
+	end
 end)
 
-test("a toss beside a kubb already down: inkast.roll, with the basket and the kubb", function()
+test("a toss beside a kubb already down: inkast.roll, with the basket and the kubb", plain(function()
 	local t = autothrow.tune
 	local s = toss({ k("f1", "B", 1.9, 4.8, true), k("f2", "B", 1.7, 4.9, true), k("f3", "B", -1.9, 4.8) }, 4, 3)
 	local r = counting(1)
@@ -68,9 +87,9 @@ test("a toss beside a kubb already down: inkast.roll, with the basket and the ku
 	expect.eq(it.standY, 0)
 	expect.near(it.arc, plan.arcFor("drill"), 0)
 	expect.eq(cpu.text(d.why), "Laid beside the kubb lying by the right basket, to roll in beside it.")
-end)
+end))
 
-test("a first toss at an empty half: inkast.corner, the basket itself, one coin from the stream", function()
+test("a first toss at an empty half: inkast.corner, the basket itself, one coin from the stream", plain(function()
 	local t = autothrow.tune
 	local r = counting(7)
 	local d = cpu.decide(toss(), r, "pro")
@@ -88,9 +107,9 @@ test("a first toss at an empty half: inkast.corner, the basket itself, one coin 
 	expect.eq(d.why.facts.spot, "basket")
 	expect.eq(d.intent.spin, 0)
 	expect.near(d.intent.tx, t.basketX, 0)
-end)
+end))
 
-test("a field baton: field.roles, the front of the fullest lane, aimed across its middle", function()
+test("a field baton: field.roles, the front of the fullest lane, aimed across its middle", plain(function()
 	local t = autothrow.tune
 	local pieces = {
 		k("near", "B", -1.0, 4.5),                          -- nearest, alone
@@ -118,9 +137,9 @@ test("a field baton: field.roles, the front of the fullest lane, aimed across it
 	local dx, dy = it.tx - it.stance.x, it.ty - it.stance.y
 	expect.near(it.arc, plan.arcFor("baton", math.sqrt(dx * dx + dy * dy)), 0)
 	expect.eq(cpu.text(d.why), "At the lane with the most kubbs: 2 in line from the front one.")
-end)
+end))
 
-test("a base kubb baton and a king shot name no play, and say what they threw at", function()
+test("a base kubb baton and a king shot name no play, and say what they threw at", plain(function()
 	local t = autothrow.tune
 	local pieces = {
 		k("b1", "B", -1, 8, false, "base"), k("b2", "B", 1, 7.95, false, "base"),
@@ -139,9 +158,9 @@ test("a base kubb baton and a king shot name no play, and say what they threw at
 	expect.eq(d.intent.on, "king")
 	expect.eq(d.intent.standY, 0, "the king from the baseline")
 	expect.near(d.intent.aimZ, plan.aimZFor("king"), 0)
-end)
+end))
 
-test("autothrow.choose throws the decision and leaves the reason on cpu.last only", function()
+test("autothrow.choose throws the decision and leaves the reason on cpu.last only", plain(function()
 	local s = toss({ k("f1", "B", 1.9, 4.8, true) }, 3, 2)
 	local a = autothrow.choose(s, autothrow.rng(1), 0, "club")
 	local d = cpu.last
@@ -155,4 +174,4 @@ test("autothrow.choose throws the decision and leaves the reason on cpu.last onl
 	expect.eq(cpu.levelName({ thrower = { level = "pro" } }), "pro")
 	expect.eq(cpu.levelName({ thrower = { level = "pro" } }, "beginner"), "beginner")
 	expect.eq(cpu.levelName({ thrower = { level = 3 } }), autothrow.tune.level)
-end)
+end))
