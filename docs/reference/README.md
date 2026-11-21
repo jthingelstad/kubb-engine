@@ -1,8 +1,8 @@
 # The play reference
 
 What we know about how kubb is played, where each piece came from, and how far it has
-got into the engine. It changes nothing in the engine. What to build from it is Jamie's
-call.
+got into the engine. It changes nothing in the engine by itself:
+`docs/notes/computer-player.md` says how a play gets from here into the computer player.
 
 It has four layers, and knowledge moves through them in one direction:
 

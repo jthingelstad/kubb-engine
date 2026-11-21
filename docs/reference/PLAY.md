@@ -2,7 +2,8 @@
 
 A reference for the computer player and the Kubb Gym: what a game looks like when
 beginners, club players and pros play it, and the habits that make the difference.
-It changes nothing in the engine. What to tune from it is Jamie's call.
+It changes nothing in the engine by itself (docs/notes/computer-player.md, "How a play
+gets in").
 
 `play-levels.json` beside this file holds the same thing as numbers: a target range per
 level for each Gym scorecard row, and the measured figures they come from.
