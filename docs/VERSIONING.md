@@ -101,36 +101,48 @@ Every client shows its own version with the engine's beside it, in one form:
   should be playing based on their capabilities."; docs/notes/throw.md "The person's
   meter"). On 0.12 a person's perfect swing at a lone kubb 8 m away felled it 13%, 38% or
   63% of the time by the level picked, because the level's nerves were drawn on the
-  person's throw and the level set the person's bars. The computer throws exactly as in
-  0.12.0.
+  person's throw and the level set the person's bars. The meter is calibrated to the
+  reference's rows (docs/reference/PLAY.md): the recorded people throw like club players
+  (about 27% from 8 m), a newcomer like beginners, a master like pros. The beginner
+  computer misses more, toward beginner's rows; club and pro throw exactly as in 0.12.0.
 
   What a player sees:
   - **One meter for everyone.** The level a player, a thrower or `setLevel` names no
     longer changes their throw.
-  - **The bars go by distance.** Wide for a short throw, narrow for a long one: about 7.6
-    and 28.5 degrees either side at 4 m, 4.8 and 18 at 6 m, 2 and 7.5 at 8 m.
+  - **The bars go by distance.** Wide for a short throw, narrow for a long one: 5.6 and 21
+    degrees either side at 4 m, 3.8 and 14.2 at 6 m, 2 and 7.5 at 8 m.
+  - **A long miss costs more.** Past the power bar the first 10 degrees count one for one
+    up to 5 m, rising to 3.5 times at 8 m; inside the bar nothing changes.
   - **An honest meter.** A steady swing inside both bars goes where it was aimed (a
     perfect swing fells a lone kubb at 4, 6 and 8 m every time; steady swings anywhere
-    inside both bars 99 to 100%) and never comes back PULLED; outside a bar the error
-    counts as before, so a miss reads SHORT, LONG, LOW, HIGH or SHAKY.
+    inside both bars 99 to 100%) and never comes back PULLED; outside a bar a miss reads
+    SHORT, LONG, LOW, HIGH or SHAKY.
   - **A person's kubb** keeps a clean hand (pro's) inside both bars and steady, and
     scatters with the shake and with how far past a bar the swing went.
+  - **The beginner computer** misses about 45% of its field batons and clears about half
+    its fields (it was 33% and 88%, better than beginner play): a newcomer wins about 55
+    games in 100 against it (was 3), a typical player about 49 against club.
 
   How: `plan.meters`, `plan.meter`, `plan.meterLevel`; `plan.solve` takes `q.meter` and
-  keeps the meter's table for the distance as the solution's `level`; `plan.shakeCounts`,
-  `plan.unshake` and `plan.scatterFor`. The session plans a person's throw on
-  `throw.meterFor(s)`, and `checkThrow` holds a person's throw to the meter. The Gym's
-  human thrower plans on the meter too. `tools/meterprobe.lua` measures the meter.
+  keeps the meter's table for the distance as the solution's `level`; `plan.shrink`'s
+  `outGain` and `outCap`, `plan.shakeCounts`, `plan.unshake` and `plan.scatterFor`. The
+  session plans a person's throw on `throw.meterFor(s)`, and `checkThrow` holds a person's
+  throw to the meter. `autothrow.tune.swingScale.beginner` 1.6 to 2.15. The Gym's human
+  thrower plans on the meter and takes a hand scale (`hand=` in a versus spec);
+  `tools/meterprobe.lua` measures the meter against the reference rows.
 
-  Golden corpus: the matches with a person's throws move (m13 from its first action, m14
-  from action 3); the 13 computer-only matches keep every hash. 15 matches, 583 action
-  hashes. `tests/fixtures/cpu/choose.txt` is unchanged.
+  Golden corpus: m13 and m14 (a person's throws) move from 0.12.0 (m13 from its first
+  action, m14 from action 3) and m15 (the beginner computer both sides) from its first
+  action; the twelve club matches keep every hash. 15 matches, 582 action hashes.
+  `tests/fixtures/cpu/choose.txt` is rewritten: 62 of its 480 setups, every one thrown at
+  beginner; `choose-0.11.txt` still matches with the plays off and 0.12's beginner.
 
   For clients: sync the tag. A person's level picker has no effect on their throw any more
   and can go (the fields are still taken and kept, so nothing breaks if it stays). The
-  bands are the aim view's `plan.powerLo..powerHi` and `releaseLo..releaseHi` as before;
-  they now change with the throw's distance, so draw them from every view, not once a
-  throw. Web and iPhone must both be on 0.13 to share a match.
+  computer's level picker stays and means what it did; its beginner is weaker. The bands
+  are the aim view's `plan.powerLo..powerHi` and `releaseLo..releaseHi` as before; they now
+  change with the throw's distance, so draw them from every view, not once a throw. Web
+  and iPhone must both be on 0.13 to share a match.
 
 - **0.12.0** (minor). The defender's raising goes by who defends (raise.par, Q7;
   Jamie's decision of 2026-11-21), and the pro computer attacks with two new plays, so
