@@ -115,6 +115,11 @@ iPhone app (the bundle: core, room, session and tune).
   (magazine PDFs, transcripts, captions) never go in the repository. Read a phase's plays
   before changing how the computer player decides in it, and name the play in the pull
   request.
+- `node tools/watch.mjs <youtube link or id> --kind lesson|match|talk [--transcript]`: a
+  video model's account of a public kubb video, saved privately outside the repository
+  (`$KUBB_SOURCES/video`), for writing an observation from by hand. It needs
+  `GEMINI_API_KEY` in the environment and never prints or stores it
+  (docs/reference/README.md, "A video").
 - The Kubb Gym (`make gym`, `node tools/gym.mjs`; docs/notes/gym.md): seeded matches by
   the computer and a human thrower fitted from recorded swings, forensics on every throw,
   anomalies with a replay command each, the real-games comparison on one page; `gym
