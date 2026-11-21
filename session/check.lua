@@ -17,17 +17,19 @@
 --                continuous: the ARC slider is setArc), the planned tilt (a baton: any
 --                value in -tiltMaxDeg..tiltMaxDeg since 0.9, setTilt; tried at the
 --                action's plan.tilt, the tilt with no shake, every tiltStepDeg and every
---                tiltTickDeg) and every level (plan.LEVELS: a player may change level
---                mid-match, Session:setLevel). The action's plan (since 0.9) names the
+--                tiltTickDeg) on the person's meter (plan.meter, plan.meterLevel: from
+--                0.13 every person throws on it, whatever level they name, so a throw
+--                that fits fits at every level). The action's plan (since 0.9) names the
 --                release and tilt or spin the thrower set, so the honest plan is tried
 --                first; an action without it (0.8 and older) is searched as before
---   loft         exactly loftFor of the release as the level forgives it (the stop is in
+--   loft         exactly loftFor of the release as the meter forgives it (the stop is in
 --                the action), so the planned release is pinned or bounded by it; a baton
 --                planned under flight.tune.nearM keeps the plan's loftShare of it, plus
 --                nearOverLoft x the backswing past the power target x nearShare (0.8.0)
 --   tilt         the planned tilt plus the shake's tilt (shakeTiltDeg x the shake as it
 --                counts), which pins the shake as it counts and the pull's sign
---   shake        that over shakeGain x the overpower multiplier: 0..1, and under
+--   shake        that over shakeGain x the overpower multiplier, unforgiven (the
+--                meter forgives a steady shake: plan.unshake): 0..1, and under
 --                steadyBelow exactly when the verdict says steady
 --   swivel       the plan's, plus the pull's lateralDeg x the shake, plus a nerves draw
 --                of at most ZMAX sds (plan.rng's normal: its u1 never under 1e-12)
@@ -170,10 +172,10 @@ local CHECKED = { "speed", "loft", "swivel", "tilt", "tumble" }
 
 -- One plan (level, planned release, planned tilt or spin taps) against the throw, with
 -- the plan solved (sol). Returns true, or false, the stage it failed at and why.
-local function tryTilt(ctx, levelName, sol, ptilt, taps)
+local function tryTilt(ctx, sol, ptilt, taps)
 	local t, L, v = plan.tune, ctx.L, ctx.v
 	local kubb = ctx.kubb
-	local lv = plan.level(levelName)
+	local lv = sol.level -- the person's meter at this distance (plan.meterLevel)
 	local back = ctx.back
 	local loft = L.loft
 	-- the power as it counts and the overpower
@@ -184,7 +186,8 @@ local function tryTilt(ctx, levelName, sol, ptilt, taps)
 	local d = kubb and L.tilt or (L.tilt - ptilt)
 	local se = abs(d) / t.shakeTiltDeg
 	local pull = d < 0 and -1 or 1
-	local shake = se / (lv.shakeGain * m)
+	local sc = se / (lv.shakeGain * m)      -- the shake as it counts (plan.shakeCounts) ...
+	local shake = plan.unshake(sc, lv)      -- ... and the swing's own
 	if shake > 1 + EPS then return false, 3, "the tilt needs more shake than a swing has" end
 	local steady = shake < t.steadyBelow
 	if steady ~= (v.steady == true) and abs(shake - t.steadyBelow) > EPS then
@@ -206,13 +209,15 @@ local function tryTilt(ctx, levelName, sol, ptilt, taps)
 			or abs(body.wobble - L.wobble) > TOL then
 			return false, 5, "the kubb's nose, spin, roll or wobble is not what the drill gives"
 		end
-		-- the hand's steadiness is the level's (0.11); absent means 1, anything else must be a
-		-- finite number (a `false` would pass `or` and then break applyThrow)
-		local sc = L.scatter
-		if sc == nil then sc = 1 end
-		if type(sc) ~= "number" or sc ~= sc or abs(sc) == math.huge
-			or abs(sc - (lv.drillScatter or 1)) > TOL then
-			return false, 5, "the kubb's scatter is not the level's"
+		-- the hand's steadiness: the meter's for this shake and swing (0.13,
+		-- plan.scatterFor); absent means 1, anything else must be a finite number (a
+		-- `false` would pass `or` and then break applyThrow)
+		local scat = L.scatter
+		if scat == nil then scat = 1 end
+		local want = plan.scatterFor(lv, sc, back - sol.back, ctx.relA - sol.release)
+		if type(scat) ~= "number" or scat ~= scat or abs(scat) == math.huge
+			or abs(scat - want) > TOL * max(1, want) then
+			return false, 5, "the kubb's scatter is not the one the swing gives"
 		end
 	end
 	-- the flick: what the power verdict allows, the length's draw and the tumble's
@@ -271,17 +276,17 @@ local function launchLoft(sol, loft, back, kubb)
 	return loft
 end
 
--- The plan at one level and planned release: solved once, its release verdict and loft
--- checked, then each planned tilt.
-local function tryPlan(ctx, levelName, rel, tilts, taps)
+-- The plan on the person's meter at one planned release: solved once, its release
+-- verdict and loft checked, then each planned tilt.
+local function tryPlan(ctx, rel, tilts, taps)
 	local t, L, v = plan.tune, ctx.L, ctx.v
 	local kubb = ctx.kubb
 	local q = {
 		projectile = kubb and "kubb" or "baton", px = ctx.px, py = ctx.py, tx = ctx.tx, ty = ctx.ty,
-		release = rel, level = levelName, surface = ctx.surface, spin = kubb and taps or 0, aimZ = ctx.aimZ,
+		release = rel, meter = plan.meter(), surface = ctx.surface, spin = kubb and taps or 0, aimZ = ctx.aimZ,
 	}
 	local sol = plan.solve(q, {})
-	local lv = plan.level(levelName)
+	local lv = sol.level
 	local stop = ctx.stop
 	-- the release verdict and the loft
 	if ctx.sky then
@@ -292,13 +297,14 @@ local function tryPlan(ctx, levelName, rel, tilts, taps)
 	local relA = stop
 	if ctx.sky then relA = max(stop, 180) + t.skyExtraDeg end
 	if relA < 0 then relA = 0 end
+	ctx.relA = relA
 	local effRel = sol.release + plan.shrink(relA - sol.release, lv.releaseHalf, lv.inGain)
 	if abs(launchLoft(sol, plan.loftFor(effRel), ctx.back, kubb) - L.loft) > TOL then
 		return false, 2, "the loft is not one the stop gives"
 	end
 	local bestStage, bestWhy = 0, nil
 	for _, p in ipairs(tilts) do
-		local ok, stage, why = tryTilt(ctx, levelName, sol, p, taps)
+		local ok, stage, why = tryTilt(ctx, sol, p, taps)
 		if ok then return true end
 		if stage > bestStage then bestStage, bestWhy = stage, why end
 	end
@@ -308,8 +314,11 @@ end
 -- The planned releases to try: the one the loft pins when the stop is inside the window
 -- (a short baton's: every one whose launch loft is the throw's), the arcs a plan starts
 -- on and steps to, and a fine grid for the ARC slider.
-local function releases(ctx, levelName)
-	local t, lv = plan.tune, plan.level(levelName)
+local function releases(ctx)
+	local t = plan.tune
+	-- the meter's bars go by the distance alone, the same for every planned release
+	local lv = plan.meterLevel(plan.meter(), sqrt((ctx.tx - ctx.px) ^ 2 + (ctx.ty - ctx.py) ^ 2),
+		ctx.kubb and "kubb" or "baton")
 	local out, seen = {}, {}
 	local function add(r)
 		if r >= t.releaseMinDeg - EPS and r <= t.releaseMaxDeg + EPS then
@@ -328,7 +337,7 @@ local function releases(ctx, levelName)
 		-- and outside the window only through the latter. Find every release whose loft
 		-- is the throw's: a scan on arcStepDeg, then bisection inside each crossing
 		local q = { projectile = "baton", px = ctx.px, py = ctx.py, tx = ctx.tx, ty = ctx.ty,
-			level = levelName, surface = ctx.surface, spin = 0, aimZ = ctx.aimZ }
+			meter = plan.meter(), surface = ctx.surface, spin = 0, aimZ = ctx.aimZ }
 		local relA = ctx.stop
 		if ctx.sky then relA = max(relA, 180) + t.skyExtraDeg end
 		if relA < 0 then relA = 0 end
@@ -486,34 +495,31 @@ local function personThrow(s, a)
 		-- the plan's own tilt (since 0.9) before them all
 		if num(pl.tilt) and abs(pl.tilt) <= t.tiltMaxDeg + EPS then table.insert(tilts, 1, plan.clampTilt(pl.tilt)) end
 	end
-	-- every level, the thrower's first
+	-- the person's meter (0.13): the same whatever level the thrower names, so a throw
+	-- that fits fits at every level
 	local own = throw.levelFor(ts)
 	if setup and setup.thrower and setup.thrower.level then own = setup.thrower.level end
 	if not plan.levels[own] then own = t.defaultLevel end -- plan.level's fallback
-	local order = { own }
-	for _, l in ipairs(plan.LEVELS) do if l ~= own then order[#order + 1] = l end end
-	local fits, bestStage, bestWhy = {}, 0, "no plan fits"
-	for _, lname in ipairs(order) do
-		local found = false
-		for _, rel in ipairs(releases(ctx, lname)) do
-			local ok, stage, why = tryPlan(ctx, lname, rel, tilts, tapsList[1])
-			if ok then found = true; break end
-			if stage > bestStage then bestStage, bestWhy = stage, why end
+	local bestStage, bestWhy = 0, "no plan fits"
+	for _, rel in ipairs(releases(ctx)) do
+		local ok, stage, why = tryPlan(ctx, rel, tilts, tapsList[1])
+		if ok then
+			local fits = {}
+			for i, l in ipairs(plan.LEVELS) do fits[i] = l end
+			table.sort(fits)
+			return { ok = true, levels = fits, level = own, atLevel = true }
 		end
-		if found then fits[#fits + 1] = lname end
+		if stage > bestStage then bestStage, bestWhy = stage, why end
 	end
-	if #fits == 0 then return fail(bestWhy) end
-	table.sort(fits)
-	local atOwn = false
-	for _, l in ipairs(fits) do if l == own then atOwn = true end end
-	return { ok = true, levels = fits, level = own, atLevel = atOwn }
+	return fail(bestWhy)
 end
 
 -- Could `a` be the next throw of session s as it is set up now? Returns { ok, why,
 -- computer, levels, level, atLevel }: for the computer's throw ok means the very action
 -- it makes (why names the first field that differs); for a person's, levels lists the
 -- levels at which the dial could make it (ok when there is one), level is the thrower's
--- and atLevel whether that is among them.
+-- and atLevel whether that is among them. From 0.13 a person's throw is on one meter
+-- whatever the level, so a throw that fits lists every level and atLevel is true.
 function check.throw(s, a)
 	if type(a) ~= "table" or a.type ~= "throw" then return fail("not a throw") end
 	if s.kind ~= "match" or s.phase ~= "throw" or not s.setup then return fail("no throw set up") end

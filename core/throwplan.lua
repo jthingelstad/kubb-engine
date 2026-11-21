@@ -34,7 +34,7 @@ import "core/drill"
 import "core/body"
 
 local sqrt, sin, cos, tan, atan, rad, deg = math.sqrt, math.sin, math.cos, math.tan, math.atan, math.rad, math.deg
-local floor, log, pi = math.floor, math.log, math.pi
+local floor, log, pi, abs = math.floor, math.log, math.pi, math.abs
 
 local plan = {}
 local flight, drill, body = tw.flight, tw.drill, tw.body
@@ -96,7 +96,8 @@ plan.tune = {
 	arcTickDeg = 5,        -- 30 ticks across the release's range
 	tiltTickDeg = 1,       -- 40 ticks across the tilt's
 	spinTick = 0.25,       -- taps: 24 ticks across the spin's (5.5 rad/s a tick)
-	defaultLevel = "club", -- the level when none is given
+	defaultLevel = "club", -- the level when none is given (the computer's standard, plan.levels)
+	meter = "standard",    -- the meter every person throws on (plan.meters)
 	-- the swing against the plan (plan.launch)
 	skyExtraDeg = 45,      -- a sky ball (the crank on past 12): its release counts as this
 	                       -- many degrees past where it stopped (at least 12 o'clock), so it
@@ -182,6 +183,93 @@ plan.levels = {
 		nervesDeg = 0.5, nervesLen = 0.02, tumbleTurns = 0.50, tumbleSd = 0.035, drillScatter = 0.35 },
 }
 plan.LEVELS = { "beginner", "club", "pro" }
+
+-- The person's meter (0.13; the owner, 2026-11-21: "player level really should only
+-- mean for the computer opponent. It doesn't mean anything for the human player. The
+-- human player should be playing based on their capabilities."). plan.levels above is
+-- the computer's standard only (autothrow.cpuLevel). Every person throws on one meter,
+-- whatever level a player, a thrower or the session names: the session plans a
+-- person's throw with q.meter = plan.meter() and plan.solve turns it into a
+-- level-shaped table for the throw's distance and projectile (plan.meterLevel), which
+-- plan.launch then reads from the solution as it reads a level.
+--
+-- The bars carry the difficulty, by distance and never by a level: wide for a short
+-- throw and narrow for a long one, half widths powerHalf8 and releaseHalf8 at 8 m
+-- times 1 + widen x (8 - d), never under narrowMin, d held to nearM..farM (a kubb's:
+-- kubbPower and kubbRelease times that). The meter is honest: a swing inside both bars counts inGain of its
+-- error, a steady swing's shake counts shakeIn of itself (under plan.tune.steadyBelow;
+-- past it in full, plan.shrink's knee), and the nerves are small and the same for
+-- every person. Outside a bar the error counts as before, so every miss has a readable
+-- cause. A drilled kubb's release scatter is drillScatter (pro's: a clean swing lands
+-- dead) times 1 + scatterGain x the shake as it counts + roughGain x how far past a
+-- bar the swing was (plan.scatterFor), so a rough swing scatters.
+-- plan.tune.meter names the meter the session uses; a second, wider one (a Kid mode)
+-- would be another entry here.
+plan.meters = {
+	standard = {
+		powerHalf8 = 2, releaseHalf8 = 7.5, widen = 0.7, nearM = 3, farM = 10, narrowMin = 0.5,
+		kubbPower = 1.5, kubbRelease = 1,
+		inGain = 0.1, shakeIn = 0.1, shakeGain = 0.75, overGain = 0.75,
+		nervesDeg = 0.12, nervesLen = 0.008, tumbleTurns = 0.50, tumbleSd = 0.015,
+		drillScatter = 0.35, scatterGain = 3, roughGain = 4, roughMax = 2,
+	},
+}
+
+-- The meter for a name (nil: plan.tune.meter). Any name it does not know is the
+-- standard meter: a level name ("club") is not a meter.
+function plan.meter(name)
+	return plan.meters[name or plan.tune.meter] or plan.meters.standard
+end
+
+-- The level-shaped table a person's throw at distance d (m) with projectile ("baton"
+-- or "kubb") is planned and launched on, from meter m (plan.meters). Fills and
+-- returns out (a new table when nil): powerHalf, releaseHalf, inGain, shakeIn,
+-- shakeGain, overGain, nervesDeg, nervesLen, tumbleTurns, tumbleSd, drillScatter,
+-- scatterGain, roughGain, roughMax, and meter = m.
+function plan.meterLevel(m, d, projectile, out)
+	out = out or {}
+	d = d or 8
+	if d < m.nearM then d = m.nearM elseif d > m.farM then d = m.farM end
+	local k = 1 + m.widen * (8 - d)
+	if k < m.narrowMin then k = m.narrowMin end
+	local kp, kr = 1, 1
+	if projectile == "kubb" then kp, kr = m.kubbPower or 1, m.kubbRelease or 1 end
+	out.powerHalf, out.releaseHalf = m.powerHalf8 * k * kp, m.releaseHalf8 * k * kr
+	out.inGain, out.shakeIn, out.shakeGain, out.overGain = m.inGain, m.shakeIn, m.shakeGain, m.overGain
+	out.nervesDeg, out.nervesLen, out.tumbleTurns, out.tumbleSd = m.nervesDeg, m.nervesLen, m.tumbleTurns, m.tumbleSd
+	out.drillScatter, out.scatterGain, out.roughGain, out.roughMax = m.drillScatter, m.scatterGain, m.roughGain, m.roughMax
+	out.meter = m
+	return out
+end
+
+-- The shake as it counts at level lv, before shakeGain and the overpower: the swing's
+-- shake as it is, or on a person's meter (lv.shakeIn) a steady swing's forgiven
+-- (plan.shrink with steadyBelow as the bar). plan.unshake is its inverse.
+function plan.shakeCounts(shake, lv)
+	if lv.shakeIn then return plan.shrink(shake, plan.tune.steadyBelow, lv.shakeIn) end
+	return shake
+end
+function plan.unshake(c, lv)
+	if not lv.shakeIn then return c end
+	local h, g = plan.tune.steadyBelow, lv.shakeIn
+	if c <= h * g then return g > 0 and c / g or 0 end
+	return c - h * g + h
+end
+
+-- A drilled kubb's release scatter at level lv for a shake as it counts (shakeCounts)
+-- and the swing's backswing and release errors (degrees off the targets' centres,
+-- eb and er): a level's drillScatter, or on a person's meter drillScatter times
+-- 1 + scatterGain x the shake as it counts + roughGain x how far past a bar's edge
+-- the swing was, as a share of that bar's half width (the larger of the two, at most
+-- roughMax; 0 inside both bars, so a steady swing inside them keeps the clean hand).
+function plan.scatterFor(lv, sc, eb, er)
+	if not lv.scatterGain then return lv.drillScatter or 1 end
+	local rough = 0
+	if eb and lv.powerHalf > 0 then rough = abs(eb) / lv.powerHalf - 1 end
+	if er and lv.releaseHalf > 0 and abs(er) / lv.releaseHalf - 1 > rough then rough = abs(er) / lv.releaseHalf - 1 end
+	if rough < 0 then rough = 0 elseif rough > lv.roughMax then rough = lv.roughMax end
+	return (lv.drillScatter or 1) * (1 + lv.scatterGain * sc + lv.roughGain * rough)
+end
 
 -- The level table for a name or a level table (nil: tune.defaultLevel).
 function plan.level(l)
@@ -360,7 +448,9 @@ end
 
 -- Solve the plan. q = { projectile = "baton" | "kubb", px, py (the stance),
 -- tx, ty (the target), release (planned degrees, clamped to the plan's
--- range), level (name or table), surface and spin (a kubb's ground and
+-- range), level (name or table: the computer's standard, plan.levels) or meter (a
+-- person's: plan.meters, which wins over level; the solution's level is then
+-- plan.meterLevel's table for the throw's distance), surface and spin (a kubb's ground and
 -- planned spin in taps: how far it runs on, drill.slideFor; nil: grass, none),
 -- aimZ (a baton: the height its centre is aimed through at the target,
 -- plan.aimZFor; nil: 0, the ground) }. Fills and returns `out`:
@@ -372,7 +462,7 @@ end
 --              rests on it (drill.solveAt at that loft)
 --   aimZ       the height the baton's centre is aimed at (0 for a kubb)
 --   back       the backswing that gives that speed with a full flick
---   powerLo, powerHi      the power target: back -/+ level.powerHalf
+--   powerLo, powerHi      the power target: back -/+ level.powerHalf (a meter's: by distance)
 --   release, releaseLo, releaseHi   the release target: release -/+ level.releaseHalf
 --   projectile, px, py, tx, ty, level (the level table)
 --   tumble, flightT   a baton's planned tumble (rad/s) and clean flight time to the
@@ -381,7 +471,7 @@ end
 --              go (flight.handAt of dist; handHeight and 0 from flight.tune.nearM out)
 -- For a kubb also drill.solveAt's x, band and T.
 function plan.solve(q, out)
-	local lv = levelOf(q.level)
+	local lv = q.meter or levelOf(q.level)
 	local rel = plan.clampRelease(q.release or plan.arcFor(q.projectile == "kubb" and "drill" or "baton"))
 	local loft = plan.loftFor(rel)
 	local px, py, tx, ty = q.px, q.py, q.tx, q.ty
@@ -443,6 +533,12 @@ function plan.solve(q, out)
 			end
 			out.tumble = r > plan.tune.tumbleMin and r or plan.tune.tumbleMin
 		end
+	end
+	if q.meter then
+		-- a person's throw: the meter's bars for this distance (plan.meterLevel)
+		local ml = out.level
+		if type(ml) ~= "table" or ml.meter ~= q.meter then ml = nil end
+		lv = plan.meterLevel(q.meter, out.dist, q.projectile, ml)
 	end
 	local back = plan.backForSpeed(out.speed)
 	out.back, out.powerLo, out.powerHi = back, back - lv.powerHalf, back + lv.powerHalf
@@ -640,7 +736,8 @@ function plan.launch(sol, r, opts, out)
 	-- overpower: every 30 degrees past the power target multiplies the shake's costs
 	local past = back - sol.powerHi
 	local m = 1 + lv.overGain * (past > 0 and past or 0) / t.overPerDeg
-	local se = shake * lv.shakeGain * m -- the shake as it counts
+	local sc = plan.shakeCounts(shake, lv) -- a person's steady shake is forgiven (plan.meters)
+	local se = sc * lv.shakeGain * m -- the shake as it counts
 	-- overpowering a short bowl heaves it up (flight.tune.nearOverLoft): the
 	-- red zone's cost where the shake and the nerves are too small to miss by
 	if not kubb and past > 0 and sol.nearShare and sol.nearShare > 0 then
@@ -685,7 +782,7 @@ function plan.launch(sol, r, opts, out)
 		out.legal = true
 		out.tumble = 0
 		drill.body(1 - se, pull, (opts.spin or 0) * t.spinPerStep, out, out.loft)
-		out.scatter = lv.drillScatter or 1
+		out.scatter = plan.scatterFor(lv, sc, back - sol.back, rel - sol.release)
 	else
 		local tilt = (opts.tilt or 0) + pull * shakeTilt
 		out.tilt = tilt

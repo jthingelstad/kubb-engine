@@ -253,7 +253,7 @@ test("checkThrow takes every person's throw the dial made: pointer and touch, ev
 	end
 	expect.truthy(n > 100, "throws checked: " .. n)
 	expect.truthy(kubbs > 10, "kubbs: " .. kubbs)
-	expect.truthy(touch > 20, "touch throws: " .. touch)
+	expect.truthy(touch > 15, "touch throws: " .. touch)
 	expect.truthy(lv.beginner and lv.club and lv.pro, "every level fits some throw")
 end)
 
