@@ -129,7 +129,7 @@ export function printBank(b, card) {
   const h = b.hashes;
   l.push(`  replayed from the snapshot before each on the engine that planned it, the recorded launch gives the recorded snapshot:`
     + ` wasmoon ${h.wasm} of ${h.n}, desktop Lua ${h.desktop} of ${h.n} (the two agree on ${h.agree});`
-    + ` on this checkout (wasmoon) ${h.nowWasm} of ${h.n}`);
+    + ` on the engine scored (wasmoon) ${h.nowWasm} of ${h.n}`);
   const names = [], colsOut = [];
   for (const lv of b.levels) {
     names.push(`played ${lv}`); colsOut.push(b.cols.played[lv]);
@@ -138,8 +138,8 @@ export function printBank(b, card) {
   }
   names.push('played all', 'launch now', 're-planned now');
   colsOut.push(b.cols.played.all, b.cols.now.all, b.cols.replan.all);
-  l.push('  played: the recorded launch on its own engine; launch now: on this checkout\'s physics;'
-    + ' re-planned now: the same swing and nerves planned and thrown by this checkout; gym human: the human thrower\'s matches above', '');
+  l.push('  played: the recorded launch on its own engine; launch now: on the scored engine\'s physics (this checkout, or --engine);'
+    + ' re-planned now: the same swing and nerves planned and thrown by that engine; gym human: the human thrower\'s matches above', '');
   l.push(score.page(colsOut, names, { skip: k => k.startsWith('g.') || k.startsWith('d.spread') || k.startsWith('d.far2') }));
   return l.join('\n');
 }
