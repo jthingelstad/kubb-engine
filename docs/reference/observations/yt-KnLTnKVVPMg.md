@@ -9,8 +9,7 @@ schema: 1
 
 A 2:43 lesson filmed in a back yard at dusk. One man, who is never named, talks to the
 person filming; he wears a vest with "TEAM KUBBOOM!" on the chest and back. The woman
-filming answers a few times; he seems to call her Maya, though the transcript is unsure of
-the name. No title, caption or date is on screen. The pitch has small red stakes and no
+filming answers a few times. No title, caption or date is on screen. The pitch has small red stakes and no
 lines. He says he has been teaching this at learn-to-play events and to new kid teams
 "before the championship" this year.
 
