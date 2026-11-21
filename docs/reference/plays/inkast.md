@@ -206,3 +206,26 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   the same on every surface, though the aim allows for how far a kubb runs on each. A
   stray within 1.5 m of the basket can become the row's anchor.
 - **Gym:** nothing yet.
+
+## inkast.rescue: Knock a badly placed kubb out to throw it again
+
+- **When:** inkast, a field kubb from an earlier turn stands very near a sideline or on
+  the far baseline, and getting it back would swing the game or win it this turn.
+- **Play:** Throw a kubb at it on a heavy angle from the sideline so that both go out of
+  bounds. Both are then thrown again: the struck kubb as if not yet thrown, with two
+  tries, and the thrown kubb with its one remaining.
+- **Why:** The rule sends a field kubb knocked out by a thrown kubb back to the attacker.
+  A kubb that stood deep can then be thrown short with the group. Knocking one out while
+  the thrown kubb stays in gains nothing, and a miss can leave more kubbs badly placed
+  than before. Punishment kubbs on the baseline are the usual ones rescued.
+- **Says who:** ko-2012-rescue#p1.4, ko-2012-rescue#p1.8, ko-2012-rescue#p1.9,
+  ko-2012-rescue#p1.11, ko-2012-rescue#p1.18 (Josh Feathers); pk-strategy#p1.16,
+  pk-strategy#p1.19, pk-strategy#p1.20 (Planet Kubb wiki)
+- **Basis:** player
+- **Against:** it is rare. He had never seen one tried in a tournament
+  (ko-2012-rescue#p1.21), and PLAY.md counts 3 in 5,270 kubbs.
+- **Levels:** Proposed: pro only, and only when the count says it pays (`levels.value`).
+- **Engine:** the rules allow it (a rescued kubb is judged at the final position,
+  docs/notes/rules-engine.md). The computer never tries it (0.11.0).
+- **Gym:** nothing yet; needs rescues tried and rescues made as rows.
+

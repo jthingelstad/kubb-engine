@@ -83,10 +83,10 @@
       "url": "https://kubbon.com/2012/05/11/facing-your-fears-of-doubles-and-triples/",
       "kind": "article",
       "by": "Josh Feathers",
-      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "standing": "2011 U.S. champion with Team Knockerheads and a Des Moines Kubb writer; four best-inkastare awards by 2018, by a newspaper caption we have not opened",
       "year": 2012,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "raise",
         "field"
@@ -98,10 +98,10 @@
       "url": "https://kubbon.com/2012/03/16/kubb-rescue-squad/",
       "kind": "article",
       "by": "Josh Feathers",
-      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "standing": "2011 U.S. champion with Team Knockerheads and a Des Moines Kubb writer; four best-inkastare awards by 2018, by a newspaper caption we have not opened",
       "year": 2012,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "inkast"
       ],
@@ -112,24 +112,24 @@
       "url": "https://kubbon.com/2012/02/22/attacking-the-king/",
       "kind": "article",
       "by": "Josh Feathers",
-      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "standing": "2011 U.S. champion with Team Knockerheads and a Des Moines Kubb writer; four best-inkastare awards by 2018, by a newspaper caption we have not opened",
       "year": 2012,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "king"
       ],
       "note": "Corner versus head-on geometry; he says he still throws head-on."
     },
     "ko-2013-footprints": {
-      "title": "On Footprints, Kubbadoxes and the Golden Rules",
+      "title": "On Footprints, Kubbadoxes, and the Golden Rules",
       "url": "https://kubbon.com/2013/03/06/on-footprints-kubbadoxes-and-the-golden-rules/",
       "kind": "article",
       "by": "Josh Feathers",
-      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "standing": "2011 U.S. champion with Team Knockerheads and a Des Moines Kubb writer; four best-inkastare awards by 2018, by a newspaper caption we have not opened",
       "year": 2013,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "raise",
         "rules"
@@ -140,25 +140,26 @@
       "title": "Strategy",
       "url": "http://web.archive.org/web/20160925071008/http://wiki.planetkubb.com:80/wiki/Strategy",
       "kind": "article",
-      "by": "Planet Kubb community",
-      "standing": "unknown",
+      "by": "Planet Kubb wiki",
+      "standing": "A community wiki; no passage has a named writer, the page history was not archived",
       "year": 2012,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "punish",
         "inkast"
       ],
-      "note": "Planet Kubb wiki, archived; started by \"Jamie\" in 2012, so partly Jamie's own words: tag those parts owner."
+      "note": "Last modified 19 March 2012. Its rescue section matches Josh Feathers' rescue piece closely."
     },
     "pk-hardway": {
       "title": "The hard way",
       "url": "http://web.archive.org/web/20160712161223/http://wiki.planetkubb.com:80/wiki/The_hard_way",
       "kind": "article",
-      "by": "Planet Kubb community",
-      "standing": "unknown",
+      "by": "Planet Kubb wiki",
+      "standing": "A community wiki; one sentence",
+      "year": 2012,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "punish",
         "inkast"
@@ -316,19 +317,23 @@
       "note": "Week one of 12; the other weeks are not linked in the census."
     },
     "ko-2012-baseline": {
-      "title": "42: The Answer to Life, the Universe and Baseline Percentages",
+      "title": "42 – The answer to life, the universe, and baseline percentages",
       "url": "https://kubbon.com/2012/02/10/42-the-answer-to-life-the-universe-and-baseline-percentages/",
       "kind": "article",
       "by": "Josh Feathers",
-      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "speakers": [
+        "Josh Feathers",
+        "Chris Hodges"
+      ],
+      "standing": "2011 U.S. champion with Team Knockerheads and a Des Moines Kubb writer; four best-inkastare awards by 2018, by a newspaper caption we have not opened",
       "year": 2012,
       "language": "en",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "baseline",
         "levels"
       ],
-      "note": "42% at 8 m as the competitive bar."
+      "note": "Mostly excerpts from an email by Chris Hodges."
     },
     "ko-2012-answer": {
       "title": "The Answer",
