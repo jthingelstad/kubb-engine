@@ -112,28 +112,30 @@ census of 2026-11-21.
 
 - **Status:** open: recommendation accepted
 - **Asks:** The engine's raise policy is `apart`: each kubb stands on the end furthest
-  from its neighbours (owner and coach, PLAY.md). ko-2013-fence (not yet observed) argues
-  for counting the attacker's batons, and says a tight fence across can beat kubbs spread
-  in depth.
+  from its neighbours (owner and coach, PLAY.md). Chris Hodges argues for counting the
+  attacker's batons, and says space across the pitch is worth much more than space along
+  it (ko-2013-fence#p1.4, ko-2013-fence#p1.11).
 - **Recommendation:** Keep `apart` for now. The better rule is the one both sides are
   reaching for: stand each kubb where the attacker needs the most batons. The engine can
   count that with the same lane test its own batons aim by.
-- **Settle by:** observing ko-2013-fence and ko-2012-doubles, then the Gym: a `par` policy
-  against `apart` on the attacker's `g.btc` and `g.cleared`.
-- **Touches:** the raise phase; no plays yet
+- **Settle by:** the Gym: a `par` policy against `apart` on the attacker's `g.btc` and
+  `g.cleared`.
+- **Touches:** raise.par, raise.across
 
 ## Q8: Where does a punishment kubb go?
 
 - **Status:** open: recommendation accepted
-- **Asks:** The engine places it deep and away from other kubbs. ko-2011-punishment (not
-  yet observed) places it by the score: on the baseline when well behind, by a sideline
-  when even, behind the king when ahead. Josh Feathers says most teams put it on their
+- **Asks:** The engine places it deep and away from other kubbs. Chris Hodges places it
+  by the score: on the baseline when well behind, by a sideline when even, behind the
+  king when ahead (ko-2011-punishment#p1.6, ko-2011-punishment#p1.7,
+  ko-2011-punishment#p1.10). He turns a flat face to the thrower and notes that others
+  turn an edge (ko-2011-punishment#p1.19, ko-2011-punishment#p1.20). Josh Feathers says most teams put it on their
   baseline, and plans his own inkast around that (kn-drill-2012#p3.9).
 - **Recommendation:** The engine's default is what most teams do; leave it. Placement by
   the score is a pro refinement worth little: punishment kubbs are about one kubb in a
   hundred at tournament level.
-- **Settle by:** observing ko-2011-punishment. No Gym work until the larger plays are in.
-- **Touches:** the punish phase; no plays yet
+- **Settle by:** nothing yet. No Gym work until the larger plays are in.
+- **Touches:** punish.baseline, punish.sideline, punish.king, punish.safe
 
 ## Q9: Does throwing first decide the game?
 
@@ -157,8 +159,13 @@ census of 2026-11-21.
   thrown twice and a kubb on a line is still raised into the pitch, so the reasons these
   players give still hold in the game we are building. The 2020 lesson and Kubb On's 2017
   and 2018 pieces teach the same drill. Where a newer source differs, the newer one wins.
-- **Settle by:** observing ko-2025-worlds (the 2025 U.S. 1v1 champions on drilling and
-  risk) and the current rule texts.
+- **So far:** ko-2025-worlds, the newest written source, turned out to say nothing direct
+  on the corner, the roll, going out on purpose or deep kubbs. Planet Kubb's 2017
+  glossary repeats the corner, the rethrow and deep as the safe choice (pk-drilling#p1.7,
+  pk-deep#p1.3), and Kyle Weakland in 2018 has the sideline forcing kubbs together
+  (ko-2018-practice#p1.4). So the written evidence runs to 2018.
+- **Settle by:** the current rule texts, and video: recent finals with commentary, once
+  something can watch them.
 - **Touches:** every inkast play
 
 ## Q11: A Kid level
@@ -201,3 +208,23 @@ census of 2026-11-21.
   (docs/notes/rules-engine.md). The computer never tries it.
 - **Settle by:** a second source that describes the same throw. Then a play, at pro.
 - **Touches:** a play not yet written
+
+## Q14: Where should a baton meet the front kubb of a group?
+
+- **Status:** open
+- **Asks:** PLAY.md has the half-turn throw arriving low, a kubb hit low and hard, and top
+  hits one in twenty or thirty (owner). Kyle Weakland aims at the top front corner with
+  the baton halfway between upright and flat, so that it tumbles over and into the group,
+  and calls a low square hit the fault that stops the baton dead (ko-2017-blasting#p1.13,
+  ko-2017-blasting#p1.14, ko-2017-blasting#p1.22). Phil Dickinson trains a full turn with
+  the head striking square, and hits high, low or on an edge by the reaction he wants
+  (ko-2017-dickinson#p1.10, ko-2017-dickinson#p1.11).
+- **Recommendation:** Both can be true: low and hard for a single kubb, where only that
+  kubb has to fall, and high with a turning baton for a group, where the baton has to go
+  on. If so, the computer needs a hit height and a tumble chosen by the shot, not one
+  setting per level.
+- **Settle by:** the Gym. Its forensics already record how each baton arrives at a kubb;
+  split kubbs taken per baton by arrival height and baton angle, singles and groups
+  apart.
+- **Touches:** field.corner, field.sure
+

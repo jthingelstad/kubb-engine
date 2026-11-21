@@ -20,7 +20,9 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
 - **Says who:** kn-drill-2012#p2.2 (Niklas Ahlgren); kn-drill-2012#p3.6,
   kn-drill-2012#p3.7, kn-drill-2012#p3.8 (Josh Feathers); kn-drill-2012#p6.8 (Simon
   Pettersson); kn-drill-2012#p3.20 (Scott Forster); yt-Io-rxbSB3Ns#0:35,
-  yt-Io-rxbSB3Ns#1:04, yt-Io-rxbSB3Ns#1:30 (Eric Anderson)
+  yt-Io-rxbSB3Ns#1:04, yt-Io-rxbSB3Ns#1:30 (Eric Anderson); pk-drilling#p1.5,
+  pk-drilling#p1.6, pk-drilling#p1.7, pk-drilling#p1.8 (Garrick van Buren);
+  ko-2018-practice#p1.4 (Kyle Weakland)
 - **Basis:** player, coach
 - **Against:** nothing found for two or more kubbs. For one kubb see `inkast.single`.
 - **Levels:** Proposed: pro and club always. Beginner and kid do not aim for a corner.
@@ -55,7 +57,8 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   kn-drill-2012#p3.21 (Scott Forster); kn-drill-2012#p4.8 (Björn Görlitz);
   kn-drill-2012#p2.3 (Niklas Ahlgren); yt-Io-rxbSB3Ns#8:04 (Eric Anderson)
 - **Basis:** player, coach
-- **Against:** nothing found.
+- **Against:** on the spin only. Görlitz gives the first kubb very little; Phil Dickinson
+  spins the first few harder and the later ones less (ko-2017-dickinson#p1.8).
 - **Levels:** Proposed: pro. Club tries and lands it less often.
 - **Engine:** modelled in part (0.11.0). Later kubbs are aimed off the innermost kubb
   already lying by the basket (`autothrow.spot`). The first kubb is thrown like the
@@ -111,7 +114,8 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   rest around 6 m and, left standing, gives the other team a line 2 m forward. One player
   rates a punishment kubb as only slightly worse than a stray.
 - **Says who:** kn-drill-2012#p3.8, kn-drill-2012#p3.9, kn-drill-2012#p3.10 (Josh
-  Feathers); kn-drill-2012#p5.15, kn-drill-2012#p5.16 (Samuel Hufschmid)
+  Feathers); kn-drill-2012#p5.15, kn-drill-2012#p5.16 (Samuel Hufschmid);
+  pk-drilling#p1.7 (Garrick van Buren)
 - **Basis:** player, measured
 - **Against:** Q1. It depends on the rule that a kubb may be thrown twice, which one
   player wanted changed (kn-drill-2012#p5.17); see Q10.
@@ -131,9 +135,10 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   his own team normally throws everything short. The exception he gives: against a very
   good team you sometimes have to play above your level.
 - **Says who:** kn-drill-2012#p2.16, kn-drill-2012#p2.17, kn-drill-2012#p2.18 (Joakim
-  Ekelöf)
+  Ekelöf); pk-deep#p1.3 (Garrick van Buren)
 - **Basis:** player
-- **Against:** Q4.
+- **Against:** Q4. A deep kubb has a second use this play does not cover: to set up a
+  double with a base kubb (pk-deep#p1.2).
 - **Levels:** Proposed: every level that drills, each with its own clear count. It would
   matter most at club, where the measured clear rate falls from 75% at four or five
   field kubbs to 34% at six or seven (PLAY.md).
