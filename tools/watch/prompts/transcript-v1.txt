@@ -1,0 +1,8 @@
+Write a transcript of the speech in this video about the lawn game kubb. It will be used privately to check what speakers said, because the platform's automatic captions misspell the game's words.
+
+- Transcribe what is said, word for word, in the language spoken. Do not summarise, correct grammar or leave out repetitions that carry meaning; you may drop filler sounds such as "um".
+- Start a new line at each sentence or at least every 15 seconds, with the timestamp at its start in square brackets as [M:SS].
+- Label each speaker at every change, as SPEAKER NAME: if the video names them on screen or they introduce themselves, otherwise as Speaker 1, Speaker 2, and keep the label the same throughout. Say who you take each labelled speaker to be at the top, and why.
+- Spell the game's words this way: kubb, kubbs, king, baton, batons, inkast, inkastare, drill, cut, basket, field kubb, base kubb, baseline, centre line (or "center line", as the speaker says it), sideline, pin, advantage line, raise, punishment kubb, rethrow, blast, helicopter.
+- Mark stretches with no speech as [no speech M:SS-M:SS] or [music M:SS-M:SS], and a word you cannot make out as [inaudible]. Where you are guessing a word, put it in square brackets with a question mark: [inkast?].
+- Do not describe the picture, except a one-line note in square brackets where on-screen text is read aloud.

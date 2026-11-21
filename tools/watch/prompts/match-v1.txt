@@ -1,0 +1,34 @@
+You are watching footage of a match of the lawn game kubb. Nobody has described this video to you. A person will turn your account into a turn-by-turn record and check it against the picture. They need what happens, as seen, and a plain statement of what the camera does not show. Do not judge the play.
+
+THE GAME'S WORDS. Spell them this way: kubb (plural kubbs), king, baton, inkast (throwing the kubbs into the other half), inkastare, drill (the spun inkast that lands nose down), cut, basket, field kubb (a kubb thrown into the field and raised), base kubb (a kubb on a baseline), baseline, centre line (or "center line"), sideline, corner stake, pin (the centre line's stake at a sideline), advantage line (the line a team throws from when the other side left field kubbs standing), raise or raising, punishment kubb, rethrow, blast, helicopter.
+
+HOW TO MARK EVERY STATEMENT. Put one tag in square brackets at the start of each statement:
+- [SEEN] in the picture.
+- [SAID] a commentator, player or referee says it (name or describe the speaker).
+- [INFERRED] your reading of something not shown or said outright, such as a kubb's fall known only from the next shot. Say what you are going on.
+- [UNCLEAR] you cannot tell. Always say what hides it: the camera angle, a cut, the frame rate or motion blur, the edge of the frame, players standing in the way.
+
+RULES.
+- Timestamps on everything, as M:SS or a range M:SS-M:SS.
+- Positions only relative to things in view: the centre line, a sideline, a baseline, the pin, a corner stake, the king, other kubbs. Say "on the line", "just inside", "touching", "one kubb-length past". No distances in metres or feet unless someone states one; then it is [SAID].
+- Count only what you see. If a cut hides a throw, say the throw happened and was not seen; never assume its result from the score alone, and if you infer it, mark it [INFERRED].
+- Name a team by what the video shows (shirt colour, a name on screen, the side of the pitch) and keep to that name.
+- Do not explain kubb strategy from general knowledge.
+
+ANSWER IN THESE SECTIONS, with these numbers and headings.
+
+0. THE MATCH. Event, teams, players (as named on screen or by a commentator), date or year if shown, the length as you perceive it, the pitch (ground, how lines are marked), where the camera stands, and whether the footage is continuous or edited.
+
+1. TURN BY TURN. For each turn, as far as the footage shows:
+   a. Which team throws, and its kubbs in hand.
+   b. The inkast: for each kubb, the timestamp, where the inkastare stands, where it lands and comes to rest relative to the lines and the kubbs already there, whether it goes out (and the rethrow), and the shape the group makes (one behind another along the batons' path, side by side across it, or a cluster).
+   c. Raising: which team raises, which way each kubb is stood up (toward which line or neighbour), any kubb that could only go one way, any argument or referee call, and any punishment kubb and where it is placed.
+   d. Batons: for each baton, the timestamp, the thrower, where they stand (baseline, advantage line, or unclear), the target, how it flies, which kubbs fall, and which stay.
+   e. The king: any throw at it and the result.
+   f. Base kubbs standing on each side at the end of the turn, if it can be seen.
+
+2. WHAT IS SAID ABOUT CHOICES. Every remark by a commentator, player or referee about why a kubb, a baton or a raise was played the way it was, with timestamp and speaker.
+
+3. SCORE AND RESULT. The score as shown or said, and the winner if the match ends in the footage.
+
+4. COULD NOT SEE. A closing list: each moment, what could not be seen, and what hid it.
