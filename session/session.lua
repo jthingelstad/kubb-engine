@@ -540,7 +540,7 @@ function Session:raiseInfo()
 	local ctx = g:context(side, n.kubb)
 	local dec = n.decision
 	-- the end the engine would stand it on for this side: a person's, the engine's best
-	-- advice (cpu.advice; apart in 0.11.3, as before)
+	-- advice (cpu.advice, par; 0.12.0)
 	local default = raising.choose(dec, ctx, cmatch.raisePolicy(self.m, side) or g.raisePolicy) or 1
 	local choices = {}
 	for i, c in ipairs(dec.choices) do

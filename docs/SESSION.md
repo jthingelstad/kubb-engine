@@ -134,7 +134,8 @@ are plain objects. The room's calls (`room.<name>`) are in docs/ROOM.md. Angles 
 team, local }`: a kubb to raise by hand. `choices[i] = { which, pose, displaced,
 crowded }`; `ends[i] = { which, pose, inBounds, obstructedBy, ok, why }` (`why`: "THAT
   END IS OUT" or "THAT END IS BLOCKED"); `default` is the index the engine would pick for
-  this person: its advice, `cpu.advice` (`apart`, as before), so a client offers it first.
+  this person: its best advice, `par` (since 0.12.0; it was `apart`), so a client offers it
+  first.
 - `{ kind: "punish", side, kubb, cursor {x, y}, bounds {xMin, xMax, yMin, yMax}, keepOut
 [{ kind, id, x, y, r }], others, n, of, team, local }`: a punishment kubb to place.
 - `{ kind: "over", winner, how, file { text, name }, text, short }`: the match is over;
@@ -397,10 +398,11 @@ The actions:
   the side's next kubb starts from (below), and `checkThrow` holds the throw to it. The
   computer's throws and older actions have none.
 - `{ type: "raise", choice }`: the index into `need.choices` (leave it out for
-  `need.default`). Since 0.11.3 the session tells the core which sides the computer plays
-  from the match's `cpu` option (`match.raisePolicy`), so raised automatically a person's
-  kubbs go up by the engine's advice and the computer's by its level; both are `apart`,
-  as before, until they are switched on. A client passes nothing new.
+  `need.default`, the engine's advice). Raised automatically (the match option
+  `raising: "auto"`), a person's kubbs go up by the same advice and the computer's by its
+  level (pro `par`, club `apart`, beginner `first`; since 0.12.0, when every side used
+  `apart`). The session tells the core which sides the computer plays from the match's
+  `cpu` option; a client passes nothing new.
 - `{ type: "punish", x, y }`: the spot in the defender's view frame. Refused spots come
   back `{ ok: false, why, label }` (label e.g. "TOO NEAR THE KING") and change nothing.
 - `{ type: "resign", side, at? }`: waits for that side's own turn (the rules allow it

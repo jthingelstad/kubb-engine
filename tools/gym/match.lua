@@ -374,9 +374,9 @@ local function play(gi, each)
 	local start = notation.addMinutes(base, (gi - 1) * 41)
 	local m = match.new { start = start, first = (gi % 2 == 0) and "B" or "A", surface = opt.surface,
 		teams = { A = team("A", (gi - 1) % 6 + 1), B = team("B", (gi + 1) % 6 + 1) } }
-	-- a plain run: both sides raise as the engine raises such a side (since 0.11.3: the
-	-- computer by its level, the human thrower by the engine's advice, both apart until
-	-- switched on), so a run scores the level as it plays. versus sets each team's own below
+	-- a plain run: both sides raise as the engine raises such a side (0.12.0: the
+	-- computer by its level, the human thrower by the engine's advice; before 0.12,
+	-- apart), so a run scores the level as it plays. versus sets each team's own below
 	if not teams then m.game.raisePolicy = plainRaise end
 	local r = autothrow.rng(opt.seed * 7919 + gi)
 	local ti = 0

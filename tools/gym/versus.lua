@@ -95,10 +95,10 @@ function versus.parse(str, label)
 end
 
 -- A team's raising when its spec does not name one: what the engine does for such a
--- side (since 0.11.3, core/cpu.raising): the computer by its level, the human thrower
--- (a person whose kubbs the engine raises) by the engine's advice (cpu.advice); in
--- 0.11.3 both are apart at every level. An engine from before 0.11.3 (gym compare's
--- older ref, --engine) has no such table and raised every side apart, so its teams do.
+-- side (0.12.0, core/cpu.raising): the computer by its level (pro par, club apart,
+-- beginner first), the human thrower (a person whose kubbs the engine raises) by the
+-- engine's advice, par. An engine from before 0.12 (gym compare's older ref, --engine)
+-- has no such table and raised every side apart, so its teams do.
 function versus.defaultRaise(level, thrower)
 	local cpu = tw.cpu
 	if not (cpu and cpu.raising) then return "apart" end

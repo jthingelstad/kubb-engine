@@ -14,10 +14,9 @@
 --
 -- 0.11.1 cut it out of autothrow.choose with no change in play: the same choices in the
 -- same order, and the same draws from r (the basket's coin on a tie, nothing else).
--- 0.11.3 builds two plays (cpu.tune: field.line, inkast.depth), switched off, and the
--- raising by level (cpu.raising), every level apart; neither play draws anything else: a
--- level knows a play or does not, so Choose needs no stream of its own yet (it comes
--- with the first play a level uses only some of the time).
+-- 0.12.0 adds two plays (cpu.tune: field.line, inkast.depth) and still draws nothing
+-- else: a level knows a play or does not, so Choose needs no stream of its own yet (it
+-- comes with the first play a level uses only some of the time).
 -- cpu.last is the last decision made, for a host that wants the reason beside a throw;
 -- autothrow.choose's result does not carry it, since that table reaches the session's
 -- actions and recordings.
@@ -33,16 +32,14 @@ local plan, autothrow, read, plays = tw.plan, tw.autothrow, tw.read, tw.plays
 
 local cpu = {}
 
--- The plays built in 0.11.3 (docs/notes/computer-player.md, "How a play gets in"), each
+-- The plays added in 0.12.0 (docs/notes/computer-player.md, "How a play gets in"), each
 -- switched by level (1: the level knows it, 0: it does not) and off entirely by on = 0,
--- so the Gym can play a level with and without (`--set cpu.tune.line.pro=1`). A level
--- not named does not know the play. Each play's numbers sit beside its switches. Built
--- switched off: no level knows either yet (measured in docs/notes/gym.md, "The
--- attacker's plays").
+-- so the Gym can play a level with and without (`--set cpu.tune.line.pro=0`). A level
+-- not named does not know the play. Each play's numbers sit beside its switches.
 cpu.tune = {
 	-- field.line: stand where the kubbs line up (core/cpu lineChoice)
 	line = {
-		on = 1, beginner = 0, club = 0, pro = 0,
+		on = 1, beginner = 0, club = 0, pro = 1,
 		carry = 1,       -- a lane's worth: 1 + carry x (kubbs in it - 1), times the chance of
 		                 -- hitting its front kubb: 1 counts every kubb in the lane as taken
 		hitHalf = 0.06,  -- m either side of the front kubb's line that hits it (plan.tune.straightM)
@@ -52,10 +49,11 @@ cpu.tune = {
 		                 -- (read.lineLane's w); 0: the lane's count less one
 	},
 	-- inkast.depth: lay the kubbs one behind another down the baton's path (core/cpu depthSpot).
-	-- Measured at pro and club (docs/notes/gym.md, "The attacker's plays"); no level knows
-	-- it yet
+	-- Pro only: it made club stronger and moved club away from real play (longer games,
+	-- more doubles), so club plays as 0.11.2 did until it is retuned as a whole (Jamie,
+	-- 2026-11-21; docs/notes/gym.md, "The attacker's plays")
 	depth = {
-		on = 1, beginner = 0, club = 0, pro = 0,
+		on = 1, beginner = 0, club = 0, pro = 1,
 		gap = 0.04,      -- m between a kubb's front face and the next kubb's back face
 		run = 4,         -- kubbs in one column before the next starts beside it (laneDeep holds four)
 		x = 0,           -- m from the middle the first column lies at; 0: the basket's (basketX)
@@ -140,7 +138,7 @@ local function intoSpot(s, t, bx, by, shortLying)
 	return bestX, bestY, bestP
 end
 
--- inkast.depth (0.11.3, switched off; kn-drill-2012 p3.13, p4.13, p5.13; yt-Io-rxbSB3Ns 1:13, 1:30):
+-- inkast.depth (0.12.0; kn-drill-2012 p3.13, p4.13, p5.13; yt-Io-rxbSB3Ns 1:13, 1:30):
 -- the kubbs lie one behind another down the baton's path, a column along the throw. A
 -- drill flies nose first from straight behind its mark, so it lies along the throw, and a
 -- defender can raise a lying kubb only onto one of its two ends, along its length: kubbs
@@ -242,8 +240,7 @@ end
 -- chosen ("basket", "row", "into", "clear") and the lying kubb it goes beside (row and
 -- into).
 --   group 0 (beginner): the basket itself.
---   row (club, pro; 0.11): flank to flank with the innermost kubb lying by the basket.
---   (A level that knows inkast.depth lays columns instead: depthSpot.)
+--   row (club; pro too with inkast.depth off; 0.11): flank to flank with the innermost kubb lying by the basket.
 --   otherwise (0.10, and a level ik does not name): into the group (intoSpot) when
 --   tune.into is on, else the clear spot nearest the basket on a small grid (tune.spot*):
 --   not on a kubb and with none in the lane it comes down and runs on in (a drill lands
@@ -478,21 +475,20 @@ function cpu.decide(s, r, level)
 	return d
 end
 
--- ---------- raising (0.11.3) ----------
+-- ---------- raising (0.12.0) ----------
 
 -- How the computer stands the other team's kubbs, by its level (raise.par; Q7 in
--- docs/reference/QUESTIONS.md). Built switched off: every level raises apart, as every
--- side did before (docs/notes/computer-player.md, "How a play gets in"). A level can be
--- given `par` (count the attacker's batons), `first` (the first end the rules list, a
--- stand-in for a random end, which needs Choose's own random stream: the throw's stream
--- must not be drawn from for it, docs/notes/computer-player.md, "Rules this design
--- keeps") or any policy of tw.raising.policies. A level not named here raises apart.
-cpu.raising = { beginner = "apart", club = "apart", pro = "apart" }
+-- docs/reference/QUESTIONS.md, Jamie's decision of 2026-11-21). Pro counts the
+-- attacker's batons. Club spreads the kubbs apart: what club players do. A beginner
+-- stands them anyhow: `first` (the first end the rules list) stands in for a random end,
+-- which needs Choose's own random stream, and that does not exist yet (the throw's stream
+-- must not be drawn from for it: docs/notes/computer-player.md, "Rules this design
+-- keeps"). A level not named here raises apart.
+cpu.raising = { beginner = "first", club = "apart", pro = "par" }
 
 -- A person's side, when the engine raises for it (RAISING: AUTOMATIC) and as the end
--- offered first when the person raises by hand: the engine's best advice. apart, as
--- before, until the advice is switched on (owner-2026-11-21#s5).
-cpu.advice = "apart"
+-- offered first when the person raises by hand: the engine's best advice.
+cpu.advice = "par"
 
 -- The raising policy (a name in tw.raising.policies) of the computer at `level` (default
 -- autothrow.tune.level, as a throw's).

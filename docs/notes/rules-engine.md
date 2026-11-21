@@ -51,20 +51,20 @@ local n = g:need()
   `g:autoPunishment(policy)`, `g:throwBaton(outcome, player)`, `g:resign(side, player)` (only
   on the resigning team's own turn). `player` is an id or name; it defaults to the team's
   first player. Calling an action out of phase raises an error.
-- Raising policies (`tw.raising.policies`): `apart` (default: the end farthest from other
-  kubbs), `par` (since 0.11.2, used by nothing yet: the end that leaves the attacker's
-  batons the fewest kubbs one behind another, its numbers `raising.tune.par*`),
-  `together`, `first`, or any `function(decision, ctx) -> index`. `g:context` gives each
-  other kubb's `kind`, so a policy can leave base kubbs out.
-- Which side raises how (0.11.3, switched off) is not the rules' but the match's:
-  `match.settle` raises each kubb with the defender's policy, `match.raisePolicy(m,
-  side)`: the computer's by its level (`core/cpu.raising`, keeping its reason in
-  `cpu.last`), a person's, raised automatically, by the engine's advice (`cpu.advice`),
-  which is also the end a client offers first by hand. Every level and the advice are
-  `apart` in 0.11.3, so every side raises as before. The match knows the computer's sides
-  from `match.new`'s `cpu` (the session passes it) or, failing that, from the mode `Vs
-  Playdate` (Team B); `match.new`'s `raising = { A, B }` names a side's policy outright.
-  A match that says neither raises every kubb with `g.raisePolicy`. The punishment
+- Raising policies (`tw.raising.policies`): `apart` (the game's default,
+  `g.raisePolicy`: the end farthest from other kubbs), `par` (since 0.11.2: the end that
+  leaves the attacker's batons the fewest kubbs one behind another, its numbers
+  `raising.tune.par*`), `together`, `first`, or any `function(decision, ctx) -> index`.
+  `g:context` gives each other kubb's `kind`, so a policy can leave base kubbs out.
+- Which side raises how (0.12.0) is not the rules' but the match's: `match.settle` raises
+  each kubb with the defender's policy, `match.raisePolicy(m, side)`. The computer
+  raises by its level (`core/cpu.raising`: pro `par`, club `apart`, beginner `first`, a
+  stand-in for a random end) and keeps its reason in `cpu.last`; a person's side, raised
+  automatically, by the engine's advice (`cpu.advice`, `par`), which is also the end a
+  client offers first by hand. The match knows the computer's sides from `match.new`'s
+  `cpu` (the session passes it) or, failing that, from the mode `Vs Playdate` (Team B);
+  `match.new`'s `raising = { A, B }` names a side's policy outright. A match that says
+  neither raises every kubb with `g.raisePolicy`, as before 0.12. The punishment
   policy is a `function(candidates, ctx) -> pose`; the default puts it deep in the half and
   away from other kubbs.
 

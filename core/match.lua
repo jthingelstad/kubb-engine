@@ -182,11 +182,11 @@ local function countTurn(m)
 	if m.game.turn ~= m.turn then m.turn, m.tossed = m.game.turn, 0 end
 end
 
--- ---------- raising by side (0.11.3) ----------
+-- ---------- raising by side (0.12.0) ----------
 --
 -- The defender's kubbs are raised by the policy of the side that defends: the computer
--- by its level (core/cpu.raising), a person by the engine's best advice (cpu.advice).
--- Built switched off: both are apart at every level, so every side raises as before. That needs to know which sides the computer
+-- by its level (core/cpu.raising: pro par, club apart, beginner first), a person by the
+-- engine's best advice (cpu.advice, par). That needs to know which sides the computer
 -- plays, which a match knows from
 --   m.cpu      the sides the computer plays: a list ({ "B" }, {} for none) or a set
 --              ({ B = true }); match.new's `cpu`. Not saved (core/save): a client that
@@ -198,7 +198,7 @@ end
 -- (match.new's `raising`, not saved) names a side's policy outright, a name in
 -- tw.raising.policies or a function(dec, ctx); it wins over the rest.
 -- A match that says none of this (no cpu, no raising, another mode) raises every kubb
--- with the game's one policy, game.raisePolicy (apart), as before 0.11.3.
+-- with the game's one policy, game.raisePolicy (apart), as before 0.12.
 
 -- The sides the computer plays as a set ({ B = true }), {} for none, or nil when the
 -- match does not say.
@@ -226,7 +226,7 @@ end
 -- The policy `side`'s kubbs are raised with when the engine raises them: m.raising's;
 -- else, when the match knows which sides the computer plays, a function that raises as
 -- the computer at the side's level (cpu.raise, which keeps its reason in cpu.last) for a
--- computer side and cpu.advice (apart, switched off) for a person's; else nil, which Game:raise takes
+-- computer side and cpu.advice ("par") for a person's; else nil, which Game:raise takes
 -- as the game's own (game.raisePolicy).
 function match.raisePolicy(m, side)
 	local r = m.raising and m.raising[side]

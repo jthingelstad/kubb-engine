@@ -95,6 +95,131 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.12.0** (minor). The defender's raising goes by who defends (raise.par, Q7;
+  Jamie's decision of 2026-11-21), and the pro computer attacks with two new plays, so
+  that a pro who defends well also attacks well: `inkast.depth` (it lays its kubbs in
+  columns down the baton's path) and `field.line` (it stands where the kubbs line up).
+  The club and beginner computer throw exactly as in 0.11.2: club is to be retuned as a
+  whole in a later release against its new target (a typical online player wins about
+  four games in ten), so it gets none of the new plays now. A 0.11 match replays
+  differently on 0.12 from its first raise the new policy decides otherwise or its first
+  pro computer throw a play changes, and the room refuses a match between 0.11 and 0.12.
+
+  What a player sees:
+  - **The computer raises by its level** (`core/cpu.raising`): pro by the attacker's
+    batons (`par`, built in 0.11.2), club `apart` as before (what club players do: spread
+    the kubbs), beginner `first`, standing in for a random end until Choose has a random
+    stream of its own.
+  - **A person gets the engine's best advice, `par`** (`cpu.advice`): when the engine
+    raises their kubbs (RAISING: AUTOMATIC), and as the end offered first when they raise
+    by hand (the session's `need.default`; a `raise` action with no choice takes it).
+  - **The pro computer lays columns** (`inkast.depth`, `core/cpu` depthSpot): the
+    kubbs end to end down the baton's path, 4 cm apart, four to a column and none nearer
+    the centre line than 4.35 m, with the row's dead landing and roll; then the next
+    column beside the last. A defender raises a lying kubb only along its length, so a
+    column stays one lane whichever ends are chosen. Until now it laid a row across, as
+    club still does.
+  - **The pro computer stands where the kubbs line up** (`field.line`, `core/cpu`
+    lineChoice, `read.lineLane`): for each standing field kubb, straight behind it and
+    the point on the throwing line that puts it and a kubb behind it one behind the other
+    (and a step along the line when straight behind is no good), scored by the lane along
+    that line times the chance of hitting from there; never through the king, past a kubb
+    in front, or within 0.3 m of a field kubb in its own half (II.B.11).
+  - Both are in `cpu.tune`, switched by level and off entirely (`on = 0`); the Gym reaches
+    every number (`--set cpu.tune.line.pro=0`). Neither draws from a random stream (a
+    level knows a play or does not), so Choose still has no stream of its own and the
+    throw's stream is drawn as before.
+  - The computer's raise keeps its reason in `cpu.last` (`kind = "raise"`, at pro
+    `why.play = "raise.par"`), never on the game, an action or anything hashed; a throw's
+    names `field.line` or `inkast.depth` when they chose it. `core/plays` has `raise.par`,
+    `field.line` and `inkast.depth`.
+
+  How: `match.settle` raises each kubb with the defender's policy,
+  `match.raisePolicy(m, side)`. It knows the computer's sides from `match.new`'s new
+  `cpu` (a list or set of sides; `{}` for none) or, without it, from the mode
+  `Vs Playdate` (Team B), and each computer side's level from the lineup (none:
+  `autothrow.tune.level`). `match.new`'s `raising = { A, B }` names a side's policy
+  outright. Neither is saved; the mode is. A match that says none of it raises every kubb
+  with `game.raisePolicy`, `apart`, exactly as before (the rules are unchanged).
+
+  Golden corpus: the twelve computer matches (m01 to m12) play the club computer on both
+  sides and keep every 0.11.2 hash. m13 (a person against the club computer) moves from
+  action 52, the person's raise by hand with the end offered first, now `par`. Two
+  matches are new in 0.12.0: m14 (a person raised automatically against the pro
+  computer, seed 1027) and m15 (the beginner computer both sides, seed 1015). 15 matches,
+  599 action hashes.
+  `tests/fixtures/cpu/choose.txt` is rewritten (`tools/cpufixture.lua`): against 0.11.0's
+  fixture 1464 lines of 480 setups move, all pro decisions a play now makes (22 of 62 pro
+  batons and 34 of 54 pro tosses); no beginner, kid or club decision differs from 0.11.0.
+  0.11.0's fixture is kept as `choose-0.11.txt` and still passes untouched with both
+  plays off. `make games`: the 500 rules games are 0.11.2's; its five physics matches play the
+  club computer both sides, which throws and raises as on 0.11.2, and pass the notation
+  gate with no warnings.
+
+  The Kubb Gym, 0.11.2 against 0.12.0 (300 matches a configuration, seed 1;
+  docs/notes/gym.md, "Raising by level" and "The attacker's plays"). The computer's rows
+  beside their target; bold moved past 2.58 standard errors:
+
+  | computer | 0.11.2 | 0.12.0 | target |
+  |---|---|---|---|
+  | pro: field batons that took two | 22.2% | 22.2% | 17 to 23 |
+  | pro: ... three or more | 4.9% | **6.8%** | 12 to 18 |
+  | pro: missed | 14.6% | **16.9%** | 12 to 19 |
+  | pro: turns that cleared the field | 77.0% | 78.5% | 87 to 94 |
+  | pro: turns from an advantage line | 20.1% | 18.7% | 8 to 15 |
+  | pro: turns a game | 12.2 | 12.3 | 6 to 10 |
+  | pro: standing kubbs touching another | 4% | **30%** | 60 to 90 |
+  | beginner: field batons that took two | 6.3% | **8.5%** | 1 to 5 |
+  | beginner: ... three or more | 0.5% | **0.8%** | 0 to 1 |
+
+  Club's rows are 0.11.2's to the last figure (the same games). The beginner's moved by
+  its raising (`first`) only; a person's, by `par`: the human thrower's took two 10.4% to
+  9.6% at beginner and 8.5% to 6.9% at club (target 8 to 13: now under it).
+
+  Pro is partly toward real play: three or more up from 4.9% to 6.8% (still about half
+  the real figure), took two in range, and turns cleared and turns a game back where
+  0.11.2 had them, which the raising alone had pushed away; cleared turns (78.5% against
+  87 to 94) and game length (12.3 turns against 6 to 10) are still short of real play.
+  Side against side the 0.12.0 pro beats 0.11.2's pro (`raise=apart`, the row, both
+  plays off) 79.0% and 81.3% (seeds 1 and 2). Pro over club 97.0% and 97.2%, club over
+  beginner 93.5% and 94.1%, pro over beginner 99.8% and 100% (0.11.2: 96.0, 93.7, 99.7).
+  The human thrower against the computer at the same level: beginner 97.8% and 97.6%,
+  club 15.7% and 16.8% (0.11.2: 12.3%; the person's `par` raising), pro 0.2% and 0.0%.
+  Against this attacker `par` and `apart` are level at pro (50.3%, 51.8%; 76.8% against
+  the old attacker) and `par` beats the same-end policies 55 to 57, so `par` stays. A
+  beginner raising `first` loses to one raising `apart`, 40.2% (36.8 to 43.5).
+
+  What it costs: a `par` decision with eight kubbs still lying takes about 0.12 ms in
+  desktop Lua (0.11.2's measure), against 0.001 ms for `apart`; it now runs at every pro
+  raise and every person's automatic raise. A `field.line` decision at ten standing field
+  kubbs in a tight group makes 23 lane tests (at most 55, and four more for each kubb whose
+  straight stance is no good) and takes about 0.11 ms in desktop Lua against 0.016 ms
+  without; a pro `inkast.depth` toss about 0.018 ms against 0.003. None has been timed on a
+  Playdate.
+
+  For clients:
+  - Sync the tag. Rooms refuse mixed minors, so a client that shares matches carries
+    0.12 beside the engines it already carries.
+  - The attacking plays need nothing from any client: they are inside
+    `autothrow.choose`, which every client already calls for the computer's throws. Only
+    the pro computer plays differently; a client that offers club or beginner shows the
+    same computer as on 0.11.2, apart from a person's raising (`par`) and the beginner's
+    own (`first`).
+  - **Web and iPhone** (the session): nothing to pass. The session hands its `cpu` option
+    to the core, so the computer raises by its level, a person's automatic raising is
+    `par`, and `need.default` for a raise by hand is `par`. Offer `default` first, as
+    before; a `raise` action with no choice now takes it.
+  - **Playdate** (the core, `match.new` directly): in VS PLAYDATE (`mode = "Vs
+    Playdate"`) the core infers that Team B is the computer, so the Playdate raises by
+    its level and a person's kubbs raised by `match.setup` (the AUTOMATIC option) go up
+    by `par`, with no code of its own; a resumed match keeps it (the mode is saved). Two
+    things need its own change: `scenes/settle` picks the end it offers first, and REST
+    OF GAME's raises, with `g.raisePolicy` (still `apart`); to give a person the
+    advice there it passes `tw.match.raisePolicy(m, side) or g.raisePolicy` instead. And
+    PASS + PLAY with AUTOMATIC raising says nothing of sides, so it keeps `apart` unless
+    it passes `cpu = {}` to `match.new` (again on resume: `m.cpu = {}`). Passing nothing
+    keeps 0.11's raising exactly.
+
 - **0.11.3** (patch). The defender's raising by side and two attacking plays for the
   computer, built switched off (docs/notes/computer-player.md, "How a play gets in"):
   - **Raising by side**: `match.settle` raises each kubb with the defender's policy,

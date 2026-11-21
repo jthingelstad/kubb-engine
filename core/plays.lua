@@ -2,12 +2,11 @@
 -- keyed by the ids in docs/reference/plays/*.md, where each play's sources are. A
 -- decision from core/cpu names one in why.play, with its facts in why.facts; `say` is
 -- one plain sentence a game can show as it is, its {name}s filled from those facts
--- (cpu.text). `levels` are the levels that use the play today (none for a play that is
--- built and switched off), `phase` the phase of SITUATIONS.md it belongs to.
+-- (cpu.text). `levels` are the levels that use the play today, `phase` the phase of
+-- SITUATIONS.md it belongs to.
 --
 -- It held what 0.11.0 already did and grows one play at a time, by "How a play gets
--- in": a play built switched off is here with no levels (field.line, inkast.depth and
--- raise.par: 0.11.3) and gets them when it is switched on. `make refcheck` fails on an id here that is not a play in
+-- in" (raise.par: 0.12.0). `make refcheck` fails on an id here that is not a play in
 -- docs/reference/plays/. A choice that carries out no play there (a baton at the
 -- nearest base kubb, the king from the baseline) has no why.play.
 import "core/tw"
@@ -28,24 +27,24 @@ local plays = {
 		levels = { "beginner", "club", "pro" },
 		say = "At the lane with the most kubbs: {lane} in line from the front one.",
 	},
-	-- core/cpu lineChoice (0.11.3): named only when the stance moved off straight behind
+	-- core/cpu lineChoice (0.12.0): named only when the stance moved off straight behind
 	-- the front kubb; levels: cpu.tune.line
 	["field.line"] = {
 		phase = "field",
-		levels = {},
+		levels = { "pro" },
 		say = "Stood off to the side so {lane} kubbs line up behind the front one.",
 	},
-	-- core/cpu depthSpot (0.11.3); levels: cpu.tune.depth
+	-- core/cpu depthSpot (0.12.0); levels: cpu.tune.depth
 	["inkast.depth"] = {
 		phase = "inkast",
-		levels = {},
+		levels = { "pro" },
 		say = "Laid one behind another down the baton's path, in the {basket} basket.",
 	},
-	-- core/cpu.raise (0.11.3); levels: cpu.raising. Also a person's automatic raising and
-	-- the end offered first by hand when cpu.advice is par, which give no reason
+	-- core/cpu.raise (0.12.0); also a person's automatic raising and the end offered
+	-- first by hand (cpu.advice), which are not the computer's and give no reason
 	["raise.par"] = {
 		phase = "raise",
-		levels = {},
+		levels = { "pro" },
 		say = "Stood on the end that leaves the batons the fewest kubbs one behind another.",
 	},
 }
