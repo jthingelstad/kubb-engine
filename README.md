@@ -7,7 +7,8 @@ throw and the computer player (`core/throwplan`; `core/read`, `core/plays`, `cor
 (`core/match`) and the Planet Kubb Notation writer (`core/notation`, `core/gamefile`);
 the session (`session/`), a practice pitch or a match behind one door, `kubbCall`,
 with JSON in and out (docs/SESSION.md); and the room (`room/`), a shared pitch's
-document and who acts in it, behind the same door (docs/ROOM.md). It has no drawing,
+document and who acts in it, behind the same door (docs/ROOM.md); and generated names for
+players and teams (`core/namegen`, `core/namewords`, docs/NAMES.md). It has no drawing,
 input, network or file access; a client supplies those.
 
 The core was extracted from the Playdate game (`playdate-kubb`, `source/core/`) and the
@@ -62,6 +63,8 @@ Needs Lua 5.4 and Node; run `npm ci` once (wasmoon, for the wasm tests).
 - `make games`: 500 seeded rules-only games and 5 physics matches, every one gated.
 - `make physfuzz`: the physics fuzzer (a measuring tool).
 - `make realgames`: optional; needs a pk-kubb-score checkout (`PK_KUBB_SCORE`).
+- `make names`: rewrite `tests/names/`, every generated name, after a change to the
+  words (docs/NAMES.md); `make test` fails while they are stale.
 - `make gym`: the Kubb Gym's scorecard (docs/notes/gym.md), a measuring tool.
 - `make mjref`: optional; needs a Python with `mujoco` and `numpy` (`MJPY`).
 

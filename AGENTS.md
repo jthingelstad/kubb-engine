@@ -89,6 +89,10 @@ iPhone app (the bundle: core, room, session and tune).
 - `tests/vendor/pk-kubb-score/` holds copies of pk-kubb-score's parser and scorer. Never
   edit them; `make sync-notation` refreshes them from a pk-kubb-score checkout, which is
   read only.
+- Generated names (docs/NAMES.md): `core/namewords` is the content policy for every
+  player and team name. A change to a word list needs `make names`, and a person reads
+  the new names in the diff before it merges; a near miss goes into
+  `tests/names/blocklist.txt`. Remove a word only for safety, and say so.
 - `tests/fixtures/traces/device-*.jsonl` are crank traces recorded on a Playdate,
   replayed through `core/swing` by `test_swing`.
 - Measuring tools (`tools/physfuzz.lua`, `clusters.lua`, `realgames.mjs` and the rest)

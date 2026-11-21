@@ -1,0 +1,171 @@
+# What no generated name may hold (tests/lua/test_namegen.lua, docs/NAMES.md "Safety").
+# Checked against every name tools/names.lua writes, lowercased.
+#
+#   word <w>      a whole word of the name
+#   phrase <p>    whole words in a row ("morning wood")
+#   run <s>       anywhere in the name with its spaces taken out, so words that run
+#                 together are caught too ("sub cock" -> "subcock")
+#
+# The lists are curated first; this file is the net under them. Add to it whenever a
+# review finds a near miss, even one the lists no longer make.
+
+# Wood and throwing jokes this game invites.
+phrase morning wood
+phrase hard wood
+phrase big wood
+phrase stiff wood
+phrase wood pecker
+word woody
+word woodies
+word stiff
+word stiffs
+word boner
+word pecker
+word peckers
+word beaver
+word beavers
+word knockers
+word tossers
+word tosser
+word wankers
+word balls
+word nuts
+word pole
+word poles
+word shaft
+word shafts
+word strokers
+word swingers
+word bangers
+word hookers
+word johnson
+word willy
+word wang
+word dong
+word beech
+word horny
+word randy
+word spunky
+word cocky
+word saucy
+word frisky
+word naughty
+word sexy
+word hot
+word moist
+word sticky
+word thick
+word booty
+word butt
+word bum
+word fanny
+word bush
+word bushy
+word perky
+# Run-together fragments: a crude word hidden across the join.
+run cock
+run dick
+run cunt
+run fuck
+run shit
+run piss
+run slut
+run whore
+run wank
+run twat
+run fag
+run nazi
+run rape
+run porn
+run nigg
+run spic
+run kike
+run boob
+run penis
+run vagin
+run anal
+run turd
+run poop
+# Bodies, peoples, faiths, health: never a name.
+word fat
+word skinny
+word chubby
+word ugly
+word stupid
+word dumb
+word crazy
+word insane
+word psycho
+word lame
+word retard
+word retarded
+word spaz
+word gay
+word queer
+word fruity
+word fairy
+word gypsy
+word eskimo
+word indian
+word savage
+word savages
+word redskins
+word chief
+# Violence and vice.
+word killer
+word killers
+word killing
+word slayer
+word slayers
+word kingslayers
+word deadly
+word gun
+word guns
+word shooter
+word shooters
+word sharpshooters
+word bomb
+word bombers
+word drunk
+word drunken
+word beer
+word booze
+word wasted
+word stoned
+word weed
+word pot
+word high
+word kingpins
+# Near misses real kubb teams have used (docs/NAMES.md "Safety").
+run kubbic
+run pubic
+run bitch
+run dyke
+run tits
+run crotch
+run bastard
+run damn
+run daddy
+run aholic
+phrase pitch slap
+phrase with wood
+phrase death march
+word sack
+word knob
+word screw
+word bang
+word pump
+word load
+word erect
+word tool
+word tools
+word hard
+word sixpack
+# Sound-alikes: said aloud across a lawn, a name must stay clean.
+phrase bad ash
+word knotty
+word nutty
+word cherry
+run badass
+run woodcock
+run peacock
