@@ -53,3 +53,32 @@ jobs:
         run: make manifest-check NODE=node
       - name: Headless games
         run: make games LUA=lua5.4 NODE=node
+
+  # The Kubb Gym's quick scorecard (docs/notes/gym.md): a measurement, not a check of
+  # rates. It fails only when the tool fails or a throw shows a hard defect (a body
+  # still moving at the time limit, or a state that is not a number); the scorecard's
+  # JSON is kept as an artifact. No real games and no recorded matches here.
+  gym:
+    name: gym
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: install Lua 5.4
+        run: sudo apt-get update -q && sudo apt-get install -y -q lua5.4
+      - name: quick scorecard
+        run: node tools/gym.mjs --quick --gate --real none --json build/gym-quick.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: gym-quick
+          path: build/gym-quick.json
+          if-no-files-found: warn
