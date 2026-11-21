@@ -1,7 +1,8 @@
 -- The computer player's regression: autothrow.choose's whole result, and where it leaves
 -- the random stream, over tests/lua/cpucases.lua's setups, line for line against a
 -- fixture. tests/fixtures/cpu/choose.txt is the engine as shipped (tools/cpufixture.lua
--- rewrote it in 0.12.0 when field.line and inkast.depth were switched on);
+-- rewrote it in 0.12.0 when field.line and inkast.depth were switched on, and in 0.13.0
+-- when the beginner's swing scale went from 1.6 to 2.15);
 -- tests/fixtures/cpu/choose-0.11.txt is 0.11.0's, which the engine must still match with
 -- those plays switched off (docs/notes/computer-player.md, "How a play gets in"). Integers
 -- and strings must match exactly. Floats must agree to one part in 10^9: the fixture
@@ -48,21 +49,22 @@ local function against(file)
 	expect.truthy(#want > 10000, "the fixture is there")
 end
 
--- 0.12.0's plays as shipped (field.line and inkast.depth, both at pro only):
--- tests/fixtures/cpu/choose.txt, rewritten by tools/cpufixture.lua when they were
--- switched on.
-test("autothrow.choose matches the 0.12.0 fixture in every field", function()
+-- 0.12.0's plays as shipped (field.line and inkast.depth, both at pro only) and 0.13.0's
+-- beginner: tests/fixtures/cpu/choose.txt, rewritten by tools/cpufixture.lua each time.
+test("autothrow.choose matches the 0.13.0 fixture in every field", function()
 	against("choose.txt")
 end)
 
--- With every play 0.12.0 added switched off (cpu.tune's on = 0), the computer chooses
--- exactly as 0.11.0 did: tests/fixtures/cpu/choose-0.11.txt is the fixture 0.11.0 wrote,
--- untouched.
-test("with the 0.12.0 plays off, autothrow.choose matches the 0.11.0 fixture", function()
-	local cpu = tw.cpu
-	local saved = {}
+-- With every play 0.12.0 added switched off (cpu.tune's on = 0) and the beginner's swing
+-- scale at its 0.12 value (1.6), the computer chooses exactly as 0.11.0 did:
+-- tests/fixtures/cpu/choose-0.11.txt is the fixture 0.11.0 wrote, untouched.
+test("with the 0.12.0 plays off and 0.12's beginner, autothrow.choose matches the 0.11.0 fixture", function()
+	local cpu, ss = tw.cpu, tw.autothrow.tune.swingScale
+	local saved, beginner = {}, ss.beginner
 	for name, p in pairs(cpu.tune) do saved[name] = p.on; p.on = 0 end
+	ss.beginner = 1.6
 	local ok, err = pcall(against, "choose-0.11.txt")
 	for name, p in pairs(cpu.tune) do p.on = saved[name] end
+	ss.beginner = beginner
 	if not ok then error(err, 0) end
 end)
