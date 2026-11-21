@@ -93,11 +93,17 @@ iPhone app (the bundle: core, room, session and tune).
   replayed through `core/swing` by `test_swing`.
 - Measuring tools (`tools/physfuzz.lua`, `clusters.lua`, `realgames.mjs` and the rest)
   change nothing in the engine; what to tune from them is Jamie's call.
+- The Kubb Gym (`make gym`, `node tools/gym.mjs`; docs/notes/gym.md): seeded matches by
+  the computer and a human thrower fitted from recorded swings, forensics on every throw,
+  anomalies with a replay command each, the real-games comparison on one page; `gym
+  compare` two refs or scorecards, `gym sweep` one tuning number. Recorded matches are
+  private: pass their folder (`--records`, `fit`, `bank`), never copy them into the repo;
+  only `tools/gym/human-model.json`'s counts and quantiles live here.
 
 ## Notes
 
 `docs/notes/` holds the subsystem notes (rules engine, physics, physics fuzz, the
-reference engine, real games, headless games, the throw). Read the note before changing
+reference engine, real games, headless games, the throw, the Kubb Gym). Read the note before changing
 the part it covers. `docs/SESSION.md` is the session's API, `docs/ROOM.md` the room's,
 `docs/VERSIONING.md` and `docs/DETERMINISM.md` the version rules and the reference
 platform. Code comments also
