@@ -109,7 +109,8 @@ Every client shows its own version with the engine's beside it, in one form:
   that every id in `core/plays.lua` is a play in `docs/reference/plays/`.
   `tests/fixtures/cpu/choose.txt`, written by 0.11.0, holds every field of
   `autothrow.choose`'s result and the next number of its stream over 480 seeded setups;
-  0.11.1 matches it line for line. All 532 golden action hashes match 0.11.0, and
+  0.11.1 matches it in every field (floats to one part in 10^9, since desktop maths
+  libraries differ in a last digit). All 532 golden action hashes match 0.11.0, and
   `tools/physdump.lua`'s output is the same byte for byte.
 
   For clients: sync the tag; nothing else changes. The core has three more files, all

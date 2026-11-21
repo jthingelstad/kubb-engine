@@ -4,7 +4,7 @@
 -- the next number of the random stream after it (so a draw added, dropped or moved
 -- shows), one line per field. tests/fixtures/cpu/choose.txt holds these lines as 0.11.0
 -- wrote them; test_cpu_regression fails on any difference. Both run on desktop Lua, so
--- floats are written to 17 digits and must match exactly.
+-- floats are written to 17 digits; the test holds them to one part in 10^9.
 --
 --   local cases = dofile(root .. "/tests/lua/cpucases.lua")
 --   local lines = cases.lines()     -- every line, in order
