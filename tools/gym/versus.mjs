@@ -17,7 +17,8 @@ const THROWERS = ['cpu', 'human'];
 // text } with text the normal form the worker is given. Raising policy names and tune
 // paths are checked by the worker, which has the engine.
 export function parseSpec(str, label = 'A') {
-  const spec = { level: 'club', thrower: 'cpu', raise: 'apart', sets: [] };
+  // raise: 'default' unless given: the engine's own for the team (tools/gym/versus.lua)
+  const spec = { level: 'club', thrower: 'cpu', raise: 'default', sets: [] };
   const seen = new Set();
   for (let part of String(str || '').split(/[,;]/)) {
     part = part.trim();

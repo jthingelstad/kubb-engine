@@ -35,7 +35,8 @@ raising.tune = {
 	searchMax = 0.6,         -- m, give up beyond this
 	punishGrid = 0.1,        -- m, spacing of candidate punishment spots
 	-- raising.policies.par (raise.par, raise.across): the end that leaves the attacker's
-	-- batons the fewest kubbs one behind another. Not the game's policy (apart is).
+	-- batons the fewest kubbs one behind another. Not the game's policy (apart is), and no
+	-- side's yet (core/cpu.raising and cpu.advice choose it for a side: none in 0.11.3).
 	-- Two kubbs are a pair on a baton's path by how far apart they are across that path
 	-- and along it; see parPair below.
 	parAcrossFull = 0.04,    -- m across: closer than this, one is squarely behind the other
@@ -250,7 +251,9 @@ function raising.lower(upper, lowerPose)
 end
 
 -- Automatic choosers for the "auto raise" setting and the computer. Each takes
--- (decision, ctx) and returns an index into decision.choices.
+-- (decision, ctx) and returns an index into decision.choices (par also returns what it
+-- weighed, for the computer's reason). Which side uses which: core/cpu.raising and
+-- core/match.raisePolicy.
 local function spread(pose, ctx)
 	local m = huge
 	for _, o in ipairs(ctx.others or {}) do
@@ -464,14 +467,18 @@ local function par(dec, ctx)
 		if e < lo - 1e-12 then lo, loI = e, i end
 		if e > hi then hi = e end
 	end
-	if hi - lo <= t.parTie then return apart(dec, ctx) end
-	return loI
+	-- the second value is for a reason (core/cpu.raise), never for play
+	if hi - lo <= t.parTie then return apart(dec, ctx), { exposure = lo, over = hi, tie = true } end
+	return loI, { exposure = lo, over = hi, tie = false }
 end
 raising.parExposure = parExposure
+-- one view's pair weight (core/read.lineLane weighs a lane by it: field.line)
+raising.parPair = parPair
 
 raising.policies = {
 	apart = apart,
-	-- Count the attacker's batons (raise.par): built switched off, measured in the Gym.
+	-- Count the attacker's batons (raise.par): built switched off, measured in the Gym;
+	-- core/cpu.raising and core/match.raisePolicy give it to a side (none in 0.11.3).
 	par = par,
 	-- Group them (for drills and tests).
 	together = function(dec, ctx)

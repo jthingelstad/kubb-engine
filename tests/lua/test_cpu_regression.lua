@@ -1,13 +1,15 @@
--- The computer player chooses as 0.11.0 did (docs/notes/computer-player.md, "the split
--- itself, with no change in play"): autothrow.choose's whole result, and where it leaves
--- the random stream, over tests/lua/cpucases.lua's setups, line for line against
--- tests/fixtures/cpu/choose.txt (written by tools/cpufixture.lua from 0.11.0). Integers
+-- The computer player's regression: autothrow.choose's whole result, and where it leaves
+-- the random stream, over tests/lua/cpucases.lua's setups, line for line against a
+-- fixture. tests/fixtures/cpu/choose.txt is 0.11.0's (tools/cpufixture.lua), and the
+-- engine as shipped still matches it: field.line and inkast.depth are built switched off
+-- in 0.11.3 (docs/notes/computer-player.md, "How a play gets in"). Integers
 -- and strings must match exactly. Floats must agree to one part in 10^9: the fixture
 -- was written on one desktop and the test runs on others, whose maths libraries differ
 -- in a result's last digit (docs/DETERMINISM.md: stock desktop Lua is for logic tests,
 -- never for hashes). A choice that changed would move a number by far more than that.
 import "core/tw"
 import "core/autothrow"
+import "core/cpu"
 
 local here = debug.getinfo(1, "S").source:match("^@(.*)/[^/]*$") or "."
 local root = here .. "/../.."
@@ -27,19 +29,37 @@ local function near(g, w)
 	return math.abs(a - b) <= TOL * scale
 end
 
-test("autothrow.choose matches the 0.11.0 fixture in every field", function()
+-- Every line of tests/lua/cpucases.lua's setups against a fixture file.
+local function against(file)
 	local cases = dofile(root .. "/tests/lua/cpucases.lua")
 	local got = cases.lines()
 	local want = {}
-	for line in io.lines(root .. "/tests/fixtures/cpu/choose.txt") do want[#want + 1] = line end
+	for line in io.lines(root .. "/tests/fixtures/cpu/" .. file) do want[#want + 1] = line end
 	local case = "?"
 	for i = 1, math.max(#got, #want) do
 		local g, w = got[i], want[i]
 		if w and w:match("^case ") then case = w end
 		if g ~= w and not near(g, w) then
-			error(string.format("line %d (%s): expected %s, got %s", i, case, tostring(w), tostring(g)))
+			error(string.format("%s line %d (%s): expected %s, got %s", file, i, case, tostring(w), tostring(g)))
 		end
 	end
 	expect.eq(#got, #want, "lines")
 	expect.truthy(#want > 10000, "the fixture is there")
+end
+
+-- The engine as shipped: the plays 0.11.3 built know no level, so the computer chooses
+-- exactly as 0.11.0 did.
+test("autothrow.choose matches the 0.11.0 fixture in every field", function()
+	against("choose.txt")
+end)
+
+-- And with every play 0.11.3 built switched off entirely too (cpu.tune's on = 0), the
+-- way the Gym and the tests switch them: the same fixture.
+test("with the 0.11.3 plays off (on = 0), autothrow.choose matches the 0.11.0 fixture", function()
+	local cpu = tw.cpu
+	local saved = {}
+	for name, p in pairs(cpu.tune) do saved[name] = p.on; p.on = 0 end
+	local ok, err = pcall(against, "choose.txt")
+	for name, p in pairs(cpu.tune) do p.on = saved[name] end
+	if not ok then error(err, 0) end
 end)

@@ -96,6 +96,13 @@ autothrow.tune = {
 	-- field kubbs in it, at the front one.
 	laneHalf = 0.07,         -- m: kubbs within this across of the front one are in its lane ...
 	laneDeep = 0.6,          -- ... and within this behind it
+	-- field.line's lane along the true line (read.lineLane, 0.11.3)
+	lineLevel = 0.04,        -- m: a kubb in the lane less than this nearer the stance than the
+	                         -- front kubb is level with it, not in front of it
+	lineKing = 0.2,          -- m across the line: a king this near the baton's path ...
+	lineKingPast = 1.0,      -- ... from the stance to this far beyond the front kubb rules a stance out
+	lineOwn = 0.3,           -- m: a field kubb of the thrower's own half this near the path (or
+	                         -- the stance) rules it out: a baton that touches one is forfeit
 	-- The inkast by level (0.11; Jamie, 2026-11-21: the inkast is where the levels
 	-- differ most. A beginner tosses the kubbs out with no group; a club player knows
 	-- the technique but controls it less; a pro's kubbs lie touching). spin: taps,

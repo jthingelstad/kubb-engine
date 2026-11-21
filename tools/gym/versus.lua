@@ -5,6 +5,8 @@
 --
 -- A spec is "level=pro;thrower=cpu;raise=apart;autothrow.tune.inkast.pro.row=0" (parts
 -- split by ';' or ','; tune paths are --set's: a number reachable from tw by its path).
+-- raise= left out (or raise=default) is the engine's own for that team
+-- (versus.defaultRaise).
 --
 -- How a team's numbers are switched: every set key is taken out of its table (rawset to
 -- nil) and served by the table's __index, which returns the value of the team acting
@@ -55,7 +57,7 @@ local function trim(s) return (s:gsub("^%s+", ""):gsub("%s+$", "")) end
 
 -- A spec string into { label, level, thrower, raise, sets = { { path, value } } }.
 function versus.parse(str, label)
-	local spec = { label = label, level = "club", thrower = "cpu", raise = "apart", sets = {} }
+	local spec = { label = label, level = "club", thrower = "cpu", raise = "default", sets = {} }
 	local seen = {}
 	for part in (str or ""):gmatch("[^,;]+") do
 		part = trim(part)
@@ -71,7 +73,7 @@ function versus.parse(str, label)
 				if not versus.THROWERS[v] then error("versus: team " .. label .. ": thrower cpu or human, got " .. v, 0) end
 				spec.thrower = v
 			elseif k == "raise" then
-				if not (tw.raising.policies[v] or versus.policies[v]) then
+				if v ~= "default" and not (tw.raising.policies[v] or versus.policies[v]) then
 					local names = {}
 					for n in pairs(tw.raising.policies) do names[#names + 1] = n end
 					for n in pairs(versus.policies) do names[#names + 1] = n .. " (gym)" end
@@ -88,7 +90,20 @@ function versus.parse(str, label)
 			end
 		end
 	end
+	if spec.raise == "default" then spec.raise, spec.raiseDefault = versus.defaultRaise(spec.level, spec.thrower), true end
 	return spec
+end
+
+-- A team's raising when its spec does not name one: what the engine does for such a
+-- side (since 0.11.3, core/cpu.raising): the computer by its level, the human thrower
+-- (a person whose kubbs the engine raises) by the engine's advice (cpu.advice); in
+-- 0.11.3 both are apart at every level. An engine from before 0.11.3 (gym compare's
+-- older ref, --engine) has no such table and raised every side apart, so its teams do.
+function versus.defaultRaise(level, thrower)
+	local cpu = tw.cpu
+	if not (cpu and cpu.raising) then return "apart" end
+	if thrower == "human" then return cpu.advice end
+	return cpu.raisePolicy(level)
 end
 
 -- The raising policy the engine is given for this team: a name of tw.raising.policies,
