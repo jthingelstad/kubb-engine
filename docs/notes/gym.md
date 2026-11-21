@@ -34,9 +34,12 @@ with their repro commands.
 
 - **Configurations**: thrower x level x surface, by default the computer and the human
   thrower at beginner, club and pro on grass. Each match is both teams of that thrower at
-  that level. Match `i` of seed `s` is the same match whichever process plays it; the
-  computer's matches are `tools/physmatch.lua`'s to the bit (its game files are identical),
-  so the computer's column is the one `docs/notes/real-games.md` reports.
+  that level, raising as the engine raises such a side (since 0.11.3: the computer by its
+  level, `cpu.raising`, the human thrower by the engine's advice, `cpu.advice`; both
+  `apart` until they are switched on). Match `i` of
+  seed `s` is the same match whichever process plays it; the computer's matches are
+  `tools/physmatch.lua`'s to the bit (its game files are identical; it raises by the level
+  too), so the computer's column is the one `docs/notes/real-games.md` reports.
 - **The computer** is `core/autothrow` as the game plays it.
 - **The human thrower** (`tools/gym/human.lua`) is a person at the meter. It picks the
   target and stance as the computer does, plans the throw at its own level as the session
@@ -214,7 +217,9 @@ differently against each other:
 
 A spec is one team: `level=` (beginner, club, pro; default club), `thrower=` (cpu or
 human; default cpu), `raise=` (the policy it raises the other team's kubbs with when it
-defends; default apart) and any number of `path=value` tune settings, the paths `--set`
+defends; default, since 0.11.3, what the engine does for such a side: the computer by its
+level, `cpu.raising`, and the human thrower, a person whose kubbs the engine raises, by
+`cpu.advice`; in 0.11.3, and on an engine before it, `apart`) and any number of `path=value` tune settings, the paths `--set`
 takes. Parts are split by `;` or `,`. Options: `--n` (seeds, default 300), `--seed`,
 `--surfaces`, `--maxturns`, `--jobs`, `--json`, `--set` (for both teams), `--probe N`
 (below), `--engine`.
@@ -246,8 +251,8 @@ tunes (the Gym does not play through the session), and anything the engine reads
 team's action (none in a match today: the counts print reads outside an action, and they
 are 0).
 
-**Raising policies.** The engine's (`tw.raising.policies`: `apart`, the computer's and
-auto raise's; `together`; `first`) and two the Gym adds, which keep a row across the pitch
+**Raising policies.** The engine's (`tw.raising.policies`: `apart`, every side's in
+0.11.3 and before; `par`, built switched off; `first`; `together`) and two the Gym adds, which keep a row across the pitch
 a row: every kubb with a choice goes up on the same end, `away` on the end away from the
 centre line (deeper in the defender's half), `toward` on the end toward it. A kubb with
 one choice goes where the rules put it.
@@ -277,7 +282,14 @@ not (throws of one game, and the two teams play the same games), so read only a 
 past 2.58, as compare's "moved". The wins are the measure. A team's turn-level figures
 depend on the other team too (the field it throws at is the other team's raise of its own
 inkast), so a row says what happened, not why. A game at the turn limit is a draw here,
-which a real match never is. The human thrower takes the computer's target and raise.
+which a real match never is. The human thrower takes the computer's target, and raises
+as a person raised by the engine does (`cpu.advice`).
+
+The next two sections measure what 0.11.3 builds switched off: the raising by level and
+the two attacking plays, switched on in the Gym as they are to be enabled (pro `par`,
+club `apart`, beginner `first`, a person `par`, Jamie's decisions of 2026-11-21:
+owner-2026-11-21#s5, Q7; `field.line` and `inkast.depth` at pro). "On" in their tables
+is that engine; 0.11.3 as shipped plays exactly as 0.11.2, so its rows are 0.11.2's.
 
 ### The first versus results (2026-11-21)
 
@@ -356,6 +368,215 @@ other team's kubbs.
   76.0, 55.9, 54.6, 65.8): all within the intervals of the shipped numbers. The computer always stands
   straight behind its target, so the side views cannot show against it; they are kept for
   a person who throws from the end of the line.
+
+### Raising by level (2026-11-21)
+
+The raising switched on, against 0.11.2: the computer raises by its level (pro `par`,
+club `apart`, beginner `first`) and a person's side raised by the engine by `par`;
+before, every side raised `apart`. Grass, seed 1, 300 matches a configuration (600 games a pairing), turn
+limit 40. The scorecard is `node tools/gym.mjs --throwers cpu,human --levels
+beginner,club,pro --full --seed 1` on the engine with `cpu.raising` and `cpu.advice` set
+so, the before run on 0.11.2's engine (`--engine`).
+
+The computer's rows that moved past 2.58 standard errors, beside the level's target
+(`docs/reference/play-levels.json`). Club raises `apart` as before: none of its rows moved.
+
+| level | row | 0.11.2 | on | target | |
+|---|---|---|---|---|---|
+| pro | field batons that took two | 22.2% | 13.6% | 17 to 23 (measured) | away: out of range |
+| pro | ... took three or more | 4.9% | 1.8% | 12 to 18 (measured) | away |
+| pro | turns that cleared the field | 77.0% | 69.5% | 87 to 94 (measured) | away |
+| pro | batons to clear, when cleared | 3.70 | 3.96 | | |
+| pro | turns from an advantage line | 20.1% | 26.9% | 8 to 15 (measured) | away |
+| pro | turns a game | 12.2 | 14.1 | 6 to 10 (measured) | away |
+| pro | ended on the king (else the turn limit) | 99.7% | 96.7% | | |
+| pro | standing field group: kubbs touching another | 4% | 54% | | |
+| beginner | field batons that took two | 6.3% | 8.5% | 1 to 5 (owner) | away (it was above already) |
+| beginner | ... took three or more | 0.5% | 0.8% | 0 to 1 (owner) | in range |
+
+The human thrower plays both sides and so raises `par` against itself: field batons that
+took two 10.4% to 9.6% at beginner, 8.5% to 6.9% at club (target 8 to 13: now under it),
+4.1% to 3.6% at pro.
+
+**Pro moves away from real play, as expected.** With both pro teams raising by the
+attacker's batons, each faces a fence the computer's baton cannot take (Q16: it never
+joins two kubbs standing flank to flank), so it takes two with one baton 14% of the time
+instead of 22%, clears 70% of its fields instead of 77%, throws from an advantage line
+more often and needs two more turns a game. The raising is right (Q7); the attacker is
+what is short, and it is the next item of work (docs/notes/computer-player.md).
+
+`versus`, 300 seeds each way round (A's score is the paired interval):
+
+| A | B | won A / B / limit | A's score | 0.11.2 |
+|---|---|---|---|---|
+| pro (par) | pro, `raise=apart` (0.11.2's pro) | 460 / 138 / 2 | 76.8 (73.8 to 79.9) | |
+| pro | club | 581 / 19 / 0 | 96.8 (95.5 to 98.2) | 96.0 (94.5 to 97.5) |
+| club | beginner | 559 / 37 / 4 | 93.5 (91.6 to 95.4) | 93.7 (91.8 to 95.5) |
+| pro | beginner | 595 / 5 / 0 | 99.2 (98.4 to 99.9) | 99.7 (99.2 to 100) |
+| beginner (first) | beginner, `raise=apart` | 216 / 334 / 50 | 40.2 (36.8 to 43.5) | |
+
+- The ladder holds: each level beats the one below it about as often as before.
+- **A beginner's `first` is a worse defence than `apart`** (40 to 60): standing every
+  kubb on the first end the rules list leaves more doubles (its attacker took two with
+  8.3% of field batons against 6.6%). That fits a beginner who stands kubbs anyhow; a
+  random end, when Choose has its own stream, may land between the two.
+
+The human thrower at each level against the computer at the same level (the person's
+kubbs raised by the engine), on 0.11.2 (both `apart`) and with the raising on (the person
+`par`, the computer by its level):
+
+| level | 0.11.2: won A / B / limit, A's score | on | the computer's field batons that took two |
+|---|---|---|---|
+| beginner | 585 / 12 / 3, 97.8 (96.6 to 98.9) | 586 / 13 / 1, 97.8 (96.6 to 98.9) | 6.8% to 6.3% |
+| club | 73 / 526 / 1, 12.3 (9.6 to 14.9) | 91 / 503 / 6, 15.7 (12.8 to 18.6) | 11.8% to 9.5% |
+| pro | 0 / 600 / 0, 0.0 | 0 / 600 / 0, 0.0 | 16.9% to 9.0% |
+
+At club the engine's advice wins a person about 3 games in 100 more; at pro it halves the
+doubles the computer takes but the human thrower at pro (its model's weakest level) wins
+none either way. The pro computer's own defence costs the human pro little: its field
+batons took two 4.4% to 3.5%.
+
+### The attacker's plays (2026-11-21)
+
+`field.line` (pro) and `inkast.depth` (club and pro, as first switched on; club's column
+is left out of what is to be enabled, below), the plays in `cpu.tune`
+(docs/notes/computer-player.md), with the raising on. Grass, 300 seeds (600 games) a pairing, seed 1
+with seed 2 beside it, turn limit 40. Both pro teams defend with `par`, both club teams
+with `apart` (the levels' raising, on). "Without" is the level with the play switched
+off, as 0.11.3 ships it; with it is `--set cpu.tune.<play>.<level>=1`.
+
+| A | B | A's score, seed 1 | seed 2 |
+|---|---|---|---|
+| pro, `inkast.depth` | pro without either | 74.5 (71.3 to 77.7) | 74.5 (71.4 to 77.6) |
+| pro, `field.line` | pro without either | 54.8 (51.5 to 58.0) | 56.9 (53.7 to 60.2) |
+| pro, both (as to be enabled) | pro without either | 79.4 (76.4 to 82.4) | 79.9 (77.0 to 82.8) |
+| pro, both | pro, `inkast.depth` only | 59.5 (56.3 to 62.7) | 61.4 (58.2 to 64.7) |
+| club, `inkast.depth` (as first switched on) | club without | 58.8 (55.2 to 62.4) | 62.0 (58.3 to 65.7) |
+| club, `field.line` | club without either | 53.1 (49.9 to 56.3) | 50.6 (47.4 to 53.8) |
+| club, both | club, `inkast.depth` only | 52.0 (48.8 to 55.2) | 50.5 (47.2 to 53.8) |
+
+Each team's own rows, seed 1 (A against B):
+
+| pairing | took two | three or more | cleared | drill rests from its mark |
+|---|---|---|---|---|
+| pro `inkast.depth` / without | 21.6 / 13.8 | 4.6 / 2.3 | 79.3 / 68.4 | 0.06 / 0.07 m |
+| pro `field.line` / without | 14.4 / 13.2 | 2.7 / 2.2 | 74.8 / 72.7 | |
+| pro both / without | 22.0 / 14.5 | 5.9 / 2.5 | 85.2 / 68.9 | 0.06 / 0.06 m |
+| pro both / `inkast.depth` | 22.3 / 22.0 | 6.8 / 5.4 | 81.6 / 77.3 | |
+| club `inkast.depth` / without | 14.6 / 13.2 | 2.6 / 2.0 | 74.9 / 69.2 | 0.18 / 0.21 m |
+| club `field.line` / without | 13.8 / 13.4 | 2.1 / 1.8 | 72.0 / 71.6 | |
+
+- **The column is the larger play.** Laid end to end down the baton's path, a turn's
+  kubbs stand in one lane whichever ends the defender raises them on, so `par` cannot
+  take them apart, and the column's drills rest as close to their marks as the row's
+  (closer: 0.06 m against 0.07 at pro, 0.18 against 0.21 at club).
+- **`field.line` adds on top of it at pro** (59.5 and 61.4), mostly by three or more and
+  by the turns cleared. At club it adds nothing, alone or on top of the column. The club
+  hand scatters a column more, which leaves fewer pairs to line up.
+- **What it cost to get there.** With both teams laying columns the first build forfeited
+  3.6% of the pro's batons (real games: 0.0%), nearly all for touching a field kubb in the
+  thrower's own half (II.B.11): the baskets face each other, so two columns grown to the
+  centre line stand a hand apart, and the thrower on the advantage line stands among the
+  other team's. `field.line` now rules out a stance within 0.3 m of such a kubb and steps
+  along the line instead, and a column stops at 4.35 m (`cpu.tune.depth.front`). Pro
+  forfeits are back to 1.1%. A column grown to 4.05 m still beats one held back 55.4%
+  (52.2 to 58.6), from shorter throws, but with both teams doing it 3.6% of batons are
+  forfeit again.
+
+The designs tried, in order (pro against pro, seed 1 unless named):
+
+| design | against | A's score |
+|---|---|---|
+| `field.line` 1: the lane's count along the true line | pro | 52.8 (50.0 to 55.7); seed 2 53.3 (50.2 to 56.3) |
+| `field.line` 2: the lane weighed as `par` weighs a pair | pro | 53.3 (50.2 to 56.5); seed 2 55.0 (51.7 to 58.3) |
+| design 2 against design 1 | | 52.2 (49.0 to 55.3) |
+| design 2 on top of the column (gap 0.04), before the own-half rule | pro, column | 54.7 (51.3 to 58.1); seed 2 53.5 (50.4 to 56.6) |
+| design 2 with the own-half rule and the step aside (built) | pro, column | 59.5 (56.3 to 62.7); seed 2 61.4 (58.2 to 64.7) |
+| `inkast.depth`, gap 0.02 | pro | 71.3 (67.9 to 74.6) |
+| against gap 0.02: gap 0, 0.04; run 3, 5; `x` 2.2; `back` 0.3 | the same, gap 0.02 | 38.8; 57.2; 50.3; 49.8; 52.8; 48.2 |
+| against gap 0.04: gap 0.06, 0.08; `x` 2.2 | the same, gap 0.04 | 46.6; 43.7; 49.8 |
+| gap 0.04 | pro | 77.8 (74.7 to 80.8); seed 2 75.8 (72.8 to 78.8) |
+| gap 0.04, held at 4.35 m (built) | pro | 74.5 (71.3 to 77.7); seed 2 74.5 (71.4 to 77.6) |
+| held at 4.05 m | built | 55.4 (52.2 to 58.6), but 3.6% forfeit when both teams do it |
+
+**Club without the column (Jamie's decision of 2026-11-21).** With `inkast.depth` the
+club computer beat the club without it 59 to 62 games in 100, but moved a little away
+from real play (turns a game 15.5 to 17.8 against 8 to 14, took two 13.1% to 15.6%
+against 8 to 13, turns cleared 73.1% to 70.6%), and a person at club won 10 games in 100
+against it where the owner's new target for club is about 40 (owner-2026-11-21#s6). Club
+is to be retuned as a whole against that target in a later release; until then it is to
+play as in 0.11.2 (`cpu.tune.depth.club = 0`): it raises `apart`, lays the row and
+stands straight behind its target. Pro is to have all three plays.
+
+**Everything switched on, against 0.11.2.** `node tools/gym.mjs compare v0.11.2 <ref>
+--throwers cpu,human --levels beginner,club,pro --full --seed 1`, the ref an engine with
+every switch set as it is to be enabled. The computer's rows beside their target; an "on"
+figure in bold moved past 2.58 standard errors from 0.11.2. "Raising only" is the
+raising on and no attacking play (`par` at pro).
+
+| level | row | 0.11.2 | raising only | on | target |
+|---|---|---|---|---|---|
+| pro | field batons that took two | 22.2% | 13.6% | 22.2% | 17 to 23 (measured) |
+| pro | ... took three or more | 4.9% | 1.8% | **6.8%** | 12 to 18 (measured) |
+| pro | missed | 14.6% | 13.9% | **16.9%** | 12 to 19 (measured) |
+| pro | turns that cleared the field | 77.0% | 69.5% | 78.5% | 87 to 94 (measured) |
+| pro | batons to clear, when cleared | 3.70 | 3.96 | 3.71 | |
+| pro | turns from an advantage line | 20.1% | 26.9% | 18.7% | 8 to 15 (measured) |
+| pro | turns a game | 12.2 | 14.1 | 12.3 | 6 to 10 (measured) |
+| pro | standing field group: kubbs touching another | 4% | 54% | **30%** | 60 to 90 (owner) |
+| beginner | field batons that took two | 6.3% | 8.5% | **8.5%** | 1 to 5 (owner) |
+| beginner | ... took three or more | 0.5% | 0.8% | **0.8%** | 0 to 1 (owner) |
+
+- **Club: unchanged.** Every row of the club computer is 0.11.2's to the last figure:
+  the same games, since club throws and raises as before.
+- **Beginner: the raising only.** It knows neither play; its took one, took two and three
+  or more moved with `first` (and its field groups with them: 0.96 to 0.88 of a group's
+  kubbs each its own baton).
+- **A person: the raising only.** The human thrower plays both sides and so raises `par`
+  against itself: took two 10.4% to 9.6% at beginner and 8.5% to 6.9% at club (target 8
+  to 13: now under it), and at pro missed 56.2% to 54.6% and rethrown 14.2% to 12.9%.
+- **Pro: partly toward real play.** The attacking plays win back everything the defence
+  cost and a little more on three or more: took two is back in range, three or more is
+  higher than 0.11.2 and still half the real figure, and the turns cleared and turns a
+  game are back where 0.11.2 had them, still short of real play (78.5% against 87 to 94;
+  12.3 turns against 6 to 10).
+
+`versus`, 300 seeds each way round, seed 1 and seed 2, against the same pairings before.
+Old pro is 0.11.2's pro as `versus` can stage it: `raise=apart`, both plays off (so the
+row).
+
+| A | B | on, seed 1 | seed 2 | raising only | 0.11.2 |
+|---|---|---|---|---|---|
+| pro | old pro | 79.0 (76.0 to 82.0) | 81.3 (78.4 to 84.1) | 76.8 | |
+| pro | club | 97.0 (95.7 to 98.3) | 97.2 (95.9 to 98.5) | 96.8 | 96.0 |
+| club | beginner | 93.5 (91.6 to 95.4) | 94.1 (92.2 to 96.0) | 93.5 | 93.7 |
+| pro | beginner | 99.8 (99.5 to 100) | 100 (600 of 600) | 99.2 | 99.7 |
+| human beginner | computer beginner | 97.8 (96.6 to 98.9) | 97.6 (96.4 to 98.8) | 97.8 | 97.8 |
+| human club | computer club | 15.7 (12.8 to 18.6) | 16.8 (13.7 to 19.8) | 15.7 | 12.3 |
+| human pro | computer pro | 0.2 (0.0 to 0.5) | 0.0 | 0.0 | 0.0 |
+
+Club against beginner and the human thrower against club are the raising-only figures exactly,
+as they should be: neither side throws a new play. The new pro beats the old 79 and 81
+games in 100; its own rows against it (seed 1): took two 22.5% against 14.3%, three or
+more 6.9% against 2.2%, turns cleared 84.2% against 70.2%. A person at club wins about
+16 games in 100, against a target of about 40: club's retuning is to follow.
+
+**The defence played again** (pro, both teams with the plays on; club with
+`inkast.depth` on, as first switched on):
+
+| A | B | on, seed 1 | seed 2 | against the raising-only attacker |
+|---|---|---|---|---|
+| pro, raise par | pro, raise apart | 50.3 (47.1 to 53.6) | 51.8 (48.7 to 55.0) | 76.8, 75.1 |
+| pro, raise par | pro, raise away | 56.8 (53.5 to 60.2) | | 54.9, 55.2 |
+| pro, raise par | pro, raise toward | 54.7 (51.5 to 57.9) | | |
+| pro, raise par | pro, raise together | 56.8 (53.4 to 60.2) | | 49.5, 50.6 |
+| club, raise par | club, raise apart | 53.5 (50.1 to 56.9) | 56.3 (53.2 to 59.3) | 56.8, 59.1 |
+
+`par`'s 77-to-23 win over `apart` was the old attacker's blind spot: against an attacker
+that lays columns and stands where the kubbs line up, the two are level. `par` now beats
+the policies that keep every kubb on one end (55 to 57), which it only matched before,
+and it is no worse than `apart` anywhere. So `par` is still the pro's and a person's
+raising to enable; its case is now that it never loses, not that it wins by three games in four.
 
 ## Speed
 
