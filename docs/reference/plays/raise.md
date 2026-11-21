@@ -19,8 +19,12 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Basis:** player
 - **Against:** Q7.
 - **Levels:** Proposed: pro. Club spreads kubbs apart without counting.
-- **Engine:** not modelled (0.11.0). The policy is `apart`: the end farthest from the
-  nearest other kubb (`raising.policies`). It measures distance, not batons.
+- **Engine:** built, used by no level (0.11.2): `raising.policies.par`, the end that
+  leaves the attacker's batons the fewest kubbs one behind another, a pair weighed by how
+  close it is across the baton's path and how far along it (`raising.tune.par*`). It
+  counts pairs in line, not batons, and looks no baton ahead. The game's policy is still
+  `apart`: the end farthest from the nearest other kubb. It measures distance, not batons.
+  The Gym's first measure is in docs/notes/gym.md, "Raising by the attacker's batons".
 - **Gym:** the attacker's `g.btc` and `g.cleared`, policy against policy.
 
 ## raise.order: Forced kubbs first, and decide them all before standing one
@@ -38,7 +42,9 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Levels:** Proposed: pro and club.
 - **Engine:** modelled in part (0.11.0). `raising.options` separates forced kubbs from
   those with a choice, but each choice is then made kubb by kubb with no look at the
-  others still to stand.
+  others still to stand, in id order, forced or not. `par` (0.11.2, used by no level)
+  plans every kubb still lying before it answers for one, so a later kubb's place counts;
+  the rules still ask in id order.
 - **Gym:** nothing yet.
 
 ## raise.across: Space across the pitch is worth more than space along it
@@ -57,7 +63,9 @@ Every `Levels` line is a proposal of ours, not a source's.
   turned a row lying across the pitch into kubbs staggered in depth, which helped the
   attacker (Q6).
 - **Levels:** Proposed: pro and club.
-- **Engine:** not modelled (0.11.0). `apart` treats every direction alike.
+- **Engine:** not modelled in play (0.11.0). `apart` treats every direction alike.
+  `par` (0.11.2, used by no level) counts a pair side by side across the pitch as no
+  double and a pair one behind another as one.
 - **Gym:** `g.field2`, `g.field3` for the attacker, policy against policy.
 
 ## raise.double: When a double cannot be avoided

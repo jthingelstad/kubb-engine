@@ -200,7 +200,12 @@ Then plays, by what `gym versus` shows matters most. Its first results (2026-11-
 1. **Raising by the attacker's batons** (`raise.par`, `raise.across`). The largest effect
    measured so far: the engine's `apart` policy loses about three games in four to any
    policy that keeps a row a row. It comes first because every inkast result depends on
-   it (Q6 and Q7 are one contest).
+   it (Q6 and Q7 are one contest). Built switched off in 0.11.2
+   (`raising.policies.par`) and proven side against side: it beats `apart` 77 to 23
+   against the row and matches it against the line (docs/notes/gym.md, "Raising by the
+   attacker's batons"). Switching it on by level needs the defender's level where the
+   policy is picked: `match.settle` raises with the game's one `raisePolicy`, and the
+   levels are in the match's lineup, not the game.
 2. **The baton at a group** (`field.line`, Q14). The reason `apart` loses is a blind spot
    in the attacker: the computer cannot take two kubbs standing flank to flank, and takes
    a tight fence one baton a kubb. This is also where the pro computer is furthest from
@@ -211,7 +216,8 @@ Then plays, by what `gym versus` shows matters most. Its first results (2026-11-
    can make, which wins about two games in three side against side; and a blow passes
    from kubb to kubb less readily than in the reference engine.
 3. **The inkast's shape, played again** against a defender who raises well: row, line and
-   a wall in depth along the sideline.
+   a wall in depth along the sideline. The first such result is in: against `par` the
+   line beats the row, about 55 to 45.
 4. `inkast.deep` at club and `inkast.chase` at pro.
 5. `inkast.first` and `inkast.steer`.
 6. The punishment plays, and `king.corner` as a Gym experiment.
