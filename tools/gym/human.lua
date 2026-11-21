@@ -1,12 +1,14 @@
 -- The Kubb Gym's human thrower (docs/notes/gym.md "The human thrower"): a person at
 -- the meter. It picks its target and stance as the computer does
--- (core/autothrow), then plans the throw at the person's own level, as the
--- session does for a player (session/throw replan: the level's gauge, the
--- default arc for the target, no tilt or spin), makes a swing with a person's
--- errors in it, drawn from a model fitted to recorded swings
--- (tools/gym/fit.mjs writes tools/gym/human-model.json), and turns it into the
--- launch exactly as throw.playerLaunch does: plan.launch against the plan, the
--- level's forgiveness, and the nerves seeded by the swing (plan.swingSeed).
+-- (core/autothrow), then plans the throw on the person's meter, as the session
+-- does for a player (session/throw replan: plan.meter(), the bars for the
+-- distance, the default arc for the target, no tilt or spin; from 0.13 a level
+-- no longer changes a person's throw), makes a swing with a person's errors in
+-- it, drawn from a model fitted to recorded swings (tools/gym/fit.mjs writes
+-- tools/gym/human-model.json; the level only picks which fitted part), and turns
+-- it into the launch exactly as throw.playerLaunch does: plan.launch against the
+-- plan, the meter's forgiveness, and the nerves seeded by the swing
+-- (plan.swingSeed). An engine before 0.13 (no plan.meter) plans at the level.
 -- Desktop only, a measuring tool.
 --
 --   local human = dofile("tools/gym/human.lua")    -- after core/autothrow is imported
@@ -113,7 +115,7 @@ function human.choose(s, r, level, model)
 		taps = tw.drill.plannedSpin(a0.drill.spin) / plan.tune.spinPerStep
 	end
 	local q = { projectile = kubb and "kubb" or "baton", px = P.px, py = P.py, tx = P.tx, ty = P.ty,
-		level = level, surface = s.surface, spin = taps }
+		level = level, meter = plan.meter and plan.meter() or nil, surface = s.surface, spin = taps }
 	if kubb then
 		q.release = plan.arcFor("drill")
 	else
@@ -138,7 +140,8 @@ function human.choose(s, r, level, model)
 	local part, used = human.part(model, level, kubb and "drill" or "baton")
 	local sw = human.swing(sol, part, r, {})
 	-- the player's launch (session/throw playerLaunch): nerves seeded by the swing
-	local L = plan.launch(sol, sw, { projectile = q.projectile, tilt = 0, spin = taps, level = level, nerves = true }, {})
+	local L = plan.launch(sol, sw, { projectile = q.projectile, tilt = 0, spin = taps,
+		level = not q.meter and level or nil, nerves = true }, {})
 	local a = { x = P.px, y = P.py, swivel = L.swivel, loftDeg = L.loft, speed = L.speed, tumbleRate = L.tumble,
 		tilt = L.tilt, legal = L.legal, plan = sol, swing = sw, launch = L, on = a0.on, human = used }
 	if kubb then
