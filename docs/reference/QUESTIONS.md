@@ -297,3 +297,44 @@ census of 2026-11-21.
   under, read side by side.
 - **Touches:** raise.facing, raise.square
 
+## Q16: Why does the pro computer take three kubbs so rarely?
+
+- **Status:** open: investigated in the Gym and against the reference engine; three causes
+- **Asks:** The top third of tournament teams take three or more kubbs with 12 to 18% of
+  their field batons. The pro computer does with 4.9%, and no aim closes the gap (Q14).
+- **So far:** 2026-11-21, engine 0.11.0. One reading first: the turn's first baton at a
+  fresh group of three or more already takes three or more 12.8% of the time. The figure
+  per baton is low because of what is left for the later batons. Then three causes, in
+  order of size.
+  1. **The groups, about 5 to 6 points.** Lying, the pro computer's kubbs touch (median
+     8.7 cm to the nearest). Standing, they do not (18.4 cm; one kubb in twenty has
+     another in front of it within a kubb's height), because `apart` spreads them. A
+     hand-made touching pile stood up by the same policy doubles the figure, to about 10%.
+  2. **The throw, about 1.5 points on today's groups and 5 on tight ones.** The flattest
+     throw the plan allows (`plan.tune.arcFarDeg` 15: loft 7 degrees, 10.5 m/s, a
+     backswing a person can make) takes 16.3% from tight piles against 11.3% as shipped,
+     and clears six in 4.2 batons, the real top teams' figure. Played side against side it
+     wins 68.4% at pro (65.0 to 71.9) and 72.0% at club (68.4 to 75.6), much of it from
+     base kubbs at 8 m, which rise to 40.9% at pro, inside the real range. Its costs: a
+     short 8 m baton runs on 6.5 m where it now runs 2.7, and a baton that touches a kubb
+     leaves it standing 4.5% of the time against 11.4%, further from recorded human
+     throws (23.5%).
+  3. **Kubb knocking kubb, about 1 to 2 points, more as groups tighten.** Against MuJoCo
+     with the same sizes, masses, friction and bounce (1,337 hand-made group cases), the
+     two engines agree on what the baton keeps and where it goes, and on fences and loose
+     lines. They differ on a blow passing from kubb to kubb: a line of three struck clean
+     has 0.54 kubbs felled by another kubb in ours against 0.88 to 1.08, and a touching
+     column of six is far too stable (0.10 toppled against 0.62 to 0.74 under pro's
+     nerves). MuJoCo's own variants disagree on deep piles, so this is a lead, not a
+     verdict.
+- **Recommendation:** Take them in the order the plays allow. The raising comes first and
+  will change how groups stand, so measure again after `raise.par`. The flatter throw is
+  the cheapest real gain and has an owner's word behind it (a baton at 5 m is thrown
+  "fairly low", `core/throwplan.lua`); make it the computer's choice by level, not the
+  plan's default, so a person's aim does not move. The kubb-to-kubb transfer is a physics
+  change that moves every golden hash: do it last, and only with a measurement of real
+  wood to aim at.
+- **Settle by:** `gym versus` after each; for the physics, a filmed baton into a touching
+  column or pile.
+- **Touches:** field.sure, field.power, inkast.depth, the physics
+

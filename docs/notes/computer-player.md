@@ -205,9 +205,11 @@ Then plays, by what `gym versus` shows matters most. Its first results (2026-11-
    in the attacker: the computer cannot take two kubbs standing flank to flank, and takes
    a tight fence one baton a kubb. This is also where the pro computer is furthest from
    real play. The Gym has ruled one idea out: hitting the top front corner with the baton
-   half turned (`field.corner`) takes fewer kubbs in this physics, not more. A flatter arc
-   helps a little. The rest of the gap is a question for the physics before it is one for
-   the plays.
+   half turned (`field.corner`) takes fewer kubbs in this physics, not more. And it has
+   found three causes of the gap (Q16): the groups stand too loose once `apart` has
+   spread them; the computer throws softer and higher than the flattest throw a person
+   can make, which wins about two games in three side against side; and a blow passes
+   from kubb to kubb less readily than in the reference engine.
 3. **The inkast's shape, played again** against a defender who raises well: row, line and
    a wall in depth along the sideline.
 4. `inkast.deep` at club and `inkast.chase` at pro.
