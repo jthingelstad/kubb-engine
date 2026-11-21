@@ -26,7 +26,7 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
 - **Basis:** player, coach
 - **Against:** nothing found for two or more kubbs. For one kubb see `inkast.single`.
 - **Levels:** Proposed: pro and club always. Beginner and kid do not aim for a corner.
-- **Engine:** modelled in part (`autothrow.basket`, 0.11.0 and before). It picks the
+- **Engine:** modelled in part (`cpu.basket`; `autothrow.basket` until 0.11.1). It picks the
   corner that already holds more field kubbs and flips a coin on a tie. It does not know
   the thrower's hand, and it stays 0.6 m inside the sideline and 0.75 m past the centre
   line (`basketX`, `basketY`), so its kubbs do not lie on a line.
@@ -61,8 +61,8 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   spins the first few harder and the later ones less (ko-2017-dickinson#p1.8).
 - **Levels:** Proposed: pro. Club tries and lands it less often.
 - **Engine:** modelled in part (0.11.0). Later kubbs are aimed off the innermost kubb
-  already lying by the basket (`autothrow.spot`). The first kubb is thrown like the
-  others, with the same spin: there is no dead first drill.
+  already lying by the basket (`cpu.spot`, `read.innermostLying`). The first kubb is
+  thrown like the others, with the same spin: there is no dead first drill.
 - **Gym:** needs a row: how far the first kubb rests from its marker.
 
 ## inkast.roll: Later kubbs roll into the ones already down

@@ -2,8 +2,9 @@
 
 How the engine decides what to do with a kubb or a baton, at each level, and what it asks
 of a game surface. A design, written 2026-11-21 for engine 0.11.0; the sections say which
-parts exist. Read `docs/reference/README.md` first: the plays this design carries out
-live there, each with the players who said it.
+parts exist. Since 0.11.1 three of the four parts do (Read, Choose, Throw, with the plays
+table); Value does not yet. Read `docs/reference/README.md` first: the plays this design
+carries out live there, each with the players who said it.
 
 ## The aim
 
@@ -16,7 +17,8 @@ them.
 
 ## Where 0.11.0 stands
 
-`core/autothrow.lua` makes four choices, the same at every level:
+`core/autothrow.lua` made four choices, the same at every level (since 0.11.1
+`core/cpu.lua` makes them, unchanged):
 
 1. which corner to inkast to: the one with more field kubbs near it;
 2. where each kubb should rest: at the basket (beginner) or in a row beside the last
@@ -40,12 +42,33 @@ is.
 
 The computer player is four parts, each a module in `core/`, pure Lua like the rest.
 
-| Part | Module | Answers |
-| --- | --- | --- |
-| Read | `core/read.lua` | What is the situation? |
-| Value | `core/value.lua` | What is a position worth, in batons? |
-| Choose | `core/cpu.lua` | Which play, and why? |
-| Throw | `core/autothrow.lua` | What does the hand do with that intent? |
+| Part | Module | Answers | Exists |
+| --- | --- | --- | --- |
+| Read | `core/read.lua` | What is the situation? | 0.11.1, what 0.11.0 read |
+| Value | `core/value.lua` | What is a position worth, in batons? | not yet |
+| Choose | `core/cpu.lua` | Which play, and why? | 0.11.1, the choices 0.11.0 made |
+| Throw | `core/autothrow.lua` | What does the hand do with that intent? | yes |
+
+0.11.1 cut them out of `autothrow.choose` with no change in play: `test_cpu_regression`
+holds `autothrow.choose` to 0.11.0's results over 480 setups, field for field, and the
+golden hashes held. What exists of each:
+
+- **Read** has what `autothrow` worked out about the pitch: the field kubbs near each
+  basket (`read.basketCounts`), the lying kubbs near one and their middle
+  (`read.lyingNear`), the innermost of them (`read.innermostLying`), the clear spot test
+  (`read.spotClear`) and a front kubb's lane (`read.lane`). Its tune numbers stay in
+  `autothrow.tune`, where the Gym and the session's tune files set them.
+- **Choose** is `cpu.decide(s, r, level)`: the basket (`cpu.basket`), the spot
+  (`cpu.spot`), the spin, the field target by lane, the stance line and the arc, with
+  `why`. It weighs nothing yet and draws from the throw's stream only for the basket's
+  coin on a tie, as 0.11.0 did; its own stream comes with the first release that changes
+  play. `cpu.last` holds the last decision: the session exposing it to a client is a
+  later step.
+- **The plays table** (`core/plays.lua`) holds the three plays 0.11.0 carries out:
+  `inkast.corner`, `inkast.roll` and `field.roles`. A baton at a base kubb and the king
+  shot carry out no play in the reference, so their `why` has facts and no play.
+- **Throw** is `autothrow.choose`: Choose, then the stance, the solve, the swing and the
+  launch.
 
 **Read** turns a match setup into the quantities `docs/reference/SITUATIONS.md` names:
 kubbs in hand, field kubbs and the groups they form, the lines a baton could take through
@@ -65,7 +88,9 @@ intent and the reason.
 and make a swing with the level's mistakes in it. It stops deciding.
 
 `autothrow.choose(setup, rng, scale, level)` keeps its signature and its meaning, since
-the Playdate and the session call it: it becomes Choose then Throw.
+the Playdate and the session call it: it is Choose then Throw (0.11.1). Its result does
+not carry `why`: that table goes into the session's aim, its actions and its checks, so
+the reason is kept beside it, on `cpu.last`.
 
 ## A decision
 
@@ -84,9 +109,10 @@ that into its own words for a coach or a review. The model only rephrases facts 
 engine gave it; it never chooses a throw, because a throw has to be the same on every
 client and repeatable from a seed.
 
-`make refcheck` will hold the two ends together: every play id in `core/plays.lua` is a
-play in `docs/reference/plays/`, and a play whose `Engine` line says it is modelled is in
-`core/plays.lua`.
+`make refcheck` holds the two ends together: every play id in `core/plays.lua` is a play
+in `docs/reference/plays/` (0.11.1). The other end, that a play whose `Engine` line says
+it is modelled is in `core/plays.lua`, is still to come: several plays are modelled in
+part by choices that have no entry of their own yet.
 
 ## Levels
 
@@ -166,7 +192,7 @@ is scheduled.
 ## The order of work
 
 First the split itself, with no change in play: Read, Choose and Throw cut out of
-`autothrow.choose`, `why` returned, every golden hash as recorded.
+`autothrow.choose`, `why` returned, every golden hash as recorded. Done in 0.11.1.
 
 Then plays, largest measured gap first:
 

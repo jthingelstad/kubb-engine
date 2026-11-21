@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { checkReference } from '../../tools/refcheck.mjs';
+import { checkReference, enginePlays } from '../../tools/refcheck.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -211,15 +211,43 @@ test('questions are numbered once and each has an open or answered status', () =
 
 test('the command prints problems and exits 1, or a summary and exits 0', () => {
   const tool = path.join(root, 'tools', 'refcheck.mjs');
-  const ok = execFileSync(process.execPath, [tool, '--root', tree(good())], { encoding: 'utf8' });
-  assert.match(ok, /^refcheck: 4 sources, 1 observations \(2 entries\), 1 plays, 1 questions/);
+  const ok = execFileSync(process.execPath, [tool, '--root', tree(good()), '--no-plays'], { encoding: 'utf8' });
+  assert.match(ok, /^refcheck: 4 sources, 1 observations \(2 entries\), 1 plays, 1 questions; no problems/);
   // the real path, since the printed path is relative to the working directory
   const dir = fs.realpathSync(tree(good({ 'QUESTIONS.md': questions.replace('open. Ask', 'pending. Ask') })));
   try {
-    execFileSync(process.execPath, [tool, '--root', dir], { encoding: 'utf8', cwd: dir });
+    execFileSync(process.execPath, [tool, '--root', dir, '--no-plays'], { encoding: 'utf8', cwd: dir });
     assert.fail('expected exit 1');
   } catch (e) {
     assert.equal(e.status, 1);
     assert.match(e.stdout, /^QUESTIONS\.md:5: Q1's status must start with open or answered\n$/);
   }
+});
+
+// core/plays.lua as the engine writes it, with these ids.
+const playsLua = (...ids) => `local plays = {\n${ids.map((id) => `\t["${id}"] = {\n\t\tphase = "x",\n\t},`).join('\n')}\n}\n`;
+
+test('every play core/plays.lua holds is a play in plays/', () => {
+  const dir = tree(good());
+  const file = path.join(dir, 'plays.lua');
+  fs.writeFileSync(file, playsLua('inkast.deep'));
+  assert.deepEqual(checkReference(dir, { playsLua: file }).problems, []);
+  assert.equal(checkReference(dir, { playsLua: file }).counts.engine, 1);
+  fs.writeFileSync(file, playsLua('inkast.deep', 'inkast.nowhere'));
+  const got = checkReference(dir, { playsLua: file }).problems.map((p) => `${p.file}:${p.line}: ${p.msg}`);
+  assert.deepEqual(got, ['core/plays.lua:5: inkast.nowhere is not a play in plays/']);
+  fs.writeFileSync(file, 'local plays = {}\n');
+  assert.match(checkReference(dir, { playsLua: file }).problems[0].msg, /holds no plays/);
+  assert.match(checkReference(dir, { playsLua: path.join(dir, 'none.lua') }).problems[0].msg, /^missing/);
+  // left out, the engine's plays are not read
+  assert.deepEqual(checkReference(dir).problems, []);
+});
+
+test("the engine's own core/plays.lua names only plays that exist", () => {
+  const ids = enginePlays(fs.readFileSync(path.join(root, 'core', 'plays.lua'), 'utf8')).map((p) => p.id);
+  assert.ok(ids.length > 0);
+  const { problems } = checkReference(path.join(root, 'docs', 'reference'), { playsLua: path.join(root, 'core', 'plays.lua') });
+  assert.deepEqual(problems, []);
+  const out = execFileSync(process.execPath, [path.join(root, 'tools', 'refcheck.mjs')], { encoding: 'utf8' });
+  assert.match(out, new RegExp(`; ${ids.length} played by the engine; no problems`));
 });

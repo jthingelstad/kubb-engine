@@ -1,12 +1,13 @@
 -- The computer thrower (DESIGN.md section 4: "the computer throws the same
 -- way: it plans a target and an arc and makes a swing with mistakes in it").
--- For a match setup (core/match) it does what a player does: picks a target,
--- stands behind it (tw.plan.stance), takes the default arc (tw.plan.arcFor, by the distance),
--- solves the plan at a throw level (tw.plan.solve), then makes a synthetic
--- swing (the fields core/swing measures at a release) with seeded mistakes
--- in it, and tw.plan.launch turns that swing into the launch. Self-tests,
--- headless physics matches (tools/physmatch.lua) and the Playdate opponent
--- use it. Pure Lua: no playdate.*.
+-- For a match setup (core/match) it does what a player does: Choose (core/cpu, on
+-- what core/read sees; docs/notes/computer-player.md) picks a target, a stance line
+-- and an arc (tw.plan.arcFor), and this file is the hand: it stands behind the target
+-- (tw.plan.stance), solves the plan at a throw level (tw.plan.solve), then makes a
+-- synthetic swing (the fields core/swing measures at a release) with seeded mistakes
+-- in it, and tw.plan.launch turns that swing into the launch. Its tune holds Read's
+-- and Choose's numbers too. Self-tests, headless physics matches
+-- (tools/physmatch.lua) and the Playdate opponent use it. Pure Lua: no playdate.*.
 --
 --   local r = autothrow.rng(seed)
 --   local a = autothrow.choose(setup, r [, scale [, level]])
@@ -25,7 +26,6 @@ import "core/throwplan"
 import "core/world"
 
 local flight, swing, plan, world = tw.flight, tw.swing, tw.plan, tw.world
-local cos = math.cos
 
 local autothrow = {}
 
@@ -85,7 +85,7 @@ autothrow.tune = {
 	                         -- the first kubbs in a cluster
 	spotMinY = 4.05,         -- m from the baseline: no spot nearer the centre line than this
 	spotMaxX = 2.2,          -- m from the middle: no spot nearer the sideline than this
-	into = 1,                -- 1: aim a later kubb into the group (intoSpot) before the clear spots; 0: the clear spots only
+	into = 1,                -- 1: aim a later kubb into the group (core/cpu intoSpot) before the clear spots; 0: the clear spots only
 	intoShort = 0.03,        -- m from a lying kubb's near face to where the drill is aimed to rest
 	-- How far off a throw goes, and how much more off a long one goes, is
 	-- the shared nerves model (tw.plan.tune "Nerves"), the same for the
@@ -103,7 +103,7 @@ autothrow.tune = {
 	-- the kubb in: world.tune deadLanding); hand: the swing's mistakes against a
 	-- baton's (the level's swingScale is not applied to a drill); group: 0 throws every
 	-- kubb at the basket itself, 1 rests each beside the kubbs already lying
-	-- (autothrow.spot); row: with group, 1 lays them flank to flank in a row
+	-- (cpu.spot); row: with group, 1 lays them flank to flank in a row
 	-- (rowStep apart), 0 picks a clear spot from the grid as 0.10 did. How steady
 	-- the release is comes from the level too (plan.levels' drillScatter).
 	inkast = {
@@ -145,153 +145,17 @@ function autothrow.speedFor(d, loftDeg)
 	return v
 end
 
--- Which basket a toss goes to: -1 (left, view frame) or 1 (right), the one
--- with more field kubbs of the far half within basketNear of it.
+-- The basket and the spot are Choose's (core/cpu, 0.11.1); these names stay for the
+-- tools and tests that call them. autothrow.basket(s, r) -> -1 or 1 (draws from r on a
+-- tie); autothrow.spot(s, side, ik) -> x, y.
 function autothrow.basket(s, r)
-	local t = autothrow.tune
-	local left, right = 0, 0
-	local ky = s.lineY + t.basketY
-	local near2 = t.basketNear * t.basketNear
-	for _, p in ipairs(s.pieces) do
-		if p.role == "field" and p.half ~= s.side then
-			local dy = p.y - ky
-			local dl, dr = p.x + t.basketX, p.x - t.basketX
-			if dl * dl + dy * dy < near2 then left = left + 1 end
-			if dr * dr + dy * dy < near2 then right = right + 1 end
-		end
-	end
-	if left > right then return -1 elseif right > left then return 1 end
-	return (r.next() < 0.5) and -1 or 1
-end
-
--- Where a toss to basket `side` should rest (view frame): the basket when
--- nothing is near it, else the clear spot nearest it (tune.spot*): not on a
--- kubb and with none in the lane it comes down and runs on in (a drill lands
--- short of its spot by its run on, so a kubb already down just past the spot
--- is its backstop). Nearest counts a step along the throw as little against
--- one across (a line along the throw) when the turn has fewer than
--- clusterFrom kubbs to throw, else the same (a cluster). The basket itself
--- when every spot is taken. Since 2026-11-16 a later kubb is first aimed
--- into the group (intoSpot below).
-
--- Is (x, y) a spot a drill can be aimed at: on the allowed part of the
--- half, not on a field kubb and with none in the lane it comes down and runs
--- on in (a lying one within shortLying short of it, a standing one within
--- spotShortStanding)? Piece `except` (or nil) is left out.
-local function spotClear(s, t, x, y, shortLying, except)
-	local ax = x < 0 and -x or x
-	if ax > t.spotMaxX or y < s.lineY + t.spotMinY then return false end
-	for _, p in ipairs(s.pieces) do
-		if p ~= except and p.role == "field" and p.half ~= s.side then
-			local dx, dy = (p.x - x) / t.spotClearX, (p.y - y) / t.spotClearY
-			if dx * dx + dy * dy < 1 then return false end
-			local lx, short = p.x - x, y - p.y
-			if lx < 0 then lx = -lx end
-			if lx < t.spotLane and short > 0
-				and short < (p.toppled and shortLying or t.spotShortStanding) then
-				return false
-			end
-		end
-	end
-	return true
-end
-
--- Into the group (2026-11-16, Jamie: "good drillers roll into other kubbs
--- because it is impossible to stop that much energy with just the ground and
--- grass"). Once a kubb of the far half lies near the basket, a drill is aimed
--- so that it would rest intoShort in front of a lying kubb's near face, in
--- that kubb's lane: the half of the run-ons that would carry it on are
--- stopped by the kubb, so the two end together. A line (fewer than
--- clusterFrom kubbs this turn): the front kubb of the group nearest the
--- basket, so the line grows toward the thrower. A cluster: in front of
--- whichever lying kubb leaves the aim nearest the group's middle, so the
--- kubbs pile round it. nil when no lying kubb is near the basket, or no aim
--- in front of one is clear.
-local function intoSpot(s, t, bx, by, shortLying)
-	local near2 = t.basketNear * t.basketNear
-	local cluster = (s.of or 0) >= t.clusterFrom
-	local n, cx, cy = 0, 0, 0
-	for _, p in ipairs(s.pieces) do
-		if p.role == "field" and p.half ~= s.side and p.toppled then
-			local dx, dy = p.x - bx, p.y - by
-			if dx * dx + dy * dy < near2 then n, cx, cy = n + 1, cx + p.x, cy + p.y end
-		end
-	end
-	if n == 0 then return nil end
-	cx, cy = cx / n, cy / n
-	local best, bestX, bestY
-	for _, p in ipairs(s.pieces) do
-		if p.role == "field" and p.half ~= s.side and p.toppled then
-			local dx, dy = p.x - bx, p.y - by
-			if dx * dx + dy * dy < near2 then
-				-- the kubb's half extent along the throw (it lies along its angle)
-				local a = p.pose and p.pose.angle or 0
-				local ca, sa = cos(a), math.sin(a)
-				if ca < 0 then ca = -ca end
-				if sa < 0 then sa = -sa end
-				local ext = 0.075 * sa + 0.035 * ca
-				local x, y = p.x, p.y - ext - t.intoShort
-				-- clear of every other kubb (this one is the backstop: the aim
-				-- sits in its own clear ellipse on purpose)
-				local ok = spotClear(s, t, x, y, shortLying, p)
-				if ok then
-					local cost
-					if cluster then
-						local ex, ey = x - cx, y - cy
-						cost = ex * ex + ey * ey
-					else
-						-- the front of the group: least y, then nearest the basket across
-						local ex = x - bx
-						cost = y * 100 + ex * ex
-					end
-					if not best or cost < best - 1e-9 then best, bestX, bestY = cost, x, y end
-				end
-			end
-		end
-	end
-	if not best then return nil end
-	return bestX, bestY
+	local side = tw.cpu.basket(s, r)
+	return side
 end
 
 function autothrow.spot(s, side, ik)
-	local t = autothrow.tune
-	local bx, by = side * t.basketX, s.lineY + t.basketY
-	if ik and ik.group == 0 then return bx, by end
-	if ik and ik.row ~= 0 then
-		-- the row: rest flank to flank with the innermost kubb lying by the basket, on
-		-- its inner side. The plan lands it short of that across and its spin rolls it
-		-- in (drill.rollFor)
-		local near2 = t.basketNear * t.basketNear
-		local best
-		for _, p in ipairs(s.pieces) do
-			if p.role == "field" and p.half ~= s.side and p.toppled then
-				local dx, dy = p.x - bx, p.y - by
-				if dx * dx + dy * dy < near2 and (not best or side * p.x < side * best.x) then best = p end
-			end
-		end
-		if best then return best.x - side * t.rowStep, best.y end
-		return bx, by
-	end
-	local best, bestX, bestY
-	local costY = ((s.of or 0) >= t.clusterFrom) and t.spotCostYCluster or t.spotCostY
-	local shortLying = tw.drill.slideFor(plan.loftFor(plan.arcFor("drill")), s.surface)
-	if shortLying < t.spotShortLying then shortLying = t.spotShortLying end
-	if t.into ~= 0 then
-		local ix, iy = intoSpot(s, t, bx, by, shortLying)
-		if ix then return ix, iy end
-	end
-	for i = -t.spotCols, t.spotCols do
-		for j = -t.spotRows, t.spotRows do
-			local x, y = bx + i * t.spotStepX, by + j * t.spotStepY
-			if spotClear(s, t, x, y, shortLying) then
-				local cx, cy = i, j * costY
-				local cost = cx * cx + cy * cy
-				if not best or cost < best - 1e-9 then best, bestX, bestY = cost, x, y end
-			end
-		end
-	end
-	if not best then return bx, by end
-	return bestX, bestY
+	local x, y = tw.cpu.spot(s, side, ik)
+	return x, y
 end
 
 -- The swing a thrower makes at solution sol, with seeded mistakes scaled by
@@ -351,84 +215,38 @@ function autothrow.cpuLevel(name)
 	return cpuLevels[name] or cpuLevels[autothrow.tune.level] or cpuLevels.club
 end
 
--- A throw for match setup `s` (view frame). Batons: target the nearest
--- live target and stand behind it as far forward as allowed (never nearer
--- than minRange), its centre aimed through the target at plan.aimZFor's
--- height; the king from the baseline. Kubbs: drilled to the basket
--- (autothrow.basket) from the baseline. scale (default 1) multiplies every
--- mistake: below 1 a steadier thrower. level: a tw.plan level (default
--- tune.level). A baton's throw names the piece it is aimed at (`on`, its
--- id: the front kubb of the lane it aims across), a drill none.
+-- A throw for match setup `s` (view frame): Choose (cpu.decide: the target, the spot,
+-- the stance and the arc, and why) then the hand. scale (default 1) multiplies every
+-- mistake: below 1 a steadier thrower. level: a tw.plan level (default the thrower's,
+-- then tune.level). A baton's throw names the piece it is aimed at (`on`, its id: the
+-- front kubb of the lane it aims across), a drill none. The decision's reason is not in
+-- the result, which reaches the session's actions and recordings: it is tw.cpu.last.
 function autothrow.choose(s, r, scale, level)
 	scale = scale or 1
 	local scale0 = scale
 	local t = autothrow.tune
-	local lname = level or (s.thrower and s.thrower.level) or t.level
-	if type(lname) ~= "string" then lname = t.level end
+	local cpu = tw.cpu
+	local lname = cpu.levelName(s, level)
 	scale = scale * (t.swingScale[lname] or 1)
 	local q = { level = autothrow.cpuLevel(lname), surface = s.surface }
-	local tx, ty, py, arc, on
-	local ik
-	if s.kind == "toss" then
-		ik = t.inkast[lname]
-		local side = autothrow.basket(s, r)
-		tx, ty = autothrow.spot(s, side, ik)
-		-- spun to roll toward the sideline (the plan aims short of the spot by the roll)
-		q.spin = ik and ik.spin * side or t.drillSpin
-		q.projectile, arc = "kubb", plan.arcFor("drill")
-		py = s.lineY
+	local d = cpu.decide(s, r, lname)
+	local it = d.intent
+	local tx, ty = it.tx, it.ty
+	if d.kind == "toss" then
+		q.spin = it.spin
+		q.projectile = "kubb"
 	else
-		local pos = {}
-		for _, p in ipairs(s.pieces) do pos[p.id] = p end
-		local target = pos[s.targets[1]]
-		-- the nearest target to the line
-		for _, id in ipairs(s.targets) do
-			local p = pos[id]
-			if p and p.y < target.y then target = p end
-		end
-		tx = target.x
-		if target.role == "field" then
-			-- the lane with the most standing field kubbs; the nearest front on a tie
-			local bestN = 0
-			for _, id in ipairs(s.targets) do
-				local f = pos[id]
-				if f and f.role == "field" then
-					local n, lo, hi = 0, f.x, f.x
-					for _, id2 in ipairs(s.targets) do
-						local p = pos[id2]
-						if p and p.role == "field" then
-							local dx, dy = p.x - f.x, p.y - f.y
-							if dx < t.laneHalf and dx > -t.laneHalf and dy >= 0 and dy <= t.laneDeep then
-								n = n + 1
-								if p.x < lo then lo = p.x elseif p.x > hi then hi = p.x end
-							end
-						end
-					end
-					if n > bestN or (n == bestN and f.y < target.y) then
-						bestN, target, tx = n, f, (lo + hi) / 2
-					end
-				end
-			end
-		end
-		ty = target.y - t.batonShort
-		on = target.id
 		q.projectile = "baton"
-		-- through the piece at its aim height (plan.tune.aimHeightShare), as a
-		-- player's circle on a piece is
-		q.aimZ = plan.aimZFor((s.kingShot or target.role == "king") and "king" or "kubb")
-		py = s.kingShot and s.lineY or (s.forwardY or s.lineY)
-		if py > target.y - t.minRange then py = target.y - t.minRange end
-		if py < s.lineY then py = s.lineY end
+		q.aimZ = it.aimZ
 	end
-	local st = plan.stance(tx, ty, s.lineY, py, t.halfWidth, {})
-	if q.projectile == "baton" then
-		-- the default arc for the distance (plan.arcFor), as a player's is
-		local dx, dy = tx - st.x, ty - st.y
-		arc = plan.arcFor("baton", math.sqrt(dx * dx + dy * dy))
-	end
-	q.px, q.py, q.tx, q.ty, q.release = st.x, st.y, tx, ty, arc
+	-- straight behind the target on the line it stands on (Choose works a baton's out,
+	-- since its arc goes by the distance from there)
+	local st = it.stance or plan.stance(tx, ty, s.lineY, it.standY, t.halfWidth, {})
+	q.px, q.py, q.tx, q.ty, q.release = st.x, st.y, tx, ty, it.arc
 	local sol = plan.solve(q, {})
 	if q.projectile == "kubb" then
+		-- the inkast's hand by level (tune.inkast), not the level's swingScale
+		local ik = t.inkast[lname]
 		if ik then scale = scale0 * ik.hand else scale = scale * t.drillScale end
 	end
 	local sw = autothrow.swing(sol, r, scale, {})
@@ -437,7 +255,7 @@ function autothrow.choose(s, r, scale, level)
 	local L = plan.launch(sol, sw, { projectile = q.projectile, tilt = 0, spin = q.spin,
 		nerves = scale > 0 and r or nil }, {})
 	local a = { x = st.x, y = st.y, swivel = L.swivel, loftDeg = L.loft, speed = L.speed,
-		tumbleRate = L.tumble, tilt = L.tilt, legal = L.legal, plan = sol, swing = sw, launch = L, on = on }
+		tumbleRate = L.tumble, tilt = L.tilt, legal = L.legal, plan = sol, swing = sw, launch = L, on = it.on }
 	if q.projectile == "kubb" then
 		a.drill = { markerX = tx, markerY = ty - s.lineY, noseDown = L.noseDown, rollLand = L.rollLand,
 			spin = L.spin, wobble = L.wobble, scatter = L.scatter }
@@ -462,3 +280,7 @@ function autothrow.launch(w, s, a)
 end
 
 tw.autothrow = autothrow
+
+-- Choose (core/cpu) and Read (core/read) read this file's tune, so they are imported
+-- once tw.autothrow is set; choose finds tw.cpu when it is called.
+import "core/cpu"
