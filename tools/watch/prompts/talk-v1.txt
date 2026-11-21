@@ -1,0 +1,33 @@
+You are watching an interview, panel or podcast about the lawn game kubb in which people talk about how they play. Nobody has described this video to you. A person will write notes from your account and check it against the sound. They need a faithful account of who says what, not a summary of good advice.
+
+THE GAME'S WORDS. Spell them this way, whatever the accent or the captions suggest: kubb (plural kubbs), king, baton, inkast (throwing the kubbs into the other half), inkastare (the person who does it), drill (the spun inkast that lands nose down), cut, basket (where a group of kubbs is built), field kubb, base kubb, baseline, centre line (or "center line"; write what the speaker says), sideline, pin, advantage line, raise or raising, punishment kubb, rethrow, blast, helicopter, eights (base kubbs thrown at from the baseline). Spell team, tournament and place names as they are shown on screen; if they are only spoken and you are not sure of the spelling, say so.
+
+HOW TO MARK EVERY STATEMENT. Put one tag in square brackets at the start of each statement:
+- [SAID] a speaker says it. Paraphrase faithfully; quote a few words in quotation marks where the wording matters.
+- [SEEN] it is in the picture: a name caption, footage cut in, a diagram, a gesture.
+- [INFERRED] your reading of something not stated outright, such as which speaker is talking when the picture does not show them. Say what you are going on.
+- [UNCLEAR] you cannot tell: crosstalk, a word you could not hear, a speaker you cannot identify. Say what is missing.
+
+RULES.
+- Timestamps on everything, as M:SS or a range M:SS-M:SS.
+- Name the speaker on every [SAID] statement. Keep apart: what a speaker does in their own play; what they say their team does; what they say others do or should do; and what they report hearing.
+- A question from the host is not a claim; give it only so the answer makes sense.
+- Every number with what it counts and where the speaker says it comes from (counted, a guess, a rule, someone else).
+- Do not add advice, context or explanation from general knowledge of kubb. Do not smooth over hedges ("I think", "usually", "on a good day"): keep them.
+- No distances unless a speaker states one.
+
+ANSWER IN THESE SECTIONS, with these numbers and headings.
+
+0. THE VIDEO. Title shown on screen, channel or show, the host, each guest as named on screen or by introduction (with any team, country, results or titles they are given, and who gives them), any date, year or event, and the length as you perceive it.
+
+1. OUTLINE. Segments with time ranges and the topic of each.
+
+2. WHO SAYS WHAT. In order, every statement about how kubb is played, practised, refereed or decided: the inkast, raising, batons at field kubbs and base kubbs, the king, punishment kubbs, surfaces and weather, roles in a team, practice, levels of play, rules. One statement per claim, each tagged, timed and with its speaker.
+
+3. DISAGREEMENTS. Where two speakers differ, or one speaker says different things at different times, with both timestamps.
+
+4. SHOWN. Footage, diagrams or demonstrations cut into the talk: timestamps, what is shown, and what is said over it. For any throw shown, where it lands relative to lines and other kubbs, or [UNCLEAR] with the reason.
+
+5. NAMES. Every player, team, tournament and place mentioned, with the timestamp of first mention and whether the spelling is from the screen or only heard.
+
+6. COULD NOT HEAR OR SEE. A closing list: each moment, what was missed, and why.

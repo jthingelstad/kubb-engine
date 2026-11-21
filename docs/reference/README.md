@@ -166,3 +166,30 @@ is still `open`. Numbers are never reused.
 4. For each entry that bears on a choice, add to a play or write a new one. If it
    contradicts a play, add a question instead.
 5. Run `make refcheck`.
+
+### A video
+
+A video model can watch a public YouTube video and say what the picture shows, which
+captions cannot: where "here" is, what a demonstration throw does, what happens with no
+words.
+
+1. Run `node tools/watch.mjs <link or id> --kind lesson --transcript` (`--kind talk` for
+   an interview or podcast, `match` for match footage). It needs `GEMINI_API_KEY` in the
+   environment. It writes the model's answer, the call's metadata and a transcript to
+   `$KUBB_SOURCES/video`, else `../kubb-sources/video` beside this repository, and
+   refuses to write inside it: these are other people's words and a model's account, not
+   ours to publish. A video already answered with the same prompt version and model is
+   skipped unless `--force`. The prompts are `tools/watch/prompts/<kind>-v<n>.txt`; a
+   changed prompt is a new version, never an edit.
+2. Read the private answer beside the video itself. The transcript, not YouTube's
+   captions, is what a `said` entry is checked against: the captions misspell the game's
+   words.
+3. Write the observation in our own words. Each entry is marked `said`, `shown`, `points`
+   (resolved to `shown` where the picture settles it, and saying what it shows), `inferred`
+   or `unclear`. Where the model said it could not see something, the entry says so and
+   what hid it. A distance or count is the speaker's or what can be counted in the frame,
+   never the model's estimate.
+4. The `method` line names the model and the prompt's version, and says who checked the
+   account: "watched by gemini-4-hydrogen (lesson-v1) with a transcript; observation
+   written from its account; three entries checked by <who> on <date>".
+5. Someone who knows the video checks three entries against it, as for any source.

@@ -1,0 +1,46 @@
+You are watching a video about the lawn game kubb in which a person teaches: how to throw, where to stand, how to practise, or how a rule works. Nobody has described this video to you. Your account will be checked against the picture and the sound, and a person will write notes from it. They need observations, not conclusions, and they need to know which parts of your account rest on the picture and which on the words.
+
+THE GAME'S WORDS. Spell them this way, whatever the speaker's accent or the captions suggest: kubb (plural kubbs), king, baton (the throwing stick; some say "stick"), inkast (throwing the kubbs into the other half), inkastare (the person who does it), drill (the spun inkast that lands nose down), cut (an inkast released with the wrist turned so the kubb kicks sideways on landing), basket (where a group of kubbs is built), field kubb, base kubb, baseline, centre line (or "center line"; write what the speaker says), sideline, corner stake, pin (the centre line's stake at a sideline), advantage line, raise or raising (standing a thrown kubb up), punishment kubb, rethrow, blast, helicopter (a baton that spins flat). A pitch may be marked with string, paint, chalk, stakes only, or nothing.
+
+HOW TO MARK EVERY STATEMENT. Put one tag in square brackets at the start of each statement:
+- [SEEN] you can see it in the picture.
+- [SAID] a speaker says it. Paraphrase, or quote a few words in quotation marks.
+- [POINTS] the speaker says "here", "this", "this way", "like this", "that line" or similar. Give the words, then what the picture shows they indicate, or that the picture does not settle it.
+- [INFERRED] your reading of something the picture and words do not state outright. Say what you are going on.
+- [UNCLEAR] you cannot tell. Always say what hides it: the camera angle, a cut, the frame rate or motion blur, the edge of the frame, something in the way, poor light, no marked lines.
+
+RULES.
+- Timestamps on everything, as M:SS or a range M:SS-M:SS.
+- Positions only relative to things in view: a line, a stake, the king, kubbs already lying or standing, the speaker's feet, the camera. Say "toward the camera", "to the viewer's left". If you use the thrower's left or right, say so.
+- No distances in metres, feet or paces unless a speaker states one; then it is [SAID]. You may compare sizes to things in view ("about one kubb-length", "the width of his stance").
+- Do not fill a gap with what usually happens in kubb or with general advice. If it is not in this video, it is not in your answer.
+- Count only what you see. If you cannot count, say so.
+- Where the speaker's words and the picture disagree, say so where it happens and again in section 8.
+
+ANSWER IN THESE SECTIONS, with these numbers and headings.
+
+0. THE VIDEO. Any title shown on screen, channel name or logo, people named on screen or who introduce themselves, any date, year or event shown, the length of the video as you perceive it, and the setting: what kind of ground, which lines and stakes are marked and how, where the camera stands. Mark each.
+
+1. OUTLINE. The video in segments, each with its time range and one line on what it is about.
+
+2. WHAT IS SAID. Every claim, instruction, reason, rule and number the speaker gives, in order, each with its timestamp and tag. Keep separate claims in separate statements. For each number, say what it counts and whether the speaker measured it, estimated it, or is quoting a rule or someone else.
+
+3. WHERE THE WORDS POINT. Every time the speaker refers to a place, direction, line, motion or object by gesture ("here", "this way", "like this", "that one"): the timestamp, the words, and exactly what the picture shows they mean (where the hand, foot, baton or kubb is, relative to things in view). If the picture does not settle it, tag it [UNCLEAR] and say why.
+
+4. DEMONSTRATIONS. Every throw, placement or set-up shown, of a kubb or a baton, in order. For each:
+   - the timestamp of release and of rest;
+   - where the thrower stands relative to lines, stakes and the kubbs, and which hand throws;
+   - for a kubb: how it flies (spinning about its long axis, tumbling end over end, flat, nose down), where it first touches the ground relative to things in view, which way it moves after (toward or away from the thrower, to the viewer's left or right) and how far in kubb-lengths, where it comes to rest, whether it ends touching another kubb, and whether it went out of the marked area;
+   - for a baton: how it flies (end over end, flat, wobbling), what it hits, which kubbs fall and which stay;
+   - kubbs set out by hand: how many, the shape (one behind another along the throw, side by side across it, or a cluster), and where relative to lines and stakes.
+   If the camera does not show part of a throw, say which part and why. A throw that is only mimed is not a throw: say it was mimed.
+
+5. HANDS, FEET AND BODY. Grips (which fingers lie where, which end of the kubb or baton is in the palm), stance, where the feet are relative to a line before, during and after release, arm path, release height compared with the thrower's own body, and any lean or follow-through. Mark each.
+
+6. SHOWN WITHOUT WORDS. Stretches with no speech or only music, each with its time range and what the picture shows in it.
+
+7. ON-SCREEN TEXT AND GRAPHICS. Any captions, diagrams, arrows, slow motion, replays or numbers drawn on screen, with timestamps, and what they show.
+
+8. PICTURE AGAINST WORDS. Each place where what is shown differs from what is said, or a throw does not do what the speaker says it will.
+
+9. COULD NOT SEE. A closing list: each moment, what could not be seen, and what hid it.
