@@ -1,0 +1,1135 @@
+{
+  "about": "The register of every source the play reference knows of, keyed by source id; docs/reference/README.md defines its ids and fields.",
+  "updated": "2026-11-21",
+  "sources": {
+    "ko-2014-advantage1": {
+      "title": "Advantage, Efficiency, and Game Theory, part 1 of 3",
+      "url": "https://kubbon.com/2014/04/27/advantage-efficiency-and-game-theory-part-1-of-3/",
+      "kind": "article",
+      "by": "Chris Hodges, Des Moines Kubb",
+      "standing": "unknown",
+      "year": 2014,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "field",
+        "baseline",
+        "king"
+      ],
+      "note": "Average batons each situation costs (about 3.6 to clear four field kubbs, 2.85 for a base kubb from 8 m, 1.65 from an advantage line, 1.2 for the king); built on Planet Kubb games, so not independent of games-pk150."
+    },
+    "ko-2014-advantage2": {
+      "title": "Advantage, Efficiency, and Game Theory, part 2 of 3",
+      "url": "https://kubbon.com/2014/04/28/advantage-efficiency-and-game-theory-part-2-of-3/",
+      "kind": "article",
+      "by": "Chris Hodges, Des Moines Kubb",
+      "standing": "unknown",
+      "year": 2014,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "field",
+        "baseline",
+        "king"
+      ],
+      "note": "Part 2 of 3; see ko-2014-advantage1."
+    },
+    "ko-2014-advantage3": {
+      "title": "Advantage, Efficiency, and Game Theory, part 3 of 3",
+      "url": "https://kubbon.com/2014/04/29/advantage-efficiency-and-game-theory-part-3-of-3/",
+      "kind": "article",
+      "by": "Chris Hodges, Des Moines Kubb",
+      "standing": "unknown",
+      "year": 2014,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "field",
+        "baseline",
+        "king"
+      ],
+      "note": "Part 3 of 3; see ko-2014-advantage1."
+    },
+    "ko-2013-fence": {
+      "title": "Fence Building 101",
+      "url": "https://kubbon.com/2013/03/07/fence-building-101-or-occupybatons/",
+      "kind": "article",
+      "by": "Chris Hodges, Des Moines Kubb",
+      "standing": "unknown",
+      "year": 2013,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "raise"
+      ],
+      "note": "A ten-step method for raising to cost the attacker batons: the attacker's par, facing, a tight fence across over a loose one in depth."
+    },
+    "ko-2011-punishment": {
+      "title": "On Punishment Kubbs",
+      "url": "https://kubbon.com/2011/04/22/on-punishment-kubbs/",
+      "kind": "article",
+      "by": "Chris Hodges, Des Moines Kubb",
+      "standing": "unknown",
+      "year": 2011,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "punish"
+      ],
+      "note": "Placement by game state: baseline when well behind, sideline when even, behind the king when ahead or facing a big pile."
+    },
+    "ko-2012-doubles": {
+      "title": "Facing your Fears of Doubles and Triples",
+      "url": "https://kubbon.com/2012/05/11/facing-your-fears-of-doubles-and-triples/",
+      "kind": "article",
+      "by": "Josh Feathers",
+      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "year": 2012,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "raise",
+        "field"
+      ],
+      "note": "How a kubb's facing and the kubb behind it decide whether one baton takes two."
+    },
+    "ko-2012-rescue": {
+      "title": "Kubb Rescue Squad",
+      "url": "https://kubbon.com/2012/03/16/kubb-rescue-squad/",
+      "kind": "article",
+      "by": "Josh Feathers",
+      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "year": 2012,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "inkast"
+      ],
+      "note": "When and how to throw a kubb at a standing field kubb to get both back."
+    },
+    "ko-2012-king": {
+      "title": "Attacking the King",
+      "url": "https://kubbon.com/2012/02/22/attacking-the-king/",
+      "kind": "article",
+      "by": "Josh Feathers",
+      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "year": 2012,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "king"
+      ],
+      "note": "Corner versus head-on geometry; he says he still throws head-on."
+    },
+    "ko-2013-footprints": {
+      "title": "On Footprints, Kubbadoxes and the Golden Rules",
+      "url": "https://kubbon.com/2013/03/06/on-footprints-kubbadoxes-and-the-golden-rules/",
+      "kind": "article",
+      "by": "Josh Feathers",
+      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "year": 2013,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "raise",
+        "rules"
+      ],
+      "note": "Deadlock cases in raising and an order for resolving them; a check on core/raising.lua."
+    },
+    "pk-strategy": {
+      "title": "Strategy",
+      "url": "http://web.archive.org/web/20160925071008/http://wiki.planetkubb.com:80/wiki/Strategy",
+      "kind": "article",
+      "by": "Planet Kubb community",
+      "standing": "unknown",
+      "year": 2012,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "punish",
+        "inkast"
+      ],
+      "note": "Planet Kubb wiki, archived; started by \"Jamie\" in 2012, so partly Jamie's own words: tag those parts owner."
+    },
+    "pk-hardway": {
+      "title": "The hard way",
+      "url": "http://web.archive.org/web/20160712161223/http://wiki.planetkubb.com:80/wiki/The_hard_way",
+      "kind": "article",
+      "by": "Planet Kubb community",
+      "standing": "unknown",
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "punish",
+        "inkast"
+      ],
+      "note": "Planet Kubb wiki, archived."
+    },
+    "pk-slang": {
+      "title": "Slang",
+      "url": "https://planetkubb.com/post/category/slang/",
+      "kind": "article",
+      "by": "Garrick van Buren",
+      "standing": "unknown",
+      "year": 2017,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "inkast"
+      ],
+      "note": "Category page; the game's own words for situations."
+    },
+    "pk-glossary": {
+      "title": "Glossary",
+      "url": "https://planetkubb.com/post/category/glossary/",
+      "kind": "article",
+      "by": "Garrick van Buren",
+      "standing": "unknown",
+      "year": 2017,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "inkast"
+      ],
+      "note": "Category page; the start of the shared vocabulary."
+    },
+    "pk-deep": {
+      "title": "Deep",
+      "url": "https://planetkubb.com/post/deep/",
+      "kind": "article",
+      "by": "Garrick van Buren",
+      "standing": "unknown",
+      "year": 2017,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "inkast"
+      ]
+    },
+    "pk-drilling": {
+      "title": "Drilling",
+      "url": "https://planetkubb.com/post/drilling/",
+      "kind": "article",
+      "by": "Garrick van Buren",
+      "standing": "unknown",
+      "year": 2017,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "inkast"
+      ]
+    },
+    "ko-2025-worlds": {
+      "title": "1v1 Kubb World Championship 2025 recap and interviews",
+      "url": "https://kubbon.com/2025/11/03/1v1-kubb-world-championship-2025-recap-interviews/",
+      "kind": "interviews",
+      "by": "Kubb On",
+      "speakers": [
+        "Trevor Bailey",
+        "Barb Lancette",
+        "John Oman"
+      ],
+      "standing": "Trevor Bailey: 2025 U.S. player of the year, best inkastare",
+      "year": 2025,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "inkast",
+        "levels"
+      ],
+      "note": "Current top players on drilling, risk and backup throws."
+    },
+    "ko-2017-blasting": {
+      "title": "Blasting: Finesse Style",
+      "url": "https://kubbon.com/2017/04/07/blasting-finesse-style/",
+      "kind": "article",
+      "by": "Kyle Weakland",
+      "standing": "Kubb On co-founder",
+      "year": 2017,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "field",
+        "levels"
+      ],
+      "note": "Where on a pile to hit and how hard."
+    },
+    "ko-2018-inkasting": {
+      "title": "Beginner's Guide to Inkasting",
+      "url": "https://kubbon.com/2018/02/19/beginners-guide-inkasting/",
+      "kind": "article",
+      "by": "Kyle Weakland",
+      "standing": "Kubb On co-founder",
+      "year": 2018,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "inkast",
+        "levels"
+      ],
+      "note": "How long drilling takes to learn."
+    },
+    "ko-2018-practice": {
+      "title": "How I Practice: Kyle Weakland",
+      "url": "https://kubbon.com/2018/07/23/how-i-practice-kyle-weakland/",
+      "kind": "article",
+      "by": "Kyle Weakland",
+      "standing": "Kubb On co-founder",
+      "year": 2018,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "practice",
+        "levels"
+      ]
+    },
+    "ko-2017-dickinson": {
+      "title": "How I Practice: Phil Dickinson",
+      "url": "https://kubbon.com/2017/05/16/how-i-practice-phil-dickinson/",
+      "kind": "article",
+      "by": "Phil Dickinson",
+      "standing": "Author of \"Mastering Kubb\"",
+      "year": 2017,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "practice",
+        "levels"
+      ],
+      "note": "Scored drills with scores a strong player posted."
+    },
+    "ko-2019-skillbuilder": {
+      "title": "Skill Builder Wednesday, week one",
+      "url": "https://kubbon.com/2019/04/17/skill-builder-wednesday-week-one/",
+      "kind": "article",
+      "by": "Phil Dickinson",
+      "standing": "Author of \"Mastering Kubb\"",
+      "year": 2019,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "practice",
+        "levels"
+      ],
+      "note": "Week one of 12; the other weeks are not linked in the census."
+    },
+    "ko-2012-baseline": {
+      "title": "42: The Answer to Life, the Universe and Baseline Percentages",
+      "url": "https://kubbon.com/2012/02/10/42-the-answer-to-life-the-universe-and-baseline-percentages/",
+      "kind": "article",
+      "by": "Josh Feathers",
+      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "year": 2012,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "baseline",
+        "levels"
+      ],
+      "note": "42% at 8 m as the competitive bar."
+    },
+    "ko-2012-answer": {
+      "title": "The Answer",
+      "url": "https://kubbon.com/2012/07/26/the-answer/",
+      "kind": "article",
+      "by": "Chris Hodges, Des Moines Kubb",
+      "standing": "unknown",
+      "year": 2012,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "How openings are answered."
+    },
+    "web-kubbsh-levels": {
+      "title": "Wie gut bin ich?",
+      "url": "https://www.kubb-sh.de/wie-gut-bin-ich/",
+      "kind": "article",
+      "by": "A German club player",
+      "standing": "One person's judgement; nothing measured",
+      "language": "de",
+      "status": "found",
+      "covers": [
+        "levels",
+        "baseline",
+        "inkast"
+      ],
+      "note": "Six levels by 8 m and 4 m hit rate and by the square ten kubbs land in; the only ladder found below tournament play."
+    },
+    "ko-2018-european1": {
+      "title": "European Kubb Rules, part I",
+      "url": "https://kubbon.com/2018/06/19/european-kubb-rules-part-i/",
+      "kind": "article",
+      "by": "Kyle Weakland and the Jones brothers",
+      "standing": "unknown",
+      "year": 2018,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "rules"
+      ],
+      "note": "How European rules change tactics."
+    },
+    "ko-2018-european2": {
+      "title": "European Kubb Rules, part II",
+      "url": "https://kubbon.com/2018/06/26/european-kubb-rules-part-ii/",
+      "kind": "article",
+      "by": "Kyle Weakland and the Jones brothers",
+      "standing": "unknown",
+      "year": 2018,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "rules"
+      ],
+      "note": "Part II; see ko-2018-european1."
+    },
+    "ko-2017-roles": {
+      "title": "New to Kubb: Team Roles",
+      "url": "https://kubbon.com/2017/06/28/new-kubb-team-roles/",
+      "kind": "article",
+      "by": "Kubb On",
+      "standing": "unknown",
+      "year": 2017,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "field"
+      ],
+      "note": "Roles: inkaster, blaster, cleanup, eights, slayer."
+    },
+    "ko-2023-referee": {
+      "title": "Ask a Kubb Ref: Field to Baseline Situations",
+      "url": "https://kubbon.com/2023/02/09/ask-a-kubb-ref-field-to-baseline-situations/",
+      "kind": "article",
+      "by": "Jesse Fraim",
+      "standing": "Referee",
+      "year": 2023,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "field",
+        "baseline",
+        "rules"
+      ],
+      "note": "What happens to pieces after a field-to-base double."
+    },
+    "yt-Io-rxbSB3Ns": {
+      "title": "How To Throw Kubbs - The Basics",
+      "url": "https://www.youtube.com/watch?v=Io-rxbSB3Ns",
+      "kind": "lesson",
+      "by": "U.S. National Kubb Championship",
+      "speakers": [
+        "Eric Anderson"
+      ],
+      "standing": "Director of the U.S. National Kubb Championship and publisher of Kubbnation Magazine",
+      "year": 2020,
+      "language": "en",
+      "length": "9:09",
+      "status": "observed",
+      "covers": [
+        "inkast"
+      ]
+    },
+    "yt-KnLTnKVVPMg": {
+      "title": "How To Play Kubb: Inkasting Tip 13 / Baton Throwing Tip #3 - The Pythagorean Theorem",
+      "url": "https://www.youtube.com/watch?v=KnLTnKVVPMg",
+      "kind": "lesson",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Eric Anderson"
+      ],
+      "standing": "Director of the U.S. National Kubb Championship and publisher of Kubbnation Magazine",
+      "language": "en",
+      "length": "2:43",
+      "status": "found",
+      "covers": [
+        "field"
+      ],
+      "note": "Where to stand and the angle for field shots."
+    },
+    "yt-993xiTqXtYw": {
+      "title": "How To Play Kubb: Inkastare Training Tip 12 - Work the baseline",
+      "url": "https://www.youtube.com/watch?v=993xiTqXtYw",
+      "kind": "lesson",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Eric Anderson"
+      ],
+      "standing": "Director of the U.S. National Kubb Championship and publisher of Kubbnation Magazine",
+      "language": "en",
+      "length": "2:13",
+      "status": "found",
+      "covers": [
+        "inkast"
+      ],
+      "note": "Follows the ten tips already held; no tip 11 was found."
+    },
+    "yt-Rl8PNnjDidQ": {
+      "title": "How To Play Kubb: Baton Throwing Practice Tip #1 - Reduce Your Rotation",
+      "url": "https://www.youtube.com/watch?v=Rl8PNnjDidQ",
+      "kind": "lesson",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Eric Anderson"
+      ],
+      "standing": "Director of the U.S. National Kubb Championship and publisher of Kubbnation Magazine",
+      "language": "en",
+      "length": "2:54",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Numbers on baton rotation at 8 m."
+    },
+    "yt-KcvzNzU7ZS8": {
+      "title": "How To Play Kubb: Baton Throwing Practice Tip #2 - Accuracy and Mental Focus",
+      "url": "https://www.youtube.com/watch?v=KcvzNzU7ZS8",
+      "kind": "lesson",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Eric Anderson"
+      ],
+      "standing": "Director of the U.S. National Kubb Championship and publisher of Kubbnation Magazine",
+      "language": "en",
+      "length": "2:51",
+      "status": "found",
+      "covers": [
+        "levels"
+      ]
+    },
+    "yt-6kCOZAKgczg": {
+      "title": "How To Play Kubb: Practice Game - Two Baton Pressure",
+      "url": "https://www.youtube.com/watch?v=6kCOZAKgczg",
+      "kind": "lesson",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Eric Anderson"
+      ],
+      "standing": "Director of the U.S. National Kubb Championship and publisher of Kubbnation Magazine",
+      "language": "en",
+      "length": "2:36",
+      "status": "found",
+      "covers": [
+        "practice",
+        "levels"
+      ],
+      "note": "A practice game shaped like a real decision."
+    },
+    "yt-xzf_97pbG3g": {
+      "title": "Ask A Kubb Ref - Shunting Kubbs",
+      "url": "https://www.youtube.com/watch?v=xzf_97pbG3g",
+      "kind": "lesson",
+      "by": "Kubb On",
+      "standing": "unknown",
+      "language": "en",
+      "length": "8:00",
+      "status": "found",
+      "covers": [
+        "raise"
+      ],
+      "note": "The only video found on raising."
+    },
+    "yt-FOvvroipVw0": {
+      "title": "Beginner's Guide to Inkasting",
+      "url": "https://www.youtube.com/watch?v=FOvvroipVw0",
+      "kind": "lesson",
+      "by": "Kubb On",
+      "standing": "unknown",
+      "language": "en",
+      "length": "9:42",
+      "status": "found",
+      "covers": [
+        "inkast"
+      ],
+      "note": "The longest inkast lesson found."
+    },
+    "yt-cOaiMash-Ws": {
+      "title": "Kubb Interview with Terry Ekelöf from team Team Ekeby",
+      "url": "https://www.youtube.com/watch?v=cOaiMash-Ws",
+      "kind": "interviews",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Terry Ekelöf"
+      ],
+      "standing": "Team Ekeby won Gotland about a dozen times between 1996 and 2012",
+      "language": "en",
+      "length": "1:33:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Needs a transcript first."
+    },
+    "yt-rJmjO-EqqCM": {
+      "title": "Kubb Interview with Johan Lundin from team Signalgatan",
+      "url": "https://www.youtube.com/watch?v=rJmjO-EqqCM",
+      "kind": "interviews",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Johan Lundin"
+      ],
+      "standing": "Gotland player and world championship referee",
+      "language": "en",
+      "length": "1:43:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Needs a transcript first."
+    },
+    "yt-znx8YQtR7Zg": {
+      "title": "U.S. National Kubb Championship Interview with team Kubbsicles",
+      "url": "https://www.youtube.com/watch?v=znx8YQtR7Zg",
+      "kind": "interviews",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Team Kubbsicles"
+      ],
+      "standing": "U.S. champions 2012, 2013, 2022",
+      "language": "en",
+      "length": "0:56:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Needs a transcript first."
+    },
+    "yt-anPnBvMldu8": {
+      "title": "U.S. National Kubb Championship Interview with Josh \"Dobbie\" Feathers from team Team Knockerheads",
+      "url": "https://www.youtube.com/watch?v=anPnBvMldu8",
+      "kind": "interviews",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Josh Feathers"
+      ],
+      "standing": "2011 U.S. champion, four best-inkastare awards",
+      "language": "en",
+      "length": "1:05:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Needs a transcript first."
+    },
+    "yt-8xuAV5cpQTs": {
+      "title": "U.S. National Kubb Championship Interview with Aaron Ellringer from team The Ringers",
+      "url": "https://www.youtube.com/watch?v=8xuAV5cpQTs",
+      "kind": "interviews",
+      "by": "Tyr's Tre",
+      "speakers": [
+        "Aaron Ellringer"
+      ],
+      "standing": "2010 U.S. champion",
+      "language": "en",
+      "length": "1:14:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Needs a transcript first."
+    },
+    "pod-happykubb-feed": {
+      "title": "Happy Kubb podcast",
+      "url": "https://anchor.fm/s/f735ece0/podcast/rss",
+      "kind": "podcast",
+      "by": "Happy Kubb",
+      "speakers": [
+        "Kim Heremans",
+        "Alex Olofsson",
+        "Theo Sturve",
+        "Fredrik Wallin",
+        "Robert Harnack",
+        "Sven Mampe"
+      ],
+      "standing": "Guests include a 2025 European champion, the founder of twice world champions Blue/Orange, a 2024 Gotland 1v1 champion, and Kubb'Ings",
+      "language": "en",
+      "length": "24 episodes",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "The feed, not one episode; episodes run 0:44 to 1:17; Harnack and Mampe in German, the rest in English."
+    },
+    "yt-vgVWTXT6t1E": {
+      "title": "Kubb Talk Ep 10: Chaska Super Funky Badasses",
+      "url": "https://www.youtube.com/watch?v=vgVWTXT6t1E",
+      "kind": "interviews",
+      "by": "Kubb Talk",
+      "speakers": [
+        "Chaska Super Funky Badasses"
+      ],
+      "standing": "2024 U.S. champions",
+      "language": "en",
+      "length": "0:45:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Needs a transcript first."
+    },
+    "yt-9D7zgxm6eAI": {
+      "title": "Kubb Talk Ep 11  Kubbicide Squad",
+      "url": "https://www.youtube.com/watch?v=9D7zgxm6eAI",
+      "kind": "interviews",
+      "by": "Kubb Talk",
+      "speakers": [
+        "Kubbicide Squad"
+      ],
+      "standing": "unknown",
+      "language": "en",
+      "length": "1:06:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "A U.S. team on playing at Gotland."
+    },
+    "pod-openloop-fever": {
+      "title": "Open Loop 3: Kubb Fever",
+      "url": "https://thingelstad.com/projects/open-loop/3-kubb-fever",
+      "kind": "podcast",
+      "by": "Jamie Thingelstad",
+      "speakers": [
+        "Jamie Thingelstad",
+        "Garrick"
+      ],
+      "standing": "A club-level voice, and Jamie's",
+      "year": 2012,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Has a transcript already."
+    },
+    "yt-DOfbZ2xzz6Y": {
+      "title": "2026 U.S. National Kubb Championship - Shadow Pack vs. Ragnarok",
+      "url": "https://www.youtube.com/watch?v=DOfbZ2xzz6Y",
+      "kind": "match",
+      "by": "Kubb On",
+      "speakers": [
+        "Jesse Fraim"
+      ],
+      "standing": "Shadow Pack's blaster; a referee",
+      "year": 2026,
+      "language": "en",
+      "length": "0:47:00",
+      "status": "found",
+      "covers": [],
+      "note": "The team's blaster talks through his own team's match; three more in the series, not linked in the census."
+    },
+    "yt-hrqtzKxccpk": {
+      "title": "U.S. National Kubb Championship 2026 - Semi-finals & Finals (Live Stream Version)",
+      "url": "https://www.youtube.com/watch?v=hrqtzKxccpk",
+      "kind": "match",
+      "by": "American Kubb Association",
+      "standing": "Named commentators who are top players (names not in the census)",
+      "year": 2026,
+      "language": "en",
+      "length": "2:47:00",
+      "status": "found",
+      "covers": [],
+      "note": "Teams and members named."
+    },
+    "yt--BmHbbUMcX4": {
+      "title": "Midwest Kubb Championship 2026 — Finals | Full Match Replay",
+      "url": "https://www.youtube.com/watch?v=-BmHbbUMcX4",
+      "kind": "match",
+      "by": "American Kubb Association",
+      "standing": "unknown",
+      "year": 2026,
+      "language": "en",
+      "length": "0:35:00",
+      "status": "found",
+      "covers": []
+    },
+    "yt-OmBU-XQoJWs": {
+      "title": "West Coast Kubb Championship 2026 — Finals | Full Match Replay",
+      "url": "https://www.youtube.com/watch?v=OmBU-XQoJWs",
+      "kind": "match",
+      "by": "American Kubb Association",
+      "standing": "unknown",
+      "year": 2026,
+      "language": "en",
+      "length": "0:39:00",
+      "status": "found",
+      "covers": []
+    },
+    "yt--7i2_EFdZUA": {
+      "title": "2025 Madison Kubb League Championship Match",
+      "url": "https://www.youtube.com/watch?v=-7i2_EFdZUA",
+      "kind": "match",
+      "by": "Madison Kubb League",
+      "standing": "unknown",
+      "year": 2025,
+      "language": "en",
+      "length": "0:54:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Filmed from overhead at club level; about 24 weekly games in the series, not linked in the census."
+    },
+    "yt-j9LEzlQftjo": {
+      "title": "2026 Championship Match",
+      "url": "https://www.youtube.com/watch?v=j9LEzlQftjo",
+      "kind": "match",
+      "by": "Madison Kubb League",
+      "speakers": [
+        "Eric Anderson"
+      ],
+      "standing": "Director of the U.S. National Kubb Championship and publisher of Kubbnation Magazine",
+      "year": 2026,
+      "language": "en",
+      "length": "1:01:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Eric Anderson commentating; filmed from overhead at club level."
+    },
+    "yt-3OAhXveXn48": {
+      "title": "Kubb World Championship 2026 – 6v6 Finals",
+      "url": "https://www.youtube.com/watch?v=3OAhXveXn48",
+      "kind": "match",
+      "by": "KubbVM",
+      "standing": "unknown",
+      "year": 2026,
+      "language": "en",
+      "length": "3:39:00",
+      "status": "found",
+      "covers": [],
+      "note": "Commentary and camera unknown."
+    },
+    "yt-eklP4y2HS5k": {
+      "title": "26th World Championship | Final FSU (GER/SWE/USA) vs Blue/Orange (SWE)",
+      "url": "https://www.youtube.com/watch?v=eklP4y2HS5k",
+      "kind": "match",
+      "by": "King Roy | Kubb'Ings",
+      "standing": "unknown",
+      "year": 2022,
+      "language": "en",
+      "length": "0:50:00",
+      "status": "found",
+      "covers": [],
+      "note": "Commentary and camera unknown."
+    },
+    "yt-LM9q_oAe1Ew": {
+      "title": "KUBB VM 2014 Final",
+      "url": "https://www.youtube.com/watch?v=LM9q_oAe1Ew",
+      "kind": "match",
+      "by": "Rekubblikanen",
+      "standing": "unknown",
+      "year": 2014,
+      "language": "en",
+      "length": "0:48:00",
+      "status": "found",
+      "covers": [],
+      "note": "Commentary and camera unknown."
+    },
+    "yt-Afv8gFVTr9s": {
+      "title": "EKC 2023 6vs6 Finals: Sweden 1 vs Switzerland 2",
+      "url": "https://www.youtube.com/watch?v=Afv8gFVTr9s",
+      "kind": "match",
+      "by": "EKA European Kubb Association",
+      "standing": "National teams",
+      "year": 2023,
+      "language": "en",
+      "length": "1:33:00",
+      "status": "found",
+      "covers": [],
+      "note": "The rest of the EKA channel is not linked in the census."
+    },
+    "yt-YGzcM_4ODtk": {
+      "title": "2018 U.S. Kubb Open",
+      "url": "https://www.youtube.com/watch?v=YGzcM_4ODtk",
+      "kind": "match",
+      "by": "SirKubb",
+      "standing": "unknown",
+      "year": 2018,
+      "language": "en",
+      "length": "1:00:00",
+      "status": "found",
+      "covers": [],
+      "note": "Aired on Fox Sports regional channels."
+    },
+    "yt-yPilr49sqeo": {
+      "title": "KUBB - Classic Midsummer Game",
+      "url": "https://www.youtube.com/watch?v=yPilr49sqeo",
+      "kind": "match",
+      "by": "LendyandAndreas",
+      "standing": "Described as people playing for the first time",
+      "language": "en",
+      "length": "0:13:00",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "One of only two beginner videos found."
+    },
+    "yt-2ylU2jfkAcM": {
+      "title": "10 Kubbs with 2 batons - Team Knockerheads",
+      "url": "https://www.youtube.com/watch?v=2ylU2jfkAcM",
+      "kind": "match",
+      "by": "josh feathers",
+      "standing": "unknown",
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "inkast"
+      ],
+      "note": "Short clip of a top inkastare; no speech."
+    },
+    "yt-RevCnL8l6OQ": {
+      "title": "The Drill - Daniel Mol (Woodsnipers)",
+      "url": "https://www.youtube.com/watch?v=RevCnL8l6OQ",
+      "kind": "match",
+      "by": "Kubb Team \" Woodsnipers \" 05",
+      "standing": "unknown",
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "inkast"
+      ],
+      "note": "Short clip of a top inkastare; no speech."
+    },
+    "pk-award2015": {
+      "title": "Planet Kubb award 2015: first-baton efficiency",
+      "url": "http://planetkubb.com/post/planet-kubb-award-2015-1be-kubbitz/",
+      "kind": "data",
+      "by": "Planet Kubb",
+      "standing": "unknown",
+      "year": 2015,
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "field",
+        "levels"
+      ],
+      "note": "Eight quarter-finalists at the 2015 U.S. Nationals, 188 kubbs from 436, about 43%; title paraphrased from the census, not as published."
+    },
+    "pk-scoresheet": {
+      "title": "New Planet Kubb scoresheet, now with on-pitch stats",
+      "url": "http://planetkubb.com/post/new-planet-kubb-scoresheet-now-with-on-pitch-stats/",
+      "kind": "data",
+      "by": "Planet Kubb",
+      "standing": "unknown",
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "Three team measures (efficiency, batons to clear the baseline, hit %) with 2013 finalists' values; title taken from the link, not checked."
+    },
+    "games-pk150": {
+      "title": "150 scored tournament games in Planet Kubb Notation",
+      "url": "https://github.com/jthingelstad/kubb-engine/blob/main/docs/notes/real-games.md",
+      "kind": "data",
+      "by": "Planet Kubb",
+      "standing": "unknown",
+      "language": "en",
+      "status": "found",
+      "covers": [
+        "levels"
+      ],
+      "note": "counted with tools/realtiers.mjs; the measured basis in PLAY.md"
+    },
+    "kn-drill-2012": {
+      "title": "The Drill Interviews",
+      "url": "http://web.archive.org/web/20130508204306/http://www.wisconsinkubb.com/resources/The%20Drill%20Interviews.pdf",
+      "kind": "interviews",
+      "by": "Kubbnation Magazine",
+      "standing": "Fifteen inkastare interviewed about the 2011 season, among them the inkastare of Team Ekeby, Elefantbajs 2000 and Fortschritt99",
+      "year": 2012,
+      "language": "en",
+      "length": "6 pages",
+      "status": "observed",
+      "covers": [
+        "inkast"
+      ],
+      "original": {
+        "sha256": "da716e69ea33d6101431a416ef5f3bf6443a86ed5ece08b47327a19b55772e12",
+        "bytes": 1607281
+      },
+      "note": "January 2012, volume 2."
+    },
+    "kn-2011": {
+      "title": "Kubbnation Magazine, 2011",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2011,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "7808d019d2adeb4bfab9beca18bd3113b1eec25dc5d74f086bc3be3c724ee71f",
+        "bytes": 6106301
+      },
+      "note": "The 2011 yearly issue. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2012": {
+      "title": "Kubbnation Magazine, 2012",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2012,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "5327dda64420d560a81fe596cdcbcaa454c912eeb797a634f78a6d5d98b2c3eb",
+        "bytes": 4418036
+      },
+      "note": "The 2012 yearly issue. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2013": {
+      "title": "Kubbnation Magazine, 2013",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2013,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "65f730ce735e881c2b1005b55aeac5cf7ca6dbb946dbf661b81f98f8c199c266",
+        "bytes": 8959111
+      },
+      "note": "The 2013 yearly issue. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2014-global": {
+      "title": "Kubbnation Magazine, 2014 global edition",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2014,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "a702f5cae4a8a269a4d77cc973d8cc56e895c119db84e1bdf0829b303b1237ce",
+        "bytes": 25754471
+      },
+      "note": "The 2014 global edition. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2014-europe": {
+      "title": "Kubbnation Magazine, 2014 europe edition",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2014,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "85a7e4afed7afb669091397689ee5699e0f814f9f6e04c2d74891471413f919a",
+        "bytes": 26219152
+      },
+      "note": "The 2014 Europe edition. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2014-kid": {
+      "title": "Kubbnation Magazine, 2014 kid edition",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2014,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "adfee2af22b4466460dbb9d33f8eb4953ed318e92e7b30113a5b5f40271039d7",
+        "bytes": 28336487
+      },
+      "note": "The 2014 kid edition. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2015": {
+      "title": "Kubbnation Magazine, 2015",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2015,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "63797ab2e457388c701114123b99c0c3d5a06e2c02eb82bc13fe05fbc0d9c004",
+        "bytes": 31118859
+      },
+      "note": "The 2015 yearly issue. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2016": {
+      "title": "Kubbnation Magazine, 2016",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2016,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "89011f9e51e059279f9efb7b91d00a0080e4240c885d1372e5175d8ce46c49ee",
+        "bytes": 16209341
+      },
+      "note": "The 2016 yearly issue. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2018": {
+      "title": "Kubbnation Magazine, 2018",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2018,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "e784103d94c63926a5ae3bde35e5180777189ab1b68f4602d8c5f99ca23db7c1",
+        "bytes": 9599389
+      },
+      "note": "The 2018 yearly issue. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2019": {
+      "title": "Kubbnation Magazine, 2019",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2019,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "25c317757c2559ebb4dfd5934ded199b6905a6ae984a760095e5ade75db0f55a",
+        "bytes": 7718152
+      },
+      "note": "The 2019 yearly issue. The url is the site's archived home; no per-file capture link recorded."
+    },
+    "kn-2020": {
+      "title": "Kubbnation Magazine, 2020",
+      "url": "http://web.archive.org/web/2016/http://www.wisconsinkubb.com/",
+      "kind": "article",
+      "by": "Kubbnation Magazine",
+      "standing": "unknown",
+      "year": 2020,
+      "language": "en",
+      "status": "found",
+      "covers": [],
+      "original": {
+        "sha256": "1af45d4df635739b3b75c06de79724ca9dc48ff9643a756ee4471d440178c113",
+        "bytes": 9902705
+      },
+      "note": "The 2020 yearly issue. The url is the site's archived home; no per-file capture link recorded."
+    }
+  }
+}

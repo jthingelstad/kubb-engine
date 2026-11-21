@@ -97,6 +97,14 @@ iPhone app (the bundle: core, room, session and tune).
   and pro, with a target range per Gym row and its basis (measured, owner, coach or
   estimate). `node tools/realtiers.mjs <real games dir> --json` reproduces the measured
   block. Guidance for the computer player and the Gym, not a rule.
+- The play reference's layers (`docs/reference/README.md`): `sources.json` lists every
+  source, `observations/` records what each one says with no conclusions, `plays/` holds
+  one choice per situation with the observations behind it, and `QUESTIONS.md` holds what
+  sources disagree on and what only Jamie can answer. `make refcheck` (in `make test`)
+  fails on a play that cites nothing or an anchor that does not exist. Originals
+  (magazine PDFs, transcripts, captions) never go in the repository. Read a phase's plays
+  before changing how the computer player decides in it, and name the play in the pull
+  request.
 - The Kubb Gym (`make gym`, `node tools/gym.mjs`; docs/notes/gym.md): seeded matches by
   the computer and a human thrower fitted from recorded swings, forensics on every throw,
   anomalies with a replay command each, the real-games comparison on one page; `gym
