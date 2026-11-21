@@ -16,7 +16,8 @@ Every claim here carries one of four tags.
   split by team strength with `tools/realtiers.mjs`.
 - **owner**: Jamie's statements from playing the game.
 - **coach**: Eric Anderson's ten Inkastare Training Tips (2013 videos), with Josh
-  Feathers in tip 6. They teach method and give no numbers.
+  Feathers in tip 6, and his "How To Throw Kubbs - The Basics" for the U.S. National
+  Kubb Championship (2020). They teach method and give no numbers.
 - **estimate**: worked out from the others. Nobody has measured it.
 
 Three limits to keep in mind.
@@ -101,25 +102,40 @@ The inkast is where the levels differ most (owner), and it is what the videos te
    not by how close the kubbs are.
 2. **Where.** The corner where the centre line meets a sideline. Short throws for the
    blasters, and two lines the defender cannot raise past. All drilling levels.
+   A right-hander throws from the right sideline into the right corner, for three
+   reasons (coach): the kubbs land by the line and can be worked in from either side;
+   the natural cut runs left to right, so each kubb rolls over and stacks against the
+   ones before it, "a wall" along the sideline; and the baton thrower can then stand at
+   the sideline and throw straight down the line of kubbs. The first kubb sets the
+   spot, and the rest build off it.
 3. **Shape.** Two or three kubbs: a line along the thrower's path, so one baton runs
    through them. Four or more: a cluster (coach).
 4. **No wood on wood in the air.** A kubb that lands on another bounces anywhere.
    Land short and roll in, or land beside (coach).
-5. **The cut.** A pro enters the group from the side with wrist spin so the kubb hops
-   sideways into it. The engine has no such throw yet.
-6. **Look again after every kubb.** When one strays, the plan changes: count what is
+5. **The cut.** The wrist is turned at release so the kubb travels a little sideways,
+   lands, and kicks across into the group (coach). Left to right is the natural cut
+   for a right-hander; right to left "takes a lot of practice". Most of the time it
+   is a light cut: land beside the group and roll in. A big cut is the exception.
+   The engine has no such throw yet.
+6. **Spin, height and landing vary by player.** Some throw with no spin, some slow,
+   some "really rip it"; the tighter the spiral the better. The nose comes down along
+   the line of flight, never up and over. Some throw high and some low, and wind
+   punishes the high throw. A kubb can land flat, steep, at an angle, or short and
+   roll in, and a good inkastare has practised each (coach). So spread at a level is
+   not one number: it is how often the kubb lands the way it was meant to.
+7. **Look again after every kubb.** When one strays, the plan changes: count what is
    down and what is in hand and build where one baton takes the most (coach). A club
    player keeps to the plan too long.
-7. **The first throw is a free look.** A kubb out of bounds is thrown again, so the
+8. **The first throw is a free look.** A kubb out of bounds is thrown again, so the
    first throw can chase the lines. Measured: the top third rethrows 15.6% of its
    kubbs, and half its inkasts have at least one rethrow, as many as anyone. The share
    climbs with the kubbs in hand, from one in ten to more than one in six. Out twice
    is a punishment kubb, and that stays rare at every tournament level (1.3%).
-8. **Deep kubbs.** A team that cannot clear what it holds should throw the ones it
+9. **Deep kubbs.** A team that cannot clear what it holds should throw the ones it
    will not reach to 7 or 8 m: left standing there, they give the other team almost
    no advantage line (coach). This is a weaker team's best tool, and a beginner or
    club computer that knows its limit would use it.
-9. **The rescue.** A kubb may be thrown at a standing field kubb to put it out and get
+10. **The rescue.** A kubb may be thrown at a standing field kubb to put it out and get
    it back. Known, legal and rare: 3 times in 5,270 kubbs (measured).
 
 ## Batons at the field

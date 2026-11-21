@@ -4,7 +4,7 @@
  "basis": {
   "measured": "counted from the 150 scored tournament games (tools/realtiers.mjs; the 'real' block below)",
   "owner": "Jamie's statements from play, quoted in PLAY.md",
-  "coach": "Eric Anderson's Inkastare Training Tips (2013), with Josh Feathers in tip 6",
+  "coach": "Eric Anderson's Inkastare Training Tips (2013), with Josh Feathers in tip 6, and his 'How To Throw Kubbs - The Basics' for the U.S. National Kubb Championship (2020)",
   "estimate": "worked out from the others; nobody has measured it. Replace it when a measurement or Jamie's word arrives"
  },
  "keys": "Keys starting g. are the Gym scorecard's own (tools/gym/score.mjs GAME_KEYS), counted the same way. Shares are percentages.",
@@ -298,6 +298,14 @@
    "basis": "owner, measured"
   },
   {
+   "id": "inkast-side",
+   "what": "Which side the inkastare throws from",
+   "beginner": "The middle of the baseline.",
+   "club": "The sideline on the throwing-hand side, into that corner.",
+   "pro": "The same, with each kubb cut in to stack against the last, so the baton thrower can stand at the sideline and throw straight down the line of kubbs.",
+   "basis": "coach"
+  },
+  {
    "id": "group-shape",
    "what": "The shape built",
    "beginner": "None.",
@@ -315,10 +323,10 @@
   },
   {
    "id": "cut",
-   "what": "Entering the group from the side with wrist spin, so the kubb hops across into it",
+   "what": "Turning the wrist at release so the kubb travels a little sideways and kicks across into the group on landing",
    "beginner": "No.",
-   "club": "Rarely.",
-   "pro": "A standard shot.",
+   "club": "The natural side only (left to right for a right-hander), and not reliably.",
+   "pro": "A standard shot, mostly a light one: land beside the group and roll in. Both directions.",
    "basis": "coach"
   },
   {
