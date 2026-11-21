@@ -526,12 +526,14 @@
       "standing": "Director of the U.S. National Kubb Championship and publisher of Kubbnation Magazine",
       "language": "en",
       "length": "2:36",
-      "status": "found",
+      "status": "observed",
       "covers": [
         "practice",
-        "levels"
+        "levels",
+        "baseline",
+        "king"
       ],
-      "note": "A practice game shaped like a real decision."
+      "note": "A practice game shaped like a real decision. The title card reads \"Training Tip / Practicing Two Baton Pressure / wisconsinkubb.com\"; Eric Anderson names himself; no date on screen."
     },
     "yt-xzf_97pbG3g": {
       "title": "Ask A Kubb Ref - Shunting Kubbs",
