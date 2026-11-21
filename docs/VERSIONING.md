@@ -95,6 +95,77 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.11.0** (minor). A thrown kubb can land dead and roll, and the three levels throw
+  their kubbs in differently (Jamie, 2026-11-21: "Spinning is the key to kubbs touching.
+  By spinning they land and then roll into each other"). Every drilled kubb lands
+  differently, so the golden corpus is new. A 0.10 match replays differently on 0.11,
+  and the room refuses a match between 0.10 and 0.11.
+
+  What a player sees:
+  - **The dead landing.** A spun kubb that arrives nose first, on line and not tumbling
+    stops where it touches: no bounce, no run-on. One that flies wrong bounces with its
+    spin and goes where it goes, as before. A kubb with no taps is never caught.
+  - **The roll.** A caught kubb lies down and rolls the way it was spun: on grass about
+    5 cm for one tap, 16 for two and 33 for three. Sand rolls less, snow a little more.
+  - **The aim counts both.** The marker is where a clean throw rests, whatever its taps
+    (`drill.tune.slide` measured again, `drill.tune.roll` new, `drill.rollFor`). A
+    one-tap drill at the default arc was aimed 24 cm short for a run-on it no longer has.
+  - **The throw level sets the hand.** `plan.levels` has `drillScatter` (beginner 2,
+    club 1, pro 0.35): how unsteady the release is, and so how often a kubb is caught.
+    A clean pro drill is caught 96 times in 100 and rests 6 cm from its mark; club about
+    half the time.
+  - **The spiral goes the taps' way.** A left spin is now as steady as a right one. The
+    launch's spin for no taps is still +3 rad/s; for any left spin it is 6 rad/s more
+    to the left than 0.10 gave.
+  - **The computer's inkast goes by its level** (`autothrow.tune.inkast`). Beginner:
+    every kubb at the basket, no spin, a loose hand. Club and pro: one tap toward the
+    sideline, each kubb laid flank to flank with the last in a row; they differ in the
+    hand.
+  - A lying kubb that rolls is no longer stopped in a step by the turf
+    (`world.tune.kubbSpinHold`), so a struck kubb can roll a little farther.
+
+  The Kubb Gym, 0.10.0 against 0.11.0 (300 matches a configuration; real games beside):
+
+  | computer | beginner | club | pro | real |
+  |---|---|---|---|---|
+  | lying kubbs touching another after an inkast of 3 or more | 15% to 7% | 17% to 40% | 20% to 66% | |
+  | such inkasts with 3 or more touching in a chain | 5% to 2% | 7% to 22% | 12% to 57% | |
+  | ... with 5 or more | 0 to 0 | 0.1% to 1.1% | 0.6% to 9.5% | |
+  | a drill rests from its mark | 0.28 to 0.53 m | 0.28 to 0.21 m | 0.27 to 0.06 m | |
+  | batons that took two | 9.9% to 6.3% | 12.3% to 13.1% | 15.6% to 22.2% | 16% |
+  | batons that took three or more | 1.2% to 0.5% | 1.9% to 1.9% | 2.9% to 4.9% | 10% |
+  | turns that cleared the field | no change | 70.6% to 73.1% | 67.8% to 77.0% | 83.4% |
+  | kubbs rethrown | 1.9% to 4.6% | 2.1% to 1.5% | 2.0% to 0.3% | 14.1% |
+  | turns a game | no change | no change | 15.7 to 12.2 | 8.9 |
+
+  The human thrower (it now spins as the computer at its level does): batons that took
+  two 8.2% to 10.4% at beginner, 4.2% to 8.5% at club, 2.1% to 4.1% at pro; kubbs
+  rethrown 10.3% to 3.7%, 13.1% to 9.3%, 18.7% to 14.2%. No throw failed to settle in
+  1800 matches.
+
+  Known gaps:
+  - The catch is a rule standing in for turf, not contact physics (docs/notes/physics.md
+    "The dead landing").
+  - Triples are still short of real play (pro 4.9% of batons against 10%), and a pro's
+    6 or 7 kubbs touching is rare (5 or more in 1 inkast in 10). The row lies across the
+    throw, and the defender raises each kubb away from its neighbours.
+  - Rethrows are far under real play at every level (the hand's worst throws are not
+    bad enough).
+  - A beginner's unspun kubb rests 16 cm short of its mark on average: the no-spin aim
+    was measured with the ordinary hand, not the beginner's.
+  - Three taps roll 33 cm, more than "one or two rolls".
+
+  For clients:
+  - Sync the tag. Rooms refuse mixed minors, so a client that shares matches carries
+    0.11 beside the engines it already carries.
+  - A kubb throw's `launch` has a new number, `scatter` (the level's `drillScatter`);
+    pass it through as the other launch fields are. `checkThrow` refuses a kubb throw
+    whose scatter is not its level's.
+  - `world.launchDrill` takes the scatter as its last argument (nil: 1).
+  - The spin control's meaning is unchanged (-3 to 3 taps, + rolls right); what is new
+    is that the roll is real and aimed for, so a spin control can say so.
+  - The Playdate vendors the core only; its drills change with it.
+
 - **0.10.0** (minor). Four fixed assumptions about a throw are replaced by what the
   throw itself is doing (Jamie, 2026-11-20: "arc based on target is just obviously
   wrong"), so the golden corpus is new. A 0.9 match replays differently on 0.10, and the

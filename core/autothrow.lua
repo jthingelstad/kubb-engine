@@ -16,7 +16,7 @@
 --   --               smoothness, shake, pull, how),
 --   --       launch = tw.plan.launch's table (verdicts powerV, releaseV, steady),
 --   --       drill = for a kubb: { markerX, markerY (from lineY), noseDown, rollLand,
---   --               spin, wobble } (world.launchDrill's arguments) }
+--   --               spin, wobble, scatter } (world.launchDrill's arguments) }
 --   autothrow.launch(w, s, a)  -- puts the throw into world w (core/world)
 import "core/tw"
 import "core/flight"
@@ -96,7 +96,24 @@ autothrow.tune = {
 	-- field kubbs in it, at the front one.
 	laneHalf = 0.07,         -- m: kubbs within this across of the front one are in its lane ...
 	laneDeep = 0.6,          -- ... and within this behind it
-	drillScale = 0.2,        -- a drilled kubb's swing mistakes are this much of a baton's
+	-- The inkast by level (0.11; Jamie, 2026-11-21: the inkast is where the levels
+	-- differ most. A beginner tosses the kubbs out with no group; a club player knows
+	-- the technique but controls it less; a pro's kubbs lie touching). spin: taps,
+	-- toward the sideline (the spin steadies the flight and, on a dead landing, rolls
+	-- the kubb in: world.tune deadLanding); hand: the swing's mistakes against a
+	-- baton's (the level's swingScale is not applied to a drill); group: 0 throws every
+	-- kubb at the basket itself, 1 rests each beside the kubbs already lying
+	-- (autothrow.spot); row: with group, 1 lays them flank to flank in a row
+	-- (rowStep apart), 0 picks a clear spot from the grid as 0.10 did. How steady
+	-- the release is comes from the level too (plan.levels' drillScatter).
+	inkast = {
+		beginner = { spin = 0, hand = 0.5, group = 0, row = 0 },
+		club = { spin = 1, hand = 0.26, group = 1, row = 1 },
+		pro = { spin = 1, hand = 0.06, group = 1, row = 1 },
+	},
+	rowStep = 0.075,         -- m across between kubbs lying flank to flank in a row
+	drillScale = 0.2,        -- a drilled kubb's swing mistakes are this much of a baton's, for a
+	                         -- level inkast does not name
 	-- The synthetic swing: the mistakes, each multiplied by choose's scale.
 	-- Halved 2026-11-16 when the nerves took over most of the miss (they
 	-- were 5, 9 and 0.44 when the swing was the only error).
@@ -236,9 +253,25 @@ local function intoSpot(s, t, bx, by, shortLying)
 	return bestX, bestY
 end
 
-function autothrow.spot(s, side)
+function autothrow.spot(s, side, ik)
 	local t = autothrow.tune
 	local bx, by = side * t.basketX, s.lineY + t.basketY
+	if ik and ik.group == 0 then return bx, by end
+	if ik and ik.row ~= 0 then
+		-- the row: rest flank to flank with the innermost kubb lying by the basket, on
+		-- its inner side. The plan lands it short of that across and its spin rolls it
+		-- in (drill.rollFor)
+		local near2 = t.basketNear * t.basketNear
+		local best
+		for _, p in ipairs(s.pieces) do
+			if p.role == "field" and p.half ~= s.side and p.toppled then
+				local dx, dy = p.x - bx, p.y - by
+				if dx * dx + dy * dy < near2 and (not best or side * p.x < side * best.x) then best = p end
+			end
+		end
+		if best then return best.x - side * t.rowStep, best.y end
+		return bx, by
+	end
 	local best, bestX, bestY
 	local costY = ((s.of or 0) >= t.clusterFrom) and t.spotCostYCluster or t.spotCostY
 	local shortLying = tw.drill.slideFor(plan.loftFor(plan.arcFor("drill")), s.surface)
@@ -310,7 +343,8 @@ for name, lv in pairs(plan.levels) do
 	local pro = plan.levels.pro
 	cpuLevels[name] = { powerHalf = pro.powerHalf, releaseHalf = pro.releaseHalf, inGain = pro.inGain,
 		shakeGain = pro.shakeGain, overGain = pro.overGain, nervesDeg = lv.nervesDeg,
-		nervesLen = lv.nervesLen, tumbleTurns = lv.tumbleTurns, tumbleSd = lv.tumbleSd }
+		nervesLen = lv.nervesLen, tumbleTurns = lv.tumbleTurns, tumbleSd = lv.tumbleSd,
+		drillScatter = lv.drillScatter }
 end
 -- The computer's level table for a level name (tune.level when unknown).
 function autothrow.cpuLevel(name)
@@ -327,16 +361,20 @@ end
 -- id: the front kubb of the lane it aims across), a drill none.
 function autothrow.choose(s, r, scale, level)
 	scale = scale or 1
+	local scale0 = scale
 	local t = autothrow.tune
 	local lname = level or (s.thrower and s.thrower.level) or t.level
 	if type(lname) ~= "string" then lname = t.level end
 	scale = scale * (t.swingScale[lname] or 1)
 	local q = { level = autothrow.cpuLevel(lname), surface = s.surface }
 	local tx, ty, py, arc, on
+	local ik
 	if s.kind == "toss" then
+		ik = t.inkast[lname]
 		local side = autothrow.basket(s, r)
-		tx, ty = autothrow.spot(s, side)
-		q.spin = t.drillSpin
+		tx, ty = autothrow.spot(s, side, ik)
+		-- spun to roll toward the sideline (the plan aims short of the spot by the roll)
+		q.spin = ik and ik.spin * side or t.drillSpin
 		q.projectile, arc = "kubb", plan.arcFor("drill")
 		py = s.lineY
 	else
@@ -390,7 +428,9 @@ function autothrow.choose(s, r, scale, level)
 	end
 	q.px, q.py, q.tx, q.ty, q.release = st.x, st.y, tx, ty, arc
 	local sol = plan.solve(q, {})
-	if q.projectile == "kubb" then scale = scale * t.drillScale end
+	if q.projectile == "kubb" then
+		if ik then scale = scale0 * ik.hand else scale = scale * t.drillScale end
+	end
 	local sw = autothrow.swing(sol, r, scale, {})
 	-- the nerves are the player's (tw.plan.launch), drawn from this stream;
 	-- scale 0 is the clean throw, no nerves either
@@ -400,7 +440,7 @@ function autothrow.choose(s, r, scale, level)
 		tumbleRate = L.tumble, tilt = L.tilt, legal = L.legal, plan = sol, swing = sw, launch = L, on = on }
 	if q.projectile == "kubb" then
 		a.drill = { markerX = tx, markerY = ty - s.lineY, noseDown = L.noseDown, rollLand = L.rollLand,
-			spin = L.spin, wobble = L.wobble }
+			spin = L.spin, wobble = L.wobble, scatter = L.scatter }
 	end
 	return a
 end
@@ -412,7 +452,7 @@ function autothrow.launch(w, s, a)
 	local d = a.drill
 	if d then
 		return world.launchDrill(w, s.kubb, a.x, a.y, a.swivel, a.loftDeg, a.speed, d.noseDown, d.rollLand,
-			d.spin, d.wobble)
+			d.spin, d.wobble, d.scatter)
 	end
 	-- from the hand the plan was solved for, as the session throws (flight.handAt:
 	-- low and ahead of the feet under flight.tune.nearM, upright over them beyond)

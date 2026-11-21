@@ -59,28 +59,58 @@ drill.tune = {
 	-- From 0.10 the spin counts too (slideSpins, rad/s about the long axis either way,
 	-- a table each: none, and one, two and three taps): a spun kubb holds its nose to
 	-- the touch and stops shorter, and the aim that ignored it sent every spun drill
-	-- short of its mark by the difference.
+	-- short of its mark by the difference. Measured again 2026-11-21 for 0.11's dead
+	-- landing (world.tune deadLanding): a caught kubb stops where it touches, so a
+	-- spun drill at the default arc is aimed 2 to 9 cm short on grass, not 24.
 	slideSpins = { 0, 22, 44, 66 },
 	slideLofts = { 26, 37, 47, 57 },
 	slideR = { 1.5, 3, 4.5, 6, 7.5 },
 	slide = {
 		grass = {
-			{ { 0.54, 1.14, 1.84, 2.65, 2.12 }, { 0.36, 0.76, 1.08, 1.36, 0.78 }, { 0.15, 0.47, 0.69, 0.72, 0.27 }, { 0.07, 0.23, 0.45, 0.36, 0.19 } }, -- spin 0
-			{ { 0.64, 1.51, 2.16, 2.28, 2.26 }, { 0.31, 0.71, 0.98, 0.92, 0.75 }, { 0.11, 0.21, 0.24, 0.17, 0.07 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 22
-			{ { 0.69, 1.46, 2.26, 2.98, 2.89 }, { 0.34, 0.75, 1.14, 1.48, 1.56 }, { 0.12, 0.23, 0.38, 0.45, 0.41 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 44
-			{ { 0.64, 1.50, 2.28, 2.89, 3.24 }, { 0.33, 0.74, 1.17, 1.60, 1.86 }, { 0.12, 0.27, 0.43, 0.51, 0.61 }, { 0.00, 0.00, 0.00, 0.01, 0.00 } }, -- spin 66
+			{ { 0.54, 1.15, 1.86, 2.65, 2.11 }, { 0.36, 0.76, 1.04, 1.35, 0.80 }, { 0.16, 0.49, 0.71, 0.73, 0.29 }, { 0.07, 0.26, 0.48, 0.40, 0.22 } }, -- spin 0
+			{ { 0.62, 1.46, 2.26, 2.54, 2.65 }, { 0.14, 0.38, 0.85, 0.93, 0.85 }, { 0.00, 0.00, 0.00, 0.00, 0.00 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 22
+			{ { 0.67, 1.53, 2.29, 3.04, 3.20 }, { 0.16, 0.34, 0.71, 1.08, 1.58 }, { 0.00, 0.00, 0.00, 0.00, 0.00 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 44
+			{ { 0.64, 1.59, 2.37, 3.06, 3.48 }, { 0.11, 0.28, 0.58, 1.00, 1.28 }, { 0.00, 0.00, 0.01, 0.00, 0.04 }, { 0.01, 0.00, 0.00, 0.00, 0.01 } }, -- spin 66
 		},
 		sand = {
-			{ { 0.31, 0.70, 0.98, 0.82, 0.40 }, { 0.17, 0.40, 0.48, 0.37, 0.14 }, { 0.06, 0.21, 0.26, 0.17, 0.07 }, { 0.02, 0.09, 0.18, 0.08, 0.05 } }, -- spin 0
-			{ { 0.35, 0.81, 1.13, 1.28, 1.24 }, { 0.17, 0.41, 0.51, 0.54, 0.43 }, { 0.00, 0.08, 0.09, 0.09, 0.02 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 22
-			{ { 0.35, 0.77, 1.25, 1.49, 1.70 }, { 0.19, 0.44, 0.59, 0.76, 0.81 }, { 0.02, 0.11, 0.19, 0.26, 0.23 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 44
-			{ { 0.36, 0.77, 1.25, 1.58, 1.92 }, { 0.20, 0.46, 0.59, 0.84, 0.94 }, { 0.02, 0.14, 0.21, 0.29, 0.29 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 66
+			{ { 0.33, 0.84, 1.16, 0.98, 0.49 }, { 0.19, 0.49, 0.64, 0.45, 0.21 }, { 0.07, 0.28, 0.39, 0.23, 0.12 }, { 0.03, 0.15, 0.24, 0.15, 0.10 } }, -- spin 0
+			{ { 0.37, 0.95, 1.79, 2.40, 2.36 }, { 0.09, 0.31, 0.73, 0.89, 0.90 }, { 0.00, 0.00, 0.00, 0.00, 0.08 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 22
+			{ { 0.35, 0.81, 1.43, 2.09, 2.73 }, { 0.09, 0.26, 0.49, 0.64, 1.18 }, { 0.00, 0.00, 0.00, 0.00, 0.00 }, { 0.00, 0.00, 0.00, 0.00, 0.00 } }, -- spin 44
+			{ { 0.35, 0.79, 1.34, 1.95, 2.41 }, { 0.10, 0.24, 0.36, 0.63, 0.83 }, { 0.00, 0.04, 0.04, 0.00, 0.09 }, { 0.00, 0.00, 0.00, 0.00, 0.01 } }, -- spin 66
 		},
 		snow = {
-			{ { 0.44, 1.13, 1.74, 2.06, 1.88 }, { 0.27, 0.71, 1.09, 1.33, 1.18 }, { 0.12, 0.39, 0.69, 0.93, 0.85 }, { 0.07, 0.26, 0.51, 0.62, 0.53 } }, -- spin 0
-			{ { 0.45, 1.20, 1.70, 2.22, 2.33 }, { 0.25, 0.73, 1.01, 1.21, 1.18 }, { 0.06, 0.20, 0.31, 0.44, 0.52 }, { 0.00, 0.04, 0.07, 0.13, 0.21 } }, -- spin 22
-			{ { 0.43, 1.10, 1.75, 2.22, 2.66 }, { 0.25, 0.72, 0.91, 1.44, 1.66 }, { 0.07, 0.24, 0.40, 0.58, 0.55 }, { 0.00, 0.03, 0.06, 0.09, 0.10 } }, -- spin 44
-			{ { 0.48, 1.09, 1.76, 2.23, 2.61 }, { 0.29, 0.72, 1.00, 1.47, 1.66 }, { 0.09, 0.25, 0.42, 0.64, 0.61 }, { 0.00, 0.03, 0.07, 0.10, 0.12 } }, -- spin 66
+			{ { 0.47, 1.23, 1.91, 2.23, 2.07 }, { 0.28, 0.78, 1.20, 1.46, 1.35 }, { 0.13, 0.44, 0.79, 1.05, 0.96 }, { 0.09, 0.30, 0.59, 0.73, 0.60 } }, -- spin 0
+			{ { 0.47, 1.23, 2.05, 2.86, 2.96 }, { 0.11, 0.36, 0.94, 1.24, 1.34 }, { 0.00, 0.00, 0.01, 0.00, 0.43 }, { 0.00, 0.00, 0.08, 0.24, 0.16 } }, -- spin 22
+			{ { 0.46, 1.12, 1.80, 2.42, 3.17 }, { 0.11, 0.20, 0.62, 0.92, 1.60 }, { 0.00, 0.00, 0.00, 0.00, 0.01 }, { 0.00, 0.00, 0.00, 0.10, 0.09 } }, -- spin 44
+			{ { 0.50, 1.13, 1.83, 2.31, 2.95 }, { 0.08, 0.18, 0.43, 0.49, 0.89 }, { 0.00, 0.00, 0.00, 0.00, 0.01 }, { 0.00, 0.00, 0.01, 0.07, 0.02 } }, -- spin 66
+		},
+	},
+	-- How far a clean drill rests to the right of its line (m), read as `slide` is
+	-- (0.11; drill.rollFor, with the spin's sign): the roll a dead landing's spin gives
+	-- it. The same run measures both (tools/drillscatter.lua --only 5 --grounds 60,
+	-- 2026-11-21). The lofts a clean drill is always caught at (47 and 57, with taps) are
+	-- measured with a clean hand (--hand 0); the rest of `slide` with the ordinary
+	-- hand's scatter (--hand 1), as it always was. No taps and the two low lofts roll 0:
+	-- those kubbs are not caught every time, and
+	-- the mean of where their bounces took them is not a roll to aim by.
+	roll = {
+		grass = {
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } }, -- spin 0
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0.06, 0.05, 0.05, 0.03, 0.15 }, { 0.05, 0.04, -0.02, -0.03, 0.06 } }, -- spin 22
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0.15, 0.16, 0.19, 0.15, 0.16 }, { 0.17, 0.18, 0.14, 0.13, 0.16 } }, -- spin 44
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0.33, 0.32, 0.32, 0.33, 0.33 }, { 0.28, 0.33, 0.32, 0.37, 0.24 } }, -- spin 66
+		},
+		sand = {
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } }, -- spin 0
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0.03, 0.04, 0.05, 0.04, 0.20 }, { 0.03, 0.05, 0.01, 0.00, 0.02 } }, -- spin 22
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0.09, 0.10, 0.11, 0.08, 0.10 }, { 0.10, 0.11, 0.10, 0.10, 0.10 } }, -- spin 44
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0.26, 0.30, 0.24, 0.24, 0.26 }, { 0.25, 0.25, 0.27, 0.25, 0.27 } }, -- spin 66
+		},
+		snow = {
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 } }, -- spin 0
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0.07, 0.07, 0.08, 0.07, 0.20 }, { 0.02, 0.05, -0.01, -0.01, 0.03 } }, -- spin 22
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0.23, 0.22, 0.23, 0.22, 0.23 }, { 0.22, 0.20, 0.21, 0.02, -0.02 } }, -- spin 44
+			{ { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }, { 0.47, 0.45, 0.45, 0.46, 0.47 }, { 0.39, 0.41, 0.18, 0.33, 0.01 } }, -- spin 66
 		},
 	},
 	slideRefM = 6,          -- m: the landing distance slideFor reads when given none
@@ -187,6 +217,19 @@ function drill.slideFor(loftDeg, surface, spin, R)
 	return max(0, lerp(slideIn(tabs[k], i, fi, j, fj), slideIn(tabs[k + 1], i, fi, j, fj), fk))
 end
 
+-- How far a clean drill rests to the right of its line (m, + = right of the throw):
+-- tune.roll, read as slideFor reads tune.slide, with the spin's sign. A kubb that
+-- lands dead (world.tune deadLanding) rolls a face or two the way it was spun.
+function drill.rollFor(loftDeg, surface, spin, R)
+	local t = drill.tune
+	local tabs = t.roll[surface or "grass"] or t.roll.grass
+	local k, fk = between(t.slideSpins, abs(spin or 0))
+	local i, fi = between(t.slideLofts, loftDeg)
+	local j, fj = between(t.slideR, R or t.slideRefM)
+	local m = lerp(slideIn(tabs[k], i, fi, j, fj), slideIn(tabs[k + 1], i, fi, j, fj), fk)
+	return (spin or 0) < 0 and -m or m
+end
+
 -- The landing distance that runs on to d (m) at this loft: the R with
 -- R + slideFor(R) = d (a few steps; the run on changes slower than R).
 function drill.landFor(d, loftDeg, surface, spin)
@@ -210,6 +253,12 @@ function drill.solveAt(mx, my, lineY, loftDeg, out, px, surface, spin)
 	local x = px or max(-t.throwerXMax, min(t.throwerXMax, mx))
 	local dx, dy = mx - x, my - lineY
 	local d = sqrt(dx * dx + dy * dy)
+	-- aimed to the side of the marker by the roll its spin gives it (drill.rollFor),
+	-- so it rests on the marker
+	if d > 1e-6 then
+		local side = drill.rollFor(loftDeg, surface, spin, d)
+		dx, dy = dx - side * dy / d, dy + side * dx / d
+	end
 	local f = max(0, min(1, (d - t.markerNear) / (t.markerFar - t.markerNear)))
 	local ft = flight.tune
 	local h0 = ft.handHeight - t.landZ
@@ -281,11 +330,21 @@ function drill.body(smoothness, pull, spin, out, loftDeg)
 	local t = drill.tune
 	local jerk = (t.cleanAbove - smoothness) / t.cleanAbove
 	if jerk < 0 then jerk = 0 elseif jerk > 1 then jerk = 1 end
-	spin = (spin or 0) + t.spiral
+	spin = spin or 0
+	-- the wrist's spiral goes the way of the taps (0.11: against them, a kubb spun the
+	-- other way flew unsteady)
+	spin = spin + (spin < 0 and -t.spiral or t.spiral)
 	out.noseDown, out.rollLand, out.spin = loftDeg and drill.noseFor(loftDeg) or t.noseDownDeg, 0, spin
 	out.jerk = jerk
 	out.wobble = pull * t.wobbleRate * jerk
 	return out
+end
+
+-- The planned spin (rad/s) in a drilled kubb's launch spin: the spin less the
+-- wrist's spiral, which goes the spin's way (drill.body).
+function drill.plannedSpin(spin)
+	local sp = drill.tune.spiral
+	return spin - (spin < 0 and -sp or sp)
 end
 
 

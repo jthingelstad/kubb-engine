@@ -902,7 +902,7 @@ function throw.showAim(s, a)
 	local P = a.plan
 	s.cpuPlan, s.cpuSpeed = P, a.speed
 	if a.drill and a.drill.spin then
-		s.spin = (a.drill.spin - drill.tune.spiral) / plan.tune.spinPerStep
+		s.spin = drill.plannedSpin(a.drill.spin) / plan.tune.spinPerStep
 	end
 	s.cpuTarget = P ~= nil and P.tx ~= nil
 	-- the circle and its label move together: the label names the piece the
@@ -991,6 +991,7 @@ function throw.cpuLaunch(s, a)
 		if d.noseDown then
 			L.speed, L.loft, L.swivel, L.tilt, L.tumble, L.legal = a.speed, a.loftDeg, a.swivel, 0, 0, true
 			L.noseDown, L.rollLand, L.spin, L.wobble = d.noseDown, d.rollLand, d.spin, d.wobble
+			L.scatter = d.scatter
 		else
 			s.stanceSet, s.arcSet, s.tilt, s.spin = false, false, 0, 0
 			s.projectile, s.drill = "kubb", true
@@ -1110,7 +1111,7 @@ function throw.fire(s, L, how, info)
 	if kubb then
 		if drilling then
 			b = phys.launchDrill(w, id, s.playerX, s.playerY, L.swivel, L.loft, L.speed, L.noseDown, L.rollLand,
-				L.spin, L.wobble)
+				L.spin, L.wobble, L.scatter)
 		else
 			b = phys.launchKubb(w, id, s.playerX, s.playerY, L.swivel, L.loft, L.speed, tumble)
 		end

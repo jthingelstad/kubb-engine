@@ -187,6 +187,7 @@ local function targetRole(s, a)
 end
 
 -- Field kubbs standing in the half the batons are thrown at: how they are grouped.
+local LINK_M, TOUCH_M = 0.20, 0.11
 local function groupOf(s)
 	local xs, ys = {}, {}
 	for _, p in ipairs(s.pieces) do
@@ -205,7 +206,100 @@ local function groupOf(s)
 			if d > far then far = d end
 		end
 	end
-	return { n = n, mean = mean / n, far = far }
+	-- Kubbs joined in chains: `need` joins two whose centres are within LINK_M (a
+	-- falling kubb or the baton's width reaches the next one), so it is the batons the
+	-- group takes at best, each baton taking a whole chain; `touch` is the most kubbs
+	-- in one chain of kubbs touching (within TOUCH_M: 7 cm kubbs, face to face or
+	-- corner to corner), and `touching` how many kubbs touch another.
+	local function chains(lim)
+		local root, count, most, joined = {}, 0, 0, 0
+		for k = 1, n do root[k] = k end
+		local function find(k)
+			while root[k] ~= k do k = root[k] end
+			return k
+		end
+		local has = {}
+		for k = 1, n do
+			for j = k + 1, n do
+				if (xs[k] - xs[j]) ^ 2 + (ys[k] - ys[j]) ^ 2 <= lim * lim then
+					has[k], has[j] = true, true
+					local a, b = find(k), find(j)
+					if a ~= b then root[a] = b end
+				end
+			end
+		end
+		local size = {}
+		for k = 1, n do
+			local a = find(k)
+			size[a] = (size[a] or 0) + 1
+			if has[k] then joined = joined + 1 end
+		end
+		for _, v in pairs(size) do
+			count = count + 1
+			if v > most then most = v end
+		end
+		return count, most, joined
+	end
+	local need = chains(LINK_M)
+	local _, touch, touching = chains(TOUCH_M)
+	return { n = n, mean = mean / n, far = far, need = need, touch = touch, touching = touching }
+end
+
+-- The kubbs lying in the far half as the turn's last kubb comes to rest, before any
+-- is raised (Jamie, 2026-11-21: "A good driller can get 6-7 kubbs all touching each
+-- other in the basket"): how many touch another and the most in one touching chain.
+-- A lying kubb is taken as three 7 cm discs along its long axis; two kubbs touch when
+-- two of their discs are within LIE_GAP_M.
+local LIE_GAP_M = 0.02
+local function lyingOf(s, w)
+	local half = {}
+	for _, p in ipairs(s.pieces) do
+		if p.role == "field" and p.half ~= s.side and p.toppled then half[p.id] = true end
+	end
+	if w.projectile then half[w.projectile.id] = true end
+	local ks = {}
+	for k = 1, w.n do
+		local b = w.bodies[k]
+		if half[b.id] then
+			-- the long axis (local z) on the ground
+			local ax, ay = 2 * (b.qx * b.qz + b.qw * b.qy), 2 * (b.qy * b.qz - b.qw * b.qx)
+			local l = sqrt(ax * ax + ay * ay)
+			if l > 0.5 then ks[#ks + 1] = { b.x, b.y, ax / l * 0.04, ay / l * 0.04 } end
+		end
+	end
+	local n = #ks
+	if n == 0 then return nil end
+	local root, has = {}, {}
+	for k = 1, n do root[k] = k end
+	local function find(k)
+		while root[k] ~= k do k = root[k] end
+		return k
+	end
+	local lim = (0.07 + LIE_GAP_M) ^ 2
+	for k = 1, n do
+		for j = k + 1, n do
+			local a, b, touch = ks[k], ks[j], false
+			for u = -1, 1 do
+				for v = -1, 1 do
+					local dx, dy = a[1] + u * a[3] - b[1] - v * b[3], a[2] + u * a[4] - b[2] - v * b[4]
+					if dx * dx + dy * dy <= lim then touch = true end
+				end
+			end
+			if touch then
+				has[k], has[j] = true, true
+				local ra, rb = find(k), find(j)
+				if ra ~= rb then root[ra] = rb end
+			end
+		end
+	end
+	local size, most, touching = {}, 0, 0
+	for k = 1, n do
+		local a = find(k)
+		size[a] = (size[a] or 0) + 1
+		if size[a] > most then most = size[a] end
+		if has[k] then touching = touching + 1 end
+	end
+	return { n = n, touching = touching, most = most }
 end
 
 local function newWorld(s)
@@ -278,6 +372,7 @@ local function play(gi, each)
 				o.drill = { dx = rec.restX - d.markerX, dy = rec.restY - (s.lineY + d.markerY) }
 				local j = m.game.judgment
 				if j then o.drill.rethrow, o.drill.punish = j.rethrow, j.punish end
+				if s.n == s.of then o.lying = lyingOf(s, w) end
 			elseif s.n == 1 and not s.kingShot then
 				o.group = groupOf(s)
 			end

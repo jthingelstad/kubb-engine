@@ -362,7 +362,10 @@ function forensics.run(w, ctx, pieces)
 		end
 		if contactSeen then
 			local e = world.energy(w)
-			if not eMin or e < eMin then eMin = e end
+			-- (while the turf holds a caught drill it keeps its spin by rule, engine
+			-- 0.11's dead landing: that is not the solver gaining energy, so the low
+			-- follows it until the kubb is let go)
+			if not eMin or e < eMin or proj.dead then eMin = e end
 			if e - eMin > rec.eRise then rec.eRise = e - eMin end
 		end
 	until world.isAtRest(w)

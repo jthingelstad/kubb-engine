@@ -36,7 +36,8 @@ test("tosses go to the basket with more field kubbs near it, drilled from behind
 	-- straight behind it on the baseline, at the drill arc
 	expect.near(a.x, t.basketX, 1e-9)
 	expect.near(a.y, 0, 1e-9)
-	expect.near(a.swivel, 0, 1e-9)
+	-- (from 0.11 aimed a little inside the basket: its spin rolls it out to it, drill.rollFor)
+	expect.truthy(a.swivel < 0 and a.swivel > -0.03, "aimed inside by the roll: " .. a.swivel)
 	expect.near(a.loftDeg, plan.loftFor(plan.arcFor("drill")), 1e-9)
 	expect.truthy(a.drill and a.legal and a.tumbleRate == 0, "a drilled kubb")
 	expect.near(a.drill.markerX, t.basketX, 1e-9)
@@ -203,10 +204,18 @@ test("a toss goes beside a kubb lying at the basket, never onto it or over it", 
 	expect.truthy(math.abs(x - lying.x) <= 2 * t.spotStepX and math.abs(y - lying.y) <= 2 * t.spotStepY)
 	-- not in the lane just behind it, where the drill would come down on it
 	expect.truthy(not (math.abs(x - lying.x) < t.spotLane and y > lying.y and y - lying.y < t.spotShortLying))
-	local a = autothrow.choose(s, autothrow.rng(1), 0)
-	expect.near(a.plan.tx, x, 1e-9)
-	expect.near(a.plan.ty, y, 1e-9)
-	expect.near(a.drill.markerX, x, 1e-9)
+	-- (the clear spots are the policy of 0.10, kept for a level whose inkast has row = 0.
+	-- From 0.11 club and pro lay a row: flank to flank with the lying kubb, on its
+	-- inner side, at its depth; a beginner throws at the basket itself)
+	for _, level in ipairs { "club", "pro" } do
+		local a = autothrow.choose(s, autothrow.rng(1), 0, level)
+		expect.near(a.plan.tx, lying.x - t.rowStep, 1e-9)
+		expect.near(a.plan.ty, lying.y, 1e-9)
+		expect.near(a.drill.markerX, lying.x - t.rowStep, 1e-9)
+	end
+	local b = autothrow.choose(s, autothrow.rng(1), 0, "beginner")
+	expect.near(b.plan.tx, t.basketX, 1e-9)
+	expect.near(b.plan.ty, t.basketY, 1e-9)
 	-- an empty far half: the basket itself
 	local bx, by = autothrow.spot(toss(), -1)
 	expect.near(bx, -t.basketX, 1e-9)
@@ -302,12 +311,18 @@ test("the computer's swing mistakes do not grow with range; its nerves do", func
 	expect.near(clean.launch.lenShare, 0, 1e-12)
 end)
 
-test("computer spins every drill the same and uses its thrower level for baton rotation", function()
+test("computer spins a drill by its level's inkast and uses its thrower level for baton rotation", function()
 	for _, level in ipairs(plan.LEVELS) do
 		local s = toss()
 		s.thrower = { level = level }
 		local a = autothrow.choose(s, autothrow.rng(3), 0)
-		expect.near(a.drill.spin, tw.drill.tune.spiral + autothrow.tune.drillSpin * plan.tune.spinPerStep, 1e-9)
+		-- (0.11: a beginner tosses with no spin; club and pro spin one tap toward the
+		-- sideline of the basket's side, and the hand's steadiness is the level's)
+		local ik = autothrow.tune.inkast[level]
+		local side = a.plan.tx < 0 and -1 or 1
+		local taps = ik.spin * side
+		expect.near(a.drill.spin, taps * plan.tune.spinPerStep + (taps < 0 and -1 or 1) * tw.drill.tune.spiral, 1e-9)
+		expect.eq(a.drill.scatter, plan.levels[level].drillScatter)
 		s = baton("base", 1, 8)
 		s.thrower = { level = level }
 		a = autothrow.choose(s, autothrow.rng(3), 0)

@@ -206,6 +206,14 @@ local function tryTilt(ctx, levelName, sol, ptilt, taps)
 			or abs(body.wobble - L.wobble) > TOL then
 			return false, 5, "the kubb's nose, spin, roll or wobble is not what the drill gives"
 		end
+		-- the hand's steadiness is the level's (0.11); absent means 1, anything else must be a
+		-- finite number (a `false` would pass `or` and then break applyThrow)
+		local sc = L.scatter
+		if sc == nil then sc = 1 end
+		if type(sc) ~= "number" or sc ~= sc or abs(sc) == math.huge
+			or abs(sc - (lv.drillScatter or 1)) > TOL then
+			return false, 5, "the kubb's scatter is not the level's"
+		end
 	end
 	-- the flick: what the power verdict allows, the length's draw and the tumble's
 	local lo, hi = swing.tune.minFlickFrac, 1
@@ -388,7 +396,7 @@ local function personThrow(s, a)
 			if not num(L[k]) then return fail("a kubb's launch." .. k .. " is not a number") end
 		end
 	else
-		for _, k in ipairs { "noseDown", "rollLand", "spin", "wobble" } do
+		for _, k in ipairs { "noseDown", "rollLand", "spin", "wobble", "scatter" } do
 			if L[k] ~= nil then return fail("a baton has no launch." .. k) end
 		end
 	end
@@ -445,9 +453,11 @@ local function personThrow(s, a)
 	local pl = type(a.plan) == "table" and a.plan or {}
 	local tapsList = { 0 }
 	if kubb then
-		local taps = (L.spin - dt.spiral) / t.spinPerStep
+		-- the spiral goes the taps' way (0.11: drill.body)
+		local planned = drill.plannedSpin(L.spin)
+		local taps = planned / t.spinPerStep
 		local whole = floor(taps + 0.5)
-		if abs(whole * t.spinPerStep + dt.spiral - L.spin) <= TOL then taps = whole end
+		if abs(whole * t.spinPerStep - planned) <= TOL then taps = whole end
 		if abs(taps) > t.spinSteps + EPS then return fail("the kubb's spin is not a planned spin") end
 		if pl.spin ~= nil and not (num(pl.spin) and abs(pl.spin - taps) <= TOL) then
 			return fail("the plan's spin is not the launch's")

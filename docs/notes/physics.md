@@ -109,6 +109,48 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
   everything it touches (`test_physics`: "a kubb resting on a lying kubb sleeps, and wakes
   when the one under it is knocked"). The record is three numbers and a reference on each
   body, set in the store loop: no tables in the step.
+- **The dead landing** (0.11, 2026-11-21). Jamie: "Spinning is the key to kubbs touching.
+  By spinning they land and then roll into each other", the roll is "one or two rolls",
+  and a dead landing "means the contact with the ground is completely on target and
+  doesn't bounce. The roll dynamics can then occur because a bounce and spin introduces
+  a ton of dynamics you cannot control".
+  - **What 0.10 did.** A perfect hand still scattered a spun nose-first drill 24 cm each
+    way: the roll's phase at the touch decided a sideways kick. A flat landing lost all
+    its speed and spin in one 20 ms face slam; on a nose-first one the corner's friction
+    stopped the spin in under 0.1 s. A random search over 480 settings of the ground
+    (dig, lever, bite, restitution, friction, the plug's hold on spin, nose, taps) found
+    no aimable roll: 5 to 12 cm of roll came only with 10 to 20 cm of scatter.
+  - **The rule** (`world.tune` `deadLanding` and the `dead*` values). The world records
+    the thrown kubb's spin about its long axis, its other turn and how far its nose
+    points off its travel while it flies. At its first touch of the ground, if the nose
+    is 30 to 60 degrees down, the spin is at least 10 rad/s (no taps is the spiral's 3:
+    never caught), the other turn is under 0.8 rad/s and the nose is within 18 degrees
+    of its travel, the turf catches it: its speed over the ground goes to nothing and it
+    keeps only its spin. While it lies down it keeps that spin and its fall forward, with no
+    slide aside (the turf holds the nose like a socket; without that the spin drove the kubb
+    across like a wheel, a metre on sand), and
+    no turn aside. Once its long axis is level, 0.6 of the spin sets it rolling without
+    slipping and the ordinary contact physics rolls it out. A caught kubb not lying
+    within 0.4 s (held up on another) is let go. This is a rule standing in for turf the
+    contact model does not have, not contact physics.
+  - **The plug and a rolling kubb** (`kubbSpinHold` 0.05). The turf's hold on a rolling
+    body took a kubb's spin about its long axis with the rest of its turn, as one
+    vector, and stopped a lying kubb's roll in the step it began. It now holds the rest
+    of the turn only. This reaches every kubb on the ground, struck ones too.
+  - **The hand.** `world.launchDrill` takes the hand's steadiness (the release scatter
+    times `plan.levels`' `drillScatter`: beginner 2, club 1, pro 0.35), and the wrist's
+    spiral goes the way of the taps (`drill.body`; against them a left-spun kubb flew
+    unsteady and was seldom caught).
+  - **The aim.** `drill.tune.slide` is measured again and `drill.tune.roll` is new: how
+    far a clean drill rests to the right of its line, by spin, loft and distance
+    (`tools/drillscatter.lua --only 5` prints both). `drill.solveAt` aims short of the
+    marker by the run-on and to the side by the roll, so the marker is where it rests.
+    On grass at the default arc a caught drill does not run on, and rolls about 5 cm for
+    one tap, 16 for two and 33 for three; sand rolls less (4, 10 and 23 cm).
+  - **Measured.** A clean pro drill is caught 96 times in 100; in the Gym a pro drill rests
+    6 cm from its mark and a club drill, caught about half the time, 21 cm. The Gym numbers
+    are in docs/VERSIONING.md under 0.11.0.
+  - Not bit-identical: every drilled kubb, and any kubb that rolls on the ground.
 - **Rest on a face** (a play-test match, 2026-11-20: "Drilled Kubb landed on its edge --
   not possible!"; the second kubb of an inkast slept free on a long edge, rolled 44
   degrees, its centre 4.95 cm up, nothing within 0.4 m). The sleep test had no stability
