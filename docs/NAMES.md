@@ -203,14 +203,15 @@ In order, each its own pull request:
 2. **The room's check.** The web ports `parse`, takes the words from `names.words`, and
    checks names on join, `me` and START (section 6). The reel's and the share's checks
    call the engine they already run.
-3. **The clients.** First run rolls a name, kept on the device. A name row with Shuffle,
+3. **The clients.** Typed names go on the web and the iPhone (section 10, decided).
+   First run rolls a name, kept on the device. A name row with Shuffle,
    each word a picker (the crank on the Playdate), a lock per word: Toontown's name shop
    was scroll lists and Shuffle, and players who wanted "their" word in a pure-random
    picker asked for a way to find it. Online, the host rolls the team's name; today a team
    of several is "Team A". Two members with one name in a lobby are told apart there
    (the second shows "II"), never by changing the name. Each client measures its widest
    name in its own font (`namegen.all`), as Toontown measured its widest name, before it
-   ships. Typed names go (section 10).
+   ships.
 4. **The App Store answers.** When no typed name is left anywhere a name can be seen,
    "User-generated content" can change on the iPhone's next submission.
 
@@ -237,9 +238,11 @@ None of these blocks the first release.
 
 The engine decides how names are made. What the game asks of players is Jamie's:
 
-1. **Do typed names go on the web and the iPhone?** Recommended: yes, everywhere. Any
-   solo match can be shared to a public reel, so every name on those clients can end up
-   public.
+1. **Do typed names go on the web and the iPhone?** Decided by Jamie, 2026-11-21: yes,
+   everywhere. Any solo match can be shared to a public reel, so every name on those
+   clients can end up public. No typed name is left on either client: the lobby, the
+   solo set-up, Settings' "Your name" and the reel's share card all take a generated
+   name.
 2. **The Playdate.** Its names never leave the device, so typing is harmless there.
    Recommended: switch anyway, for one game everywhere. Saved players keep their typed
    names until someone renames them. Its 10-letter limit (`core/names`) needs to reach
