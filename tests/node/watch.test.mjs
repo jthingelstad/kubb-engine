@@ -151,12 +151,17 @@ test('the skip rule: same prompt version and model is skipped unless --force', a
 });
 
 test('it refuses to write inside the repository, however it is pointed there', async () => {
-  for (const out of [REPO, path.join(REPO, 'docs', 'reference'), path.join(REPO, 'not-yet', 'made')]) {
+  // (`..private-video` is a folder in the repository whose name begins with two dots)
+  for (const out of [REPO, path.join(REPO, 'docs', 'reference'), path.join(REPO, 'not-yet', 'made'),
+    path.join(REPO, '..private-video'), path.join(REPO, '..')+ path.sep + path.basename(REPO) + path.sep + 'x']) {
     const r = await run(['KnLTnKVVPMg', '--kind', 'lesson', '--out', out]);
     assert.equal(r.code, 2, out);
     assert.match(r.err, /refusing to write inside the repository/);
     assert.equal(r.transport.calls.length, 0);
   }
+  // and a sibling of the repository, or its parent, is outside
+  assert.equal(outDir({ out: path.join(path.dirname(REPO), 'kubb-sources', 'video') }), path.join(path.dirname(REPO), 'kubb-sources', 'video'));
+  assert.equal(outDir({ out: path.dirname(REPO) }), path.dirname(REPO));
   const r = await run(['KnLTnKVVPMg', '--kind', 'lesson'], { env: { GEMINI_API_KEY: KEY, KUBB_SOURCES: path.join(REPO, 'build') } });
   assert.equal(r.code, 2);
   // A symlink outside that leads in is followed, and refused.

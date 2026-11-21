@@ -101,7 +101,10 @@ function realish(p) {
 
 export function isInside(child, parent) {
   const rel = path.relative(realish(parent), realish(child));
-  return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
+  // outside only when the way there climbs out: `..` itself or `../...`, not a folder whose
+  // name merely begins with two dots (`..private`)
+  const climbs = rel === '..' || rel.startsWith('..' + path.sep);
+  return rel === '' || (!climbs && !path.isAbsolute(rel));
 }
 
 export function outDir(opts, env = process.env, repo = REPO) {
