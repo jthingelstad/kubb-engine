@@ -1,0 +1,13 @@
+[Event "Baton value fixture"]
+[Team A "North"]
+[Team A Players "Ann (a)"]
+[Team B "South"]
+[Team B Players "Bo (b)"]
+[First "Team A"]
+[Win "Team A"]
+
+1. - - B - - B
+2. 2I F - F B - B
+3. 4I 2F - F - F B
+4. 5I F - - - - -
+5. 1I A F B B K X X

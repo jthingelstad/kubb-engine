@@ -1,0 +1,11 @@
+[Event "Baton value fixture"]
+[Team A "East"]
+[Team A Players "Cy (c)"]
+[Team B "West"]
+[Team B Players "Di (d)"]
+[First "Team A"]
+[Win "Team A"]
+
+1. B - - - - B
+2. 2I 2F B - Z - -
+3. 3I 2F FB B B = K

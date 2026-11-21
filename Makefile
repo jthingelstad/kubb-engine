@@ -9,7 +9,7 @@ PKSCORE := $(or $(PK_KUBB_SCORE),$(CURDIR)/../pk-kubb-score)
 # The web's online-play modules (for room-vectors): $KUBB_WEB, else a sibling checkout.
 KUBB_WEB ?= $(CURDIR)/../kubb.thingelstad.xyz
 
-.PHONY: test test-lua test-session test-room room-vectors test-node test-wasm golden-check golden golden-native bundle manifest manifest-check refcheck games realgames physfuzz gym mjref sync-notation clean
+.PHONY: test test-lua test-session test-room room-vectors test-node test-wasm golden-check golden golden-native bundle manifest manifest-check refcheck games realgames batonvalue physfuzz gym mjref sync-notation clean
 
 test: test-lua test-session test-room test-node test-wasm golden-check manifest-check refcheck
 
@@ -105,6 +105,14 @@ realgames:
 	@rm -rf build/realgames
 	"$(LUA)" tools/physmatch.lua --n $(REAL_N) --seed $(REAL_SEED) --scatter $(REAL_SCATTER) --level $(REAL_LEVEL) --out build/realgames
 	"$(NODE)" tools/realgames.mjs "$(PKSCORE)/games" build/realgames
+
+# Baton value (tools/batonvalue.mjs, docs/notes/real-games.md "Baton value"): the batons a
+# position costs, counted from the games people scored in a pk-kubb-score checkout (read
+# only), for all teams and by tier, beside Hodges' 2014 table. Optional, like realgames.
+# On the Gym's games: node tools/batonvalue.mjs <gym --out dir>/cpu-pro-grass/games
+batonvalue:
+	@test -d "$(PKSCORE)/games" || { echo "batonvalue: no games folder in a pk-kubb-score checkout (set PK_KUBB_SCORE)"; exit 1; }
+	"$(NODE)" tools/batonvalue.mjs "$(PKSCORE)/games" --tiers
 
 # The physics fuzzer (tools/physfuzz.lua, docs/notes/physics-fuzz.md). A
 # measuring tool, not part of `make test`; its pinned cases are.

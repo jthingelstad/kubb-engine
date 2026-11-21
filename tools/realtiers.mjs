@@ -16,16 +16,14 @@
 // A score sheet records what each baton took, not where anything stood, so this
 // says what play looks like at each strength, never why.
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { join, resolve, dirname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { loadGames, thrown, teamKey as norm } from './sheets.mjs';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const MIN_BATONS = 60;
+export const MIN_BATONS = 60;
 const BANDS = ['1', '2-3', '4-5', '6-7', '8+'];
 const band = n => (n <= 1 ? '1' : n <= 3 ? '2-3' : n <= 5 ? '4-5' : n <= 7 ? '6-7' : '8+');
-// "Team Knockerheads" and "Knockerheads" are one team
-const norm = s => (s || '').toLowerCase().replace(/^team\s+/, '').replace(/[^a-z0-9]/g, '');
 
 function blank() {
   const s = {
@@ -44,8 +42,6 @@ function blank() {
   }
   return s;
 }
-
-const thrown = b => !(b.void || b.kind === 'unthrown' || b.kind === 'resign' || b.kind === 'win');
 
 // Adds one turn (a kubb.js row) to a split's totals. Counting as tools/realgames.mjs.
 function addRow(s, r) {
@@ -142,8 +138,9 @@ function figures(s) {
   return o;
 }
 
-export function tiers(games) {
-  // rank the teams
+// The tiers: every team with minBatons or more ranked by kubbs toppled a baton, cut where a
+// third and two thirds of the ranked batons have been counted. tierOf is keyed by teamKey.
+export function rankTeams(games, minBatons = MIN_BATONS) {
   const teams = {};
   for (const g of games) for (const side of ['A', 'B']) {
     const st = g.stats[side], key = norm(g.teamName[side]);
@@ -151,7 +148,7 @@ export function tiers(games) {
     // kubbs toppled, field and base: kubb.js's `hits` counts a baton once whatever it took
     t.batons += st.batons; t.kubbs += st.field + st.base;
   }
-  const ranked = Object.entries(teams).filter(([, t]) => t.batons >= MIN_BATONS)
+  const ranked = Object.entries(teams).filter(([, t]) => t.batons >= minBatons)
     .sort((a, b) => b[1].kubbs / b[1].batons - a[1].kubbs / a[1].batons);
   const total = ranked.reduce((n, [, t]) => n + t.batons, 0);
   const tierOf = {}, count = { top: 0, mid: 0, low: 0 };
@@ -160,6 +157,13 @@ export function tiers(games) {
     const tier = acc < total / 3 ? 'top' : acc < 2 * total / 3 ? 'mid' : 'low';
     tierOf[key] = tier; count[tier]++; acc += t.batons;
   }
+  return { ranked, tierOf, count };
+}
+
+export const tierOfSide = (tierOf, g, side) => tierOf[norm(g.teamName[side])];
+
+export function tiers(games) {
+  const { ranked, tierOf, count } = rankTeams(games);
   const S = { all: blank(), top: blank(), mid: blank(), low: blank(), winners: blank(), losers: blank() };
   const lengths = [], mostField = [];
   // a game's length by its weaker team's tier (both teams ranked)
@@ -246,15 +250,7 @@ async function main(argv) {
     console.error('usage: node tools/realtiers.mjs <real games dir> [--json]');
     return 2;
   }
-  const kubb = join(here, '..', 'tests', 'vendor', 'pk-kubb-score', 'kubb.js');
-  const { analyze } = await import(pathToFileURL(kubb).href);
-  const dir = resolve(dirs[0]);
-  const games = [];
-  for (const f of readdirSync(dir).sort()) {
-    if (!f.endsWith('.txt')) continue;
-    const g = analyze(readFileSync(join(dir, f), 'utf8'));
-    if (g.rows.length) games.push(g);
-  }
+  const { games } = await loadGames(resolve(dirs[0]));
   if (!games.length) { console.error('realtiers: the folder has no games'); return 2; }
   const t = tiers(games);
   console.log(argv.includes('--json') ? JSON.stringify(t, null, 1) : render(t));

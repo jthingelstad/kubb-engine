@@ -647,3 +647,105 @@ and the ground flat or textured. Part 2 follows every drill of 40 physics matche
   take triples off defenders who raise well, so the missing triples are the attack's
   (how tight the drills are, and batons thrown at the line of a group).
   `tools/physmatch.lua --raise apart|together` picks the policy for a run.
+
+### Baton value
+
+The yardstick for comparing plays (2026-11-21): what a position costs in batons. Chris
+Hodges published one in 2014 (Des Moines Kubb, "Advantage, Efficiency, and Game Theory",
+part 2; Kubb On's archive): the average batons to clear n field kubbs from the baseline
+(1.53 for one to 6.43 for ten) and from an advantage line (1.11 to 4.64 for nine), a base
+kubb from 8 m (2.85) and from an advantage line (1.63 in his table, 1.65 in his text), and
+the king (1.2), from about 900 recorded turns. `node tools/batonvalue.mjs <games dir>
+[--json] [--tiers]` (`make batonvalue`) rebuilds it from the games people scored, with
+intervals, and by tier. A measuring tool only; it changes nothing in the engine.
+
+- **What it counts.** Every thrown baton is a step from a state: n field kubbs standing,
+  thrown from the baseline or from an advantage line; it took k of them. The batons to clear
+  n are E[n] = 1 + sum over k of p(k | n) E[n - k], E[0] = 0 ("chain"). It keeps the turns
+  that ran out of batons, which a mean over turns that cleared leaves out; that mean is
+  printed beside it ("cleared"). A third figure, "fresh", is n just thrown in: the turn's
+  first baton from the first batons' own outcomes, then the chain over the later batons.
+  A base kubb is batons at base kubbs over the base kubbs they toppled (no real baton took
+  two, so it is 1 / hit rate); the king is shots over kings. Counting as "How it counts"
+  above, through `tools/sheets.mjs`, which `realtiers.mjs` now shares: field kubbs standing
+  at a baton are the turn's `startField` less what earlier batons took, a baton is at base
+  kubbs once none stands, the advantage line is kubb.js's `advantage` and holds for the
+  whole turn but the king. A `Z` is a spent baton that took nothing. A baton that takes its
+  last field kubbs and then a base kubb (`FB`, 8 in the 150 games) is a field step and its
+  base kubb is not in the base figure.
+- **Thin states.** A state under 30 batons is pooled with up to two neighbours (from n = 1
+  upward until the group holds 30; a short group at the top joins the one below), and a
+  pool shares one outcome distribution, k capped at n. Pools are fixed on the whole sample.
+  A pool still under 30 is marked `*`. Intervals: the 2.5th and 97.5th percentiles over
+  1000 resamples of whole games (seed 1), since batons within a game are not independent.
+- **The table** (150 games, all teams; figure (95% interval), batons the state rests on):
+
+  | from the baseline | chain | batons | fresh | cleared (turns) | Hodges |
+  |---|---|---|---|---|---|
+  | 1 | 1.57 (1.47-1.68) | 1026 | 1.70 (1.46-1.94) | 1.71 (56) | 1.53 |
+  | 2 | 2.72 (2.58-2.86) | 866 | 2.60 (2.38-2.82) | 2.51 (124) | 2.36 |
+  | 3 | 3.67 (3.49-3.84) | 642 | 3.51 (3.31-3.71) | 3.19 (150) | 3.04 |
+  | 4 | 4.23 (4.02-4.46) | 476 | 4.08 (3.82-4.36) | 3.53 (155) | 3.63 |
+  | 5 | 4.72 (4.47-4.99) | 303 | 4.53 (4.25-4.83) | 3.63 (134) | 4.18 |
+  | 6 | 5.17 (4.91-5.44) | 238 | 5.33 (5.06-5.62) | 4.34 (144) | 4.68 |
+  | 7 | 5.58 (5.31-5.86) | 135 | 5.82 (5.46-6.18) | 4.39 (92) | 5.15 |
+  | 8 | 5.88 (5.54-6.20) | 74 | 6.09 (5.68-6.46) | 4.15 (55) | 5.59 |
+  | 9 | 6.13 (5.80-6.43) | 55, pool 9-11 | 6.51 (6.12-6.89) | 4.85 (47) | 6.02 |
+  | 10 | 6.52 (6.18-6.84) | 20, pool 9-11 | 6.95 (6.51-7.35) | 4.63 (17) | 6.43 |
+
+  | from an advantage line | chain | batons | fresh | cleared (turns) | Hodges |
+  |---|---|---|---|---|---|
+  | 1 | 1.23 (1.14-1.33) | 182 | 1.13 (1.03-1.25) | 1.46 (11) | 1.11 |
+  | 2 | 2.17 (1.99-2.39) | 135 | 2.14 (1.91-2.35) | 2.19 (26) | 1.74 |
+  | 3 | 2.81 (2.56-3.07) | 93 | 2.32 (1.97-2.63) | 2.50 (24) | 2.27 |
+  | 4 | 3.25 (2.92-3.55) | 76 | 3.24 (2.88-3.56) | 2.97 (38) | 2.74 |
+  | 5 | 3.70 (3.40-4.00) | 42 | 3.48 (3.15-3.84) | 3.32 (21) | 3.16 |
+  | 6 | 3.76 (3.50-4.05) | 34 | 4.09 (3.77-4.44) | 3.59 (29) | 3.56 |
+  | 7 | 4.01 (3.71-4.29) | 19, pool 7-9 | 4.20 (3.85-4.58) | 3.75 (16) | 3.94 |
+  | 8 | 4.45 (4.14-4.73) | 17, pool 7-9 | 4.62 (4.27-4.96) | 4.00 (16) | 4.30 |
+  | 9 | 4.75 (4.47-5.04) | 10, pool 7-9 | 4.96 (4.59-5.37) | 4.50 (9) | 4.64 |
+
+  A base kubb from 8 m 3.06 (2.86-3.24; 939 of 2875 batons), Hodges 2.85; from an
+  advantage line 1.94 (1.70-2.22; 184 of 356), Hodges 1.63; the king 1.19 (1.12-1.27; 150
+  of 179 shots), Hodges 1.2.
+- **Against Hodges.** His table is a power curve, not a row of measurements: 1.531 n^0.623
+  from the baseline and 1.109 n^0.651 from an advantage line give every cell to the
+  rounding. 129 of the 150 games predate his post and the figures on those alone move by
+  0.15 or less, so the gap is method, not data. From the baseline his figures for 2 to 4,
+  where he had the most turns, sit inside the cleared-turns intervals and below the chain
+  by 0.4 to 0.6 batons; past 4 the cleared mean stalls (only 60% of eight-kubb turns clear,
+  so the hard ones are left out) and his curve keeps rising, nearer the chain. So the
+  likeliest reading is a mean over turns that cleared, smoothed by his regression, which
+  understates the small positions. Averaged over the 19 states he gives, the chain is off
+  his figures by 0.33 a state, fresh 0.38, cleared 0.46. His base kubbs (35%, 61%) are
+  better than these sheets (33%, 52%); he gives his rates from "over 5,000 throws at all
+  distances", recorded games and video, which is not this set.
+- **The order of a turn matters.** A turn's first baton at n takes more than a later baton
+  at n (from five: 2.03 kubbs against 1.34, miss 11% against 22%): kubbs left after a hit
+  are the scattered ones. The chain assumes they are alike, so from the baseline fresh is lower
+  than the chain from two to five kubbs and higher from six. Use
+  fresh for a position just thrown in, the chain for one in the middle of a turn.
+- **By tier** (`--tiers`, `realtiers.mjs`'s ranking): from the baseline the chain for two,
+  four and six field kubbs is top 2.25 / 3.52 / 4.21, mid 2.51 / 3.97 / 4.80, low 3.50 /
+  5.51 / 7.28; a base kubb from 8 m top 2.28 (845 batons), mid 3.19 (829), low 4.45 (627);
+  the king 1.18 / 1.10 / 1.45. The ranking is by kubbs toppled a baton, the stuff the
+  estimate is made of, so the top is flattered by its own selection and the low tier made
+  worse. The held-out rows rank each team on the even-numbered files and count it on the
+  odd ones (and the other way round): top 2.24 / 3.57 / 4.24 and 2.41 at 8 m, mid 2.59 /
+  4.02 / 5.08 and 3.32, low 3.44 / 5.39 / 6.70 and 3.86. The top and middle hold within
+  their intervals; the low tier comes back by up to 0.6 at 8 m. From an advantage line
+  every tier has under 80 batons a state and most of its states are thin.
+- **What it cannot say.** Where the kubbs stood or how tight a group was (the cost of a
+  position is by count alone), where the advantage line was (most sheets do not write the
+  metres), whether a miss was aimed at what stood or thrown away on purpose, and whether a
+  base kubb toppled early and raised happened at all (it is not in the token). The base
+  figures assume a baton at base kubbs only once the field is clear, which the rules
+  require.
+- **The Gym's games.** The same files, the same counting: `node tools/gym.mjs --out <dir>`
+  keeps them (the Gym deletes its run folder otherwise), then `node tools/batonvalue.mjs
+  <dir>/cpu-pro-grass/games`. Nothing more needs writing out for the table; `--tiers`
+  means nothing there (every match is one level against itself). 40 matches of the computer
+  at pro, seed 1: from the baseline 2.36 / 3.82 / 5.18 for two, four and six field kubbs,
+  a base kubb from 8 m 2.92, the king 1.00 (40 of 40); from an advantage line its two
+  field kubbs cost 2.26, hardly cheaper than its 2.36 from the baseline (real: 2.17
+  against 2.72).
