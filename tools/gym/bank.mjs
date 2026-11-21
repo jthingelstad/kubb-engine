@@ -2,7 +2,7 @@
 // every recorded person's throw thrown again, with forensics, three ways:
 //
 //   as played    the recorded launch on the engine that planned it (what happened)
-//   launch now   the recorded launch on this checkout's physics
+//   launch now   the recorded launch on this checkout's physics (or --engine DIR's)
 //   re-planned   the recovered swing (its misses counted from this checkout's targets,
 //                the same nerve draws) planned and thrown by this checkout
 //
@@ -57,7 +57,8 @@ function lineOf(t, rec, v, legal) {
   return { k: t.kind === 'drill' ? 'drill' : t.kind, f: rec, v, legal, dist: t.dist, drill: rec.drill };
 }
 
-export async function bank(dir, { jobs = 4 } = {}) {
+export async function bank(dir, { jobs = 4, engine = null } = {}) {
+  const here = engine || root; // the engine "now" means: this checkout, or --engine DIR
   const rec = await recover(dir, { jobs, played: true });
   try {
     const ok = rec.throws.filter(t => t.err != null && t.err < ACCEPT && t.played);
@@ -67,7 +68,7 @@ export async function bank(dir, { jobs = 4 } = {}) {
       flick: t.flick, shake: t.shake, pull: t.pull, z: t.z, arcSet: t.arcSet, release: t.release, tiltPlan: t.tiltPlan,
       spinPlan: t.spinPlan })).join('\n') + '\n');
     const inp = join(rec.tmp, 'in.jsonl');
-    await runPool([{ args: [join('tools', 'gym', 'invert.lua'), '--in', inp, '--played', '--rethrow', rt, '--out', join(rec.tmp, 'now.jsonl')] }], 1);
+    await runPool([{ args: [join('tools', 'gym', 'invert.lua'), '--engine', here, '--in', inp, '--played', '--rethrow', rt, '--out', join(rec.tmp, 'now.jsonl')] }], 1);
     const now = new Map();
     for (const line of readFileSync(join(rec.tmp, 'now.jsonl'), 'utf8').split('\n')) {
       if (!line) continue;
@@ -96,7 +97,7 @@ export async function bank(dir, { jobs = 4 } = {}) {
       }
     }
     const allItems = [...byEng.values()].flat();
-    const wNow = await wasmSame(root, allItems);
+    const wNow = await wasmSame(here, allItems);
     for (const it of allItems) if (wNow.get(it.key)) hashes.nowWasm++;
     const cols = { played: {}, now: {}, replan: {} };
     const add = (col, level, line) => {

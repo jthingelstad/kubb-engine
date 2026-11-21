@@ -5,10 +5,11 @@
 //   node tools/gym.mjs [run] [--quick | --full] [--n 40] [--seed 1]
 //       [--throwers cpu,human] [--levels beginner,club,pro] [--surfaces Grass]
 //       [--set path=value ...] [--jobs N] [--json file] [--out dir] [--real dir]
-//       [--model file] [--records dir] [--maxturns 40] [--list 3]
-//   node tools/gym.mjs compare <A> <B> [run options]   A and B: scorecard JSON files or git refs
+//       [--model file] [--records dir] [--maxturns 40] [--list 3] [--engine dir]
+//   node tools/gym.mjs compare <A> <B> [run options]   A and B: scorecard JSON files,
+//       engine folders (core, session, tune, room, version.lua) or git refs
 //   node tools/gym.mjs sweep <path> <v1,v2,...> [run options]
-//   node tools/gym.mjs bank <records dir> [--json file]
+//   node tools/gym.mjs bank <records dir> [--json file] [--engine dir]
 //   node tools/gym.mjs fit <records dir> [--write]
 //
 // Quick (the default) plays 40 matches a configuration, full 300. --real is a
@@ -18,7 +19,7 @@
 // the recorded-throw bank. A measuring tool: it changes nothing in the engine.
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync, mkdtempSync } from 'node:fs';
 import { availableParallelism, tmpdir } from 'node:os';
-import { join, resolve, dirname } from 'node:path';
+import { join, resolve, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as score from './gym/score.mjs';
 import { runPool, git, extractEngine } from './gym/pool.mjs';
@@ -53,7 +54,7 @@ function parse(argv) {
     else if (a === '--records') o.records = take();
     else if (a === '--maxturns') o.maxturns = Number(take());
     else if (a === '--list') o.list = Number(take());
-    else if (a === '--engine') o.engine = take();
+    else if (a === '--engine') o.engine = resolve(take());
     else if (a === '--write') o.write = true;
     else if (a === '--keep') o.keep = true;
     else if (a === '--gate') o.gate = true;
@@ -115,6 +116,7 @@ function reproOf(o, c, t) {
   if (c.surface !== 'Grass') parts.push(`--surface ${c.surface}`);
   parts.push(`--seed ${o.seed}`);
   for (const s of o.sets) parts.push(`--set ${s}`);
+  if (o.engine) parts.push(`--engine ${o.engine}`);
   parts.push(`--repro ${t.m}:${t.t}`);
   return parts.join(' ');
 }
@@ -142,7 +144,7 @@ export async function scorecard(o) {
   const wall = (Date.now() - t0) / 1000;
   const t1 = Date.now();
   const card = {
-    tool: 'kubb-gym', format: 1, created: new Date().toISOString(), engine: engineInfo(o.engine || root), mode: o.mode, n: o.n, seed: o.seed,
+    tool: 'kubb-gym', format: 1, created: new Date().toISOString(), engine: { ...engineInfo(o.engine || root), ...(o.engine ? { dir: basename(o.engine) } : {}) }, mode: o.mode, n: o.n, seed: o.seed,
     sets: o.sets, maxturns: o.maxturns, wallS: wall, jobs: o.jobs,
     humanModel: hasModel ? modelInfo(o.model) : null, configs: [], results: {}, clusters: {},
   };
@@ -179,7 +181,7 @@ function modelInfo(path) {
 
 function header(card) {
   const e = card.engine;
-  const l = [`Kubb Gym: engine ${e.version}${e.commit ? ` (${e.commit.slice(0, 10)}${e.dirty ? ', with local changes' : ''})` : ''}, `
+  const l = [`Kubb Gym: engine ${e.version}${e.dir ? ` from folder ${e.dir}` : ''}${e.commit ? ` (${e.commit.slice(0, 10)}${e.dirty ? ', with local changes' : ''})` : ''}, `
     + `${card.mode} (${card.n} matches a configuration, seed ${card.seed}, ${card.wallS.toFixed(0)} s on ${card.jobs} processes)`];
   if (card.sets && card.sets.length) l.push(`  set: ${card.sets.join(', ')}`);
   if (card.humanModel) l.push(`  human thrower: model ${card.humanModel.version}`);
@@ -232,8 +234,8 @@ export function compareCards(A, B, zBar = 2.58) {
 }
 
 function printCompare(A, B, rows, nameA, nameB) {
-  const l = [`Compare: A = ${nameA} (engine ${A.engine.version}${A.engine.commit ? ' ' + A.engine.commit.slice(0, 10) : ''}),`
-    + ` B = ${nameB} (engine ${B.engine.version}${B.engine.commit ? ' ' + B.engine.commit.slice(0, 10) : ''}); ${A.n} and ${B.n} matches a configuration`];
+  const l = [`Compare: A = ${nameA} (engine ${A.engine.version}${A.engine.dir ? ' folder ' + A.engine.dir : ''}${A.engine.commit ? ' ' + A.engine.commit.slice(0, 10) : ''}),`
+    + ` B = ${nameB} (engine ${B.engine.version}${B.engine.dir ? ' folder ' + B.engine.dir : ''}${B.engine.commit ? ' ' + B.engine.commit.slice(0, 10) : ''}); ${A.n} and ${B.n} matches a configuration`];
   l.push(`Only figures whose difference is past 2.58 standard errors (99%) are shown.`);
   if (!rows.length) { l.push('', 'Nothing moved beyond noise.'); return l.join('\n'); }
   let last = null;
@@ -248,6 +250,13 @@ function printCompare(A, B, rows, nameA, nameB) {
 
 async function cardFor(spec, o) {
   if (existsSync(spec) && spec.endsWith('.json')) return JSON.parse(readFileSync(spec, 'utf8'));
+  // an engine folder (core, session, tune, room, version.lua), e.g. a prototype copy
+  if (existsSync(join(spec, 'version.lua')) && existsSync(join(spec, 'core'))) {
+    const dir = resolve(spec);
+    const card = await scorecard({ ...o, engine: dir, out: join(root, 'build', 'gym', `dir-${process.pid}-${Date.now()}`) });
+    card.engine = { ...engineInfo(dir), dir: basename(dir) };
+    return card;
+  }
   // a git ref: its engine (core, session, tune, room, version.lua) into a temporary
   // folder, thrown by this checkout's gym tools
   const sha = git(['rev-parse', '--verify', `${spec}^{commit}`]);
@@ -272,7 +281,7 @@ async function main(argv) {
     const card = await scorecard(o);
     if (o.records) {
       const { bank } = await import('./gym/bank.mjs');
-      card.bank = await bank(o.records, { jobs: o.jobs });
+      card.bank = await bank(o.records, { jobs: o.jobs, engine: o.engine });
     }
     let text = printCard(card, real);
     if (card.bank) {
@@ -321,7 +330,7 @@ async function main(argv) {
   if (o.cmd === 'bank') {
     if (o.pos.length !== 1) { console.error('usage: node tools/gym.mjs bank <records dir>'); return 2; }
     const { bank, printBank } = await import('./gym/bank.mjs');
-    const b = await bank(o.pos[0], { jobs: o.jobs });
+    const b = await bank(o.pos[0], { jobs: o.jobs, engine: o.engine });
     console.log(printBank(b));
     if (o.json) writeFileSync(o.json, JSON.stringify(b));
     return 0;
