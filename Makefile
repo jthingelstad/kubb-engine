@@ -9,9 +9,9 @@ PKSCORE := $(or $(PK_KUBB_SCORE),$(CURDIR)/../pk-kubb-score)
 # The web's online-play modules (for room-vectors): $KUBB_WEB, else a sibling checkout.
 KUBB_WEB ?= $(CURDIR)/../kubb.thingelstad.xyz
 
-.PHONY: test test-lua test-session test-room room-vectors test-node test-wasm golden-check golden golden-native bundle manifest manifest-check refcheck games realgames batonvalue physfuzz gym mjref sync-notation clean
+.PHONY: names names-check test test-lua test-session test-room room-vectors test-node test-wasm golden-check golden golden-native bundle manifest manifest-check refcheck games realgames batonvalue physfuzz gym mjref sync-notation clean
 
-test: test-lua test-session test-room test-node test-wasm golden-check manifest-check refcheck
+test: test-lua test-session test-room test-node test-wasm golden-check manifest-check refcheck names-check
 
 # The core's tests, then the session's in a Lua state of their own: the session's
 # tests load the pointer tune, which changes the core's swing and autothrow tables.
@@ -69,6 +69,16 @@ manifest:
 
 manifest-check:
 	"$(NODE)" tools/manifest.mjs check
+
+# Every generated name (core/namegen, docs/NAMES.md): `make names` writes
+# tests/names/<kind>.txt from core/namewords, so a pull request that changes the
+# words shows every name it adds or takes away; `make names-check` (part of
+# `make test`) fails while the files and the words disagree.
+names:
+	"$(LUA)" tools/names.lua --write
+
+names-check:
+	"$(LUA)" tools/names.lua --check
 
 # The play reference (docs/reference/README.md): every play cites an entry that exists,
 # every observed source has its observation, every question a play names is asked.
