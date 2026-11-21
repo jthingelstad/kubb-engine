@@ -208,10 +208,10 @@ plan.LEVELS = { "beginner", "club", "pro" }
 plan.meters = {
 	standard = {
 		powerHalf8 = 2, releaseHalf8 = 7.5, widen = 0.7, nearM = 3, farM = 10, narrowMin = 0.5,
-		kubbPower = 1.5, kubbRelease = 1,
+		kubbPower = 1, kubbRelease = 1,
 		inGain = 0.1, shakeIn = 0.1, shakeGain = 0.75, overGain = 0.75,
 		nervesDeg = 0.12, nervesLen = 0.008, tumbleTurns = 0.50, tumbleSd = 0.015,
-		drillScatter = 0.35, scatterGain = 3, roughGain = 4, roughMax = 2,
+		drillScatter = 0.35, scatterGain = 3, roughGain = 6, roughMax = 2,
 	},
 }
 
