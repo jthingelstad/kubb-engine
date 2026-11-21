@@ -197,6 +197,14 @@ test('a rate limit: says so and stops after one call, with no retry', async () =
   assert.equal(t.calls.length, 1);
 });
 
+test('a busy model (HTTP 503): says so and stops, with no retry', async () => {
+  const t = fake({ status: 503, body: { error: { code: 503, status: 'UNAVAILABLE', message: 'The model is experiencing high demand.' } } });
+  const r = await run(['KnLTnKVVPMg', '--kind', 'lesson', '--out', tmp()], { transport: t });
+  assert.equal(r.code, 3);
+  assert.match(r.err, /the model is busy \(HTTP 503\): The model is experiencing high demand\. Stopped without retrying/);
+  assert.equal(t.calls.length, 1);
+});
+
 test('a response with no text: says so, saves nothing', async () => {
   const dir = tmp();
   const t = fake({ body: { status: 'completed', steps: [{ type: 'thought', content: [{ type: 'text', text: 'hmm' }] }] } });
