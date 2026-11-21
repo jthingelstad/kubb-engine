@@ -114,7 +114,7 @@ export async function bank(dir, { jobs = 4, engine = null } = {}) {
       add('played', t.level, lineOf(t, t.played, v, t.legal));
       const n = now.get(`${t.k}:${t.i}`);
       if (n && n.played) add('now', t.level, lineOf(t, n.played, v, t.legal));
-      if (n && n.rethrow) add('replan', t.level, lineOf(t, n.rethrow, [n.rethrow.powerV, n.rethrow.releaseV, vd.steady, null], n.rethrow.legal !== false));
+      if (n && n.rethrow) add('replan', t.level, lineOf(t, n.rethrow, [n.rethrow.powerV, n.rethrow.releaseV, n.rethrow.steady, null], n.rethrow.legal !== false));
     }
     return {
       throws: ok.length, recorded: rec.info.throwsRecorded, matches: new Set(ok.map(t => t.k)).size,
