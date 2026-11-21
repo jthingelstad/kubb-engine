@@ -21,14 +21,18 @@ second sample.
   ko-2014-advantage2#p1.12, ko-2014-advantage2#p1.14, ko-2014-advantage2#p1.15 (Chris
   Hodges)
 - **Basis:** measured
-- **Against:** nothing found. The table is all competitive teams pooled; a level needs
-  its own.
+- **Against:** our own count. His table is a fitted curve (1.531 n^0.623 reproduces
+  every cell from the baseline) and sits with the mean over turns that cleared, which
+  leaves out the turns that failed. Counted baton by baton from the 150 scored games,
+  two to eight field kubbs cost 0.3 to 0.6 batons more than he gives, a base kubb from
+  8 m costs 3.06 (2.86 to 3.24), and the king 1.19 (`tools/batonvalue.mjs`,
+  docs/notes/real-games.md "Baton value"). Use the count, by tier, not the curve.
 - **Levels:** Proposed: every level reasons from its own table, counted from the Gym.
   The measured one is the check on pro and club.
 - **Engine:** not modelled (0.11.0). Nothing in the computer player compares two choices
   by what follows from them.
-- **Gym:** needs the table by level. `tools/batonvalue.mjs` (in progress) counts it from
-  scored games.
+- **Gym:** needs the table by level. `tools/batonvalue.mjs` counts it from scored games,
+  and from the Gym's own games when a run keeps them (`--out`).
 
 ## levels.efficiency: Score a turn against the average
 
