@@ -90,7 +90,7 @@ census of 2026-11-21.
 
 ## Q6: A row across, or kubbs in depth?
 
-- **Status:** open: recommendation accepted, to be proven in the Gym
+- **Status:** open: the first comparison is in, and it went against our reading
 - **Asks:** Since 0.11.0 the club and pro computer lay their kubbs flank to flank in a
   row (`autothrow.tune.inkast`, `row = 1`). Two interviewees say depth matters more than
   closeness, because kubbs one behind another give doubles and a fence along the centre
@@ -98,15 +98,29 @@ census of 2026-11-21.
   Haraldsson). Others want kubbs so close the raiser has no choice (kn-drill-2012#p6.9,
   kn-drill-2012#p2.10). The coach builds "a wall along the side" (yt-Io-rxbSB3Ns#1:13)
   and has the baton thrower throw down it (yt-Io-rxbSB3Ns#1:30).
-- **Recommendation:** Our reading is that these agree. The wall runs along the sideline,
-  into the half, so the kubbs stand one behind another on the path of a baton thrown from
-  that sideline. The engine's row runs the other way, across the pitch at one depth, which
-  is the fence the players warn against. If the Gym bears that out, build in depth along
-  the sideline and stand the baton thrower on that sideline.
-- **Settle by:** the Gym, in two steps. First `row = 1` against `row = 0` (0.10's line and
-  cluster) on first-baton take, `g.field2`, `g.field3` and `g.btc`. Then a wall in depth
-  along the sideline against both.
-- **Touches:** inkast.depth, inkast.corner
+- **So far:** The Gym, 2026-11-21, engine 0.11.0, the computer at club and pro, 300
+  matches each, seed 1: the row as shipped against `row = 0` (0.10's line for two or
+  three kubbs and cluster for more) and against `row = 0` with `clusterFrom = 99` (always
+  a line along the throw). The row won on every row that bears on doubles. At pro, field
+  batons that took two: 22.2% against 17.1% and 15.9%; three or more: 4.9% against 3.0%
+  and 2.1%; turns that cleared: 77.0% against 72.8% and 71.2%; batons to clear: 3.70
+  against 4.08 and 4.14. Club moved the same way by less. Why: the row lies as a fence,
+  but the defender's `apart` policy then stands neighbours on opposite ends, which
+  staggers it 15 cm in depth. Standing, it has as much depth on the baton's path as the
+  line, and it is tighter (spread 0.23 m against 0.32 and 0.36 at pro). Two cautions.
+  The line variants also land their drills worse on 0.11's physics (0.17 m from the mark
+  against 0.06), so shape and accuracy are mixed. And each variant played itself, so
+  there is no win rate.
+- **Recommendation:** Keep the row. Our reading that it is the fence the players warn
+  against was wrong for the game as the engine plays it. What the result does show is
+  that the worth of an inkast shape depends on how the defender raises: the row works
+  because `apart` staggers it. A defender who kept it a fence, as `raise.across` advises,
+  might undo that. So Q6 and Q7 are one contest and have to be played as one.
+- **Settle by:** the Gym, attacker against defender: the row against the line, each under
+  `apart` and under a raise that keeps kubbs across. That needs matches where the two
+  sides play differently, which the Gym cannot yet do. A wall in depth along the
+  sideline, thrown down from that sideline, is still untested: nothing builds it.
+- **Touches:** inkast.depth, inkast.corner, raise.across
 
 ## Q7: Raise kubbs apart, or as a tight fence?
 

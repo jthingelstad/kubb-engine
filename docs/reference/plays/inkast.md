@@ -160,9 +160,10 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   (kn-drill-2012#p6.9, kn-drill-2012#p2.10), which may be the same goal or a different
   one.
 - **Levels:** Proposed: pro.
-- **Engine:** unclear (0.11.0). Club and pro lay a row, each kubb flank to flank with
-  the innermost one lying (`row = 1`, `rowStep`). Whether that row gives the batons depth
-  or is the fence these players warn against has not been measured.
+- **Engine:** modelled another way (0.11.0). Club and pro lay a row, each kubb flank to
+  flank with the innermost one lying (`row = 1`, `rowStep`). It lies as a fence, and the
+  defender's `apart` raise staggers it into depth. In the Gym it gave more doubles and
+  triples than 0.10's line or cluster (Q6).
 - **Gym:** first-baton take by field size (`firstBaton.*`), `g.btc`; compare `row = 1`
   with `row = 0`.
 
