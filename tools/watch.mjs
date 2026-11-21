@@ -13,7 +13,8 @@
 // The key is read from GEMINI_API_KEY and used only as a request header; nothing here
 // prints, stores or logs it.
 // Exit codes: 0 done or skipped, 1 HTTP or service error, 2 usage or setup (no key, out
-// inside the repository), 3 rate limit (stopped, nothing retried), 4 a response with no text.
+// inside the repository), 3 rate limit or model busy (stopped, nothing retried), 4 a
+// response with no text.
 import fs from 'node:fs';
 import path from 'node:path';
 import https from 'node:https';
@@ -183,6 +184,8 @@ export async function callModel(request, { key, transport = httpsTransport }) {
     const after = res.headers && res.headers['retry-after'] ? ` The service asks to wait ${res.headers['retry-after']} s.` : '';
     throw new WatchError(`rate limit reached (HTTP ${res.status})${said}.${after} Stopped without retrying; run it again later.`, 3);
   }
+  if (res.status === 503 || (err && err.status === 'UNAVAILABLE'))
+    throw new WatchError(`the model is busy (HTTP ${res.status})${said}. Stopped without retrying; run it again later.`, 3);
   if (res.status < 200 || res.status >= 300)
     throw new WatchError(`the service answered HTTP ${res.status}${err && err.status ? ` ${err.status}` : ''}${said}`, 1);
   if (!json) throw new WatchError(`the service answered HTTP ${res.status} with something that is not JSON`, 1);
