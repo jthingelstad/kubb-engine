@@ -8,6 +8,10 @@ It changes nothing in the engine. What to tune from it is Jamie's call.
 level for each Gym scorecard row, and the measured figures they come from.
 `node tools/realtiers.mjs <real games dir> --json` reproduces the measured block.
 
+This is the summary by level. `README.md` beside it describes the layers underneath: the
+sources we know of, what each one says (`observations/`), the plays drawn from them
+(`plays/`) and the open questions (`QUESTIONS.md`).
+
 ## Where it comes from
 
 Every claim here carries one of four tags.
@@ -19,6 +23,11 @@ Every claim here carries one of four tags.
   Feathers in tip 6, and his "How To Throw Kubbs - The Basics" for the U.S. National
   Kubb Championship (2020). They teach method and give no numbers.
 - **estimate**: worked out from the others. Nobody has measured it.
+
+The 2020 video has an observation file, `observations/yt-Io-rxbSB3Ns.md`. The ten 2013
+tips do not yet: what this page takes from them has not been checked against the videos
+entry by entry. Plays use a fifth tag, **player**: a named tournament player's own words
+about their own play.
 
 Three limits to keep in mind.
 
@@ -98,7 +107,8 @@ the king as "just right", above the measured 58% and 85%, which rest on few thro
 
 The inkast is where the levels differ most (owner), and it is what the videos teach.
 
-1. **The goal is one baton.** Coach, quoting Niklas Augren: "I am happy with my
+1. **The goal is one baton.** Coach, quoting Niklas Ahlgren (his own words are
+   `kn-drill-2012#p2.8`): "I am happy with my
    performance if I have placed the kubbs so that there is a realistic chance one
    stick could knock them all down." Judge a group by the batons it takes to clear,
    not by how close the kubbs are.
@@ -186,11 +196,4 @@ The inkast is where the levels differ most (owner), and it is what the videos te
 
 ## Open questions for Jamie
 
-1. **Pro rethrows.** The best third of teams rethrows 16% of kubbs, more than the weaker teams. Is that risk
-   taken on purpose, as the coach describes, and should the pro computer do it?
-2. **Is the low third "club"?** Or does club sit below any tournament team, with these
-   numbers too kind to it?
-3. **Beginner numbers.** All estimates. Which look wrong from the pitch?
-4. **Deep kubbs.** Should the weaker computer levels throw them?
-5. **Advantage line at pro.** Measured 58% over 72 batons; the computer's 80% read
-   "just right". The range keeps both. Narrow it?
+They are in `QUESTIONS.md`, Q1 to Q5, with what the sources have said about each since.
