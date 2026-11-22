@@ -59,8 +59,10 @@ goes to `build/mjref/report.md`, with every number in `report.json`.
     kubb's share and mean peak energy, front first. `chainlog.py <dir> <id> [--variant
     hard] [--z]` runs one case in MuJoCo and prints, per 1/240 s, each body's speed and
     turn and each pair's normal impulse, the print `lua5.4 tools/columnprobe.lua --trace
-    <id>` gives for ours. About 10 minutes with `hard` on a loaded 10-core Mac. Results:
-    docs/notes/physics.md "A blow down a column".
+    <id>` gives for ours (the net impulse each contact leaves in a step, through
+    `world.onContact`'s fifth argument; `--max` the largest any of the step's passes
+    reached, which reads a pass's overshoot as a harder push). About 10 minutes with
+    `hard` on a loaded 10-core Mac. Results: docs/notes/physics.md "A blow down a column".
 - `--variants` (mjsim.py, 2026-11-22) picks the variants to run, among them `hard`, which
   the default run leaves out: dt 1/38400 s, timeconst 0.0005 s (MuJoCo wants the
   timeconst at least twice the step), toward the rigid contact our impulses model. Its

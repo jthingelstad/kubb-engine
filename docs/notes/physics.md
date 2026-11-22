@@ -874,7 +874,7 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     seven-kubb pile, a fence of four across the throw, a wedge of five, three in line 8
     cm apart) struck by the level baton across the front face. `lua5.4
     tools/columnprobe.lua` runs them in our engine (`--trace <id>` step by step: each
-    kubb's speed and turn and each pair's impulse), `export.lua <dir> --cases column` and
+    kubb's speed and turn and each pair's net impulse), `export.lua <dir> --cases column` and
     `mjsim.py --variants ref,dt2,stiff,soft,hard` in MuJoCo (`hard`, new: a contact four
     times stiffer than `stiff` at a quarter of its step, toward the rigid limit),
     `tools/mjref/column.py <dir> [--by] [--energy]` compares them, and
@@ -945,10 +945,13 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
       not move (the block 56 and 56, the pile of seven 52 and 51). Ours at 0.2 is inside
       the band on the columns (36%), the pushed columns (4%) and the piles. So in a struck
       column the rub between kubbs holds ours about twice as hard as the reference at the
-      same coefficient. Part of it is the block: its push goes through the first face
-      (1.52 N s between the first two kubbs in the step of the blow, MuJoCo's stiffest
-      0.80), and friction is that times 0.4; but met kubb by kubb the first face takes 0.73
-      and the column falls no more, so the rest is not found. The coefficient is not wrong
+      same coefficient, and why is not found. It is not a harder push through the faces:
+      in the step of the blow the first face passes a net 1.12 N s in ours (2 mm, 9 m/s,
+      level; `columnprobe --trace`, the net impulse each contact leaves), inside MuJoCo's
+      own 0.80 (`hard`) to 1.21 (`ref`), and met kubb by kubb 0.68, and the column falls
+      no more either way. (Until Codex on #49 the trace summed each contact's largest
+      impulse in the step's passes, 1.52 here, which read a pass's overshoot as a harder
+      push.) The coefficient is not wrong
       (clean dry wood 0.25 to 0.5, and the owner's 23.5% of touched kubbs left standing
       argues against less), so it was left.
     - **The baton's blow lands a little low on the face.** Struck level at 9 m/s, the
