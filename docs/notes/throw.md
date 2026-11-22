@@ -787,9 +787,11 @@ up.
 **The floor.** A release is planned no lower than the lowest the swing can make: the
 planned speed at most `plan.speedFor(driveBackMaxDeg)` (140 degrees, about 10.9 m/s, 9
 past a baseline baton's 131) and the line one the hand can make (a hand 0.6 m up cannot
-throw down onto a kubb 4 m away). `plan.solve` raises a plan under the floor to it (24
-bisection steps between the plan and the knee, only when the plan is under the knee), and
-never past the knee, so from the knee up nothing changes: at 8 m the floor is the knee.
+throw down onto a kubb 4 m away). `plan.solve` raises a plan under the floor to it (only when the plan is under the knee and
+its line does not fit; from 0.17.0 by Illinois steps from the line's geometric limit,
+kept for the last geometry, about what a default plan costs: 0.02 ms in desktop Lua at 2
+to 6 m where 0.16's 24 bisection steps, each line no speed reaches running 3000 carry
+steps, cost 0.58 to 0.71 ms), and never past the knee, so from the knee up nothing changes: at 8 m the floor is the knee.
 The floor by distance (a kubb's aim height, the person's meter): 0.0 at 1 m, 0.3 at 1.5
 m, 5.0 at 2 m, 9.3 at 3 m, 12.3 at 4 m, 14.8 at 5 m, 15 from 6 m. `aim.controls.arc.min`
 is that floor for the throw in hand (`docs/SESSION.md`).
@@ -946,7 +948,7 @@ perfect swing lands where it was aimed. Narrower still (0.8, 0.6) took the recor
 under half within 0.3 m, below the club computer on every column. The Kid meter is its own
 entry and keeps 1.35. The Gym's groups by thrower are in docs/notes/gym.md "The drive".
 
-### A hard throw's power bar (0.17.0)
+### A hard throw's power bar (0.17.0, not shipped)
 
 The person's power bar went by the distance alone, so a drive at 3 m on a full swing
 (10 m/s, a backswing of 128) held a 3 m bar, 6.5 degrees either side, where the same swing
@@ -957,13 +959,13 @@ by a median 7.6 degrees of backswing (17 throws) against 4.2 and 4.4 under 110 a
 110 to 125 (183 and 73), its release by 13.1 against 8.9 and 9.5. (Those hard plans were
 mostly baselines; the sample cannot tell the distance from the power.)
 
-From 0.17.0 a baton's power bar on the standard meter also goes by its planned speed
-(`plan.meters.standard.powerSpeed`, read by `plan.meterLevel`): the speed counts as the
-distance a throw on the line before needs it at (5.5 m/s 2 m, 7.1 3 m, 8.1 4 m, 8.9 5 m,
-9.5 6 m, 10.3 8 m, straight between), and the bar is that distance's when it is farther
-than the target. The release bar still goes by the distance. Bars (half widths, degrees):
+Built in 0.17.0 and not shipped: a baton's power bar on the standard meter could also go by
+its planned speed (a meter's `powerSpeed`, read by `plan.meterLevel`; the standard meter
+has none): the speed counts as the distance a throw on the line before needs it at (5.5
+m/s 2 m, 7.1 3 m, 8.1 4 m, 8.9 5 m, 9.5 6 m, 10.3 8 m, straight between), and the bar is
+that distance's when it is farther than the target. Bars (half widths, degrees), measured:
 
-| distance | the line's speed | power bar, 0.16 | power bar, 0.17 |
+| distance | the line's speed | power bar as shipped | with `powerSpeed` |
 |---|---|---|---|
 | 1.5 m | 6.5 | 6.5 | 6.5 |
 | 2 m | 8.3 | 6.5 | 5.4 |
@@ -972,12 +974,16 @@ than the target. The release bar still goes by the distance. Bars (half widths, 
 | 6 m | 10.0 | 3.8 | 2.7 |
 | 8 m | 10.3 | 2.0 | 2.0 |
 
-A softer throw a person plans (ARC up) keeps the distance's bar. The Kid meter has no
-`powerSpeed` and is unchanged. What it costs at a lone kubb (`tools/meterprobe.lua`): the
-recorded hand fells one at 4 m 62% where it felled 71%; in matches the field batons' misses
-are 32.1% (club's row 30 to 40), where they were 29.6%. In the Gym it is what brings the
-recorded hand back to about even with the club computer once both drive (docs/notes/gym.md
-"The computer's drive").
+With it, the recorded hand felled a lone kubb at 4 m 62% where it fells 71%, its field
+misses in matches were 32.1% (29.6% without), and against the club computer with both
+driving it scored 48.0% where without it scores 57.5% (53.6 to 61.4). It was left off
+(2026-11-22): the evidence is 17 recorded throws that cannot separate the distance from
+the power; the win rate it corrects comes from a human model whose inkast groups are
+looser than real ones; a drive is forgiving of a power error by its nature (a flatter,
+harder ball still meets the kubb's face, so a narrow bar is not what the throw asks); and
+it took back the throw the owner had just asked for. The person ahead of the club
+computer (57.5% for the recorded hand) is open, to be measured again when the human model
+is refitted from matches played on 0.16 and later.
 
 ### Coming down on top (0.17.0)
 

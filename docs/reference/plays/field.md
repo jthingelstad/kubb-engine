@@ -159,7 +159,7 @@ Every `Levels` line is a proposal of ours, not a source's.
   target), at every level.
 - **Engine:** the person's throw from 0.16.0 (docs/notes/throw.md "The drive": ARC under
   half past 5, the floor, no flip, the lowered default line). The computer's from 0.17.0 at
-  club and pro (`core/cpu` decideBaton, `cpu.tune.drive`): every baton planned on a
+  club and pro (`core/cpu` decideBaton, `cpu.tune.drive`): every baton but the king shot on a
   person's default line (`plan.arcFor`) instead of the line before (`plan.sharedArcFor`),
   named `field.drive` when the arc at a field kubb is a drive. Built in 0.16.0 for a close
   group only; the whole line beat that. On two hand-written positions after the owner's
@@ -169,12 +169,11 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Gym:** `gym versus`, 300 seeds both ways round, grass. 0.16.0 (the group drive,
   switched off): club with it against club without 62.1% (58.8 to 65.4), pro 60.3% (57.1 to
   63.4). 0.17.0: the line for every baton against the group drive, both teams driving,
-  56.0% (52.7 to 59.3) at club and 55.0% (51.9 to 58.1) at pro. Switched on: club's three
-  or more 1.9% to 3.4% (3 to 7), turns a game 14.3 to 12.4, cleared 70.9% to 78.2%; pro's
-  three or more 6.8% to 9.9% (12 to 18), turns 12.3 to 10.5, cleared 78.5% to 85.2%;
-  club's two (15.9%) and king (93.5%) further over their rows. With a hard throw's power
-  bar the recorded hand plays club about even again (48.0%), a newcomer beats beginner
-  65.3% and a master plays pro about even (49.7%): docs/notes/gym.md "The computer's drive".
+  56.0% (52.7 to 59.3) at club and 55.0% (51.9 to 58.1) at pro. Switched on (with the king
+  shot by level): club's three or more 1.9% to 3.7% (3 to 7), cleared 70.9% to 74.7%; pro's
+  three or more 6.8% to 9.9% (12 to 18), turns 12.3 to 10.7, cleared 78.5% to 84.5%;
+  club's two 16.7% (8 to 13) stays over its row. The recorded hand beats club 61.3%:
+  open (docs/notes/gym.md "Where 0.17.0 stands").
 
 ## field.roles: The group first, then the ones left
 

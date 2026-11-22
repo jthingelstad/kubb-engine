@@ -288,6 +288,17 @@ local function matchOptions(o)
 	out.maxTurns = o.maxTurns and I(o.maxTurns) or nil
 	out.start = o.start or { year = 2026, month = 1, day = 1, hour = 12, min = 0 }
 	for _, k in ipairs { "year", "month", "day", "hour", "min" } do out.start[k] = I(out.start[k] or 0) end
+	-- the starting host's UTC offset (0.17.0; minutes east of UTC, whole, -900..900): the
+	-- clock every action's `at` is on. Kept when given (it is in the snapshot, so a new
+	-- match that gives it has other hashes); anything else is dropped
+	local off = out.start.utcOffset
+	if off ~= nil then
+		if type(off) == "number" and off == off and off == math.floor(off) and off >= -900 and off <= 900 then
+			out.start.utcOffset = I(off)
+		else
+			out.start.utcOffset = nil
+		end
+	end
 	out.mode = o.modeName
 	-- the computer's level, a game setting (Jamie, 2026-11-20: "yes this should be a real
 	-- per game setting"): every computer player takes it unless its entry names its own.
@@ -642,6 +653,9 @@ function Session:over()
 	-- End or Duration line and the winner card no minutes (0.17.0; before, the start, so
 	-- every match lasted 0 minutes)
 	local finish = self.finish
+	-- a stamp before the start (a host's clock wrong, or a stamp on another clock) is no
+	-- finish: never negative minutes
+	if finish and self.m.start and notation.minutesBetween(self.m.start, finish) < 0 then finish = nil end
 	self.overInfo = {
 		winner = cards.winner(self.m, finish),
 		how = cmatch.howText(self.m),

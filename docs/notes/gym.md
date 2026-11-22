@@ -838,64 +838,82 @@ club is about four in ten (owner-2026-11-21#s6), so club wants retuning with the
 for a close group only (another standing field kubb within 45 cm of the front one, the
 front one within 5 m); the person's whole default line for every baton beat that, side
 against side with both teams driving, 56.0% (52.7 to 59.3) at club and 55.0% (51.9 to 58.1)
-at pro, so the computer plans every baton on a person's line. With it the person's hard
-throw holds a full swing's power bar (docs/notes/throw.md "A hard throw's power bar").
+at pro, so the computer plans every baton but its king shot on a person's line.
 
-The ladder, `gym versus`, 300 seeds both ways round, grass: A's paired score. The recorded
-hand is the Gym's human thrower (club part) at x2 (a newcomer), x1 and x0.5 (a master),
-against each computer level. "0.15.1" is the engine before the drive, "0.16.0" with the
-person's drive and the computer's off, "0.17.0" this release.
+## The king shot (0.17.0)
 
-| A | B | 0.15.1 | 0.16.0 | 0.17.0 |
-|---|---|---|---|---|
-| club | beginner | 100.0 | 100.0 | 100.0 |
-| pro | club | 94.5 | 94.5 | 94.2 |
-| pro | beginner | 100.0 | 100.0 | 100.0 |
-| hand x2 | beginner | 51.5 (47.8 to 55.2) | 70.3 (67.1 to 73.6) | 65.3 (61.7 to 69.0) |
-| hand x2 | club | 0.0 | 0.2 | 0.0 |
-| hand x2 | pro | 0.0 | 0.0 | 0.0 |
-| hand x1 | beginner | 99.7 | 99.7 | 99.7 |
-| hand x1 | club | 48.5 (44.5 to 52.5) | 68.8 (65.2 to 72.5) | 48.0 (43.9 to 52.1) |
-| hand x1 | pro | 3.0 | 6.3 | 3.7 |
-| hand x0.5 | beginner | 100.0 | 100.0 | 100.0 |
-| hand x0.5 | club | 99.3 | 99.5 | 99.0 |
-| hand x0.5 | pro | 51.5 (47.5 to 55.5) | 67.4 (63.6 to 71.2) | 49.7 (45.6 to 53.7) |
+The computer's king shots fell far more often than real ones: on 0.16.0 69.5% / 86.5% /
+96.8% for beginner / club / pro, against rows of 40 to 60 (an estimate), 62 to 75
+(measured, 42 shots only) and 84 to 96 (the owner's, over a measured 84.9 from 73 shots;
+`docs/reference/play-levels.json` g.kingHit), and the lowered line took club's to 90.4. The
+king shot is one throw from the baseline, 4 m to the king in the middle (docs/notes/
+rules-engine.md: `throwY` is the baseline for a king shot), that wins the game, or loses
+it when a kubb falls with it, under the most pressure of any throw. So the computer throws
+it on the line before (`plan.sharedArcFor`, whatever `field.drive` says), and its swing's
+mistakes and its nerves are its level's times `autothrow.tune.kingScale`. Swept (300
+matches a level, the computer both sides): beginner 1 / 1.5 / 2 / 3 gives 69.5 / 47.5 /
+35.7 / 21.7%, club 1 / 1.5 / 2 / 3 gives 90.4 / 74.9 / 61.2 / 41.4%, pro 1 / 1.3 / 1.6 / 2
+gives 97.7 / 91.5 / 83.8 / 75.1%. Set to 1.4 / 1.6 / 1.3, each near the middle of its row.
 
-With the computer driving and the old power bar the recorded hand still beat club 57.5%
-(53.6 to 61.4) and pro at x0.5 53.0%: the drive's full swing on a short throw's bar was the
-rest of the person's edge. The owner's targets (owner-2026-11-21#s6): a newcomer wins about
-two in three against beginner (x2: 65.3%), a typical online player about four in ten
-against club (x1: 48.0%, the recorded people play about even, as before the drive), pro
-left hard (x1: 3.7%).
+## Where 0.17.0 stands
 
-The rows (`gym --full`, 300 matches a configuration): field batons missed, took two, took
-three or more, base kubbs from 8 m, king shots, turns a game, turns cleared, kubbs
-rethrown; before is 0.16.0 (the computer on the line before), after 0.17.0; the target is
+`gym --full`, 300 matches a configuration, grass. Field batons missed, took two, took three
+or more, base kubbs from 8 m, king shots, turns a game, turns cleared, kubbs rethrown;
+before is 0.16.0 (the computer on the line before), after 0.17.0; the target is
 `docs/reference/play-levels.json`:
 
 | | missed | two | three+ | 8 m | king | turns | cleared | rethrown |
 |---|---|---|---|---|---|---|---|---|
+| cpu beginner, before | 37.1 | 6.5 | 0.6 | 8.4 | 69.5 | 25.3 | 51.7 | 4.5 |
+| cpu beginner, after | 36.2 | 6.9 | 0.7 | 8.4 | 52.5 | 27.6 | 49.6 | 4.4 |
+| beginner's row | 45 to 60 | 1 to 5 | 0 to 1 | 7 to 13 | 40 to 60 | 14 to 24 | 35 to 55 | 15 to 30 |
 | cpu club, before | 25.5 | 13.8 | 1.9 | 25.4 | 86.5 | 14.3 | 70.9 | 1.2 |
-| cpu club, after | 24.4 | 15.9 | 3.4 | 25.3 | 93.5 | 12.4 | 78.2 | 1.4 |
+| cpu club, after | 23.8 | 16.7 | 3.7 | 25.3 | 71.5 | 14.0 | 74.7 | 1.3 |
 | club's row | 30 to 40 | 8 to 13 | 3 to 7 | 19 to 27 | 62 to 75 | 8 to 14 | 68 to 80 | 11 to 18 |
 | cpu pro, before | 16.9 | 22.2 | 6.8 | 34.3 | 96.8 | 12.3 | 78.5 | 0.3 |
-| cpu pro, after | 15.1 | 23.4 | 9.9 | 34.7 | 97.4 | 10.5 | 85.2 | 0.3 |
+| cpu pro, after | 15.0 | 23.4 | 9.9 | 34.7 | 91.5 | 10.7 | 84.5 | 0.3 |
 | pro's row | 12 to 19 | 17 to 23 | 12 to 18 | 39 to 48 | 84 to 96 | 6 to 10 | 87 to 94 | 8 to 17 |
-| human club, before | 29.6 | 11.3 | 1.6 | 29.1 | 83.6 | 14.0 | 65.6 | 8.4 |
-| human club, after | 32.1 | 10.2 | 1.4 | 29.2 | 86.9 | 13.8 | 63.4 | 9.2 |
-| human pro, before | 28.2 | 16.3 | 2.9 | 28.6 | 88.6 | 13.3 | 69.3 | 7.4 |
-| human pro, after | 31.3 | 15.0 | 2.4 | 28.7 | 86.9 | 13.1 | 68.5 | 7.4 |
+| human club (both) | 29.6 | 11.3 | 1.6 | 29.1 | 83.6 | 14.0 | 65.6 | 8.4 |
 
-The computer moves into or toward its rows on three or more (club into 3 to 7, pro 6.8 to
-9.9 against 12 to 18), turns a game and turns cleared. It moves further out on two at club
-(15.9 against 8 to 13) and the king at club (93.5 against 62 to 75, from 86.5: a king shot
-from 4 m is now a flat hard throw); both were outside before. The person's field misses
-move into club's row (32.1). Left where they were: the person's 8 m base kubbs (29 against
-club's 19 to 27; the 8 m bars are unchanged, as the drive work promised), the computer's
-rethrows (1.4 against 11 to 18: its kubbs seldom go out) and cleared turns for the person.
-The trade not taken: narrowing the 8 m release bar to 6.5 degrees takes the recorded hand's
-lone base kubb from 28% to 26% and would move every 8 m throw a person makes; it is left
-for a calibration of the 8 m rows of its own.
+Into their rows: every level's king shots; club's three or more; club's turns a game
+(14.0, the row's top); pro's three or more, turns cleared and turns a game move toward
+theirs. A harder king shot lengthens a beginner's game (27.6 turns against 14 to 24, 25.3
+before). The person's rows are 0.16.0's (the person's throw is unchanged).
+
+Club's took two (16.7 against 8 to 13, measured from the weaker third of tournament
+teams, who throw as they throw, drives included, so the row is sound). What club does that
+real club players do not: it misses a field kubb a quarter of the time (23.8%) against
+their 30 to 40. The honest lever is its baton's mistakes (`swingScale.club`), swept 1.3 /
+1.6 / 1.9 / 2.2: field misses 24.3 / 30.6 / 34.3 / 36.9, took two 16.0 / 14.1 / 12.6 / 11.9,
+three or more 3.4 / 2.5 / 2.3 / 1.9, base kubbs from 8 m 25.3 / 21.1 / 18.6 / 16.8, turns a
+game 12.5 / 14.3 / 15.9 / 19.3. No value puts took two in its row without taking three or
+more, base kubbs from 8 m and turns a game out of theirs, so `swingScale.club` stays 1.3
+and took two is left over its row (recommendation: retune club as a whole, its inkast and
+its batons together, the order of work's step 4).
+
+The ladder, `gym versus`, 300 seeds both ways round, grass: A's paired score. The recorded
+hand is the Gym's human thrower (club part) at x2 (a newcomer), x1 and x0.5 (a master),
+against each computer level.
+
+| A | B | 0.15.1 | 0.16.0 | 0.17.0 |
+|---|---|---|---|---|
+| club | beginner | 100.0 | 100.0 | 100.0 |
+| pro | club | 94.5 | 94.5 | 96.0 |
+| pro | beginner | 100.0 | 100.0 | 100.0 |
+| hand x2 | beginner | 51.5 (47.8 to 55.2) | 70.3 (67.1 to 73.6) | 72.9 (69.7 to 76.1) |
+| hand x2 | club | 0.0 | 0.2 | 0.0 |
+| hand x1 | beginner | 99.7 | 99.7 | 99.7 |
+| hand x1 | club | 48.5 (44.5 to 52.5) | 68.8 (65.2 to 72.5) | 61.3 (57.7 to 65.0) |
+| hand x1 | pro | 3.0 | 6.3 | 4.2 |
+| hand x0.5 | club | 99.3 | 99.5 | 99.0 |
+| hand x0.5 | pro | 51.5 (47.5 to 55.5) | 67.4 (63.6 to 71.2) | 53.0 (49.0 to 57.0) |
+
+Open: the recorded hand is ahead of the club computer, 61.3% (57.5% with the computer
+driving and its old king shot; the harder king shot takes the rest of the drive's gain
+back). The owner's target for a typical online player is about four in ten
+(owner-2026-11-21#s6). A hard throw's power bar for the person brought it to 48.0% and was
+left off (docs/notes/throw.md "A hard throw's power bar"); the balance is to be measured
+again when the human model is refitted from matches played on 0.16 and later.
 
 Which of the human thrower's rows to trust (2026-11-22). Its batons are drawn from the
 recorded swings and thrown on the current meter, so its baton rows (field batons missed,
