@@ -132,6 +132,19 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
   and in a Kid match `kid: true` and `kidY`, the Kid line in the view frame;
   `key` is the lineup's key for that player, on a shared pitch the pitch member it
   belongs to).
+  `setup.settled` (0.16.0): what the engine raised and placed itself just before this
+  throw (the computer's raises, a match with Raising: Automatic, a punishment kubb it
+  placed), on the first throw need after it and nil otherwise: `{ raised, punished, list
+  }`, `list` in the order done, each `{ kind: "raise", id, side, which, lying, standing,
+  displaced, crowded }` or `{ kind: "punish", id, side, pose }`. `side` is the side that
+  raised (the defender; word it from that), `which` the end as a raise action names it,
+  and every pose `{ x, y, standing, angle }` in that side's view frame: the frame and
+  shape a person's raise by hand is given in (`raiseInfo`), so one path draws both. In
+  the wide view every pose is turned to the world frame (Team A's) whoever raised, and
+  each entry says `frame: "world"`. A session restored from a snapshot after the raise
+  hands out none (the kubbs already stand raised in its items); nothing of it is in a
+  snapshot, an action or a hash. A raise the engine makes is shown from `setup.settled`:
+  never compare pieces before and after, or convert frames.
   `cpu`: the computer throws. `local`: this browser acts for it. `candidates`: the team's
   players when a human team has more than one (for the `thrower` action). Practice:
   `{ kind: "throw", practice: true, drill, surface, level, set }`.
@@ -298,7 +311,7 @@ other plan, and `aim.arc` is the planned flight, down as well as up.
 
 | Control | Range | Default | Tick | Step | Physically |
 | ------- | ----- | ------- | ---- | ---- | ---------- |
-| `arc` | a baton's: its floor for the throw in hand (`min`, 0.16) to 165 clock degrees (half past 12); a kubb's: 15 (half past 5) to 165 | the plan's own (`plan.arcFor`): a baton's goes by the distance from the stance to the aim circle, 15 at 2 m or closer rising 7.5 a metre to 60 at 8 m; from 0.16 a baton whose circle is on a standing field kubb takes a field kubb's (`plan.tune.fieldArc`: 15 at 1 m and under, 6 at 1.5 m, 13.6 at 4 m, 37.5 at 6 m, 60 at 8 m); a drilled kubb 135 | 5 | 15 | the release target; the loft is `plan.loftFor` of it: from the knee (`knee`, 15) up the line through 5 and 3 o'clock, 7 to 57 degrees; under it the drive, down to -15 at 0 (docs/notes/throw.md "The drive") |
+| `arc` | a baton's: its floor for the throw in hand (`min`, 0.16) to 165 clock degrees (half past 12); a kubb's: 15 (half past 5) to 165 | the plan's own (`plan.arcFor`): a baton's goes by the distance from the stance to the aim circle, never the target's kind: from 0.16 the lowered line (`plan.tune.arcLine`: 15 at 1 m and under, 6 at 1.5 m, 13.6 at 4 m, 37.5 at 6 m, 60 at 8 m, and from 8 m out as before; until 0.16 15 at 2 m or closer rising 7.5 a metre to 60 at 8 m); a drilled kubb 135 | 5 | 15 | the release target; the loft is `plan.loftFor` of it: from the knee (`knee`, 15) up the line through 5 and 3 o'clock, 7 to 57 degrees; under it the drive, down to -15 at 0 (docs/notes/throw.md "The drive") |
 | `tilt` | -20 to 20 degrees | 0 | 1 | 5 | the baton's spin plane tipped, before the shake's tilt; over 30 with the shake is a helicopter |
 | `spin` | -3 to 3 taps | 0 | 0.25 | 1 | 22 rad/s a tap about the kubb's long axis, + clockwise from behind (rolls right), on top of the wrist's 3 rad/s spiral, which goes the spin's way from 0.11: -69 to +69 rad/s. From 0.11 a spun kubb that lands dead rolls that way, about 5 cm for one tap, 16 for two and 33 for three on grass, and the aim allows for it (`drill.rollFor`) |
 
@@ -701,8 +714,20 @@ A neighbour's **recording** is the session's recording cut to what a far pitch n
 ```
 { frameDt, frames, duration, poseScale,
   projectile { id, kind },
-  bodies [{ id, kind, team, start, frames, poses, toppleT }] }
+  bodies [{ id, kind, team, start, frames, poses, toppleT }],
+  hits [{ t, id, strength }], landing { t, strength } }
 ```
+
+The sounds (0.16.0): `hits` is the first contact on each body something strikes (the
+thrown piece or another moving piece; a stake too), in time order, `t` seconds from the
+release, `strength` 0 to 1 on the session's own contact scale (an impulse of 2 N s is 1),
+so a kubb struck and left standing knocks and a hard hit sounds harder than a graze;
+`landing` is the thrown piece's first touch of the ground. Either is left out when there
+is none. They are listeners on the same steps, so the throws are as before; the events'
+pinned hash in `tests/node/neighbours.test.mjs` moved because the recordings carry them
+(`bafb735b` to `f3f06bfd`). They add 58 bytes a throw on average (190 throws of seed 9,
+six pitches: 0.4 hits a throw, most throws being drills into open ground and batons that
+touch nothing).
 
 `bodies` holds only the bodies that moved; `poses` 7 integers a frame (`x y z qw qx qy qz`
 times `poseScale`, 1000), pose j at time `(start + j) * frameDt`, as in the session's

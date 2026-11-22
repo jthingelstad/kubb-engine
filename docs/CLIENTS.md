@@ -355,21 +355,33 @@ the whole of what it takes. The numbers below are measured (docs/notes/tournamen
 
 0.16.0 is a minor: the drive, a baton thrown flat or down and hard into a group
 (docs/notes/throw.md "The drive"), and a thrown kubb's bars narrowed to a baton's on the
-standard meter ("The thrown kubb on the person's meter"). No golden hash moves (the
-corpus's person throws replay their recorded launches, and the computer's are bit for bit
-as before), but a person can now make throws a 0.15 engine's `check.throw` refuses (a
-release under 15) and a 0.15 session plans other defaults, so it shares matches with no
-0.15. Web and iPhone move together. Sync `v0.16.0` (web `npm run vendor:sync -- --tag
+standard meter ("The thrown kubb on the person's meter"). The golden matches with a
+person's side move (their default throws at the king, base kubbs and kept circles), a
+person can make throws a 0.15 engine's `check.throw` refuses (a release under 15), and a
+0.15 session plans other defaults, so it shares matches with no 0.15. Web and iPhone move together. Sync `v0.16.0` (web `npm run vendor:sync -- --tag
 v0.16.0`, iPhone `TAG=v0.16.0`, Playdate `make vendor-sync TAG=v0.16.0`).
 
-What every client gets for nothing: a baton whose circle is on a standing field kubb plans
-a field kubb's default arc (firm and low close in: a release of 6, launch loft -4.6 at
+What every client gets for nothing: a baton's default arc is the lowered line, by
+distance for every target (firm and low close in: a release of 6, launch loft -4.6 at
 6.5 m/s at 1.5 m; the old line from 8 m), a drive under the knee does not turn end over
 end, a plan under the throw's floor is raised to it, and the power band, the planned
 speed and `aim.arc` follow. A thrown kubb is planned and launched on narrower bars. The
 verdict's words are as before and right for a drive: SHORT and LONG are the power, LOW and
 HIGH the stop against the bar, and PULLED the release past it; a drive that lands short is
 SHORT. A helicopter is the tilt alone, as before.
+
+Two output-only additions (no snapshot or hash moves):
+
+- **A raise the engine makes is shown from `setup.settled`** (docs/SESSION.md "need"): the
+  kubbs the computer or Raising: Automatic stood up, and a punishment kubb it placed, in
+  order, each with its end and its lying and standing poses in the raiser's view frame
+  (raiseInfo's frame and shape: draw them with the raise-by-hand view's code), turned to
+  the world frame in the wide view. Never compare pieces before and after, or convert
+  frames. After a restore there is none: the kubbs already stand.
+- **The neighbours' sounds**: each neighbour `throw` recording carries `hits` (the first
+  contact on each body struck, with a strength) and `landing` (the thrown piece's first
+  touch of the ground): a kubb struck and left standing knocks, a topple's sound can go by
+  its hit's strength, and a landing need not be read from poses.
 
 - **Web**
   - Must: the ARC slider's range from `aim.controls.arc` every frame it is drawn, not 15 to
@@ -394,11 +406,9 @@ SHORT. A helicopter is the tilt alone, as before.
   - Worth showing: DRIVE under the knee, as the web.
 - **Playdate** (it vendors the core only and plans in its own `scenes/throw.lua`)
   - Must, for the drive: B + down steps the release under 15 (`plan.clampRelease(r,
-    projectile)`: pass the projectile, so a thrown kubb still stops at 15), and the throw
-    scene's replan passes `"field"` to `plan.arcFor` when the circle is on a standing field
-    kubb (as `session/throw.lua` `throw.defaultArc` does) to get the new default. Until
-    then the Playdate's person throws the 0.15 default at field kubbs, and its drive only
-    by stepping the arc down.
+    projectile)`: pass the projectile, so a thrown kubb still stops at 15). The default
+    needs nothing: `plan.arcFor("baton", d)` is the lowered line. The computer's arc is
+    `plan.sharedArcFor` (the line before) until its drive is switched on.
   - Gets for nothing: `plan.solve`'s floor and the drive's turn, the narrower kubb bars on
     the standard meter, and `plan.launch`'s loft (`plan.launchLoft`). The crank feeds the
     same arm degrees to `core/swing`, and the recorded device traces replay as before
