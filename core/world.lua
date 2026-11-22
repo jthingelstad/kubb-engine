@@ -123,6 +123,8 @@ world.tune = {
 	outMargin = 0.04,      -- m beyond a pitch line before a center counts as out (base kubbs
 	                       -- stand centered on the baselines)
 	maxTime = 12,          -- s; a throw is called at rest after this long regardless
+	seatOn = 0,            -- 1: a kubb standing plumb leans in its seat in the turf, up to its
+	                       -- surface's `seat` (world.addPiece). 0 (as shipped): kubbs stand plumb
 	stakeHeight = 0.15,    -- m above the ground (6 inches, Jamie 2026-11-14); stakes are fixed posts of radius pitch.stakeRadius
 	-- the air's drag on a thrown piece per kind (world.airDrag) is
 	-- tw.flight.tune.dragK, the figure the aim solves with
@@ -186,6 +188,7 @@ world.surfaces = {
 		dig = 1.0, digSpeed = 0.3, digRamp = 1.5, digLever = 0.006, digTime = 0.15,
 		bite = 0.7, biteTime = 0.05,
 		roll = 0.01,
+		seat = 2,         -- degrees: a standing kubb leans up to this in its seat (tune.seatOn; a lawn's dips under a 7 cm foot, 1 to 3 mm)
 		texture = { cell = 0.25, muVar = 0.3, eVar = 0.5, digVar = 0.5, bump = 0.12, bumpSpeed = 0.8,
 			drag = 2.5, grip = 12, gripSpeed = 0.5 },
 	},
@@ -198,6 +201,7 @@ world.surfaces = {
 		dig = 3.0, digSpeed = 0.2, digRamp = 1.0, digLever = 0.03, digTime = 0.5,
 		bite = 2, biteTime = 0.1,
 		roll = 0.03,
+		seat = 3,         -- degrees: a standing kubb leans up to this in its seat (tune.seatOn; a foot pressed into loose sand)
 		texture = { cell = 0.2, muVar = 0.25, eVar = 0.4, digVar = 0.7, bump = 0.18, bumpSpeed = 0.6,
 			drag = 6, grip = 20, gripSpeed = 0.6 },
 	},
@@ -210,6 +214,7 @@ world.surfaces = {
 		dig = 2.5, digSpeed = 0.3, digRamp = 1.2, digLever = 0.025, digTime = 0.4,
 		bite = 0, biteTime = 0.05,
 		roll = 0.004,
+		seat = 1.5,       -- degrees: a standing kubb leans up to this in its seat (tune.seatOn; packed snow, a foot set down in a footprint)
 		texture = { cell = 0.3, muVar = 0.5, eVar = 0.3, digVar = 0.8, bump = 0.1, bumpSpeed = 0.8,
 			drag = 0.6, grip = 4, gripSpeed = 0.3, plough = 1.5,
 			footMu = 0.3, footSpeed = 0.3 },
@@ -228,6 +233,7 @@ world.surfaces = {
 		dig = 0, digSpeed = 0.3, digRamp = 1, digLever = 0, digTime = 0.15,
 		bite = 0, biteTime = 0.05,
 		roll = 0.002,
+		seat = 0,         -- degrees: a standing kubb leans up to this in its seat (tune.seatOn; a hard floor: none)
 		texture = { cell = 0.25, muVar = 0, eVar = 0, digVar = 0, bump = 0, bumpSpeed = 1e9,
 			drag = 0.6, grip = 60, gripSpeed = 0.7, hold = 6 },
 	},
@@ -335,8 +341,23 @@ function world.addPiece(w, p)
 			qw, qx, qy, qz = quat.mul(qw, qx, qy, qz, tw_, tx, ty, tz)
 		end
 	end
+	local seated = false
+	if p.kind == "kubb" and qx == 0 and qy == 0 and world.tune.seatOn > 0 and (w.surface.seat or 0) > 0 then
+		-- its seat (tune.seatOn): the turf under a kubb is never quite level, so a kubb
+		-- standing plumb (set down or raised: its pose a turn about the vertical alone)
+		-- leans up to the surface's `seat` degrees in a direction of its own, seeded from
+		-- where it stands, the same each time a world is built there. It rests on the
+		-- edge it leans to; struck, it is the ordinary physics' (a nudge rocks it back
+		-- plumb: the turf gave), and once it has moved it keeps the pose it came to rest in
+		local h = world.seedFrom(p.x or 0, p.y or 0, qz)
+		local lean = rad(w.surface.seat) * ((h & 1023) / 1023)
+		local dir = 2 * math.pi * (((h >> 10) & 1023) / 1024)
+		local lw, lx, ly, lz = quat.fromAxisAngle(-sin(dir), cos(dir), 0, lean)
+		qw, qx, qy, qz = quat.mul(lw, lx, ly, lz, qw, qx, qy, qz)
+		seated = true
+	end
 	body.setPose(b, p.x or 0, p.y or 0, 0, qw, qx, qy, qz)
-	if p.z then
+	if p.z and not seated then
 		b.z = p.z
 	else
 		b.z = -body.lowestZ(b)

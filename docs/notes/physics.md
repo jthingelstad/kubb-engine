@@ -1168,6 +1168,50 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
   confirms the mechanics, not grass's `mu` at an impact; nothing to fix against it. What
   the soft arrival costs is small: a ground-first touch fells the lone kubb 93% (6 m, of
   54) and 92% (8 m, of 51), on the fly 100% (of 133 and 84).
+- **The seat** (built switched off, 2026-11-22; the owner asked for it by name: kubbs
+  stand too firmly). `world.tune.seatOn` 1 leans a kubb standing plumb (set down or
+  raised: its pose a turn about the vertical alone) up to its surface's `seat` degrees,
+  in a direction of its own, seeded from where it stands (`world.seedFrom` of x, y and
+  its turn), so the same each time a world is built there. It rests on the edge it leans
+  to; once anything wakes it, it is the ordinary physics' (a nudge rocks it back plumb,
+  the turf gave), and a kubb that has moved keeps the pose it came to rest in. Off (0, as
+  shipped) nothing changes: `make golden-check` passes untouched.
+  - **The range.** A lawn's dips under a 7 cm foot are 1 to 3 mm, a lean of 1 to 2.5
+    degrees: grass `seat` 2. A foot pressed into loose sand sits deeper and less even:
+    sand 3. Packed snow takes a footprint and holds it: snow 1.5. The Techno grid is a hard
+    floor: 0. Each kubb's lean is uniform in 0 to `seat`, its direction uniform; none
+    measured, all guesses for the owner to feel.
+  - **The blow that tips it** (`tools/seatprobe.lua`, a lone kubb at 200 places struck
+    level as tools/mjref's tip cases, flat ground; N s, plumb, then min / median / max
+    with the seat, and the share of places tipped by 0.95 of plumb):
+
+    | surface | struck at | plumb | with the seat | tipped by 0.95 |
+    | --- | --- | --- | --- | --- |
+    | grass (2) | 4 cm | 0.297 | 0.295 / 0.301 / 0.331 | 0% |
+    | grass | 10 cm | 0.152 | 0.140 / 0.152 / 0.163 | 4% |
+    | grass | 14 cm | 0.109 | 0.100 / 0.109 / 0.112 | 5% |
+    | sand (3) | 10 cm | 0.152 | 0.135 / 0.152 / 0.169 | 10% |
+    | sand | 14 cm | 0.109 | 0.096 / 0.106 / 0.114 | 12% |
+    | snow (1.5) | 4 cm | 0.346 | 0.296 / 0.322 / 0.346 | 62% |
+    | snow | 10 cm | 0.174 | 0.160 / 0.178 / 0.192 | 2% |
+
+    A lean of 2 degrees is a twelfth of the 25 the kubb must turn through to fall, so a
+    blow away from the lean needs up to 8% less and one towards it up to 8% more: the
+    median does not move. Low on snow the seat makes it slide less and tip sooner.
+  - **The graze family** (`tools/columnprobe.lua --only col-brace --game`, 108 throws a
+    layout): felled 93 to 100% a layout, off and on alike (the largest move one layout
+    93 -> 98%, another 94 -> 93).
+  - **The Gym** (300 matches a configuration, seed 1, grass, computer and person at
+    beginner, club and pro; off -> on): `gym compare` finds 18 figures past 99%, most of
+    them the touches it was for: a touch at 3 m/s or more that left the kubb unmoved, cpu
+    beginner 7.4 -> 4.8%, cpu club 2.4 -> 1.5, human beginner 2.4 -> 1.3; a touch within
+    1 cm of the top at 3 m/s or more that left it standing, cpu beginner 21.8 -> 18.7; the
+    kubb did not move, cpu beginner 2.8 -> 1.8. Took two 7.1, 16.5, 23.3, 9.0, 11.4, 16.5%
+    -> 6.8, 17.1, 23.9, 9.2, 11.2, 16.2; three or more 0.7, 3.4, 10.0, 1.0, 1.6, 2.6% ->
+    0.7, 3.7, 10.4, 1.1, 1.7, 2.9 (cpu beginner, club, pro, human beginner, club, pro);
+    base kubbs toppled 20.9, 31.0, 37.0, 41.2, 35.0, 33.8% -> 20.7, 31.5, 37.3, 40.9, 34.0,
+    32.7. A small seat moves the soft touches, not the level of play. It ships only on the
+    owner's word, with the ranges his to set.
 - Tried and rejected (2026-11-13): `dt` 1/120 halves the steps but fails three behaviour
   tests and the bigger contact margin gives ghost hits; 3 solver iterations instead of 4
   would save about 8% of a collision step but changes the feel, so it was not applied.
