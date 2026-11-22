@@ -49,14 +49,22 @@ for g_i = 1, n do
 	end
 	local start = notation.addMinutes(base, (g_i - 1) * 37)
 	local finish = notation.addMinutes(start, 5 + g.turn * 2)
-	-- the three shapes of [Throw Levels] (match.fileLevels, 0.13.2) for the gate: pass
-	-- and play has none, a person against the computer names Team B's players, computer
-	-- against computer every player
+	-- the shapes of [Throw Levels] (match.fileLevels, 0.13.2) for the gate: pass and play
+	-- has none, a person against the computer names Team B's players, computer against
+	-- computer every player; and (0.17.0) one game in five has computer players in teams,
+	-- every player but each team's first, each with its own level
 	local shape = g_i % 3
 	local mode, levels = "Pass and Play", nil
-	if shape > 0 then
+	local lv = { "beginner", "club", "pro" }
+	if g_i % 5 == 0 then
+		mode, levels = "Vs Computer", {}
+		for _, side in ipairs { "A", "B" } do
+			for k, p in ipairs(g.teams[side].players) do
+				if k > 1 then levels[#levels + 1] = p.id .. " " .. lv[(g_i + k) % 3 + 1] end
+			end
+		end
+	elseif shape > 0 then
 		mode, levels = (shape == 1) and "Vs Computer" or "Computer vs Computer", {}
-		local lv = { "beginner", "club", "pro" }
 		for _, side in ipairs { "A", "B" } do
 			if side == "B" or shape == 2 then
 				for k, p in ipairs(g.teams[side].players) do

@@ -105,7 +105,7 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 | Call                         | Returns           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ---------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `newPractice(opts)`          | view              | `{ scene, surface: "grass" \| "sand" \| "snow" \| "grid", level, set, drill }`. The practice pitch (scenes/drills.lua's free throw); `drill: true` throws kubbs at the circle. Since 0.14 a `scene` named decides the surface and the set as for a match (below), and `setSurface` then takes only a surface the scene allows.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, rules, scene, start, maxTurns, modeName }`. `rules: "kid"` (since 0.15): the Kid rules whatever the computer (pass and play with two children); absent, a match has them only with the Kid computer. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names). `cpu`: `"A"`, `"B"`, `"both"` or a list. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"kid"` (since 0.15), `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; `"kid"` with a computer side makes the match a Kid match ("Kid matches", below); absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. **Since 0.14 a scene decides** ("Scenes", below): with `scene` named, `new` takes the surface given only if the scene allows it (else the scene's default) and the set likewise, and an id the catalogue does not have is Park (`"day"`, not kept). With no `scene`, the options stand as given, as before 0.14. Restore, replay, checkStart and renameStart make a match from its options as they were recorded, whatever its scene. |
+| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, rules, scene, start, maxTurns, modeName }`. `rules: "kid"` (since 0.15): the Kid rules whatever the computer (pass and play with two children); absent, a match has them only with the Kid computer. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names); since 0.17 a player may be a computer player, `{ cpu: true, level, name?, key? }` ("Computer players", below). `cpu`: `"A"`, `"B"`, `"both"` or a list: every player of that side is the computer, at the match's `computer` level, as before 0.17. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"kid"` (since 0.15), `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; `"kid"` with a computer side makes the match a Kid match ("Kid matches", below); absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. **Since 0.14 a scene decides** ("Scenes", below): with `scene` named, `new` takes the surface given only if the scene allows it (else the scene's default) and the set likewise, and an id the catalogue does not have is Park (`"day"`, not kept). With no `scene`, the options stand as given, as before 0.14. Restore, replay, checkStart and renameStart make a match from its options as they were recorded, whatever its scene. |
 | `restore(snapshotText)`      | view              | A match from a snapshot. Since 0.13.4 also `{ snap, names: "check" }`, which refuses a snapshot whose names the engine does not allow ("Names", below). Restored while raising, placing a punishment kubb or after the end, the view shows the match's pitch as it stands (pieces and debris, a king that ended the match lying down) in the last throw's frame, as live, until the next throw is set up. The restored session acts for every side and the computer until `setControl` says otherwise.                                                                                                                                                                                                                                   |
 | `snapshot()`                 | text              | The whole match as JSON text. Opaque: store and send it as it is, byte for byte. Matches only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `hash()`                     | `{ hash, bytes }` | FNV-1a 32 of the snapshot text (8 hex digits) and its length. Equal hashes mean equal matches.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -128,7 +128,7 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 
 - `{ kind: "throw", side, setup, cpu, local, candidates?, wind, ... }`. `setup` is the
   throw (`kind`, `projectile` "baton" or "kubb", `n` of `of`, `label`, `kingShot`,
-  `rethrow`, `lineY`, `forwardY`, `advY`, `targets`, `thrower { id, name, level, key }`,
+  `rethrow`, `lineY`, `forwardY`, `advY`, `targets`, `thrower { id, name, level, key, cpu? }`,
   and in a Kid match `kid: true` and `kidY`, the Kid line in the view frame;
   `key` is the lineup's key for that player, on a shared pitch the pitch member it
   belongs to).
@@ -145,8 +145,11 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
   hands out none (the kubbs already stand raised in its items); nothing of it is in a
   snapshot, an action or a hash. A raise the engine makes is shown from `setup.settled`:
   never compare pieces before and after, or convert frames.
-  `cpu`: the computer throws. `local`: this browser acts for it. `candidates`: the team's
-  players when a human team has more than one (for the `thrower` action). Practice:
+  `cpu`: the computer throws (a side the computer plays, or since 0.17 a computer player
+  in a team; `thrower.cpu` is then true too, and `thrower.level` its level). `local`: this
+  browser acts for it. `candidates`: the team's players when the team has more than one
+  person (for the `thrower` action; a computer player is listed with `cpu: true`, `ok:
+  false`, `why: "computer"`). Practice:
   `{ kind: "throw", practice: true, drill, surface, level, set }`.
 - `{ kind: "raise", side, kubb, pose, mode, choices, ends, default, others, king, n, of,
 team, local }`: a kubb to raise by hand. `choices[i] = { which, pose, displaced,
@@ -274,6 +277,72 @@ for a short throw, narrow for a long one. The aim view's `plan.powerLo..powerHi`
 change whenever the circle or the stance moves, so a surface redraws its bands from every
 view, as it already does; there is no new field. A Kid match's people throw on the Kid meter
 (0.15, docs/notes/throw.md "The Kid meter"): the same fields, much wider bars.
+
+**Computer players** (0.17.0). Jamie (2026-11-22): "In online play we should be able to
+add computer players to the match, with a specified level. I may have three friends and we
+want to play a team of three computers (two at club and one at pro). Or we want to play 2
+v 2 where Tyler and I each have a pro computer partner." A team may hold people,
+computers or both, up to six together, each computer at its own level:
+
+```
+teams: {
+  A: { name: "Birch Batons", players: [{ name: "Mighty Maple", key: "m1" },
+                                       { cpu: true, level: "pro" }] },
+  B: { players: [{ cpu: true, level: "club" }, { cpu: true, level: "club" },
+                 { cpu: true, level: "pro", name: "Proud Plum", key: "cpu:3" }] },
+}
+```
+
+- **The entry.** `cpu: true` (exactly `true`) makes the player a computer. `level`:
+  `"beginner"`, `"club"` or `"pro"`; absent, the match's `computer` level (club when
+  none). `"kid"`, or any other value, is refused: `newMatch` fails with an error that says
+  so. Kid is a match's rules, chosen as before by `computer: "kid"`: with it chosen, a
+  computer player makes the match a Kid match just as a computer side does, and in a Kid
+  match every computer player is the Kid computer (its level becomes `"kid"`). `name`: a
+  generated name, or absent; an absent name is made by core/namegen from the match's seed
+  and the seat (Team A's players 1 to 6, Team B's 7 to 12; `mix(seed, 4, seat)`), never
+  one another player of the match has, so every client makes the same. `key`: as for a
+  person (on a pitch, the seat id). A team of one computer player and no team name is
+  named for the player. Only computer entries carry `cpu`, so a match without one has the
+  start, snapshot and hashes it always had; the old `cpu` option is unchanged and means
+  what it meant.
+- **Who throws.** The team's throwing order (core/order: blocks of batons dealt round the
+  team, one inkaster a turn) decides every throw, so a computer partner takes its share of
+  the batons. The kubbs: in a team with a computer player the inkaster goes round the team
+  turn by turn (`rotateInk`), so the partner takes its share of them too. A team of people
+  keeps the turn's first baton thrower, as before; with one, two, three or six players and
+  six batons the deal opens every turn with the same player, who so throws every turn's
+  kubbs, and a team of people can hand them on with the `thrower` action, which a
+  computer cannot take. A person's throw waits for that person; a computer player's is
+  chosen by core/autothrow at that player's own level and run through `frame` as the
+  computer side's always was (`need.cpu`, its think and arm on the dial, the action from
+  the client with `control.cpu`). `checkThrow`, a replay's `checkCpu` and `cpuAction`
+  treat it as the computer's throw.
+- **What the rules give the team.** A team with a person on it decides by its people: it
+  raises the kubbs thrown into its half and places a punishment kubb by hand (or by the
+  match's Raising option, `auto`: the engine's advice, par), and on a shared pitch any of
+  its connected people may (docs/PITCH.md "Who acts"). A team of computers decides itself,
+  at its strongest player's level (pro above club above beginner: `match.strongestLevel`,
+  raising by `cpu.raising` of that level; punishment kubbs placed by the engine, as for a
+  computer side). The `thrower` action is between people only: it refuses
+  (`why: "computer"`) while a computer's throw is set up or when it names a computer, so a
+  person never takes a computer partner's throw or hands one to it, and a swap between two
+  people leaves the computer's batons where the order put them.
+- **What a client shows.** `need.setup.thrower` has `cpu: true` and `level` for a computer
+  thrower ("Bold Birch · computer · Pro"); the hand-off card (`card.handoff`) has
+  `throwerCpu` and `throwerLevel` for a computer opening the turn, `order[i].cpu` and
+  `.level`, and `inkasterCpu`. The hand-off card shows whenever the team on turn has a
+  person, whoever throws first; the pass card only before a person's throw.
+- **The game file.** `[Throw Levels]` names every computer player with its level, in team
+  order, Team A's first (people are not listed); `[Mode]` is `"Vs Computer"` when any
+  computer plays, `"Computer vs Computer"` when both teams are computers only, `"Pass and
+  Play"` otherwise.
+- **One device.** The same lineup plays with no pitch: a person with a computer partner
+  against two computers is `newMatch` with those teams and no `cpu`; `setControl` is not
+  needed (one client acts for every side and the computer).
+- **A host change mid-throw.** A client that held at a computer's release (`control.cpu`
+  false) and is given `cpu: true` by `setControl` releases on its next frame, the very
+  throw the old host would have made.
 
 **Kid matches** (0.15.0, docs/notes/kid-mode.md). The Kid computer (`computer: "kid"` with a
 computer side) or `rules: "kid"` makes the match a Kid match: `opts.rules = "kid"` in the
@@ -1115,8 +1184,13 @@ the sequential random generators.
   (a crowded raise searched in slices among them), and the player's session's snapshots
   and recordings unchanged by neighbours run in the same Lua state. The wasmoon test pins
   one seed's events by their hash.
+- Computer players: `tests/lua/session/test_computers.lua`: names, the throwing order
+  with mixed teams, each computer at its own level, team decisions, the thrower action,
+  Kid and the refusals, the old `cpu` option, the game file and names.check, one device,
+  and a host change mid-throw.
 - `make golden-check`: the golden hashes, the gate for hash-neutral changes
-  (docs/DETERMINISM.md).
+  (docs/DETERMINISM.md). m20 and m21 (0.17.0) are a person with a computer partner and a
+  team of computers at mixed levels.
 
 For private throw reports, `reportThrow` returns the last action sequence, result and
 settled piece poses in the thrower’s frame. For practice it also returns

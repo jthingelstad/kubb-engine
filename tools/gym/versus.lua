@@ -4,7 +4,9 @@
 -- numbers in the engine's tune tables only while that team acts.
 --
 -- A spec is "level=pro;thrower=cpu;raise=apart;autothrow.tune.inkast.pro.row=0" (hand=k:
--- the human thrower's recorded misses times k, human.scale; parts
+-- the human thrower's recorded misses times k, human.scale; team=club+club+pro (0.17.0):
+-- a team of computers at mixed levels, one player a level in throwing order, each
+-- throwing at its own and the team deciding at its strongest; parts
 -- split by ';' or ','; tune paths are --set's: a number reachable from tw by its path).
 -- raise= left out (or raise=default) is the engine's own for that team
 -- (versus.defaultRaise).
@@ -82,6 +84,19 @@ function versus.parse(str, label)
 					error("versus: team " .. label .. ": no raising policy " .. v .. " (" .. table.concat(names, ", ") .. ")", 0)
 				end
 				spec.raise = v
+			elseif k == "team" then
+				local levels = {}
+				for lv in v:gmatch("[^+]+") do
+					lv = trim(lv)
+					if not versus.LEVELS[lv] or lv == "kid" then
+						error("versus: team " .. label .. ": team is beginner, club or pro players joined by +, got " .. v, 0)
+					end
+					levels[#levels + 1] = lv
+				end
+				if #levels < 1 or #levels > 6 then
+					error("versus: team " .. label .. ": team is 1 to 6 players, got " .. v, 0)
+				end
+				spec.levels = levels
 			elseif k == "hand" then
 				local n = tonumber(v)
 				if not (n and n > 0) then error("versus: team " .. label .. ": hand is a positive number, got " .. v, 0) end
@@ -94,6 +109,16 @@ function versus.parse(str, label)
 				error("versus: team " .. label .. ": unknown part " .. k .. " (level, thrower, raise, hand or a tune path)", 0)
 			end
 		end
+	end
+	if spec.levels then
+		if seen.level then error("versus: team " .. label .. ": team= names every player's level; level= goes", 0) end
+		if spec.thrower ~= "cpu" then error("versus: team " .. label .. ": team= is a team of computers (thrower=cpu)", 0) end
+		-- the team decides (raises) at its strongest player's level, as the engine's team of
+		-- computers does (core/match.strongestLevel)
+		local rank = { beginner = 1, club = 2, pro = 3 }
+		local best = spec.levels[1]
+		for _, lv in ipairs(spec.levels) do if rank[lv] > rank[best] then best = lv end end
+		spec.level = best
 	end
 	if spec.raise == "default" then spec.raise, spec.raiseDefault = versus.defaultRaise(spec.level, spec.thrower), true end
 	return spec

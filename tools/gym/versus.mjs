@@ -38,15 +38,27 @@ export function parseSpec(str, label = 'A') {
     } else if (k === 'raise') {
       if (!/^\w+$/.test(v)) throw new Error(`gym versus: team ${label}: raise is a policy name, got ${v}`);
       spec.raise = v;
+    } else if (k === 'team') {
+      const levels = v.split('+').map((x) => x.trim());
+      if (!levels.length || levels.length > 6 || levels.some((x) => !['beginner', 'club', 'pro'].includes(x))) {
+        throw new Error(`gym versus: team ${label}: team is 1 to 6 of beginner, club, pro joined by +, got ${v}`);
+      }
+      spec.team = levels;
     } else if (k === 'hand') {
       if (v === '' || !(Number(v) > 0)) throw new Error(`gym versus: team ${label}: hand is a positive number, got ${v}`);
       spec.hand = Number(v);
     } else if (k.includes('.')) {
       if (v === '' || !Number.isFinite(Number(v))) throw new Error(`gym versus: team ${label}: ${k} is not set to a number: ${v}`);
       spec.sets.push([k, Number(v)]);
-    } else throw new Error(`gym versus: team ${label}: unknown part ${k} (level, thrower, raise, hand or a tune path)`);
+    } else throw new Error(`gym versus: team ${label}: unknown part ${k} (level, thrower, team, raise, hand or a tune path)`);
   }
-  spec.text = [`level=${spec.level}`, `thrower=${spec.thrower}`, `raise=${spec.raise}`,
+  if (spec.team) {
+    if (seen.has('level')) throw new Error(`gym versus: team ${label}: team= names every player's level; level= goes`);
+    if (spec.thrower !== 'cpu') throw new Error(`gym versus: team ${label}: team= is a team of computers (thrower=cpu)`);
+    const rank = { beginner: 1, club: 2, pro: 3 };
+    spec.level = spec.team.reduce((a, b) => (rank[b] > rank[a] ? b : a));
+  }
+  spec.text = [...(spec.team ? [`team=${spec.team.join('+')}`] : [`level=${spec.level}`]), `thrower=${spec.thrower}`, `raise=${spec.raise}`,
     ...(spec.hand !== undefined ? [`hand=${spec.hand}`] : []), ...spec.sets.map(([p, v]) => `${p}=${v}`)].join(';');
   return spec;
 }
@@ -81,6 +93,17 @@ export function tally(overs) {
     n++; s += d; q += d * d;
   }
   out.seeds = n;
+  // a team of computers at mixed levels (team=): each level's batons, hits and kubbs over the run
+  out.byLevel = {};
+  for (const g of overs) {
+    for (const [team, by] of Object.entries(g.byLevel || {})) {
+      const t = out.byLevel[team] || (out.byLevel[team] = {});
+      for (const [lv, x] of Object.entries(by)) {
+        const r = t[lv] || (t[lv] = { players: 0, batons: 0, hits: 0, kubbs: 0 });
+        r.players += x.players; r.batons += x.batons; r.hits += x.hits; r.kubbs += x.kubbs;
+      }
+    }
+  }
   if (n) {
     const mean = s / n;
     const sd = n > 1 ? Math.sqrt(Math.max(0, (q - s * s / n) / (n - 1))) : 0;
@@ -263,6 +286,14 @@ export function printVersus(o, A, B, r) {
   for (const op of ['A', 'B']) {
     const b = T.byOpener[op];
     l.push(`  ${op} opened (${b.games} games): A won ${b.A}, B won ${b.B}, turn limit ${b.limit}${b.wilson ? `; A's share ${pct(b.wilson)}` : ''}`);
+  }
+  for (const [team, by] of Object.entries(T.byLevel || {})) {
+    let players = 0, batons = 0, kubbs = 0;
+    for (const x of Object.values(by)) { players += x.players; batons += x.batons; kubbs += x.kubbs; }
+    const parts = Object.entries(by).map(([lv, x]) => `${lv}: ${(100 * x.players / players).toFixed(0)}% of the players, `
+      + `${(100 * x.batons / Math.max(1, batons)).toFixed(1)}% of the batons (hit ${(100 * x.hits / Math.max(1, x.batons)).toFixed(1)}%), `
+      + `${(100 * x.kubbs / Math.max(1, kubbs)).toFixed(1)}% of the inkasts (turns it threw the kubbs in)`);
+    l.push(`  team ${team} by level: ${parts.join('; ')}`);
   }
   if (A.text === B.text) {
     l.push(`  same spec both sides: ${r.mirror.same} of ${r.mirror.pairs} seeds played the same game both ways round`);

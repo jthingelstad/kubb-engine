@@ -74,7 +74,9 @@ or junk as a fresh lobby.
 ```
 {
   v: 1,
-  teams:    { A: [memberId, ...], B: [...] },   in throwing order, 0 to 6 each
+  teams:    { A: [memberId | seatId, ...], B: [...] },   in throwing order, 0 to 6 each,
+                                                people and computer seats together
+  computers?: { seatId: { level, name? } },   since 0.17, only while a seat exists
   options:  { surface, opening, raising, wind, set },
   settings: { computer?, scene? },   since 0.9, only when the host set one (difference 9)
   open:     false | true,     true lists the pitch under Open games
@@ -82,8 +84,9 @@ or junk as a fresh lobby.
   n:        0,                matches started on this pitch
   match:    null | {          the header only, as the pitch server carries it
     n,                        the match number (doc.n when it started)
-    players: { A: [{ id, name }], B: [...] },  who plays, frozen at START
-    cpu:     "A" | "B" | null,                 the computer's side
+    players: { A: [{ id, name, cpu?, level? }], B: [...] },  who plays, frozen at START;
+                                               a computer player has cpu: true and its level
+    cpu:     "A" | "B" | null,                 the side the computer plays whole
     host,                     who started it
     engine,                   the engine's major.minor that started it ("0.13")
   }
@@ -105,6 +108,39 @@ host's `meta` (what a replay needs besides the log), and sends them beside the d
   written.
 - The reducers keep `match` as they find it, so a header reads, writes and survives
   `lobbyOf`, `joinTeam` and the rest unchanged; `backToLobby` drops it.
+
+### Computer seats
+
+Since 0.17 a team may hold computer players beside its people (docs/SESSION.md "Computer
+players"). A seat sits in the team's list in its place in the throwing order, by a seat id
+no member can have: `"cpu:"` and a number from 1 (the pitch server's member ids are 8 to
+40 of letters, digits, `_` and `-`). Its record is in `computers`:
+
+```
+teams:     { A: ["jamie001", "cpu:1"], B: ["tyler001", "cpu:2"] },
+computers: { "cpu:1": { level: "pro", name: "Brisk Birch" },
+             "cpu:2": { level: "pro", name: "Jolly Juniper" } }
+```
+
+- `level` is `beginner`, `club` or `pro`. Kid is not a seat's: it is the match's, the
+  Computer setting (`settings.computer: "kid"`), and with it chosen a match with any
+  computer in it is a Kid match in which every computer plays as the Kid computer,
+  whatever its seat says. A client shows its seats as Kid then.
+- `name` is a generated player name, absent when none is kept (shown as `"Computer"`).
+  The host's `addComputer` rolls it from the host's own seed, so it is in the document
+  for the lobby to show and stays with the seat from match to match.
+- `lobbyOf` keeps a seat id only with a good record, once, on one team; a record no team
+  holds goes, and a name that is not generated goes. So a document never half-holds a
+  seat. A document with no seat has no `computers` and reads, cleans and writes exactly
+  as before (every vector).
+- Six a team, people and computers together: `joinTeam` and `addComputer` refuse a full
+  side. A team of computers only is allowed; START needs at least one person in the match.
+- The empty side: a side nobody sits on, no person and no seat, is played by the computer
+  at the Computer setting's level, as before 0.17 (`lineup`'s `cpu`). That is the one rule
+  for the setting: it is the level of the computer on an empty side, and Kid there or
+  anywhere makes a Kid match; every seat carries its own level.
+- `pruneTeams` keeps seats; `joinTeam` refuses a seat id; `openListing`'s `seats` is the
+  twelve places less the seats.
 
 ### The full match
 
@@ -148,13 +184,15 @@ replay. The web's highlight reels check a share this way (its `backend/reels/che
 
 ### Values used by the calls
 
-- **lineup** `{ players: { A: [{ id, name, level }], B: [...] }, cpu: "A" | "B" | null }`
+- **lineup** `{ players: { A: [{ id, name, level, cpu? }], B: [...] }, cpu: "A" | "B" | null }`:
+  since 0.17 a computer seat is in its place as `{ id: seatId, name, level, cpu: true }`
 - **members** the pitch's members in joined order: `[{ id, connected, me }]`, where `me`
   is what the member told the pitch about themselves: `{ name, level, engine }`. `engine`
   is the member's engine version (`engineVersion`). Other member fields (the server's
   `role`, `joined`, `since`) are ignored.
 - **ctx** (who acts) `{ players, cpu, host, connected: [memberId, ...] }`: the match's
-  players and computer side, the pitch's host now, and the ids connected now.
+  players (`doc.match.players`, computer players marked `cpu: true`) and the side the
+  computer plays whole, the pitch's host now, and the ids connected now.
 - **need** what the engine's session says it needs (`view.need`): `{ kind: "throw" |
 "raise" | "punish" | "over", side, cpu, practice, setup: { thrower: { key } } }`.
 
@@ -173,14 +211,19 @@ Each is `pitch.<name>`; the fields are the argument object's. "nothing" is `valu
 | `setAccess`    | `doc, open`                                                    | Open (listed) or invite only. Nothing when unchanged.                                                                                                                                                                           |
 | `openListing`  | `doc, members, over`                                           | What the host lists for an open pitch: `{ players, seats, state: "waiting" \| "playing" \| "over" }`, or null while invite only. The pitch server counts players itself; the web sends `seats` and `state`.                     |
 | `pruneTeams`   | `doc, present`                                                 | Forget members no longer on the pitch (`present`: their ids). Between matches only; nothing when nobody went.                                                                                                                   |
-| `lineup`       | `doc, members`                                                 | Who plays: the teams with each member's cleaned name (`Player n` when none) and level, the computer on an empty side. Null when nobody is on a team.                                                                            |
+| `lineup`       | `doc, members`                                                 | Who plays: the teams with each member's cleaned name (`Player n` when none) and level, each computer seat in its place (`cpu: true`, since 0.17), the computer on an empty side. Null when nobody is on a team.                  |
+| `addComputer`  | `doc, side, level, seed, name`                                 | Since 0.17, the host's: a computer seat on `side` at `level` (`beginner`, `club`, `pro`), last in the throwing order, named `name` when it is a generated player name, else rolled from `seed` (a whole number, the host's draw) and unlike every other seat's; its id the lowest `cpu:<n>` free. Nothing while a match runs, for a full side, a bad side or level, or no name and no seed. |
+| `setComputerLevel` | `doc, id, level`                                           | Since 0.17: a seat's level. Nothing for an unknown seat, a bad level, while a match runs, or when unchanged.                                                                                                                 |
+| `moveComputer` | `doc, id, side, index`                                         | Since 0.17: a seat to `side` at place `index` in its throwing order (0 first; absent, null or past the end: last); the same side reorders. Nothing for a full side, while a match runs, or when it would not move.             |
+| `removeComputer` | `doc, id`                                                    | Since 0.17: a seat taken off its team and out of `computers` (which goes when the last does). Nothing for an unknown seat or while a match runs.                                                                              |
+| `isSeat`       | `id`                                                           | Since 0.17: is `id` a computer seat's id?                                                                                                                                                                                      |
 | `cleanName`    | `name`                                                         | Whitespace collapsed, trimmed, at most 16 UTF-16 units. `""` for a non-string.                                                                                                                                                  |
 | `cleanOptions` | `options`                                                      | Known keys with known values; the rest the defaults.                                                                                                                                                                            |
 | `optionsOf`    | `doc`                                                          | Every match option the pitch holds, defaults filled in: `options`' five and `computer` and `scene` from `settings`. The one place a client reads them all. Since 0.9. Since 0.14, with a scene named, its surface and set as the scene allows (a kept id this engine does not list reads as `day`). |
 | `optionLabel`  | `key, value`                                                   | The label shown for an option's value, or the value as text.                                                                                                                                                                    |
 | `optionRows`   | `scene`                                                        | Since 0.14: the options card for a scene, `{ scene, rows, defaults: { surface, set } }`. `rows` in `MATCH_OPTIONS`' form, the Scene row first, then a Surface row only where the scene allows more than one surface (Black & White) and with only those, Opening, Raising, Wind, a Kubbs row only where it allows more than one set (none today), Computer. `scene` as the engine reads it (an unknown id is `day`); `defaults` its surface and set, for a card that changes scene. |
-| `matchOptions` | `doc, lineup, seed, start`                                     | The engine's `newMatch` options for the lineup: each player's `key` is their member id, `cpu: []` when both sides are human. The host passes its own `seed` and `start` (`{ year, month, day, hour, min }`). Since 0.14, with a scene named, its surface and set as the scene allows. |
-| `startCheck`   | `players, members, host, lenient`                              | May START go ahead? `{ ok, engine, differ: [ids], unknown: [ids] }` (below).                                                                                                                                                    |
+| `matchOptions` | `doc, lineup, seed, start`                                     | The engine's `newMatch` options for the lineup: each player's `key` is their member id (a seat's its seat id, with `cpu: true` and its level, since 0.17), `cpu: []` when no side is empty. The host passes its own `seed` and `start` (`{ year, month, day, hour, min }`). Since 0.14, with a scene named, its surface and set as the scene allows. |
+| `startCheck`   | `players, members, host, lenient`                              | May START go ahead? `{ ok, engine, differ: [ids], unknown: [ids] }` (below). A computer player has no engine to check. Since 0.17 also refused for the lineup itself, with `why` and `text` (a sentence to show) present only then: `"size"` (a team of more than six), `"level"` (a computer player not Beginner, Club or Pro), `"person"` (no person plays). |
 | `startMatch`   | `doc, snap, hash, players, cpu, host, setup, members, lenient` | START: the document with `started`, `n + 1` and the full match (above), stamped with `engine`. Nothing when a match runs or `startCheck` refuses. A live client writes the header only.                                        |
 | `backToLobby`  | `doc, n`                                                       | REMATCH: the same teams, the match dropped. Nothing unless a match runs (and is match `n`, when `n` is given).                                                                                                                  |
 | `mayPlay`      | `engine, match, lenient`                                       | May a member whose engine is `engine` play `match` (a header will do)? `{ ok, why: null \| "unknown" \| "differs", engine, match }`.                                                                                            |
@@ -195,13 +238,23 @@ Each is `pitch.<name>`; the fields are the argument object's. "nothing" is `valu
 
 | Call          | Fields          | Value                                                                                                                                                                                                                                                                                                                   |
 | ------------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `actorsFor`   | `need, ctx`     | The members who may act now. A throw is its owner's (`need.setup.thrower.key`); if they are not connected, the first connected team-mate in throwing order takes it; failing that, the host. A raise or punishment kubb: any connected defender, else the host. The computer's: the host. Practice and the end: nobody. |
+| `actorsFor`   | `need, ctx`     | The members who may act now. A throw is its owner's (`need.setup.thrower.key`); if they are not connected, the first connected team-mate in throwing order takes it; failing that, the host. A raise or punishment kubb: any connected defender, else the host. The computer's (a side it plays, or a computer player: `need.cpu`): the host. Practice and the end: nobody. A computer player is never a team-mate here (since 0.17). |
 | `mayAct`      | `need, ctx, me` | May `me` act? Never for the computer's throw (the host's engine throws it by itself).                                                                                                                                                                                                                                   |
 | `shownActor`  | `need, ctx`     | Who to show as acting: the first who may, `"cpu"`, or null.                                                                                                                                                                                                                                                             |
 | `controlFor`  | `ctx, me`       | This client's `setControl` argument: `{ sides, cpu }`, its own team's side, every human side for the host, and the computer for the host.                                                                                                                                                                               |
 | `sameControl` | `a, b`          | Are two controls the same (so `setControl` need not be called again)?                                                                                                                                                                                                                                                   |
 | `playingSide` | `ctx, me`       | The side `me` plays for, or null (watching).                                                                                                                                                                                                                                                                            |
-| `teamIds`     | `ctx, side`     | The side's member ids in throwing order.                                                                                                                                                                                                                                                                                |
+| `teamIds`     | `ctx, side`     | The side's member ids in throwing order: its people (since 0.17 a computer player is not a member).                                                                                                                                                                                                                     |
+
+**Who computes a computer player's turn.** Exactly one client: the host's, the one
+`controlFor` gives `cpu: true`, as for a computer side. Every other client holds at the
+release and applies the action when it arrives. A person may never act for a computer
+partner (`mayAct` is false for every `need.cpu`), nor the computer for a person (a
+person's throw goes to that person, then a connected team-mate who is a person, then the
+host by hand). A person who leaves mid-match does not become a computer: their throws go
+as above, as they always have. When the host changes, the new host's `controlFor` has
+`cpu: true`; its session, held at a computer's release, throws on its next frame
+(docs/SESSION.md "Computer players").
 
 Two clients acting at once are settled by the pitch server: it takes an action only as
 the next sequence, and the other is refused.
@@ -389,6 +442,16 @@ are where the Lua decides otherwise, each deliberate and tested
     keeps all five (sweden and wisconsin are in no scene but still load). The card is
     `optionRows(scene)`.
 
+11. **Computer seats** (since 0.17; Jamie, 2026-11-22: "In online play we should be able to
+    add computer players to the match, with a specified level"). The top-level
+    `computers` and seat ids in `teams` ("Computer seats", above), the reducers
+    `addComputer`, `setComputerLevel`, `moveComputer` and `removeComputer`, seats in
+    `lineup` and `matchOptions`, `cpu` and `level` kept on `match.players`, computer
+    players skipped by `teamIds` and `startCheck`'s engine check, and `startCheck`'s (and
+    so `startMatch`'s) lineup refusals. No vector has a seat id or `computers`, so every
+    vector decides as before; `startMatch` now refuses a START with no person in it, which
+    no vector makes.
+
 Beyond these the calls decide exactly as the JavaScript did on the same JSON, odd input
 included: `===` (so `"3"` is not `3`), JavaScript truthiness (`0`, `""` and `null` are
 false; `[]` and `{}` are true), `Number.isInteger`, and sizes counted on
@@ -417,3 +480,6 @@ the pull request.
   checks that `room.<name>` gives the same bytes as `pitch.<name>`.
 - `tests/lua/session/test_logsize.lua` checks every `commitAction` step's size measure
   against them.
+- `tests/lua/pitch/test_computers.lua` (since 0.17): the computer seats' reducers, lobbyOf
+  never half-holding a seat, the lineup and the session for both of the owner's examples,
+  START's refusals, names, and who acts for a mixed team, through a host change.

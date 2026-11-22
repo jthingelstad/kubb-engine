@@ -1,4 +1,4 @@
-# Moving a client from 0.9.0 to 0.16.0
+# Moving a client from 0.9.0 to 0.17.0
 
 The web game, the iPhone app and the Playdate game all vendor engine 0.9.0. This page is
 what each changes to move to 0.13.0, built from the "For clients" parts of
@@ -420,6 +420,71 @@ Two output-only additions (no snapshot or hash moves):
     `session/throw`'s `arcLaunch`) draws a falling start.
     The cost per aim frame is unchanged; a plan under the knee costs one bisection (24
     steps of a carry) when the plan changes, and the floor for the slider one more solve.
+## 0.17 on top
+
+0.17.0 is a minor: computer players in teams (docs/SESSION.md "Computer players",
+docs/PITCH.md "Computer seats"). It adds golden coverage, so it shares matches with no
+0.16; web and iPhone move together (web `npm run vendor:sync -- --tag v0.17.0`, iPhone
+`TAG=v0.17.0`, Playdate `make vendor-sync TAG=v0.17.0`). A match with no computer seat
+plays exactly as on 0.16, so nothing breaks if a client does nothing; what follows is what
+it takes to offer computer players.
+
+- **Web** (the lobby, `src/net/lobby.js` over `pitch.*`)
+  - Must, to offer it: on the host's lobby, per team, "Add computer" with a level picker
+    (Beginner, Club, Pro: `constants.SEAT_LEVELS`), calling `pitch.addComputer({ doc,
+    side, level, seed })` with a seed of the host's own draw and writing the value as any
+    reducer's; each seat row shows its `computers[id].name` and level, with the host's
+    level picker (`setComputerLevel`), up and down or drag in the order and across teams
+    (`moveComputer` with `index`), and remove (`removeComputer`). A row in `teams` whose
+    id `pitch.isSeat` says is a seat is drawn from `computers`, never looked up as a
+    member. Six a team counts seats.
+  - Must: show `startCheck`'s `text` when it carries `why` (`person`, `size`, `level`), as
+    it shows `differ` and `unknown` now. Pass `lineup.players` through to `startMatch`
+    unchanged (it keeps `cpu` and `level` on computer players).
+  - Must: when the pitch's Computer setting is Kid and any computer plays, show the seats
+    as Kid: the match is a Kid match and every computer is the Kid computer.
+  - Must: build `ctx.players` from `doc.match.players` as it does now (the computer
+    players are marked there); nothing else in who acts changes. On a host change, call
+    `setControl` with the new `controlFor` as now: the session resumes a held computer
+    throw by itself.
+  - Worth showing: "Bold Birch · computer · Pro" from `need.setup.thrower.cpu` and
+    `.level`, on the rail and the hand-off (`card.handoff.throwerCpu`, `throwerLevel`,
+    `order[i].cpu`, `.level`, `inkasterCpu`), and a computer's name in `candidates` greyed
+    (`ok: false`, `why: "computer"`).
+  - Solo (optional, the client's call): the same teams work with no pitch, `newMatch`
+    with `{ cpu: true, level }` entries and no `cpu` option.
+- **iPhone** (`LobbyView` and its pitch calls)
+  - The same as the web: the add, level, move and remove controls over the four reducers,
+    seat rows drawn from `computers`, `startCheck`'s `text`, Kid shown on seats in a Kid
+    pitch, and the thrower's computer and level on the rail and the hand-off. Its
+    `ctx.players` and `controlFor` handling need no change.
+- **Pitch server** (`backend/pitch-server`)
+  - Must: check the names of computer seats. `core.mjs`'s check of a document's names
+    (`teamNames`, `match.players`, and a start's `meta`) gains `doc.computers[id].name`
+    as a player name for every record, so a typed name in a seat is refused `bad-name`
+    like one in `match.players`. Computer players in `match.players`, `meta.players` and
+    `meta.setup.teams[side].players` carry generated names already and pass as they are.
+  - Nothing else: the document is the lobby's and the server keeps it as given
+    (`computers` is a top-level key, under the 64 KB limit with room to spare), seat ids
+    are never member ids (they have a colon), and the computer's throws arrive as the
+    host's actions, as a computer side's do. An open pitch's `seats` (the web sends it) is
+    the twelve places less the seats; the server's own count of players is of members, as
+    now.
+- **Playdate**
+  - Nothing must change: it vendors only `core/`, and a lineup with no computer entry
+    plays as before.
+  - A computer teammate on its TEAMS screen is now possible from the core's side: a
+    lineup entry `{ name, level, cpu = true }` (core/lineup's entries are passed to
+    `match.new` as they are, and `match.lineupOf` keeps `cpu`) makes `match.thrower`
+    name it with `cpu = true`, `match.raisePolicy` raise for a team of computers at its
+    strongest level, the `thrower` change refuse it, and `[Throw Levels]` name it. What
+    the game would need: a way on TEAMS to add a computer player with a level (and a
+    generated name, `core/namegen`) beside saved players and guests, not saved to the
+    roster; `scenes/match.lua` to throw by core/autothrow whenever `setup.thrower.cpu`
+    (it decides today by `s.cpu`, the Playdate's side), to skip the hand-off and pass
+    cards for such a thrower, and to raise by hand only for a team with a person
+    (`match.hasPerson`); and the save to keep the lineup's `cpu` (it keeps `m.lineup`
+    already).
 
 ## What the engine now offers that no surface shows yet
 
@@ -438,6 +503,6 @@ Two output-only additions (no snapshot or hash moves):
   directly. No surface uses them yet (docs/NAMES.md section 8, steps 2 and 3).
 - **Choosing the next thrower**: the session's `thrower` action among
   `need.candidates`; the web has no control for it (its docs/MULTIPLAYER.md "Not done
-  yet").
+  yet"). Since 0.17 it is between people only.
 - **Kid rules without the computer** (0.15): `newMatch`'s `rules: "kid"` gives pass and play
   the Kid rules and meter; no options card offers it yet.

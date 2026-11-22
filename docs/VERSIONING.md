@@ -101,6 +101,47 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.17.0** (minor). Computer players in teams. Jamie (2026-11-22): "In online play we
+  should be able to add computer players to the match, with a specified level. I may have
+  three friends and we want to play a team of three computers (two at club and one at
+  pro). Or we want to play 2 v 2 where Tyler and I each have a pro computer partner." A
+  team may hold people, computers or both, up to six, each computer at its own level
+  (docs/SESSION.md "Computer players", docs/PITCH.md "Computer seats"):
+  - **Core**: `match.lineupOf` carries a lineup entry's `cpu`; `match.isComputer`,
+    `isSeat`, `hasPerson`, `people` and `strongestLevel`; `match.thrower` says `cpu`; a
+    team of computers raises at its strongest level (`match.raisePolicy`); the `thrower`
+    change refuses a computer player (`"computer"`), and `candidates` lists one as not
+    ok; `[Throw Levels]` names every computer player with its level; the hand-off card
+    says which throwers are computers. In a team with a computer player the kubbs go
+    round the team turn by turn (core/order `rotateInk`, set by `match.new`): the deal
+    opens every turn of six batons with the same player in a team of 1, 2, 3 or 6, who
+    would otherwise throw every turn's kubbs (in the Gym, a beginner and pro pair had the
+    beginner throw all of them). A team of people keeps its order exactly.
+  - **Session**: a player entry `{ cpu: true, level, name?, key? }` (Beginner, Club or Pro;
+    Kid refused, as it is the match's); a computer player's throw is the computer's, at
+    its own level, in the team's throwing order; a team with a person raises and places
+    by hand, a team of computers by itself; unnamed computer players get generated names
+    from the seed and the seat (`mix(seed, 4, seat)`); `need.setup.thrower.cpu`; the mode
+    counts a computer partner; a client given `control.cpu` while held at a computer's
+    release throws it on the next frame (a host change mid-throw).
+  - **Pitch**: the document's `computers` and seat ids (`cpu:<n>`) in `teams`; the host's
+    `addComputer`, `setComputerLevel`, `moveComputer`, `removeComputer` and `isSeat`;
+    seats in `lineup`, `matchOptions` and `match.players`; computer players are not
+    members for who acts; `startCheck` (and so `startMatch`) refuses a lineup with no
+    person, a team over six or a seat level that is not a seat's, with `why` and `text`.
+    `settings.computer` stays the level of the computer on an empty side, and Kid there
+    makes a Kid match in which every computer is the Kid computer.
+  - **Old matches**: the old `cpu` option means what it meant, and only computer
+    entries carry `cpu`, so every existing match, snapshot and replay plays as before:
+    the 19 golden matches give every hash as recorded. Two golden matches are new: m20, a
+    person (scripted near throws) with a pro partner against club and beginner computers,
+    raised by hand; m21, two club and one pro against three club, on sand in light wind.
+  - **The Gym**: `gym versus` takes `team=club+club+pro` (a team of computers, one level
+    a player in throwing order) and reports each level's share of the batons, its hit
+    rate and its inkasts. `make games` gates game files with computer players in teams
+    (`tools/games.lua` one game in five, `tools/physmatch.lua --mixed`).
+  - **For clients**: docs/CLIENTS.md "0.17 on top". Shares matches with no 0.16.
+
 - **0.16.0** (minor). The drive: a baton thrown flat or down and hard into a group, and
   a person's thrown kubb held to narrower bars (docs/notes/throw.md "The drive", "The
   thrown kubb on the person's meter"; the owner's reports,

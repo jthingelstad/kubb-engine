@@ -148,7 +148,7 @@ end)
 test("the snapshot text is kept as text", function()
 	local snap = '{"x":3.0}'
 	local text = kubbCall("pitch.startMatch", json.encode { doc = NULL, snap = snap, hash = "h",
-		players = { A = json.object {}, B = {} }, cpu = NULL, host = "a" })
+		players = { A = { { id = "a", name = "A" } }, B = {} }, cpu = NULL, host = "a" })
 	expect.eq(json.decode(text, true).value.match.snap, snap)
 	expect.truthy(text:find('"snap":"{\\"x\\":3.0}"', 1, true), "the text, escaped, byte for byte")
 end)
@@ -410,7 +410,7 @@ end)
 
 test("integers stay integers and floats floats; output is byte stable", function()
 	local text = kubbCall("pitch.commitAction", json.encode {
-		doc = pitch("startMatch", { doc = NULL, snap = "s", hash = "h", players = { A = {}, B = {} }, cpu = NULL,
+		doc = pitch("startMatch", { doc = NULL, snap = "s", hash = "h", players = { A = { { id = "a", name = "A" } }, B = {} }, cpu = NULL,
 			host = "a", setup = { seed = 1 } }),
 		n = 1, seq = 1, snap = "s1", hash = "h1", action = { speed = 2.5, n = 3, big = 1e21, small = 1e-7, z = -0.0 } })
 	expect.truthy(text:find('"n":3,', 1, true), "an integer")

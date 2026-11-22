@@ -34,6 +34,7 @@ import "core/names"
 import "core/notation"
 import "core/gamefile"
 import "core/scenes"
+import "core/namegen"
 import "version"
 import "session/json"
 import "session/throw"
@@ -43,7 +44,7 @@ import "session/namecheck"
 local cmatch, cards, save, autothrow, wind = tw.match, tw.cards, tw.save, tw.autothrow, tw.wind
 local raising, frame, pitch, quat, swing, plan = tw.raising, tw.frame, tw.pitch, tw.quat, tw.swing, tw.plan
 local camera, outcome, debris = tw.camera, tw.outcome, tw.debris
-local notation, gamefile, scenes = tw.notation, tw.gamefile, tw.scenes
+local notation, gamefile, scenes, namegen = tw.notation, tw.gamefile, tw.scenes, tw.namegen
 local json, throw = tw.web.json, tw.web.throw
 
 local fmt, upper = string.format, string.upper
@@ -275,17 +276,30 @@ local function matchOptions(o)
 	-- 0.9) and one that names club have the snapshot a match always had; absent, the
 	-- computer throws at club (autothrow.tune.level)
 	if plan.levels[o.computer] and o.computer ~= autothrow.tune.level then out.computer = o.computer end
+	-- computer players in a team (0.17.0): an entry { cpu = true, level, name?, key? }
+	-- (docs/SESSION.md "Computer players"). Only these entries carry `cpu`, so a match
+	-- without one (every match before 0.17) has the start it always had
+	local seats = false
+	for _, side in ipairs { "A", "B" } do
+		for _, p in ipairs(((o.teams or {})[side] or {}).players or {}) do
+			if type(p) == "table" and p.cpu == true then seats = true end
+		end
+	end
 	-- the Kid rules (0.15.0, docs/notes/kid-mode.md): the Kid computer makes the match a
 	-- Kid match (the Kid rules for both sides, the Kid meter for a person); `rules = "kid"`
 	-- asks for them outright (pass and play with two children, later). Kept only for a Kid
-	-- match, so every other match has the snapshot a match always had
-	if o.rules == "kid" or (out.computer == "kid" and #cpu > 0) then out.rules = "kid" end
+	-- match, so every other match has the snapshot a match always had. Since 0.17.0 a
+	-- computer player in a team is a computer too: with the Kid computer chosen it makes
+	-- the match a Kid match, and in a Kid match every computer player is the Kid computer
+	if o.rules == "kid" or (out.computer == "kid" and (#cpu > 0 or seats)) then out.rules = "kid" end
 	-- the scene, a look only (pitch/lobby.isScene): kept only when given, valid and not
 	-- "day", the default, so the start is otherwise the one a match always had. The
 	-- physics and the rules never read it
 	if tw.shared.lobby.isScene(o.scene) and o.scene ~= tw.shared.lobby.OPTION_DEFAULTS.scene then out.scene = o.scene end
 	-- the teams: { A = { name, players = { { name, level } } }, B = ... }, 1 to 6 players each
 	local teams = {}
+	local unnamed = {}
+	local taken = {}
 	for _, side in ipairs { "A", "B" } do
 		local t = (o.teams or {})[side] or {}
 		local isCpuSide = false
@@ -295,12 +309,55 @@ local function matchOptions(o)
 		for i, p in ipairs(t.players or {}) do
 			if i > 6 then break end
 			if type(p) == "string" then p = { name = p } end
-			local level = p.level
-			if level == nil and isCpuSide then level = out.computer end
-			players[#players + 1] = { name = tostring(p.name or ("Player " .. i)), level = level, key = p.key }
+			if p.cpu == true then
+				-- a computer player: Beginner, Club or Pro (absent: the match's computer level);
+				-- Kid is the match's (computer = "kid"), never one player's
+				local level = p.level
+				if level == nil then level = out.computer or autothrow.tune.level end
+				if out.rules == "kid" then
+					level = "kid"
+				elseif not session.SEAT_LEVELS[level] then
+					error("newMatch: Team " .. side .. "'s player " .. i .. " is a computer player, whose level is "
+						.. "beginner, club or pro (the Kid computer is the match's: computer = \"kid\")", 0)
+				end
+				players[#players + 1] = { name = type(p.name) == "string" and p.name or nil, level = level,
+					key = p.key, cpu = true }
+				if type(p.name) ~= "string" then unnamed[#unnamed + 1] = { side = side, i = #players } end
+			else
+				local level = p.level
+				if level == nil and isCpuSide then level = out.computer end
+				players[#players + 1] = { name = tostring(p.name or ("Player " .. i)), level = level, key = p.key }
+			end
+			if players[#players].name then taken[players[#players].name] = true end
 		end
 		if #players == 0 then players[1] = { name = name, level = isCpuSide and out.computer or nil } end
-		teams[side] = { name = name, players = players }
+		teams[side] = { name = name, players = players, named = t.name ~= nil }
+	end
+	-- a computer player with no name gets a generated one (core/namegen), drawn from the
+	-- match's seed and its seat (Team A's players 1 to 6, Team B's 7 to 12), never one
+	-- another player of the match has, so every client makes the same names
+	for _, u in ipairs(unnamed) do
+		local seat = (u.side == "A" and 0 or 6) + u.i
+		local r = plan.rng(mix(out.seed, 4, seat))
+		local function rand(n)
+			local k = floor(r.next() * n) + 1
+			if k > n then k = n end
+			return k
+		end
+		local text
+		for _ = 1, 50 do
+			text = namegen.roll("player", rand)
+			if text and not taken[text] then break end
+		end
+		taken[text] = true
+		teams[u.side].players[u.i].name = text
+	end
+	-- a team of one computer player with no name of its own is that player, as the
+	-- pitch names a side of one
+	for _, side in ipairs { "A", "B" } do
+		local t = teams[side]
+		if not t.named and #t.players == 1 and t.players[1].cpu then t.name = t.players[1].name end
+		t.named = nil
 	end
 	out.teams = teams
 	return out
@@ -315,11 +372,50 @@ function session.meterOf(opts)
 	return (opts and opts.rules == "kid") and "kid" or nil
 end
 
+-- A computer player's levels (0.17.0): Kid is a match's rules, chosen with the
+-- match's computer option, never one player's.
+session.SEAT_LEVELS = { beginner = true, club = true, pro = true }
+
 local function isCpu(s, side)
 	for _, c in ipairs(s.opts.cpu or {}) do if c == side then return true end end
 	return false
 end
 session.isCpu = isCpu
+
+-- Is the throw set up the computer's (0.17.0): its side is one the `cpu` option names
+-- (the computer plays it whole, as before), or its thrower is a computer player in a
+-- team (match.thrower's `cpu`). autothrow.choose throws it at the thrower's own level.
+local function cpuThrow(s, setup)
+	if not setup then return false end
+	if isCpu(s, setup.side) then return true end
+	return setup.thrower ~= nil and setup.thrower.cpu == true
+end
+session.cpuThrow = cpuThrow
+
+-- The match's [Mode] from its options when they name none: "Pass and Play" with no
+-- computer in it, "Computer vs Computer" when both teams are computers only, "Vs
+-- Computer" otherwise (0.17.0: a computer partner counts; before, only the sides the
+-- `cpu` option named, which gives the same for every match without a computer player).
+function session.modeOf(opts)
+	local cpuSides = {}
+	for _, c in ipairs(type(opts.cpu) == "table" and opts.cpu or {}) do cpuSides[c] = true end
+	local any, whole = false, 0
+	for _, side in ipairs { "A", "B" } do
+		local t = type(opts.teams) == "table" and opts.teams[side] or nil
+		local ps = type(t) == "table" and type(t.players) == "table" and t.players or {}
+		local all = cpuSides[side] == true
+		if not all then
+			local seats = 0
+			for _, p in ipairs(ps) do if type(p) == "table" and p.cpu == true then seats = seats + 1 end end
+			if seats > 0 then any = true end
+			all = seats > 0 and seats == #ps
+		end
+		if all then any, whole = true, whole + 1 end
+	end
+	if whole == 2 then return "Computer vs Computer" end
+	if any then return "Vs Computer" end
+	return "Pass and Play"
+end
 
 -- ---------- the session ----------
 
@@ -350,16 +446,12 @@ function session.new(o)
 	s.opts = matchOptions(o)
 	s.seed = s.opts.seed
 	s.ts = throw.new { surface = s.opts.surface, set = s.opts.set, meter = session.meterOf(s.opts) }
-	local mode = s.opts.mode
-	if not mode then
-		local n = #s.opts.cpu
-		mode = (n == 2) and "Computer vs Computer" or ((n == 1) and "Vs Computer" or "Pass and Play")
-	end
+	local mode = s.opts.mode or session.modeOf(s.opts)
 	local teams = {}
 	for _, side in ipairs { "A", "B" } do
 		local t = s.opts.teams[side]
 		local ps = {}
-		for i, p in ipairs(t.players) do ps[i] = { name = p.name, level = p.level, key = p.key } end
+		for i, p in ipairs(t.players) do ps[i] = { name = p.name, level = p.level, key = p.key, cpu = p.cpu } end
 		teams[side] = { name = t.name, players = ps }
 	end
 	s.m = cmatch.new { start = s.opts.start, surface = SURFACES[s.opts.surface], opening = s.opts.opening,
@@ -441,14 +533,20 @@ function Session:advance()
 	self.card = nil
 	if self.byHand and not cmatch.over(m) then
 		local n = m.game:need()
-		if (n.kind == "raise" or n.kind == "punish") and not isCpu(self, n.side) then
+		-- (0.17.0) a team with a person on it raises and places by hand (its people
+		-- decide: on a shared pitch any of them, pitch.actorsFor); a team of computers
+		-- by the computer, at its strongest player's level (match.raisePolicy)
+		if (n.kind == "raise" or n.kind == "punish") and cmatch.hasPerson(m, n.side) then
 			self.phase = "settle"
 			self.pitchFromMatch = true
 			if not self.settle then
 				self.settle = { raised = 0, placed = 0 }
 				-- PASS + PLAY: the attacker hands over to the defender first (no
-				-- card when the computer plays a side: the player holds it already)
-				if #opts.cpu == 0 then self.card = { kind = "settle", settle = cards.settle(m.game) } end
+				-- card when the computer plays a side, or the team that threw is
+				-- computers only: the player holds it already)
+				if #opts.cpu == 0 and cmatch.hasPerson(m, n.side == "A" and "B" or "A") then
+					self.card = { kind = "settle", settle = cards.settle(m.game) }
+				end
 			end
 			settleBegin(self)
 			return
@@ -464,7 +562,7 @@ function Session:advance()
 	throw.prepare(ts, setup)
 	self.frameSide = setup.side -- the frame ts is in now (session/wide)
 	ts.level = setup.thrower and setup.thrower.level or nil
-	ts.watching = isCpu(self, setup.side)
+	ts.watching = cpuThrow(self, setup)
 	ts.scripted = false
 	-- the wind: a direction and speed for each turn, a gust of it for each throw
 	ts.windX, ts.windY, ts.windText = 0, 0, nil
@@ -494,11 +592,12 @@ function Session:advance()
 	end
 	self.rail = { r1 = r1, r2 = r2 }
 	ts.railName = self:railName(setup)
-	-- the cards
-	local cpu = isCpu(self, setup.side)
+	-- the cards (the hand-off when the team has a person on it, whoever throws first:
+	-- the person's computer partner may open the turn)
+	local cpu = cpuThrow(self, setup)
 	if setup.side ~= self.side then
 		self.side = setup.side
-		if not cpu then self.card = { kind = "handoff", handoff = cards.handoff(m, setup) } end
+		if cmatch.hasPerson(m, setup.side) then self.card = { kind = "handoff", handoff = cards.handoff(m, setup) } end
 	end
 	local th = setup.thrower
 	local passes = not cpu and #m.game.teams[setup.side].players > 1
@@ -589,8 +688,10 @@ local function plainSetup(setup)
 		kid = setup.kid, kidY = setup.kidY,
 		targets = setup.targets, batonId = setup.batonId,
 		-- key: the lineup's key for the player (on the web, the pitch member it belongs to)
+		-- cpu (0.17.0): the thrower is a computer (a computer player in a team, or a
+		-- player of a side the computer plays), so a client can say "computer · Pro"
 		thrower = setup.thrower and { id = setup.thrower.id, name = setup.thrower.name,
-			level = setup.thrower.level, key = setup.thrower.key } or nil,
+			level = setup.thrower.level, key = setup.thrower.key, cpu = setup.thrower.cpu or nil } or nil,
 		settled = plainSettled(setup.settled),
 	}
 end
@@ -685,11 +786,14 @@ function Session:need()
 		out["local"] = self.control[out.side] and true or false
 	else
 		local setup = self.setup
-		local cpu = isCpu(self, setup.side)
+		local cpu = cpuThrow(self, setup)
+		local ps = plainSetup(setup)
+		if cpu and ps.thrower then ps.thrower.cpu = true end
 		out = {
-			kind = "throw", side = setup.side, setup = plainSetup(setup), cpu = cpu,
+			kind = "throw", side = setup.side, setup = ps, cpu = cpu,
 			["local"] = (cpu and self.control.cpu or (not cpu and self.control[setup.side])) and true or false,
-			candidates = (not cpu and #self.m.game.teams[setup.side].players > 1) and cmatch.candidates(self.m) or nil,
+			-- (0.17.0: when the team has more than one person; a computer is listed, not ok)
+			candidates = (not cpu and cmatch.people(self.m, setup.side) > 1) and cmatch.candidates(self.m) or nil,
 			wind = self.windInfo,
 		}
 	end
@@ -923,6 +1027,10 @@ function Session:setControl(c)
 	local sides = c.sides or { "A", "B" }
 	self.control = { A = false, B = false, cpu = c.cpu ~= false }
 	for _, side in ipairs(sides) do self.control[side] = true end
+	-- (0.17.0) this client now throws for the computer, which another was throwing for and
+	-- this one held at the release (the host changed mid-throw): it releases on the next
+	-- frame, the very throw the other would have made
+	if self.control.cpu and self.ts.mode == "cpuhold" then self.ts.mode = "cpuswing" end
 	if self.ts.touch and self.setup and not self.control[self.setup.side] then
 		tw.web.touch.frame(self.ts, { { phase = "cancel" } })
 	end
@@ -1020,7 +1128,7 @@ function Session:applyThrow(a)
 	local back, stop = sw and F(sw.back), sw and F(sw.stop)
 	ts.scripted = a.scripted and true or false
 	-- the playback camera starts from the aim camera as every browser has it
-	local cpuSide = self.kind == "match" and isCpu(self, self.setup.side)
+	local cpuSide = self.kind == "match" and cpuThrow(self, self.setup)
 	ts.watching, ts.cpuTarget = cpuSide, cpuSide
 	ts.camMix = 0
 	local rec = throw.fire(ts, L, how, { verdicts = verdicts, back = back, stop = stop })
@@ -1075,7 +1183,7 @@ function Session:frame(inp)
 		out.dial = throw.dial(ts, true)
 		return out
 	end
-	local cpu = self.kind == "match" and isCpu(self, self.setup.side)
+	local cpu = self.kind == "match" and cpuThrow(self, self.setup)
 	local ev, L, how, info, crossings
 	if cpu then
 		if ts.mode == "aim" then
@@ -1247,7 +1355,7 @@ end
 -- seeded by the match seed and the throws so far (mix(seed, 1, throws)) and read from the
 -- set-up, so the snapshot before the throw is all it needs.
 function Session:cpuAction()
-	assert(self.kind == "match" and self.phase == "throw" and isCpu(self, self.setup.side),
+	assert(self.kind == "match" and self.phase == "throw" and cpuThrow(self, self.setup),
 		"cpuAction: not the computer's throw")
 	local ts = self.ts
 	local a = autothrow.choose(self.setup, rngFor(self, 1, self.throws), tw.web.tune.throw.cpuScatter)

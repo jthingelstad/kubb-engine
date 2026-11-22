@@ -284,6 +284,21 @@ none against pro.
 Whether a level should beat the one below it that often is a product question (Q11 and
 the levels) and is not settled here.
 
+## Computer players in teams (0.17.0)
+
+Since 0.17.0 the computer is a player, not only a side: a team may hold people and
+computers together, each computer at its own level (docs/SESSION.md "Computer players").
+Nothing in Choose or the hand changed: autothrow.choose already threw at the thrower's
+level, and a computer player's throw is that, in the team's throwing order (core/order).
+What is new is who decides what the rules give the team: a team with a person on it by its
+people, a team of computers at its strongest player's level (`match.strongestLevel`, then
+`cpu.raising` of that level). That is a choice of which level's existing play applies, not
+a new play, so it did not go through "How a play gets in". One change to the order: in a
+team with a computer player the kubbs go round the team turn by turn (core/order
+`rotateInk`), because the deal opens every turn of six batons with the same player in a
+team of 1, 2, 3 or 6, and a computer cannot be handed the kubbs by the `thrower` action. The Gym plays such teams with
+`gym versus --a "team=club+club+pro"` (docs/notes/gym.md "Versus").
+
 ## Not decided here
 
 When each client takes a new tag. (The Kid level and mode were decided and built in 0.15.0:
