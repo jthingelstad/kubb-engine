@@ -23,7 +23,7 @@ end
 -- (grass at 49, sand at 47 and 48, snow at 50): the slow, held-by-the-turf
 -- spin passed the sleep test with its centre over the edge.
 test("a kubb set down near its long edge's balance rolls onto a face", function()
-	for _, c in ipairs { { "grass", 49 }, { "grass", 44.4 }, { "sand", 47 }, { "sand", 48 }, { "snow", 50 } } do
+	for _, c in ipairs { { "grass", 49 }, { "grass", 44.4 }, { "sand", 47 }, { "sand", 48 }, { "snow", 50 }, { "grid", 49 }, { "grid", 44.4 } } do
 		local surf, roll = c[1], c[2]
 		local w = world.new { surface = surf }
 		local qw, qx, qy, qz = lyingRolled(roll)
@@ -63,7 +63,7 @@ test("no drilled kubb rests free on an edge or a corner", function()
 				what .. string.format(": rests on an edge or a corner (z %.4f, r33 %.3f)", b.z, b.r33))
 		end
 	end
-	expect.eq(n, 1200)
+	expect.eq(n, 400 * #world.SURFACES)
 end)
 
 -- Leaners keep their rest: a kubb lying with one end up on a lying kubb, a

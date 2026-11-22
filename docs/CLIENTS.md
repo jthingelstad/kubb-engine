@@ -1,4 +1,4 @@
-# Moving a client from 0.9.0 to 0.13
+# Moving a client from 0.9.0 to 0.14
 
 The web game, the iPhone app and the Playdate game all vendor engine 0.9.0. This page is
 what each changes to move to 0.13.0, built from the "For clients" parts of
@@ -203,6 +203,42 @@ with the engine's:
   `replayLoad` with `names: "check"`, a lobby through `names.check({ document, members })`.
   The device's own kept matches resume with the plain `restore`.
 - **Playdate**: nothing but the sync.
+
+## 0.14 on top
+
+0.14.0 is a minor: it moves golden coverage (two grid matches) and adds options, so it
+shares matches with no 0.13. Web and iPhone move together. Sync `v0.14.0` in place of
+`v0.13.4` (web `npm run vendor:sync -- --tag v0.14.0`, iPhone `TAG=v0.14.0`, Playdate
+`make vendor-sync TAG=v0.14.0`), and (docs/SESSION.md "Scenes" and "Ground impacts",
+docs/PITCH.md `optionRows` and difference 10):
+
+- **Web**
+  - Must: the options card is scene first. `src/ui/cards.js` (the solo card) and
+    `src/ui/lobby.js` build their rows from `pitch.optionRows({ scene })` instead of
+    `MATCH_OPTIONS` plus `SCENE_ROW` (`src/render/scenes.js`): the Scene row first with the
+    engine's names, a Surface row only when the rows carry one (Black & White), no Kubbs
+    row. When the player changes scene, take the new rows and their `defaults`. The
+    engine's `MATCH_OPTIONS` now holds a Scene row and `grid`, so a card that still walks
+    it shows two Scene rows; `takesComputer` in `src/main.js` still works.
+  - Must: send `scene` with every `setOptions` (the pitch), `newMatch` and `newPractice`
+    (`sceneOpt` in `src/main.js`), and draw what the view says (`scene`, `surface`, `set`):
+    the engine has decided them. A saved choice of surface or set from before (prefs)
+    goes through the scene and may come back changed.
+  - Worth showing: the new scenes (Beach on sand, Minnesota on snow with the Minnesota set,
+    Tournament with the USA set, Black & White for any pitch) and the grid floor under
+    Techno; an undrawn scene is drawn as Park. Techno's rings: `setImpacts({ on: true })`
+    once, then a ring at each `recording.timeline.impacts` entry when playback reaches its
+    `t` (`src/render/stardust.js` already times `batonLanding` the same way).
+- **iPhone**
+  - Must: the same card from `pitch.optionRows` in `SoloMatch.swift`, `SoloPitch.swift`
+    and `OnlinePitch.swift` (in place of `SceneLook`'s `id: "scene"` row and the engine's
+    Surface and Kubbs rows), and `scene` with every `setOptions` and `new`.
+  - Worth showing: `SceneLook.drawn` grows as each scene is drawn; Techno's rings from
+    `timeline.impacts`, beside what `Recording.swift`, `Stardust.swift` and
+    `PitchFeedback.swift` take from `contacts` and `batonLanding`.
+- **Playdate**: nothing must change. `core/matchopts`' Surface row is Black & White's
+  (grass, sand, snow, as before) and `apply` sets `opts.scene = "bw"`, which nothing reads
+  yet. `core/scenes` and the grid arrive with the core; the Playdate offers neither.
 
 ## What the engine now offers that no surface shows yet
 

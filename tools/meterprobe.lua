@@ -25,7 +25,8 @@
 --
 --   lua5.4 tools/meterprobe.lua [--n 400] [--ranges 4,6,8]
 --     [--parts perfect,honest,hand,drill] [--hand club] [--seed 1]
---     [--set plan.meters.standard.powerHalf8=4] (one tune a --set)
+--     [--set plan.meters.standard.powerHalf8=4] (one tune a --set; a surface's number as
+--     world.surfaces.grid.mu=0.5) [--surface grass|sand|snow|grid]
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local sourceDir = here .. "/.."
 local imported = {}
@@ -48,6 +49,7 @@ local human = dofile(sourceDir .. "/tools/gym/human.lua")
 local model = human.load(sourceDir .. "/tools/gym/human-model.json")
 
 local n, seed, hand = 400, 1, "club"
+local SURFACE = "grass"
 local ranges = { 4, 6, 8 }
 local parts = { perfect = true, honest = true, hand = true, drill = true }
 local function list(s, num)
@@ -62,6 +64,7 @@ while i <= #arg do
 	elseif a == "--seed" then seed = tonumber(v); i = i + 1
 	elseif a == "--ranges" then ranges = list(v, true); i = i + 1
 	elseif a == "--hand" then hand = v; i = i + 1
+	elseif a == "--surface" then SURFACE = v; i = i + 1
 	elseif a == "--parts" then
 		parts = {}
 		for _, p in ipairs(list(v)) do parts[p] = true end
@@ -83,7 +86,7 @@ local METER = plan.meter()
 local STEADY = plan.tune.steadyBelow
 
 local function throwAt(d, yaw, L)
-	local w = world.new { surface = "grass", stakes = false,
+	local w = world.new { surface = SURFACE, stakes = false,
 		pieces = { { id = "k", kind = "kubb", x = 0, y = PY + d, yaw = yaw } } }
 	local h, fwd, _, _, tip = flight.handAt(d)
 	world.launchBaton(w, 0, PY, L.swivel, L.loft, L.speed, L.tumble, L.tilt, "baton", h, fwd, tip)
@@ -206,7 +209,7 @@ if parts.drill then
 	local mx, my = at.basketX, at.basketY
 	local taps = 1
 	local function drillThrow(L, sol, ws)
-		local w = world.new { surface = "grass", groundSeed = ws }
+		local w = world.new { surface = SURFACE, groundSeed = ws }
 		local b = world.launchDrill(w, "d", sol.px, 0, L.swivel, L.loft, L.speed, L.noseDown, L.rollLand,
 			L.spin, L.wobble, L.scatter)
 		local dead = false
@@ -235,7 +238,7 @@ if parts.drill then
 	local function personSol()
 		local st = plan.stance(mx, my, 0, 0, at.halfWidth, {})
 		return plan.solve({ projectile = "kubb", px = st.x, py = 0, tx = mx, ty = my, release = plan.arcFor("drill"),
-			meter = METER, surface = "grass", spin = taps }, {})
+			meter = METER, surface = SURFACE, spin = taps }, {})
 	end
 	local p = human.part(model, hand, "drill")
 	print(fmt("\na drilled kubb onto the basket's spot (%.2f, %.2f m), one tap of spin", mx, my))
@@ -266,7 +269,7 @@ if parts.drill then
 			local lv = autothrow.cpuLevel(lname)
 			local st = plan.stance(mx, my, 0, 0, at.halfWidth, {})
 			local sol = plan.solve({ projectile = "kubb", px = st.x, py = 0, tx = mx, ty = my,
-				release = plan.arcFor("drill"), level = lv, surface = "grass", spin = taps }, {})
+				release = plan.arcFor("drill"), level = lv, surface = SURFACE, spin = taps }, {})
 			local sw = autothrow.swing(sol, r, at.inkast[lname].hand, {})
 			return plan.launch(sol, sw, { projectile = "kubb", tilt = 0, spin = taps, level = lv, nerves = nr }, {}), sol
 		end)

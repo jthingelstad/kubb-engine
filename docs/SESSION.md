@@ -103,18 +103,20 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 
 | Call                         | Returns           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ---------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `newPractice(opts)`          | view              | `{ surface: "grass" \| "sand" \| "snow", level, set, drill }`. The practice pitch (scenes/drills.lua's free throw); `drill: true` throws kubbs at the circle.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, scene, start, maxTurns, modeName }`. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names). `cpu`: `"A"`, `"B"`, `"both"` or a list. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. |
+| `newPractice(opts)`          | view              | `{ scene, surface: "grass" \| "sand" \| "snow" \| "grid", level, set, drill }`. The practice pitch (scenes/drills.lua's free throw); `drill: true` throws kubbs at the circle. Since 0.14 a `scene` named decides the surface and the set as for a match (below), and `setSurface` then takes only a surface the scene allows.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, scene, start, maxTurns, modeName }`. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names). `cpu`: `"A"`, `"B"`, `"both"` or a list. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. **Since 0.14 a scene decides** ("Scenes", below): with `scene` named, `new` takes the surface given only if the scene allows it (else the scene's default) and the set likewise, and an id the catalogue does not have is Park (`"day"`, not kept). With no `scene`, the options stand as given, as before 0.14. Restore, replay, checkStart and renameStart make a match from its options as they were recorded, whatever its scene. |
 | `restore(snapshotText)`      | view              | A match from a snapshot. Since 0.13.4 also `{ snap, names: "check" }`, which refuses a snapshot whose names the engine does not allow ("Names", below). Restored while raising, placing a punishment kubb or after the end, the view shows the match's pitch as it stands (pieces and debris, a king that ended the match lying down) in the last throw's frame, as live, until the next throw is set up. The restored session acts for every side and the computer until `setControl` says otherwise.                                                                                                                                                                                                                                   |
 | `snapshot()`                 | text              | The whole match as JSON text. Opaque: store and send it as it is, byte for byte. Matches only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `hash()`                     | `{ hash, bytes }` | FNV-1a 32 of the snapshot text (8 hex digits) and its length. Equal hashes mean equal matches.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `scenes()`                   | catalogue         | Since 0.14, no session needed: `{ default, scenes: [{ id, name, surfaces, surface, sets, set, dark, ring, mono, choices }], surfaces: [{ id, name }], sets: [{ id, name }] }` ("Scenes", below).                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `setImpacts({ on })`         | `{ on }`          | Since 0.14: while on, each recording's timeline carries `impacts` ("Ground impacts", below). Belongs to the Lua state, like the wide view; off by default, and off nothing is gathered.                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | `setControl({ sides, cpu })` | need              | Which sides this browser plays (`sides: ["A"]`, `[]` for a spectator) and whether it throws for the computer (`cpu`, default true). One browser on a pitch has `cpu: true`.                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ### Reading
 
 | Call          | Returns                                                                                                                                                                  |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `view()`      | `{ need, items, minimap, aim, camera, dial, surface, set }`: everything the screen needs when nothing plays back.                                                        |
+| `view()`      | `{ need, items, minimap, aim, camera, dial, surface, set, scene }`: everything the screen needs when nothing plays back (`scene`: the one to draw, `"day"` when none). |
 | `frameView()` | The same view, in the thrower's view frame even while the wide view is on: what a report records (the web's `src/net/report.js`), so its replay compares like with like. |
 | `need()`      | What happens next (below).                                                                                                                                               |
 | `aim()`       | `{ aim, camera }`.                                                                                                                                                       |
@@ -730,6 +732,8 @@ What a throw did, for the renderer and for a replay:
     touches [{ id, kind, t }],
     bursts  [{ kind, id, start, anchor { x, y, z }, sure, takenBack, second? }],
     slow    { hit, from, full, to, rate },
+    contacts [{ t, a, b, idA, idB, strength }], batonLanding { t, strength, surface },
+    impacts  [{ t, x, y, id, with, thrown, speed, strength }],   // only while setImpacts is on
   },
   marker { x, y, r }                       // a drill's circle
 }
@@ -764,6 +768,76 @@ It gives `{t, strength, surface}` using the same curve and first-step peak.
 Kubb throws have no baton landing. These fields and dial crossings are
 presentation only. Old recordings may omit them. Snapshots and actions are
 unchanged.
+
+### Ground impacts
+
+Since 0.14 a scene may ring, puff or spray where something meets the ground (the Techno
+scene's catalogue entry has `ring: true`). `setImpacts({ on: true })` asks for it: from the
+next throw each recording's `timeline.impacts` lists, for the throw being shown, each time
+a piece met the ground hard enough to matter, in time order:
+
+- `t`: seconds from the release, the clock `contacts`, `touches`, `slow` and `showAt` use
+  (play a ring at `t` as the playback reaches it, slow motion included);
+- `x`, `y`: where, in the recording's frame like `firstContact` and the result's spots
+  (the wide view un-turns them with the rest); the ground is `z = 0`;
+- `id`, `with`: the piece and its kind, `"baton"`, `"kubb"` or `"king"`; `thrown`: it is the
+  thrown piece (a baton or a thrown kubb) rather than one knocked over;
+- `speed`: how fast it came down onto the ground (m/s, along the ground's normal), at
+  least `throw.tune.impactSpeed` (0.8); `strength`: its push on the ground in the
+  strike's step over 2 N s, capped at 1, the scale `contacts` uses. Scale a ring by
+  either.
+
+One strike is one impact: a piece's touches within `impactGap` (0.12 s) of its first make
+one, at the point of the strongest push. A piece that bounces strikes again. At most
+`impactMax` (64) a throw. The world reports every ground contact of any piece striking
+faster than `restitutionSpeed` (`w.onGround`, set only while impacts are on); nothing is
+gathered when they are off, and nothing here is in a snapshot, an action or a hash.
+
+A worked example (scene `neon`, seed 1016, the computer both sides, the first baton that
+felled a kubb: a direct hit on b1 at 0.87 s, whose slow motion runs from 0.77 to 1.14 s):
+
+```
+{ t: 0.954, x: -2.02, y:  8.22, id: "b1",     with: "kubb",  thrown: false, speed: 1.41, strength: 0.25 }
+{ t: 1.121, x: -1.98, y:  8.47, id: "b1",     with: "kubb",  thrown: false, speed: 1.05, strength: 0.20 }
+{ t: 1.292, x: -2.04, y:  8.73, id: "b1",     with: "kubb",  thrown: false, speed: 1.26, strength: 0.22 }
+{ t: 1.300, x: -2.35, y:  9.87, id: "baton1", with: "baton", thrown: true,  speed: 2.86, strength: 0.37 }
+{ t: 1.533, x: -2.64, y: 10.72, id: "baton1", with: "baton", thrown: true,  speed: 3.80, strength: 0.24 }
+{ t: 1.558, x: -2.00, y:  8.98, id: "b1",     with: "kubb",  thrown: false, speed: 1.13, strength: 0.05 }
+{ t: 1.750, x: -2.96, y: 11.06, id: "baton1", with: "baton", thrown: true,  speed: 2.07, strength: 0.09 }
+```
+
+The kubb strikes the floor at 0.95 s, a tenth of a second after the hit and inside the
+slow motion, and tumbles on along the throw three more times; the baton carries on, meets
+the floor beyond the base line at 1.30 s and skips twice. A Techno renderer draws seven
+rings, the strongest (by `speed`) the baton's skip at 1.53 s.
+
+## Scenes
+
+Since 0.14 the engine owns the scenes (core/scenes; Jamie, 2026-11-21: "a Scene should
+have an allowed set of surfaces and pitch types"). `scenes()` returns the catalogue:
+
+| id | name | surfaces (default first) | sets | flags |
+| --- | --- | --- | --- | --- |
+| `day` | Park | grass | classic | |
+| `beach` | Beach | sand | classic | |
+| `night` | Camping | grass | classic | dark |
+| `neon` | Techno | grid | classic | dark, ring |
+| `minnesota` | Minnesota | snow | minnesota | |
+| `tournament` | Tournament | grass | usa | |
+| `bw` | Black & White | grass, sand, snow | classic | mono |
+
+`choices` is the option keys a scene leaves to the player (`["surface"]` for Black &
+White, `[]` for the rest): show a Surface row (or a Kubbs row) only where it names one, or
+build the card from `pitch.optionRows` (docs/PITCH.md). `dark`: a night sky, draw light on
+dark. `ring`: a ground impact rings ("Ground impacts"). `mono`: black and white only (the
+Playdate's own look). `sweden` and `wisconsin` are in no scene; an older match or save
+that carries them still loads and draws them. The stored ids of three scenes are older
+than their names: `day` is Park, `night` Camping, `neon` Techno.
+
+`grid` is the Techno scene's floor, a fourth surface (docs/notes/physics.md "The grid"):
+flat and electronic, the same throw doing the same thing every time, pieces gliding
+farther than on grass and stopping dead when slow. A client needs nothing for it beyond
+drawing its scene; the game file's Surface line reads `Grid`.
 
 ## Tunables
 

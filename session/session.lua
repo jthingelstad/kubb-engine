@@ -33,6 +33,7 @@ import "core/camera"
 import "core/names"
 import "core/notation"
 import "core/gamefile"
+import "core/scenes"
 import "version"
 import "session/json"
 import "session/throw"
@@ -42,7 +43,7 @@ import "session/namecheck"
 local cmatch, cards, save, autothrow, wind = tw.match, tw.cards, tw.save, tw.autothrow, tw.wind
 local raising, frame, pitch, quat, swing, plan = tw.raising, tw.frame, tw.pitch, tw.quat, tw.swing, tw.plan
 local camera, outcome, debris = tw.camera, tw.outcome, tw.debris
-local notation, gamefile = tw.notation, tw.gamefile
+local notation, gamefile, scenes = tw.notation, tw.gamefile, tw.scenes
 local json, throw = tw.web.json, tw.web.throw
 
 local fmt, upper = string.format, string.upper
@@ -212,12 +213,29 @@ end
 
 -- ---------- options ----------
 
-local SURFACES = { grass = "Grass", sand = "Sand", snow = "Snow" }
+local SURFACES = scenes.surfaceName -- { grass = "Grass", ..., grid = "Grid" }
 
 local function surfaceKey(name)
 	name = string.lower(name or "grass")
 	if not SURFACES[name] then name = "grass" end
 	return name
+end
+
+-- A scene decides (core/scenes, 0.14): options a client sets with a scene named get the
+-- scene's surface and set, the surface given if the scene allows it, else its default,
+-- and the set likewise; an id the catalogue does not have is Park ("day"). A copy of o;
+-- o itself when it names no scene, so a setup from before 0.14 (any surface and set, no
+-- scene) is made exactly as it always was. Applied where a client starts a match or
+-- practice (kubbCall "new"), never to a match already started: restore, replay,
+-- checkStart and renameStart make the match from its options as they were recorded.
+function session.sceneOptions(o)
+	if type(o) ~= "table" or o.scene == nil then return o end
+	local c = {}
+	for k, v in pairs(o) do c[k] = v end
+	local surface = type(o.surface) == "string" and string.lower(o.surface) or nil
+	c.scene, c.surface, c.set = scenes.resolve(o.scene, surface, o.set)
+	c.sceneRule = true
+	return c
 end
 
 -- The match options, checked and filled in (a plain table: it goes into the snapshot).
@@ -304,6 +322,8 @@ function session.new(o)
 		s.opts = { surface = surfaceKey(o.surface), level = o.level, set = o.set or "classic",
 			scene = tw.shared.lobby.isScene(o.scene) and o.scene ~= "day" and o.scene or nil }
 		s.ts = throw.new { surface = s.opts.surface, level = o.level, set = s.opts.set }
+		-- practice set up under a scene (session.sceneOptions) keeps its surface to the scene's
+		s.sceneRule = o.sceneRule and true or nil
 		s.phase = "throw"
 		if o.drill then throw.setDrill(s.ts, true) end
 		s.ts.railName = "PRACTICE"
@@ -838,7 +858,15 @@ end
 
 function Session:setSurface(name)
 	assert(self.kind == "practice", "setSurface is for practice")
-	self.opts.surface = surfaceKey(name)
+	local key = surfaceKey(name)
+	-- under a scene, only a surface it allows (else as it was)
+	if self.sceneRule then
+		local e = scenes.get(self.opts.scene)
+		local ok = false
+		for _, k in ipairs(e.surfaces) do if k == key then ok = true end end
+		if not ok then key = self.opts.surface end
+	end
+	self.opts.surface = key
 	self.ts.surface = self.opts.surface
 	self.ts.planDirty = true -- a drill runs on by the ground
 	return self:view()

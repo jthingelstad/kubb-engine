@@ -8,7 +8,9 @@ throw and the computer player (`core/throwplan`; `core/read`, `core/plays`, `cor
 the session (`session/`), a practice pitch or a match behind one door, `kubbCall`,
 with JSON in and out (docs/SESSION.md); and the pitch (`pitch/`), a shared pitch's
 document and who acts in it, behind the same door (docs/PITCH.md); and generated names for
-players and teams (`core/namegen`, `core/namewords`, docs/NAMES.md). It has no drawing,
+players and teams (`core/namegen`, `core/namewords`, docs/NAMES.md); and the scenes a match
+is played in and the surfaces and kubb sets each allows (`core/scenes`,
+docs/notes/scenes.md). It has no drawing,
 input, network or file access; a client supplies those.
 
 The core was extracted from the Playdate game (`playdate-kubb`, `source/core/`) and the

@@ -559,6 +559,100 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     Simulator self-tests catch it). Tests: `test_ground.lua`.
   - This changed every throw on grass on purpose, so dumps after a scenario are not
     identical to before; the lone flight is untouched (no ground in the air).
+- **The grid** (0.14, 2026-11-22; the Techno scene's floor, docs/notes/scenes.md. Jamie:
+  "I think the surface should feel intentionally flat and electronic, maybe even
+  magnetic"). A fourth surface, `world.surfaces.grid`, offered only by the Techno scene.
+  The intent, in order: no texture, a glide, a magnetic stop, a mild hold on a standing
+  kubb, and still kubb. All but the hold are the existing parameters:
+  - **No texture**: `muVar`, `eVar`, `digVar` and `bump` 0 (`bumpSpeed` out of reach),
+    `dig` 0 and `bite` 0, so every patch is alike, nothing digs in or bites, and the same
+    throw does the same thing on any ground seed (`test_scenes`: bit for bit). The patch
+    hash still runs on a new contact; its numbers multiply by zero.
+  - **Glide**: `mu` 0.55 (grass 0.7), `e` 0.05 (grass 0.15: a built floor gives little
+    back), `drag` 0.6 a second (grass 2.5), `roll` 0.002 (grass 0.01). `mu` stays over the
+    0.47 a kubb's footprint needs to tip ("A kubb's foot ploughs snow"), so a kubb shoved
+    at its centre at 1 m/s or more falls, as on grass, with no `footMu`. At 0.5 the baton
+    slid 2.5 m after touching down (grass 1.0) and toppled base kubbs on twice as many
+    skips; 0.55 with drag 0.6 slides it 1.9 m.
+  - **The magnet**: `grip` 60 a second below `gripSpeed` 0.7 m/s (grass 12 below 0.5), so
+    a sliding baton or lying kubb stops within about 0.05 s of slowing to 0.7 m/s, its
+    slide and its roll together: no creep, no last half-roll. A caught drill's roll from
+    its taps is shorter than on grass for that reason (`drill.tune.roll.grid`).
+  - **The hold** (new, `texture.hold`, 1/s): a kubb or the king standing within 30
+    degrees of upright on the ground loses `hold` x its load share of its turn about the
+    level axes a second. A rate, not a lever (a lever would hold a kubb balanced just
+    past its edge, where the leaner rule and `boxFlat` keep it awake to the end of the
+    throw). Grass, sand and snow have none: their step reads one field more and does
+    nothing else, and `tools/physdump.lua --games 4` is bit-identical on them.
+  - `drill.tune.slide.grid` and `roll.grid` measured as for the others
+    (`tools/drillscatter.lua --only 5 --surface grid --grounds 60`, `--hand 1`, and
+    `--hand 0` for the two caught lofts with taps), so a drill aims right on it: a clean
+    drill rests +5 and 0 cm along its mark at the two arcs (with grass's table, +47 and
+    +12).
+
+  The hold, chosen at 6 (glancing batons across a lone kubb at 4 m, 600 throws, about 99
+  touches; the share that fell, and of those that stood the time the kubb rocked faster
+  than 0.3 rad/s after the touch, p90 and max):
+
+  | | grass | grid 0 | grid 3 | grid 6 | grid 12 | grid 25 |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | fell | 67% | 67% | 67% | 67% | 65% | 60% |
+  | rocking p90 / max (s) | 0.79 / 0.95 | 0.83 / 0.97 | 0.70 / 0.72 | 0.59 / 0.65 | 0.53 / 0.86 | 0.53 / 0.77 |
+
+  Weaker (3) barely shows; stronger starts to save kubbs a glancing touch should fell (12:
+  two points fewer, 25: seven) with no shorter rocking. A kubb set rocking at 15 rad/s
+  settles in 0.63 s at 6 against 0.85 with none; at 20 rad/s it falls either way.
+
+  Measured against grass (final parameters):
+
+  | measure | grass | grid |
+  | --- | --- | --- |
+  | baton slide after touching down, m (`groundstats`, 300 at base kubbs) | 1.01 (p90 2.42) | 1.94 (p90 3.57) |
+  | baton creeping under 0.6 m/s, s a throw | 0.098 | 0.045 |
+  | release to rest, s | 1.86 | 2.16 |
+  | scripted batons that toppled a base kubb | 7.3% | 13.3% |
+  | clean drill run on, cm, loft 47 / 30 (`drillscatter --only 3`) | 80 / 155 | 100 / 171 |
+  | its sd, cm | 55 / 72 | 56 / 71 |
+  | a person's recorded hand, fell at 2 / 4 / 6 / 8 m (`meterprobe`) | 84 / 72 / 50 / 27% | 84 / 75 / 54 / 30% |
+  | the same, a master (x0.5) | 94 / 92 / 80 / 63% | 94 / 94 / 84 / 65% |
+  | a perfect swing, and in both bars, at 8 m | 100%, 99% | 100%, 99% |
+  | a one-tap drill onto the basket: person median, within 0.3 m | 8 cm, 74% | 8 cm, 72% |
+  | computer at a lone kubb, pro, touched at 2 / 4 / 6 / 8 m (`topprobe`) | 96 / 86 / 68 / 38% | 96 / 92 / 72 / 40% |
+  | the same, fell when touched | 98 / 97 / 95 / 96% | 96 / 97 / 92 / 91% |
+  | club, touched | 92 / 72 / 50 / 30% | 94 / 78 / 58 / 37% |
+  | club, fell when touched | 93 / 94 / 89 / 83% | 92 / 91 / 86 / 81% |
+  | touches after the ground first (skips), pro / club | 18 / 18% | 22 / 25% |
+
+  The Gym (`node tools/gym.mjs --throwers cpu,human --levels club,pro --surfaces
+  Grass,Grid --n 200`, 200 matches a configuration, seed 1; computer club, computer pro,
+  human club, human pro; `±` about 1 turn, 1 point on baton shares, 2 on turn shares):
+
+  | measure | grass | grid |
+  | --- | --- | --- |
+  | turns a game | 14.3 / 12.3 / 15.3 / 14.4 | 15.2 / 13.0 / 14.8 / 14.0 |
+  | field batons that missed | 25.5 / 17.0 / 30.6 / 32.0% | 23.1 / 14.9 / 29.1 / 29.2% |
+  | field batons that took two or more | 15.8 / 29.0 / 10.1 / 14.8% | 13.9 / 26.1 / 8.9 / 14.0% |
+  | kubbs a field baton (three or more counted as three) | 0.92 / 1.19 / 0.81 / 0.85 | 0.92 / 1.16 / 0.81 / 0.86 |
+  | turns that cleared the field | 71.1 / 77.2 / 61.1 / 65.2% | 64.8 / 75.3 / 62.7 / 64.6% |
+  | base kubb from the baseline | 25.1 / 34.5 / 29.2 / 28.4% | 29.8 / 36.2 / 30.6 / 30.4% |
+  | king shots that toppled it | 84 / 97 / 86 / 82% | 89 / 100 / 84 / 86% |
+  | a baton landing short ran on, m | 2.30 / 2.73 / 2.13 / 2.11 | 3.24 / 3.52 / 2.90 / 2.92 |
+  | drill rests from its mark, m | 0.21 / 0.06 / 0.45 / 0.45 | 0.25 / 0.05 / 0.47 / 0.46 |
+  | field group, mean distance to its centre, m | 0.33 / 0.27 / 0.57 / 0.57 | 0.43 / 0.27 / 0.57 / 0.59 |
+  | field group, farthest two apart, m | 0.95 / 0.77 / 1.69 / 1.71 | 1.30 / 0.79 / 1.69 / 1.79 |
+  | first touch: the kubb slid and stood | 0.5 / 0.1 / 0.1 / 0.1% | 2.4 / 0.9 / 0.5 / 0.5% |
+  | time to rest, every throw, s | 1.74 / 1.73 / 1.75 / 1.75 | 1.89 / 1.84 / 1.83 / 1.84 |
+  | still moving at the end, broken bodies | 0, 0 | 0, 0 |
+
+  Still kubb: the 8 m base kubb falls to a good baton, a thrown kubb lands where it is
+  aimed (pro 5 cm), groups are cleared in about the same batons (3.7 to 3.9 against 3.6
+  to 3.8), and matches run as long within a turn. What changes is the glide: batons
+  that land short skip on a metre farther and reach the kubb more often (fewer misses,
+  more base kubbs from the baseline), a kubb struck low slides standing a little more
+  often, and the club computer's drills, caught about half the time, glide apart when
+  they are not (its groups spread 0.43 m from their centre against 0.33). The pro's
+  caught drills do not move. Not bit-identical: nothing on grass, sand or snow; every
+  throw on the grid is new.
 - **Baton hits** (Tyler's play test, 2026-11-15: "a baton phased through a kubb", "a fast
   baton barely moved a kubb", "hit twice hard and did not fall", "kubbs feel like they
   glide"). `lua5.4 tools/batonprobe.lua [--quick] [--tyler traces.jsonl] [--rates n]

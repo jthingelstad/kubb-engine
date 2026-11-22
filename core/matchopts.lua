@@ -9,12 +9,25 @@
 --   matchopts.step(c, key, d)  the value of row `key` moved by d (-1 or 1), wrapping
 --   matchopts.value(c, key)  the chosen value; matchopts.shown(c, key) its words
 --   matchopts.apply(opts, c) the scenes/match options the choice makes
+--   matchopts.scene          "bw": the Playdate's scene (core/scenes, since 0.14)
 import "core/tw"
+import "core/scenes"
 
 local matchopts = {}
 
+-- The Playdate draws one scene, Black & White ("This IS the Playdate", Jamie
+-- 2026-11-21): its Surface row is the surfaces that scene allows (core/scenes), and
+-- apply names it in the options. It has no Scene row and no Kubbs row.
+matchopts.scene = "bw"
+local bw = tw.scenes.get(matchopts.scene)
+local surfaceValues, surfaceShown = {}, {}
+for i, k in ipairs(bw.surfaces) do
+	surfaceValues[i] = tw.scenes.surfaceName[k]
+	surfaceShown[i] = string.upper(tw.scenes.surfaceName[k])
+end
+
 matchopts.list = {
-	{ key = "surface", label = "SURFACE", values = { "Grass", "Sand", "Snow" }, shown = { "GRASS", "SAND", "SNOW" } },
+	{ key = "surface", label = "SURFACE", values = surfaceValues, shown = surfaceShown },
 	{ key = "opening", label = "OPENING", values = { "2-4-6", "six" },
 		shown = { "2-4-6", "SIX FROM THE START" } },
 	{ key = "raising", label = "RAISING", values = { "hand", "auto" }, shown = { "BY HAND", "AUTOMATIC" } },
@@ -26,12 +39,11 @@ matchopts.list = {
 		shown = { "BEGINNER", "CLUB", "PRO" }, default = 2 },
 }
 
--- Not here: the kubb set and the scene. They are looks for the web and the iPhone only
--- (Jamie's Settings sheet, 2026-11-20: sets and scenes are not on the Playdate), chosen
--- through the pitch's options (pitch/lobby MATCH_OPTIONS `set`; `scene`, an id the client
--- labels) and kept in the session's start. A choice table or save kept before 0.9 that
--- carries `set` still loads: valid() reads only these rows' keys, and core/save hands
--- back whatever options it wrote.
+-- Not here: a Kubbs row and a Scene row. The Playdate's scene is Black & White, which
+-- offers one set, classic (core/scenes); the web and the iPhone choose a scene through
+-- the pitch's options (pitch/lobby optionRows). A choice table or save kept before 0.9
+-- that carries `set` still loads: valid() reads only these rows' keys, and core/save
+-- hands back whatever options it wrote.
 
 local byKey = {}
 for _, row in ipairs(matchopts.list) do byKey[row.key] = row end
@@ -64,13 +76,15 @@ function matchopts.shown(c, key) return byKey[key].shown[c[key]] end
 -- opts (scenes/match options: names, vs, ...) with the surface, the opening,
 -- whether the engine raises the kubbs (autoSettle), the wind and the computer's
 -- level (opts.computer: the level each computer player throws at) from the choice.
--- It sets no kubb set (since 0.9): opts.set is left as the caller had it.
+-- It sets no kubb set (since 0.9): opts.set is left as the caller had it. Since 0.14 it
+-- names the scene, opts.scene = "bw" (nothing in the core reads it; the save keeps none).
 function matchopts.apply(opts, c)
 	opts.surface = matchopts.value(c, "surface")
 	opts.opening = matchopts.value(c, "opening")
 	opts.autoSettle = matchopts.value(c, "raising") == "auto" or nil
 	opts.wind = matchopts.value(c, "wind")
 	opts.computer = matchopts.value(c, "computer")
+	opts.scene = matchopts.scene
 	return opts
 end
 

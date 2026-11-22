@@ -348,7 +348,7 @@ local deg, asin, atan, abs = math.deg, math.asin, math.atan, math.abs
 local MX, MY = { -1.5, 0, 1.5 }, { 4.6, 5.5, 6.5, 7.5 }
 print(fmt("drillscatter 3: the plan's clean drill, %d markers x %d grounds (cm, degrees, s)", #MX * #MY, grounds))
 print("  ground  loft | nose at release, at touch (sd) turned | run on: mean sd p10 p50 p90 max, dead<5cm | rest from mark, along | flat end other, yaw 0-30 30-60 60-90 | touch to rest mean max")
-for _, surface in ipairs { "grass", "sand", "snow" } do
+for _, surface in ipairs(world.SURFACES) do
 	if not surfaceOnly or surfaceOnly == surface then
 	for _, loft in ipairs { 47, 30 } do
 		local rel, tch, turned, run, rest, ttr, along = acc(), acc(), acc(), acc(), acc(), acc(), acc()
@@ -453,11 +453,11 @@ for k = 1, #t.slideSpins do
 		for j = 1, #t.slideR do zero[k][li][j] = 0 end
 	end
 end
-t.slide = { grass = zero, sand = zero, snow = zero }
-t.roll = { grass = zero, sand = zero, snow = zero }
+t.slide, t.roll = {}, {}
+for _, k in ipairs(world.SURFACES) do t.slide[k], t.roll[k] = zero, zero end
 local MX = { -1.5, 0, 1.5 }
 print(fmt("drillscatter 5: the aim allowance, %d lines x %d grounds a cell (m past the aimed landing; sd of the mean in brackets)", #MX, grounds))
-for _, surface in ipairs { "grass", "sand", "snow" } do
+for _, surface in ipairs(world.SURFACES) do
 	if not surfaceOnly or surfaceOnly == surface then
 	print(fmt("\t\t%s = {", surface))
 	for _, spin in ipairs(t.slideSpins) do
