@@ -14,6 +14,7 @@ test("inkast tokens: I R P Q N counts, 1 left out, E suffix", function()
 	expect.eq(t { I = 1 }, "I")
 	expect.eq(t { I = 10, R = 10 }, "10I10R")
 	expect.eq(t { I = 9, N = 7 }, "9I5N", "N is capped at 5 (the grammar's limit)")
+	expect.eq(t {}, "0I", "none thrown is 0I, the canonical form's only zero")
 end)
 
 test("baton tokens: - F 2F B 2FB 2B FE E", function()
@@ -35,7 +36,7 @@ test("turn line: inkast, advantage, batons, notes; no inkast token when nothing 
 	s:advantage(2)
 	s:baton("j", "2F"); s:baton("j", "K"); s:baton(nil, "X")
 	s:note("first note"); s:note("second # note")
-	expect.eq(notation.turnLine(s.turns[7]), "7. j:5I2R 2A j:2F j:K X # first note; second   note")
+	expect.eq(notation.turnLine(s.turns[7]), "7. j:5I2R A j:2F j:K X # first note; second   note")
 	s:beginTurn(8, "B")
 	s:baton("c", "-")
 	expect.eq(notation.turnLine(s.turns[8]), "8. c:-")
@@ -77,16 +78,24 @@ test("times: duration across midnight and month ends; file name", function()
 end)
 
 -- A whole game through the engine (one player a team, so no player prefixes): II.B.1, II.B.2, II.B.4a, FB, rethrow,
--- II.D.6 (N), rescue (Q), king shots (= and K) and X, with positions (each
--- checked by hand against the script: engine x + 2.5, y as is; a kubb raised
--- from lying at angle 0 stands 0.11 m along its axis, turn 4's b1 at -1.11).
+-- II.D.6 (N), rescue (Q), king shots (= and K) and X, in Notation 2's canonical form,
+-- with its position lines (each checked by hand against the script: across is engine
+-- x + 2.5, depth is |y - 4| in the half under attack; a kubb raised from lying at
+-- angle 0 stands 0.11 m along its axis, turn 4's b1 at -1.11). Turns 4 and 7 have no
+-- pitch line: a kubb stood in the half from an earlier turn (turn 2's, and turn 5's
+-- two that were not felled), and the sheet does not keep where.
 local EXPECTED = [[
+[Notation "2"]
 [Event "Throwing Wood"]
 [Location "Playdate"]
 [Start "2026-11-20 19:42"]
 [End "2026-11-20 20:05"]
 [Duration "23m"]
 [Surface "Sand"]
+[Rules "U.S. Championship 4.0, 2-4-6"]
+[Base kubbs "5"]
+[Batons "6"]
+[Opening "2-4-6"]
 [Team A "Jamie"]
 [Team A Players "Jamie (jamie)"]
 [Team B "Playdate"]
@@ -95,16 +104,23 @@ local EXPECTED = [[
 [Win "Team B"]
 [Scored by "Throwing Wood 0.0.1"]
 [Mode "Pass and Play"]
-[Rules "U.S. Championship 4.0, 2-4-6"]
 
-1. B (@ 2.50,8.00) -
-2. I (@ 3.00,2.50) - - - -
-3. 2A B (@ 0.50,8.00) B (@ 1.50,8.00) - Z - -
-4. 2IRN (@ 1.39,2.00 1.67,2.14) F (@ 3.00,2.50) F (@ 1.39,2.00) F (@ 1.67,2.14) B (@ 0.50,0.00) - - # b2 toppled a base kubb early; raised (II.B.4a)
-5. 4I (@ 2.50,6.00 1.50,6.00 3.50,6.00 0.50,5.00) F (@ 1.50,6.00) F (@ 3.50,6.00) - - - -
-6. 2I (@ 2.50,2.00 3.50,2.00) 3A F (@ 2.50,2.00) FB (@ 3.50,2.00 1.50,0.00) B (@ 2.50,0.00) 2B (@ 3.50,0.00 4.50,0.00) = =
-7. 7IQ (@ 2.49,6.20 3.00,7.00 2.00,7.00 4.00,7.00 1.00,7.00 2.50,5.00 3.50,5.00) - - - - - -
-8. 3A = K X X X X
+1. B -
+*b 2.50,4.00 -
+2. I - - - -
+@a 3.00,1.50
+3. A B B - Z - -
+*b 0.50,4.00 1.50,4.00 - - - -
+4. 2IRN F F F B - - # b2 toppled a base kubb early; raised (II.B.4a)
+*a 3.00,1.50 1.39,2.00 1.67,1.86 0.50,4.00 - -
+5. 4I F F - - - -
+@b 0.50,1.00 1.50,2.00 2.50,2.00 3.50,2.00
+*b 1.50,2.00 3.50,2.00 - - - -
+6. 2I A F FB B 2B = =
+@a 2.50,2.00 3.50,2.00
+*a 2.50,2.00 3.50,2.00+1.50,4.00 2.50,4.00 3.50,4.00+4.50,4.00 - -
+7. 7IQ - - - - - -
+8. A = K X X X X
 ]]
 
 test("a full scripted game renders exactly", function()

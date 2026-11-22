@@ -1,6 +1,7 @@
 -- Headless game generator: plays N seeded random games through the rules
 -- engine (tools/thrower.lua, no physics) and writes each as a Planet Kubb
--- Notation file.
+-- Notation 2 file, with what its score sheet kept of the positions beside it
+-- (<name>.places.json, tools/sheetplaces.lua) for the gate's round trip.
 --
 --   lua5.4 tools/games.lua [--n 500] [--seed 1] [--out build/games]
 --
@@ -17,6 +18,7 @@ end
 
 local thrower = dofile(here .. "/thrower.lua")
 import "core/notation"
+local sheetPlaces = dofile(here .. "/sheetplaces.lua")
 local notation = tw.notation
 
 local n, seed, out = 500, 1, "build/games"
@@ -49,6 +51,10 @@ for g_i = 1, n do
 	local name = notation.filename(start, g.teams.A.name, g.teams.B.name)
 	local f = assert(io.open(out .. "/" .. name, "w"))
 	f:write(text)
+	f:close()
+	-- what the sheet kept of the positions, for the gate's round trip
+	f = assert(io.open(out .. "/" .. name:gsub("%.txt$", ".places.json"), "w"))
+	f:write(sheetPlaces(g))
 	f:close()
 	wins[g.winner] = wins[g.winner] + 1
 	for k, v in pairs(t.stats) do totals[k] = (totals[k] or 0) + v end

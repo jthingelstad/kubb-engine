@@ -16,6 +16,14 @@ what each baton took, not where anything stood or how it was thrown, so it says 
 rates differ, never why. The real games are pro play; `tools/physmatch.lua --level`
 (`make realgames REAL_LEVEL=club`) plays the computer at another level against itself.
 
+The vendored `kubb.js` is pk-kubb-score's Notation 2 reader (release `v2-2026.11`,
+`tests/vendor/pk-kubb-score/SOURCE`). The archived games are notation 1, which Notation 2
+reads in its lenient form with the same meaning (pk-kubb-score's `conformance/archive.json`
+holds it to that), and the engine's games are Notation 2 with position lines, which the
+counting here never reads: on the 150 archived games `realgames.mjs`, `batonvalue.mjs` and
+`realtiers.mjs` give byte for byte what they gave with the notation 1 reader (checked when
+the reader moved, 2026-11-21).
+
 - **What the real games are: pro** (Jamie, 2026-11-17): "there is no professional kubb.
   So that is essentially the best kubb there is"; some of the recorded players ranked high
   at the world championship and one team won it. All tournament games, often the final

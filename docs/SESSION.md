@@ -286,8 +286,9 @@ with KUBBS on the spin stays from throw to throw until `reset()` or `setDrill`.
 ### The score sheet and replays
 
 `sheet()` is `{ text, name, shown, done }` for a match (`{}` in practice): `text` the game
-file in Planet Kubb Notation as it stands (positions included), `shown` each line as a
-screen shows it.
+file in Planet Kubb Notation 2 as it stands (its position lines included), `shown` the
+lines a screen shows: every line of `text` but the position lines under the turns (those
+that start `@`, `~`, `^` or `*` and a half, `core/gamefile.isPosition`), in order.
 
 A finished match played again (`session/replay.lua`): `replayLoad({ setup, h0, log })`
 (`setup` the match's options, or `start` its first snapshot; `log` `[{ a, h }]`, each

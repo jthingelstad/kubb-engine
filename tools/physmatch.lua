@@ -1,7 +1,8 @@
 -- Headless matches with real physics: core/match driven by core/autothrow,
 -- every throw simulated by core/world to rest, the same path as the match
--- scene without the screen. Writes each game file; the notation gate checks
--- them (`make physgames`). Team sizes go round one to six (game i: Team A
+-- scene without the screen. Writes each game file, and what its score sheet
+-- kept of the positions beside it (<name>.places.json, tools/sheetplaces.lua);
+-- the notation gate checks them and reads the positions back (`make games`). Team sizes go round one to six (game i: Team A
 -- has (i - 1) % 6 + 1 players, Team B (i + 1) % 6 + 1), and every sheet is
 -- checked against the throwing order's rules (core/order: II.A.4, II.B.5).
 --
@@ -31,6 +32,7 @@ import "core/autothrow"
 import "core/notation"
 import "core/order"
 local match, world, autothrow, notation, order = tw.match, tw.world, tw.autothrow, tw.notation, tw.order
+local sheetPlaces = dofile(here .. "/sheetplaces.lua")
 
 local NAMES = { A = { "Alex", "Kim", "Max", "Nell", "Otto", "Pia" }, B = { "Sam", "Lee", "Dana", "Rae", "Sol", "Tam" } }
 
@@ -127,6 +129,10 @@ for gi = 1, n do
 	local text, name = match.file(m, finish, "0.0.1")
 	local f = assert(io.open(out .. "/" .. name, "w"))
 	f:write(text)
+	f:close()
+	-- what the sheet kept of the positions, for the gate's round trip
+	f = assert(io.open(out .. "/" .. name:gsub("%.txt$", ".places.json"), "w"))
+	f:write(sheetPlaces(m.game))
 	f:close()
 	st.turns = st.turns + m.game.turn
 	st.how[m.game.how or "?"] = (st.how[m.game.how or "?"] or 0) + 1

@@ -145,7 +145,16 @@ by where every kubb lies once they are all thrown, and they come last.
 
 `core/notation.lua` keeps the score sheet as the engine runs and renders the game file
 (DESIGN.md section 7). `tw.notation.render(game, { start, finish, version, mode })` gives the
-text; times are `{ year, month, day, hour, min }` tables passed in (no `os.time` in core);
+text, in Planet Kubb Notation 2's canonical form (pk-kubb-score's `docs/notation-2.md`,
+edition 2026.11, release `v2-2026.11`; the grammar's `CanonicalGame`): `[Notation "2"]`
+first, then the headers the notation defines in its order (`Event`, `Location`, `Start`,
+`End`, `Duration`, `Surface`, `Rules`, `Base kubbs "5"`, `Batons "6"`, `Opening "2-4-6"` or
+`"6"`, the teams and players, `First`, `Win`, `Scored by`), then the engine's own (`Mode`,
+`Throw Levels`) by code point, a blank line, and each turn line followed by its position
+lines (since the release after 0.13.0; files before wrote notation 1 with positions as
+`(@ x,y)` comments in a corner frame, which nothing writes now and `core/gamefile` still
+reads). pk-kubb-score owns the notation; the engine owns its writer, the rules and its
+statistics, and depends on pk-kubb-score one way. Times are `{ year, month, day, hour, min }` tables passed in (no `os.time` in core);
 `tw.notation.filename(start, teamA, teamB)` gives `YYYY-MM-DD-HHMM-<a>-v-<b>.txt`.
 
 - Player ids: lowercased name, spaces and hyphens to `_`, everything else but letters
@@ -176,8 +185,11 @@ text; times are `{ year, month, day, hour, min }` tables passed in (no `os.time`
   throw (the grammar takes the letters in any order; the token always writes `IRPQN`).
 - When the game ends before the inkast is done (king toppled by a kubb, or a resign), the
   token still counts every kubb that was due, so kubb.js's inkast check holds.
-- `nA` follows the inkast: whole meters from the attacker's own baseline to the advantage
-  line, rounded down, 0 to 4.
+- `A` follows the inkast when the attacker throws from an advantage line: bare, as the
+  canonical form has it. The sheet keeps the whole metres from the attacker's own baseline
+  (`t.advantage`, 0 to 4, rounded down); Notation 2 says where the line runs only through
+  the pitch line of the thrower's own half, which the file does not write (below).
+  (Notation 1 files wrote `nA`; `core/gamefile` reads both.)
 - Batons: `-`, `F`/`nF`, `B`/`nB`, `FB`, `K`, `=`, `Z`, `E` or `nFE`/`BE`, `G`, then `X`
   for each baton left once the game is over (after `K`, `E`, `G` or an inkast `E`).
 - Notes (`# a; b`) say what the tokens cannot: `bN toppled a base kubb early; raised
@@ -185,41 +197,71 @@ text; times are `{ year, month, day, hour, min }` tables passed in (no `os.time`
   `bN pushed a kubb out without toppling; put back (II.B.7)`, `a kubb hit a field kubb in the
   thrower's own half (II.C.4b)`, `bN toppled the king early`, `king toppled by a thrown
   kubb`, `resigned during the inkast`. `bN` is the turn's Nth baton.
-- `[Rules "U.S. Championship 4.0, 2-4-6"]` or `"..., six from the start"`.
-- **Positions** (2026-11-16, the notation's optional `(@ ...)`; Jamie: "the biggest
-  limitation of the scoresheet system I created is it doesn't note pitch position for
-  anything"): exact meters `x,y` with two decimals after the token, before any `# note`:
-  `3. m:2I (@ 4.39,4.61 4.34,5.21) m:F (@ 4.39,4.61) a:B (@ 1.50,8.00)`. The frame
-  is the pitch seen from Team A's baseline all game: `notation.pitchXY` is the engine's
-  x + 2.5 (the left sideline, as someone on Team A's baseline facing Team B sees it, is
-  x = -2.5; `test_positions` proves it with the aim camera and the base kubbs) and y as is,
-  clamped to 0..5 and 0..8 (the grammar has no minus sign). The sheet keeps them as data in
-  the engine's frame beside the token (`t.inkastAt[pid]`, a baton's `at`, through
-  `Sheet:inkAt` and `Sheet:baton(pid, token, at)`); `turnLine` converts them and never
-  writes more than the token counts (`kubb.js` warns on that).
-  - A baton: where each kubb its token counts stood before the throw, its F kubbs then its B
-    (each in id order); also for `nFE`/`BE`. None for `-`, `Z`, `E` alone, `K`, `=`, `G`,
-    `X`, nor for a base kubb toppled early and raised (II.B.4a: not in the token).
-  - An inkast: written once, as the batons begin (`Game:_inkastPositions`), when every
-    kubb is raised and every punishment kubb placed (afresh if `match.settleStanding` moves
-    one before the first baton): each kubb thrown this turn that is in
-    play, where it stands, in the order of its last throw, on the token of the player who
-    made that throw (`k.inkBy`, `k.tossSeq`); a punishment kubb on the token that counts
-    its P. A rescued kubb (Q) has the place it was thrown back in to; a kubb lowered from on
-    top of another (N) where it was raised after; a kubb out of play has none.
-  - A game that ends during the inkast (king toppled by a kubb, `E`; a resign before the
-    batons) writes no inkast positions: nothing was raised. An early king by a baton keeps
-    the token's F places (`2FE (@ ...)`).
-  - Not written: `^` (where the thrower stood). The engine's outcomes carry no stance, and
-    the throw's stance is not kept to the rules engine; plumbing it through `core/match`
-    for both the player's and the computer's throws is left for later.
+- `[Rules "U.S. Championship 4.0, 2-4-6"]` or `"..., six from the start"`, with
+  `[Opening "2-4-6"]` or `[Opening "6"]` beside it for readers (kubb.js reads the batons a
+  turn may have from `Opening` and `Batons`). A turn with nothing thrown in has no inkast
+  token; `0I` is what `inkastBody` writes for an empty count, which the engine never has.
+- **Positions** (2026-11-16, Jamie: "the biggest limitation of the scoresheet system I
+  created is it doesn't note pitch position for anything"; Notation 2's position lines
+  since the release after 0.13.0). The sheet keeps them as data in the engine's frame
+  (`t.inkastAt[pid]` and a baton's `at`, through `Sheet:inkAt` and
+  `Sheet:baton(pid, token, at)`), exactly as before; only the file's way of writing them
+  changed, so no golden hash moved and every save loads as it did.
+  - **The frame**, converted in one place (`notation.toPitch`, back with
+    `notation.fromPitch`): the origin is the centre-line stake on Team A's left as Team A
+    stands on its baseline facing the king (engine x = -2.5, y = 4). Across is x + 2.5,
+    0 to 5 (the king at 2.50; the left sideline as someone on Team A's baseline facing
+    Team B sees it is x = -2.5, which `test_positions` proves with the aim camera); depth is
+    4 - y in half `a` and y - 4 in half `b`, 0 to 4 (both baselines at 4.00). The half is
+    the one the piece is in play for, never read off y. `notation.point` writes a point
+    with two decimals, rounded to the centimetre with exact halves to even (`%.2f`), never
+    `-0.00`, and gives nil for a point outside its half (a pitch or felled line has no
+    minus sign).
+  - What the sheet keeps. A baton: where each kubb its token counts stood before the
+    throw, its F kubbs then its B (each in id order); also for `nFE`/`BE`. None for `-`,
+    `Z`, `E` alone, `K`, `=`, `G`, `X`, nor for a base kubb toppled early and raised
+    (II.B.4a: not in the token). An inkast: kept once, as the batons begin
+    (`Game:_inkastPositions`), when every kubb is raised and every punishment kubb placed
+    (afresh if `match.settleStanding` moves one before the first baton): each kubb thrown
+    this turn that is in play, where it stands, in the order of its last throw, per player
+    (`k.inkBy`, `k.tossSeq`); a punishment kubb with the player whose token counts its P.
+    A rescued kubb (Q) has the place it was thrown back in to; a kubb lowered from on top
+    of another (N) where it was raised after; a kubb out of play has none. A game that ends
+    during the inkast (an inkast `E`, a resign before the batons) keeps none for it.
+  - What the file writes (`notation.positionLines`), for the half under attack only, in
+    points, in the canonical order:
+    - `@a`/`@b`, the pitch line, every entry unmarked (thrown in this turn), when it can be
+      the whole half: no field kubb stands there from an earlier turn (counted from the
+      sheet as kubb.js counts, less the rescues), no punishment kubb was placed (the sheet
+      does not say which kubb is the `p`), and the sheet has a place for every kubb thrown
+      in. Otherwise none: the notation's pitch line "is the whole half or it is left out".
+    - `*a`/`*b`, the felled line, a word a baton: its kubbs where they stood, field then
+      base, each by across and depth, joined by `+`; `-` for a baton that felled none, one
+      the sheet has no places for (an old save), one whose kubb stood outside the half, and
+      one whose field kubb is not where the pitch line has it (an earlier baton moved it:
+      kubb.js finds every felled field kubb on the pitch line, so the word is left out
+      rather than warned on). No line when every word is `-`.
+    - Not written: the thrower's own half (its kubbs are `s`, and the sheet does not keep
+      where the kubbs left from earlier turns stand), `~` (where each kubb lay before it was
+      raised, and which end it was raised on) and `^` (where each baton was thrown from:
+      the engine's outcomes carry no stance). Each needs new data in the sheet, which moves
+      every golden hash: a minor version (docs/VERSIONING.md).
+  - `make games` reads every written point back with pk-kubb-score's grammar and finds it
+    among the places the sheet kept, within half a centimetre (`tools/sheetplaces.lua`
+    writes them beside each game; `tests/node/notation-gate.mjs`, "The round trip"). In
+    the 500 headless games, pitch lines for about 70% of the turns with kubbs thrown in and
+    felled words for nearly every baton that felled one.
   - A save from before positions loads (no `inkastAt`, `at`, `inkBy`, `tossSeq`): its
-    turns render without them, and a turn in progress gives its kubbs to its one inkaster
-    (none when it had several). `core/gamefile` drops comments in parentheses before it
-    counts tokens.
-  - On screen (`scenes/sheet`: the games list, a player's GAMES, a match's own sheet) the
-    positions are left out (`gamefile.shown`): they would fill the 400 px screen, and the
-    view reads as it did before. The file keeps them.
+    turns render without position lines, and a turn in progress gives its kubbs to its one
+    inkaster (none when it had several).
+  - Reading: `core/gamefile.parse` skips position lines (`gamefile.isPosition`) and leaves
+    them out of `lines`; it drops comments in parentheses before it counts tokens, so a
+    notation 1 file an older client wrote reads as it always did. On screen the position
+    lines are left out (they would fill the 400 px screen; the file keeps them): the
+    session's `sheet().shown` and `gamefile.parse`'s `lines` have none, and
+    `gamefile.shown` gives `""` for one, so a screen that splits the file's text itself
+    (the Playdate's `scenes/sheet` from `scenes/match` and `scenes/players`) should skip
+    the lines `gamefile.isPosition` names.
 
 ## Throwing order
 
