@@ -386,14 +386,7 @@ local function replan(s)
 	s.sol = sol
 	-- the lowest release this throw can be planned at (plan.solve's drive floor, 0.16):
 	-- ARC's real range for the throw in hand (throw.controls)
-	if kubb then
-		s.arcMin = plan.tune.driveKneeDeg
-	else
-		local r = q.release
-		q.release = plan.tune.releaseMinDeg
-		s.arcMin = plan.solve(q, {}).release
-		q.release = r
-	end
+	s.arcMin = plan.arcFloor(q)
 	s.swivel, s.loftDeg = sol.swivel, sol.loft
 	s.planLevel, s.planDirty = throw.levelFor(s), false
 end
@@ -674,15 +667,33 @@ function throw.freeStance(s)
 	aimCamera(s)
 end
 
+-- ARC and the drive's floor (0.16): the release a person sets is kept as they set it,
+-- but never under the throw's floor at the time they set it (s.arcMin, plan.arcFloor),
+-- so what ARC shows is what is kept. When the circle or the stance moves, the floor moves
+-- with them: a kept release under the new floor is planned at the floor (and shown at
+-- it), and when the floor falls again the plan comes back to the kept release, the value
+-- the player last saw. A step goes from the release as it is planned (the effective one,
+-- never the kept one under the floor) and never under the floor, so every step, and
+-- every reversal at the floor, moves the throw at once (Codex on #47).
+local function effectiveRelease(s)
+	local f = s.arcMin or plan.tune.releaseMinDeg
+	return s.release < f and f or s.release
+end
+throw.effectiveRelease = effectiveRelease
+
 function throw.setArc(s, releaseDeg)
-	s.release, s.arcSet = plan.clampRelease(releaseDeg, s.projectile), true
+	local r = plan.clampRelease(releaseDeg, s.projectile)
+	local f = s.arcMin or plan.tune.releaseMinDeg
+	s.release, s.arcSet = r < f and f or r, true
 	replan(s)
 	aimCamera(s)
 end
 
--- B + up/down: the release half an hour a step.
+-- B + up/down: the release half an hour a step, from the release as planned.
 function throw.stepArc(s, step)
-	s.release = plan.clampRelease(s.release + step * plan.tune.arcStepDeg, s.projectile)
+	local r = plan.clampRelease(effectiveRelease(s) + step * plan.tune.arcStepDeg, s.projectile)
+	local f = s.arcMin or plan.tune.releaseMinDeg
+	s.release = r < f and f or r
 	s.arcSet, s.planDirty = true, true
 	replan(s)
 	aimCamera(s)
@@ -728,7 +739,7 @@ function throw.controls(s)
 	local kubb = s.projectile == "kubb"
 	local out = {
 		arc = { min = s.arcMin or pt.releaseMinDeg, max = pt.releaseMaxDeg,
-			value = math.max(s.release, s.arcMin or pt.releaseMinDeg), set = s.arcSet and true or false,
+			value = effectiveRelease(s), set = s.arcSet and true or false,
 			knee = pt.driveKneeDeg,
 			default = throw.defaultArc(s), tick = pt.arcTickDeg, step = pt.arcStepDeg,
 			unit = "deg", scope = "throw" },

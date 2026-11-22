@@ -406,7 +406,11 @@ Two output-only additions (no snapshot or hash moves):
   - Worth showing: DRIVE under the knee, as the web.
 - **Playdate** (it vendors the core only and plans in its own `scenes/throw.lua`)
   - Must, for the drive: B + down steps the release under 15 (`plan.clampRelease(r,
-    projectile)`: pass the projectile, so a thrown kubb still stops at 15). The default
+    projectile)`: pass the projectile, so a thrown kubb still stops at 15), from the
+    release as planned and never under the throw's floor: `f = plan.arcFloor(q)` for the
+    plan's question, then `max(f, plan.clampRelease(max(release, f) + step * arcStepDeg,
+    projectile))`, as `session/throw` `stepArc` does, so a press at the floor and back is
+    never a dead step. The default
     needs nothing: `plan.arcFor("baton", d)` is the lowered line. The computer's arc is
     `plan.sharedArcFor` (the line before) until its drive is switched on.
   - Gets for nothing: `plan.solve`'s floor and the drive's turn, the narrower kubb bars on

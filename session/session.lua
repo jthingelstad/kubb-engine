@@ -740,7 +740,7 @@ function Session:aimView()
 			set = ts.markerSet, kind = ts.markerKind, shown = not (ts.watching and not ts.cpuTarget) },
 		thrower = { x = ts.playerX, y = ts.playerY, swivel = ts.swivel, set = ts.stanceSet },
 		plan = {
-			release = ts.release, arcSet = ts.arcSet, tilt = ts.tilt, spin = ts.spin,
+			release = sol.release or ts.release, arcSet = ts.arcSet, tilt = ts.tilt, spin = ts.spin,
 			level = throw.levelFor(ts), speed = sol.speed, loft = sol.loft, swivel = sol.swivel, dist = sol.dist,
 			back = sol.back, powerLo = sol.powerLo, powerHi = sol.powerHi,
 			releaseLo = sol.releaseLo, releaseHi = sol.releaseHi,
