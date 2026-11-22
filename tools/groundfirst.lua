@@ -83,9 +83,13 @@ local function throwAt(d, yaw, L, seed, alone)
 	local gnow = false
 	local E = {}   -- E.g0, E.g1, E.k: { trans, rot, speed } at the ground, its first bounce, the kubb
 	w.onContact = function(_, a, other)
-		if at then return end
-		if a == b and not other then ground = true; gnow = true end
-		if (a == b and other == k) or (a == k and other == b) then at = pre end
+		-- (gnow is this step's ground contact, kept up after the kubb is touched; `ground`,
+		-- the ground-first verdict, and `at` are settled by the first touch of the kubb)
+		if a == b and not other then
+			gnow = true
+			if not at then ground = true end
+		end
+		if not at and ((a == b and other == k) or (a == k and other == b)) then at = pre end
 	end
 	local onGround = false
 	for _ = 1, 8 * 240 do
@@ -97,7 +101,9 @@ local function throwAt(d, yaw, L, seed, alone)
 		gnow = false
 		world.step(w)
 		if gnow and not E.g0 and not at then E.g0 = { t0, r0, s0 }; E.state = st end
-		if E.g0 and not E.g1 and not gnow then E.g1 = { energies(b) } end
+		-- off the ground again before the kubb: its first bounce. A baton that reaches the
+		-- kubb while still on the ground has none (its account would hold the kubb's blow)
+		if E.g0 and not E.g1 and not gnow and not at then E.g1 = { energies(b) } end
 		if E.g0 then
 			E.steps = (E.steps or 0) + 1
 			if E.steps == 24 then E.t10 = { energies(b) } end
