@@ -95,6 +95,38 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.13.1** (patch). The game file is Planet Kubb Notation 2, as pk-kubb-score released
+  it (`v2-2026.11`), in its canonical form: `[Notation "2"]` first, the `Base kubbs`,
+  `Batons` and `Opening` headers, the turn lines as before (the advantage line a bare
+  `A`), and positions as lines of their own in the notation's frame (across from the
+  left sideline, depth from the centre line, two decimals): a pitch line `@a` or `@b`
+  for the half under attack and a felled line `*a` or `*b` with a word per baton
+  (`notation.positionLines`, `notation.toPitch`, `notation.fromPitch`,
+  `notation.point`). The engine's own `(@ ...)` comments and its fork of the reader are
+  gone: `tests/vendor/pk-kubb-score/` is the released parser, canonical form and scorer
+  (`make sync-notation`, `SOURCE` names the tag), and the gate also reads every point
+  back and compares it with what the engine had. A line is written only when it can be
+  true and whole: no pitch line in a turn with a punishment kubb or with field kubbs
+  left from earlier turns, and a `-` for a baton whose kubb an earlier baton had moved.
+  Not yet written: the thrower's own half, the lay line `~` and the stance line `^`.
+  They need more kept in the score sheet, which is saved and hashed, so they come with a
+  minor. Nothing a seeded match does changes: every golden hash is as recorded, and a
+  save or recorded match from 0.13.0 loads unchanged. `core/gamefile` still reads the
+  older notation, the `(@ ...)` comments included (`tests/fixtures/legacy/`), and skips
+  position lines (`gamefile.isPosition`). Gone from `core/notation`: `pitchXY`,
+  `positions`, `batonCount`; new: `batonParts`.
+
+  For clients: sync the tag. A 0.13.0 client and a 0.13.1 client share a match (no hash
+  moves).
+  - **Web**: `sheet.shown` leaves position lines out, and `sheet.text` (COPY, DOWNLOAD,
+    the upload, SHOW POSITIONS) has `@` and `*` lines where it had `(@ ...)` comments.
+    Two tests that look for the comments follow: `tests/game/client.test.mjs` (shown
+    against the file less its comments) and `tests/net/record.test.mjs` (`/\(@ /`).
+  - **iPhone**: nothing but the sync; the sheet's decoded fields are the same four. Run
+    the sheet's snapshot again.
+  - **Playdate**: the sheet scene builds its lines from the file's text, so it skips a
+    line where `gamefile.isPosition(line)` is true (it would draw blank).
+
 - **0.13.0** (minor). A level is the computer's standard only, and every person throws on
   one meter (the owner, 2026-11-21: "player level really should only mean for the
   computer opponent. It doesn't mean anything for the human player. The human player

@@ -1,4 +1,4 @@
-# Moving a client from 0.9.0 to 0.13.0
+# Moving a client from 0.9.0 to 0.13
 
 The web game, the iPhone app and the Playdate game all vendor engine 0.9.0. This page is
 what each changes to move to 0.13.0, built from the "For clients" parts of
@@ -127,6 +127,18 @@ Worth showing:
   the side cell (`render/hud.lua`, PULLED LEFT / STRAIGHT / PULLED RIGHT).
 - **The person's LEVEL row** (`scenes/players.lua`) no longer changes a person's throw
   once the meter is used; the computer's row (`core/matchopts`) stays.
+
+## 0.13.1 on top
+
+0.13.1 is 0.13.0 with the game file written in Planet Kubb Notation 2. No hash moves, so
+it shares matches with 0.13.0. Sync `v0.13.1` in place of `v0.13.0` above, and:
+
+- **Web**: `sheet.text` has `@` and `*` position lines where it had `(@ ...)` comments;
+  `sheet.shown` leaves them out as before. Rewrite the two tests that look for the
+  comments (`tests/game/client.test.mjs`, `tests/net/record.test.mjs`) and the comments
+  that describe them (`src/ui/sheet.js`, `src/engine/index.js`, docs/CLIENT.md).
+- **iPhone**: nothing in Swift. Run `SoloTests` and the sheet's snapshot again.
+- **Playdate**: `scenes/sheet.lua` skips lines where `gamefile.isPosition(line)` is true.
 
 ## What the engine now offers that no surface shows yet
 

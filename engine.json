@@ -1,6 +1,6 @@
 {
   "name": "kubb-engine",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "extractedFrom": {
     "repository": "jthingelstad/playdate-kubb",
     "path": "source/core",
@@ -12,11 +12,11 @@
     "commit": "ff76a61ecd3ac84b0b03683d589f4e944ee37b33",
     "note": "session/ is lua/web's session, throw, replay, json, api and wide; tune/pointer.lua is lua/web/tune.lua"
   },
-  "roomFrom": {
+  "pitchFrom": {
     "repository": "jthingelstad/kubb.thingelstad.xyz",
     "path": "src/net",
     "commit": "36f27e623b80b545d7d90bd3604de4423e9e70a7",
-    "note": "room/ is src/net's lobby.js, seats.js and sync.js in Lua; tests/room/vectors/ were recorded from this commit (docs/ROOM.md)"
+    "note": "pitch/ (room/ before 0.13) began as src/net's lobby.js, seats.js and sync.js in Lua, now the one implementation; tests/pitch/vectors/ are a frozen corpus recorded from this commit (docs/PITCH.md)"
   },
   "files": {
     "core/autothrow.lua": "db09e4bf61e91b0cf941e6472510761f56c5749d7541935487e15fe655e061f3",
@@ -78,9 +78,9 @@
     "session/wide.lua": "9f2087d3362b6ed4d2240365a5bd79504ae7207775529cc0d403ab201befd855",
     "tune/pointer.lua": "7b30c67adf47fb8387e5b0dd7f73af3c92c99116d05781885e7fc0157fcc9397",
     "tune/touch.lua": "b7c3f2851c4c386cc39a76d891cf273d703ac231fe51c235db5d1bc404915221",
-    "version.lua": "68b3dfbb8f428ef47844017960f267122855b961923aab8e6566d3d6714a232a"
+    "version.lua": "d4d9da64bf558ded5bca4e7fad8c3e862ef1a07447df8f48e6b4b24c76343c17"
   },
   "bundle": {
-    "sha256": "50ff410b30978d00e07a4c15eafad7b22f4227fcce692c77969af285d5c0897b"
+    "sha256": "df1be1f3b65902a08fc9451784f03fd06be54891905ea470efdf3a534f785649"
   }
 }
