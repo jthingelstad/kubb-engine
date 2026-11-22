@@ -255,7 +255,13 @@ plan.LEVELS = { "kid", "beginner", "club", "pro" }
 plan.meters = {
 	standard = {
 		powerHalf8 = 2, releaseHalf8 = 7.5, widen = 0.45, nearM = 3, farM = 10, narrowMin = 0.5,
-		kubbPower = 1.35, kubbRelease = 1.35,
+		-- a thrown kubb's bars are a baton's (0.16; 1.35 times them until then). The owner,
+		-- owner-2026-11-22#s4: "Drilling physics is great. Amazing. But the player can now
+		-- drill too good." On the wider bars the recorded hand's drill swings were mostly
+		-- inside both, so they kept the clean hand (drillScatter, pro's) and landed dead
+		-- 74% of the time against the club computer's 56%; on these, 62% (docs/notes/throw.md
+		-- "The person's meter", the thrown kubb)
+		kubbPower = 1, kubbRelease = 1,
 		inGain = 0.1, pullPerDeg = 0.15, shakeIn = 0.1, shakeGain = 0.75, overGain = 0.75,
 		nervesDeg = 0.12, nervesLen = 0.008, tumbleTurns = 0.50, tumbleSd = 0.015,
 		drillScatter = 0.35, scatterGain = 3, roughGain = 6, roughMax = 2,
