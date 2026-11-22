@@ -9,7 +9,8 @@
 --     [--set world.tune.pairMu=0.2]  (any number in tw.*)
 --     [--trace <case id>]  (one case step by step: every kubb's speed along the throw,
 --     its turn, and the normal impulse (N s) of every pair that pressed, per step)
---     [--steps 80] [--z] (with each body's height and vertical speed)
+--     [--steps 80] [--z] (with each body's height and vertical speed) [--max] (each pair's
+--     largest accumulated impulse in the step's passes instead of the net it left)
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local sourceDir = here .. "/.."
 local imported = {}
@@ -30,7 +31,7 @@ local cases = dofile(here .. "/mjref/cases.lua")
 local C = dofile(sourceDir .. "/tests/fixtures/contact/columns.lua")
 
 local only, kindOnly, game, trace, steps = nil, nil, false, nil, 80
-local showZ = false
+local showZ, useMax = false, false
 local sets = {}
 local i = 1
 while i <= #arg do
@@ -41,6 +42,7 @@ while i <= #arg do
 	elseif a == "--trace" then trace = v; i = i + 1
 	elseif a == "--steps" then steps = tonumber(v); i = i + 1
 	elseif a == "--z" then showZ = true
+	elseif a == "--max" then useMax = true
 	elseif a == "--set" then sets[#sets + 1] = v; i = i + 1
 	else error("unknown option " .. a) end
 	i = i + 1
@@ -109,8 +111,11 @@ if trace then
 	local idx = {}
 	for k, b in ipairs(bodies) do idx[b] = k end
 	local P = {}
-	w.onContact = function(_, a, b, ln)
+	-- each contact's net normal impulse this step (what passed between the pieces), or with
+	-- --max the largest any pass reached (an overshoot a later pass took back reads high)
+	w.onContact = function(_, a, b, lnmax, lnet)
 		if not b then return end
+		local ln = useMax and lnmax or lnet
 		local ka, kb = idx[a], idx[b]
 		if ka > kb then ka, kb = kb, ka end
 		local key = bodies[ka].id .. "-" .. bodies[kb].id

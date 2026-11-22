@@ -1859,7 +1859,7 @@ function world.step(w)
 			a.gStamp[k], a.gN[k], a.gT1[k], a.gT2[k] = stamp, ln, l1, l2
 			a.groundImpulse = a.groundImpulse + ln
 			if w.onContact and a == proj and r[K_LNMAX] > 0 then
-				w.onContact(w.time, a, nil, r[K_LNMAX])
+				w.onContact(w.time, a, nil, r[K_LNMAX], ln)
 			end
 			-- any piece striking the ground (faster than restitutionSpeed): a
 			-- renderer's impacts (session/throw); nil costs one test
@@ -1903,7 +1903,9 @@ function world.step(w)
 			end
 			local other = cB[idx]
 			local first = cA[idx]
-			if w.onContact then w.onContact(w.time, first, other, r[K_LNMAX]) end
+			-- (the listener gets the largest accumulated normal impulse of the step's passes
+			-- and the net one the step left, which is what passed: Codex on #49)
+			if w.onContact then w.onContact(w.time, first, other, r[K_LNMAX], r[K_LN]) end
 			first.touched, other.touched = true, true
 			-- the first moment each body is struck (render/burst: the burst and
 			-- knock come at the impact); one test a contact, no arithmetic
