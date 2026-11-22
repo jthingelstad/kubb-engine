@@ -1,4 +1,4 @@
-# Moving a client from 0.9.0 to 0.18.0
+# Moving a client from 0.9.0 to 1.0.0
 
 The web game, the iPhone app and the Playdate game all vendor engine 0.9.0. This page is
 what each changes to move to 0.13.0, built from the "For clients" parts of
@@ -530,12 +530,46 @@ and hard into the field kubb, the way the line throws close in.") from `tw.cpu.l
 
 ## 1.0 on top
 
+1.0.0 is the released engine, a major by declaration (docs/VERSIONING.md 1.0.0): no
+format changes, so a client built for 0.18 reads everything 1.0 writes. Sync `v1.0.0`
+in place of `v0.18.0` (web `npm run vendor:sync -- --tag v1.0.0`, iPhone `TAG=v1.0.0`,
+Playdate `make vendor-sync TAG=v1.0.0`). It shares matches with no 0.18 (the physics
+differs): web and iPhone move together.
+
 - **A pitch with computer seats** (docs/PITCH.md "Computer seats"): `pitch.engineFor`
   leaves seats out (a seat carries the pitch's engine), so a pitch with a seat finds its
-  engine and START runs. The workaround can go: the web's `roomEngineFor` and the iPhone's
-  `PitchController.withoutSeats` may pass the document as it is, and the iPhone's test that
-  asserts the raw call finds no engine now fails, as it was written to; delete it or turn
-  it to assert the engine is found.
+  engine and START runs. Must, when convenient (the workaround still gives the right
+  answer, so nothing breaks if it stays a little): drop it. The web's `roomEngineFor` in
+  `src/net/lobby.js` passes the document through `withoutSeats` before asking; the
+  iPhone's `PitchController.withoutSeats` does the same at its two `engineFor` calls.
+  Each has a test that pins 0.18's behaviour and fails on 1.0.0 by design: the web's
+  `tests/net/computer-seats.test.mjs` ("a seat carries none (engines 0.17.0 and 0.18.0's
+  engineFor count it)") and the iPhone's `ComputerSeatTests.swift` (the raw call finds no
+  engine). Delete each workaround with its test, or turn the test to assert the raw call
+  finds the engine. The iPhone's AGENTS.md and docs/ONLINE.md name the gap too.
+- **The seat, for renderers** (docs/notes/physics.md "The seat"): kubbs stand very slightly
+  off plumb on grass, sand and snow (up to 2, 3 and 1.5 degrees; plumb on the grid), and a
+  hard touch leaves a kubb standing less often. The items a client draws now lean, and
+  that is correct: draw each piece's quaternion as given, as now. Nothing must change.
+  Optional polish: a watched or hand raise that ends its animation plumb sees the kubb take
+  its seat (up to 3 degrees) at the next throw's first frame. Each `setup.settled` entry
+  now carries `seat` (docs/SESSION.md), the orientation it will stand at, in the same frame
+  as its poses: end the raise there and nothing steps. A raise by hand can end on that
+  kubb's item pose once the pitch's items come back.
+- **The Playdate's floor**: `plan.solve` no longer runs a 3000-step carry for a line no
+  speed reaches when the circle or the stance moves under a kept drive, and a plan under
+  the knee spends no solve on the top speed. In desktop Lua a kept drive raised to a new
+  floor costs 0.025 to 0.09 ms at 1.5 to 5 m (worst 0.16), where 0.18 cost 0.47; a
+  default plan under the knee 0.005 to 0.008 ms (0.017 to 0.019 on 0.18). On the device,
+  at the repo's factor of about 280 times desktop Lua that is 7 to 25 ms (worst about 45)
+  for the new-floor case; at about 430 times, which the device's own check implies for a
+  0.18 default solve (7.3 ms against 0.017), 11 to 39 ms (worst about 69). The device's
+  measured repeat cases on 0.18 (0.14.0 build 16): `plan.solve` 7.25 ms at 1.5 m and 7.29
+  at 3 m, solve at the floor 12.23 and 16.15, `arcFloor` 11.54 and 6.69, and the new-floor
+  case was estimated at about 150 ms. Whether the throw scene can drop its floor cache on
+  these numbers is the Playdate's call; measure the new-floor case on the device first.
+- **The rest**: nothing to change. pairRoll from the first step and the propped contacts
+  change how throws settle (a few throws in thousands no longer run to the 12 s limit).
 
 ## What the engine now offers that no surface shows yet
 
