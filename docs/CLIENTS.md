@@ -292,8 +292,8 @@ the whole of what it takes. The numbers below are measured (docs/notes/tournamen
     same import shim as `src/engine/index.js` (no `useTune`, no `setClient`: the
     neighbours need neither), and sets `lua.global.set("__kubbClock", () =>
     performance.now())`. On entering a Tournament match it calls `neighbours.open({ seed:
-    <the match's seed>, scene: "tournament", count: 8 })` (`layout: "row"` for a phone held
-    sideways) and posts the pitches back; on leaving, `neighbours.close({})`.
+    <the match's seed>, scene: "tournament", count: 8 })` (the grid, in every layout: see
+    "What the clients found" below) and posts the pitches back; on leaving, `neighbours.close({})`.
   - Once a frame the page posts `{ now }`, the match clock in seconds (stopped while the
     game is paused); the worker answers with `neighbours.advance({ now, budgetMs: 2 })`'s
     `events`. The worker's slices never stall the page; 2 ms keeps its work, and a phone's
@@ -333,6 +333,23 @@ the whole of what it takes. The numbers below are measured (docs/notes/tournamen
 - **Playdate**: nothing. It vendors only `core/`, whose two new hooks (`m.run` in
   core/match, `raising.probe` in core/raising) are nil unless a host sets them, so the
   game plays exactly as on 0.15.0. Neighbours are not for the device.
+
+**What the clients found** (web 0.16.0 and the iPhone, 2026-11-22), for the next client:
+
+- **Use the grid, never the row, with the thrower's camera.** That camera frames the
+  player's own pitch, so a row either side lies outside the picture and a phone on its
+  side shows no tournament at all. With the grid the pitch straight ahead plays on behind
+  the far baseline in every layout. `layout: "row"` stays for a host with a camera of its
+  own.
+- **No people on the two pitches in line with the player's** (straight ahead and behind).
+  At real scale a person a few metres past the far kubbs stands taller than anything the
+  player aims at. Their kubbs and batons still play; the pitches beside keep their people.
+- **Never send an earlier `now`.** The engine refuses a clock that goes back, and a host
+  that treats a refusal as failure would end its neighbours; clamp to the last value sent.
+- **The view does not say which frame it is in.** A client turning the field for Team B
+  tracks the last throw's side, and reads it once from the base kubbs for a restored match.
+- The measured drawing cost was 0.05 to 0.2 ms a frame on the web and about 1 ms on a
+  phone, so neither thinned the field beyond skipping pitches wholly off screen.
 
 ## What the engine now offers that no surface shows yet
 
