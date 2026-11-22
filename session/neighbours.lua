@@ -131,23 +131,26 @@ end
 
 local function checkpoint(kind)
 	local B = F.B
+	local now
 	if B.steps then
-		local c = neighbours.tune.cost[kind]
-		if B.done > 0 and B.used + c > B.steps then yield("budget") end
-		B = F.B
-		B.used, B.done = B.used + c, B.done + 1
-		return
-	end
-	local now = B.clock()
-	local est = F.est
-	if B.kind then learn(B.kind, now - B.last) end
-	if B.done > 0 and now + est[kind] * neighbours.tune.margin > B.deadline then
-		B.kind = nil
-		yield("budget")
-		B = F.B
+		if B.done > 0 and B.used + neighbours.tune.cost[kind] > B.steps then yield("budget") end
+	else
 		now = B.clock()
+		if B.kind then learn(B.kind, now - B.last) end
+		if B.done > 0 and now + F.est[kind] * neighbours.tune.margin > B.deadline then
+			B.kind = nil
+			yield("budget")
+			now = nil
+		end
 	end
-	B.last, B.kind, B.done = now, kind, B.done + 1
+	-- the unit is counted against the call that runs it, in that call's own mode: a host
+	-- may pass steps on one advance and budgetMs on the next while a pitch waits here
+	B = F.B
+	if B.steps then
+		B.used, B.done = B.used + neighbours.tune.cost[kind], B.done + 1
+	else
+		B.last, B.kind, B.done = now or B.clock(), kind, B.done + 1
+	end
 end
 
 -- Ends the unit in hand (time mode), before a pitch waits or the call returns.
