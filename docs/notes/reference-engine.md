@@ -50,6 +50,34 @@ goes to `build/mjref/report.md`, with every number in `report.json`.
     compares them as distributions (kubbs felled, two or more, the baton's rest) and the
     column by each kubb's peak energy and momentum. Results: docs/notes/throw.md "The force
     carried into a group".
+  - Not in `make mjref` either: kubb on kubb (2026-11-22, `export.lua <dir> --cases
+    column`, the same flag to `ours.lua`, then `mjsim.py <dir> --variants
+    ref,dt2,stiff,soft,hard` and `python3 tools/mjref/column.py <dir> [--by] [--energy]
+    [--only <layout>]`): the 276 columns and piles of `tests/fixtures/contact/columns.lua`
+    (cases.lua `cases.column`), struck by a level baton or by the front kubb set moving with
+    no baton. `column.py` prints kubbs toppled per layout and strike in both engines, each
+    kubb's share and mean peak energy, front first. `chainlog.py <dir> <id> [--variant
+    hard] [--z]` runs one case in MuJoCo and prints, per 1/240 s, each body's speed and
+    turn and each pair's normal impulse, the print `lua5.4 tools/columnprobe.lua --trace
+    <id>` gives for ours. About 10 minutes with `hard` on a loaded 10-core Mac. Results:
+    docs/notes/physics.md "A blow down a column".
+- `--variants` (mjsim.py, 2026-11-22) picks the variants to run, among them `hard`, which
+  the default run leaves out: dt 1/38400 s, timeconst 0.0005 s (MuJoCo wants the
+  timeconst at least twice the step), toward the rigid contact our impulses model. Its
+  calibrated bounces hold across speeds as the others' do: two kubbs face to face part at
+  0.35 / 0.35 / 0.35 / 0.35 / 0.31 of their approach at 0.5 / 1 / 2 / 4 / 6 m/s (ref 0.34
+  to 0.35, 0.29 at 6), the ground 0.14 to 0.15.
+- Kubb on kubb, the comparison (2026-11-22; the table is in docs/notes/physics.md "A blow
+  down a column"): a column pushed by its front kubb with no baton topples as many in both
+  engines at every gap, and on the five piles of a throw-in ours fells as many or more
+  (a fence of four across the throw 54% against 33% in every variant). A column of six
+  struck by a baton is the one case outside the band: ours 12 to 24% at the four gaps
+  against 27 to 61%, and the stiffest contact (`hard`, 31 to 49%) does not come nearer
+  ours. Two checks on the reference itself: given kubb on kubb friction 0.8 instead of
+  0.4, MuJoCo topples the column of six as ours does at 0.4 (2 mm: `ref` 24%, `hard`
+  14%, ours 12%) and its piles do not move; given a ground damped past critical (damping
+  ratio 3), the column barely moves (2 mm: 42 and 36% against 51 and 38), so its ground's
+  springiness is not what fells the column.
 - Contact parameters (MuJoCo):
   - Solver: elliptic friction cones, `impratio` 10, the Newton solver (200 iterations,
     tolerance 1e-12) and the `implicitfast` integrator.
