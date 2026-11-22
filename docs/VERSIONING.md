@@ -2,7 +2,7 @@
 
 The engine has one version, `major.minor.patch`, in `version.lua` (`tw.engine.version`,
 the API's `engineVersion` call) and in `engine.json`; `make test` fails when they differ.
-It names the whole engine: `core/`, `room/`, `session/`, `tune/` and `version.lua`.
+It names the whole engine: `core/`, `pitch/` (`room/` before 0.13), `session/`, `tune/` and `version.lua`.
 
 ## What each part means
 
@@ -155,6 +155,38 @@ Every client shows its own version with the engine's beside it, in one form:
   - `checkThrow` on a person's throw checks it against the meter: a throw that fits lists
     every level and `atLevel` is true.
   - Web and iPhone must both be on 0.13 to share a match.
+
+  **The pitch rename.** The shared-pitch module is `pitch`, as the clients and the pitch
+  server already say (the web's docs/PITCH-SERVER.md, "Naming"): the directory `room/` is
+  `pitch/`, its tables `tw.pitch.*`, its calls `kubbCall("pitch.<name>")` (the same 37),
+  docs/ROOM.md is docs/PITCH.md. `room.<name>` stays as the old spelling of every call and
+  `tw.room` as the same table as `tw.pitch`; an error names the call as it was made. No
+  call, field, document or result changes, and no hash moves. `make room-vectors`,
+  `tools/room-vectors.mjs` and `tools/room-scenarios.mjs` are gone, with the half of the
+  node test that compared the engine live with the web's modules: those modules have
+  called the engine since 0.3, so the comparison could only compare the engine with
+  itself. `tests/pitch/vectors/` is the same corpus, byte for byte, and is frozen;
+  `engine.json`'s `roomFrom` is `pitchFrom`, with the same commit.
+
+  For clients (the rename), at the same sync as the rest of 0.13:
+  - **Web** (`kubb.thingelstad.xyz`): add `"pitch"` to the engine directory lists and keep
+    `"room"`, skipping a directory an engine does not have: `DIRS` in
+    `tools/lua-bundle.mjs` (its `engineFiles` reads every listed directory of every
+    carried engine, and 0.7 to 0.9 have only `room/`) and `ENGINE_DIRS` in
+    `tools/vendor.mjs`. The newest engine's bundle modules are `pitch/lobby`,
+    `pitch/seats`, `pitch/sync`, `pitch/js`, `pitch/engines` and `pitch/api`; its bundle
+    sha256 is engine.json's only when the module names are these.
+  - **iPhone** (`throwingwood-ios`): add `pitch` to `engine_paths` in
+    `scripts/vendor-engine.sh` and keep `room` (it copies what the tag has, so one list
+    serves every tag). The loader reads paths from `engine.json`'s `files` and needs no
+    change.
+  - **Both**: the bridges (`roomCall` in the web's `src/net/room-engine.js`,
+    `PitchController.roomCall` and the direct `engine.call("room.…")` calls in the app)
+    may keep saying `room.` while they also drive carried engines: 0.13 answers it. Move
+    the prefix to `pitch.` at leisure, per engine when the bridge knows the engine's
+    version (`pitch.` from 0.13 on), or everywhere once 0.7 to 0.9 are no longer
+    carried. Carried engines 0.7 to 0.9 keep `room/` and `room.`.
+  - **Playdate**: nothing; it vendors `core/` only.
 
 - **0.12.0** (minor). The defender's raising goes by who defends (raise.par, Q7;
   Jamie's decision of 2026-11-21), and the pro computer attacks with two new plays, so

@@ -1,5 +1,6 @@
--- The room's calls behind the engine's one door (docs/ROOM.md "The calls"):
--- kubbCall("room.<name>", argsJson) -> '{"value": ...}'. Every argument is a named field
+-- The pitch's calls behind the engine's one door (docs/PITCH.md "The calls"):
+-- kubbCall("pitch.<name>", argsJson) -> '{"value": ...}'. "room.<name>" is the old
+-- spelling (before 0.13) and reaches the same call. Every argument is a named field
 -- of one JSON object; the result is always an object with one key, `value` (null where
 -- the JavaScript returns undefined or null: a reducer's "change nothing"), so a document
 -- that happens to hold a key named `error` is never mistaken for a failure. Arguments are
@@ -9,14 +10,14 @@
 import "core/tw"
 import "version"
 import "session/json"
-import "room/js"
-import "room/lobby"
-import "room/seats"
-import "room/sync"
-import "room/engines"
+import "pitch/js"
+import "pitch/lobby"
+import "pitch/seats"
+import "pitch/sync"
+import "pitch/engines"
 
-local json, js, lobby, seats, sync = tw.web.json, tw.room.js, tw.room.lobby, tw.room.seats, tw.room.sync
-local engines = tw.room.engines
+local json, js, lobby, seats, sync = tw.web.json, tw.pitch.js, tw.pitch.lobby, tw.pitch.seats, tw.pitch.sync
+local engines = tw.pitch.engines
 local object, NULL = json.object, json.null
 
 local R = {}
@@ -67,7 +68,7 @@ function R.replayOf(a) return lobby.replayOf(a.match) end
 function R.isReplay(a) return lobby.isReplay(a.replay) end
 function R.backToLobby(a) return lobby.backToLobby(a.doc, a.n) end
 function R.mayPlay(a) return lobby.mayPlay(a.engine, a.match, js.truthy(a.lenient)) end
--- several engines in one room (room/engines.lua, since 0.8.1)
+-- several engines in one pitch (pitch/engines.lua, since 0.8.1)
 function R.engineFor(a) return engines.engineFor(a.doc, a.members, a.host, a.me, a.carries) end
 function R.carried(a) return engines.carried(a.me) end
 function R.announce(a) return engines.announce(a.carries, a.engine) end
@@ -87,21 +88,24 @@ function R.decide(a) return sync.decide(a["local"], a.doc, a.with, a.mine) end
 function R.rider(a) return sync.rider(a.n, a.seq, a.action, a.bytes, a.client, a.engine) end
 function R.asciiSize(a) return js.asciiSize(a.value) end
 
-local room = {}
-room.calls = R
+local pitch = {}
+pitch.calls = R
 
--- One call: its name (without "room.") and its argument text; returns the result text.
-function room.call(name, argText)
+-- One call: its name (without the prefix), its argument text and the prefix it was made
+-- with ("pitch", or "room", the old spelling; errors name the call as it was made).
+-- Returns the result text.
+function pitch.call(name, argText, prefix)
+	local said = (prefix or "pitch") .. "." .. tostring(name)
 	local f = R[name]
-	if not f then error("unknown call room." .. tostring(name), 0) end
+	if not f then error("unknown call " .. said, 0) end
 	local a = (argText and argText ~= "") and json.decode(argText, true) or object {}
 	if not json.isObject(a) then
-		if json.isArray(a) and next(a) == nil then a = object {} else error("room." .. name .. ": the argument is not an object", 0) end
+		if json.isArray(a) and next(a) == nil then a = object {} else error(said .. ": the argument is not an object", 0) end
 	end
 	local v = f(a)
 	if v == nil then v = NULL end
 	return json.encode(object { value = v })
 end
 
-tw.room = tw.room or {}
-tw.room.api = room
+tw.pitch = tw.pitch or {}
+tw.pitch.api = pitch

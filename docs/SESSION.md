@@ -30,7 +30,7 @@ frame is the throwing side's (the defending side's for raising and punishment).
 | `session/check.lua`   | `tw.web.check`: a shared match's throws checked: the computer's made again, a person's held to the dial.           |
 | `session/wide.lua`    | `tw.web.wide`: the wide view, one camera for the whole pitch.                                                      |
 | `session/json.lua`    | `tw.web.json`: deterministic JSON (sorted keys, shortest round-trip floats, integers kept apart from floats).      |
-| `room/`               | The room's calls, `kubbCall("room.<name>")`: a shared pitch's document, who acts, staying in step (docs/ROOM.md).  |
+| `pitch/`              | The pitch's calls, `kubbCall("pitch.<name>")` (`room.` before 0.13): a shared pitch's document, who acts (docs/PITCH.md). |
 | `tune/pointer.lua`    | `tw.tune.pointer`: a pointer's values for the core's tune tables, and the session's dial and throw tables.         |
 | `version.lua`         | `tw.engine`: the engine's name and version (docs/VERSIONING.md).                                                   |
 
@@ -87,7 +87,7 @@ Before the first `new` or `restore`, a host makes these calls:
   need's `file`, and a replay's sheet and over file (each written with the location set
   at the time, on the host that writes it).
 
-The label and the location are not in the snapshot, the room document (`replayDocument`)
+The label and the location are not in the snapshot, the pitch document (`replayDocument`)
 or any recording, so neither ever changes a hash, and two hosts with different
 locations play one match in step. The tune can: it sets how
 the computer's flick maps onto the swing, so peers in one online match load the same
@@ -96,18 +96,18 @@ tune (the golden hashes are recorded with `pointer`).
 ## The API
 
 Every method below is `kubbCall(name, JSON.stringify(args))` behind a wrapper. Results
-are plain objects. The room's calls (`room.<name>`) are in docs/ROOM.md. Angles are degrees unless named otherwise; times are seconds.
+are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13) are in docs/PITCH.md. Angles are degrees unless named otherwise; times are seconds.
 
 ### Sessions
 
 | Call                         | Returns           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ---------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `newPractice(opts)`          | view              | `{ surface: "grass" \| "sand" \| "snow", level, set, drill }`. The practice pitch (scenes/drills.lua's free throw); `drill: true` throws kubbs at the circle.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, scene, start, maxTurns, modeName }`. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names). `cpu`: `"A"`, `"B"`, `"both"` or a list. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`room/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. |
+| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, scene, start, maxTurns, modeName }`. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names). `cpu`: `"A"`, `"B"`, `"both"` or a list. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. |
 | `restore(snapshotText)`      | view              | A match from a snapshot. Restored while raising, placing a punishment kubb or after the end, the view shows the match's pitch as it stands (pieces and debris, a king that ended the match lying down) in the last throw's frame, as live, until the next throw is set up. The restored session acts for every side and the computer until `setControl` says otherwise.                                                                                                                                                                                                                                   |
 | `snapshot()`                 | text              | The whole match as JSON text. Opaque: store and send it as it is, byte for byte. Matches only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `hash()`                     | `{ hash, bytes }` | FNV-1a 32 of the snapshot text (8 hex digits) and its length. Equal hashes mean equal matches.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `setControl({ sides, cpu })` | need              | Which sides this browser plays (`sides: ["A"]`, `[]` for a spectator) and whether it throws for the computer (`cpu`, default true). One browser in a room has `cpu: true`.                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `setControl({ sides, cpu })` | need              | Which sides this browser plays (`sides: ["A"]`, `[]` for a spectator) and whether it throws for the computer (`cpu`, default true). One browser on a pitch has `cpu: true`.                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ### Reading
 
@@ -125,7 +125,7 @@ are plain objects. The room's calls (`room.<name>`) are in docs/ROOM.md. Angles 
 - `{ kind: "throw", side, setup, cpu, local, candidates?, wind, ... }`. `setup` is the
   throw (`kind`, `projectile` "baton" or "kubb", `n` of `of`, `label`, `kingShot`,
   `rethrow`, `lineY`, `forwardY`, `advY`, `targets`, `thrower { id, name, level, key }`;
-  `key` is the lineup's key for that player, on a shared pitch the room member it
+  `key` is the lineup's key for that player, on a shared pitch the pitch member it
   belongs to).
   `cpu`: the computer throws. `local`: this browser acts for it. `candidates`: the team's
   players when a human team has more than one (for the `thrower` action). Practice:
@@ -185,7 +185,7 @@ comes un-turned into the world frame, with `wide` set to the kind. `setWide(null
 null) while the pointer is not on the dial. `plan`: the plan view is held (the dial
 does nothing, the camera eases to the overhead view). `move` and `walk`: the circle's
 and the stance's keys, -1..1 per axis. `event` is `"letdown"` or `"release"`. On a
-release that this browser acts for, `action` is the throw to send to the room,
+release that this browser acts for, `action` is the throw to send to the pitch,
 `recording` is its recording, and `need` is what comes next (the throw has already been
 applied here).
 
@@ -310,10 +310,10 @@ Since 0.7.2:
   action on the computer's turn that is not its throw; `checkThrows: true` holds each
   person's throw to `checkThrow` and sets `outOfBounds`, `outOfBoundsAt` and
   `outOfBoundsWhy`; `document: true` (or `{ ids: { A: [...], B: [...] }, host }`) builds
-  the room document as a pitch builds it. `cpuChecked` and `throwsChecked` count what
+  the pitch document with its full match (docs/PITCH.md "The full match"). `cpuChecked` and `throwsChecked` count what
   was checked.
 - `replayDocument()` returns `{ document, h0, hashes }` once the replay is finished:
-  the room document (docs/ROOM.md "The document") with the teams joined, the options
+  the pitch document with its full match (docs/PITCH.md "The full match") with the teams joined, the options
   set, START with the first snapshot and every action committed with the snapshot and
   hash after it, `over` on the last; `hashes[i]` is the hash after action i. It refuses
   a replay not played to its end, one with a refused action, and a match of the
@@ -431,10 +431,10 @@ A browser makes one or two calls a frame:
 1. **Aiming** (`need.kind == "throw"`): `frame({ dt, arm, plan, move, walk })` once a
    frame, and the aim calls (`setTarget`, `setStance`, ...) when input asks. Draw
    `view().items` (cache them; they change only after a throw), `out.aim`, `out.camera`
-   and `out.dial`. When this browser plays the side, send `aimState()` to the room a few
+   and `out.dial`. When this browser plays the side, send `aimState()` to the pitch a few
    times a second; the others call `showAim(state)` when it arrives and keep calling
    `frame({ dt })` for their camera.
-2. **The release**: `out.action` is set. Send it to the room, then play the recording.
+2. **The release**: `out.action` is set. Send it to the pitch, then play the recording.
 3. **Playback**: `showAt(t)` once a frame with `t += dt * out.speed` (the returned
    `speed`: 1, slowing to the recording's `slow.rate` around the hit), until `done`.
    Draw `items`, `camera`, and the `burst` named ("clean", "king", ...). Skipping is
@@ -476,7 +476,7 @@ if (out.event === "release") {
 // Browser 1 (hosts, plays A, throws for the computer)
 a.newMatch({ seed: 42, cpu: "B", teams, start, raising: "hand" });
 a.setControl({ sides: ["A"], cpu: true });
-room.send({ type: "start", snapshot: a.snapshot() });
+pitch.send({ type: "start", snapshot: a.snapshot() });
 
 // Browser 2 (joins, a spectator here)
 b.restore(msg.snapshot);
@@ -485,7 +485,7 @@ b.setControl({ sides: [], cpu: false });
 // Browser 1, a frame of its own throw or the computer's:
 const out = a.frame({ dt, arm });
 if (out.action)
-  room.send({ type: "action", action: out.action, hash: a.hash().hash });
+  pitch.send({ type: "action", action: out.action, hash: a.hash().hash });
 
 // Browser 2, on that message:
 const r = b.apply(msg.action); // the same recording, byte for byte
@@ -656,7 +656,7 @@ the sequential random generators.
   and restore, resigning, a change of thrower, replays, the wide view, and
   (`test_check.lua`) a server's checks: the computer's throws made again, a person's
   dial and touch throws held to `checkThrow` and the forged cases refused, a renamed
-  start, and a replay's document against a real room's.
+  start, and a replay's document against a real pitch's.
 - `make test-wasm`: `tests/node/session.test.mjs` under wasmoon, loaded from the bundle:
   the host's calls, a practice throw, the multiplayer proof (one Lua state plays a whole
   match with the computer on one side and scripted dial swings on the other, a second

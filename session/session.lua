@@ -36,7 +36,7 @@ import "core/gamefile"
 import "version"
 import "session/json"
 import "session/throw"
-import "room/lobby"
+import "pitch/lobby"
 
 local cmatch, cards, save, autothrow, wind = tw.match, tw.cards, tw.save, tw.autothrow, tw.wind
 local raising, frame, pitch, quat, swing, plan = tw.raising, tw.frame, tw.pitch, tw.quat, tw.swing, tw.plan
@@ -249,10 +249,10 @@ local function matchOptions(o)
 	-- 0.9) and one that names club have the snapshot a match always had; absent, the
 	-- computer throws at club (autothrow.tune.level)
 	if plan.levels[o.computer] and o.computer ~= autothrow.tune.level then out.computer = o.computer end
-	-- the scene, a look only (room/lobby.isScene): kept only when given, valid and not
+	-- the scene, a look only (pitch/lobby.isScene): kept only when given, valid and not
 	-- "day", the default, so the start is otherwise the one a match always had. The
 	-- physics and the rules never read it
-	if tw.room.lobby.isScene(o.scene) and o.scene ~= tw.room.lobby.OPTION_DEFAULTS.scene then out.scene = o.scene end
+	if tw.pitch.lobby.isScene(o.scene) and o.scene ~= tw.pitch.lobby.OPTION_DEFAULTS.scene then out.scene = o.scene end
 	-- the teams: { A = { name, players = { { name, level } } }, B = ... }, 1 to 6 players each
 	local teams = {}
 	for _, side in ipairs { "A", "B" } do
@@ -298,7 +298,7 @@ function session.new(o)
 	s.recording = nil
 	if s.kind == "practice" then
 		s.opts = { surface = surfaceKey(o.surface), level = o.level, set = o.set or "classic",
-			scene = tw.room.lobby.isScene(o.scene) and o.scene ~= "day" and o.scene or nil }
+			scene = tw.pitch.lobby.isScene(o.scene) and o.scene ~= "day" and o.scene or nil }
 		s.ts = throw.new { surface = s.opts.surface, level = o.level, set = s.opts.set }
 		s.phase = "throw"
 		if o.drill then throw.setDrill(s.ts, true) end
@@ -524,7 +524,7 @@ local function plainSetup(setup)
 		n = setup.n, of = setup.of, label = setup.label, kingShot = setup.kingShot or false,
 		rethrow = setup.rethrow or false, lineY = setup.lineY, forwardY = setup.forwardY, advY = setup.advY,
 		targets = setup.targets, batonId = setup.batonId,
-		-- key: the lineup's key for the player (on the web, the room member it belongs to)
+		-- key: the lineup's key for the player (on the web, the pitch member it belongs to)
 		thrower = setup.thrower and { id = setup.thrower.id, name = setup.thrower.name,
 			level = setup.thrower.level, key = setup.thrower.key } or nil,
 		settled = setup.settled,
@@ -749,7 +749,7 @@ function Session:view()
 		dial = throw.dial(ts, true),
 		surface = ts.surface, set = ts.set,
 		-- the scene to draw (a look only; "day" when the match names none)
-		scene = self.opts.scene or tw.room.lobby.OPTION_DEFAULTS.scene,
+		scene = self.opts.scene or tw.pitch.lobby.OPTION_DEFAULTS.scene,
 	}
 end
 
@@ -1207,7 +1207,7 @@ local function copyTable(v)
 end
 
 -- The newMatch options a match's first snapshot was made from (without mode = "match", as
--- a room's document keeps them): a new match from them makes that very snapshot
+-- a pitch's document keeps them): a new match from them makes that very snapshot
 -- (session.startCheck says whether it does).
 function session.setupOf(start)
 	local d = type(start) == "string" and json.decode(start) or start

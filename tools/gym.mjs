@@ -7,7 +7,7 @@
 //       [--set path=value ...] [--jobs N] [--json file] [--out dir] [--real dir]
 //       [--model file] [--records dir] [--maxturns 40] [--list 3] [--engine dir]
 //   node tools/gym.mjs compare <A> <B> [run options]   A and B: scorecard JSON files,
-//       engine folders (core, session, tune, room, version.lua) or git refs
+//       engine folders (core, session, tune, pitch (room before 0.13), version.lua) or git refs
 //   node tools/gym.mjs sweep <path> <v1,v2,...> [run options]
 //   node tools/gym.mjs bank <records dir> [--json file] [--engine dir]
 //   node tools/gym.mjs fit <records dir> [--write]
@@ -86,7 +86,7 @@ function engineInfo(dir) {
   const out = { version: v ? v[1] : null };
   if (dir === root) {
     out.commit = git(['rev-parse', 'HEAD']);
-    const dirty = git(['status', '--porcelain', '--', 'core', 'session', 'tune', 'room', 'version.lua']);
+    const dirty = git(['status', '--porcelain', '--', 'core', 'session', 'tune', 'pitch', 'room', 'version.lua']);
     out.dirty = !!dirty;
   }
   return out;
@@ -262,14 +262,14 @@ function printCompare(A, B, rows, nameA, nameB) {
 
 async function cardFor(spec, o) {
   if (existsSync(spec) && spec.endsWith('.json')) return JSON.parse(readFileSync(spec, 'utf8'));
-  // an engine folder (core, session, tune, room, version.lua), e.g. a prototype copy
+  // an engine folder (core, session, tune, pitch (room before 0.13), version.lua), e.g. a prototype copy
   if (existsSync(join(spec, 'version.lua')) && existsSync(join(spec, 'core'))) {
     const dir = resolve(spec);
     const card = await scorecard({ ...o, engine: dir, out: join(root, 'build', 'gym', `dir-${process.pid}-${Date.now()}`) });
     card.engine = { ...engineInfo(dir), dir: basename(dir) };
     return card;
   }
-  // a git ref: its engine (core, session, tune, room, version.lua) into a temporary
+  // a git ref: its engine (core, session, tune, pitch (room before 0.13), version.lua) into a temporary
   // folder, thrown by this checkout's gym tools
   const sha = git(['rev-parse', '--verify', `${spec}^{commit}`]);
   if (!sha) throw new Error(`gym compare: ${spec} is neither a scorecard file nor a git ref`);

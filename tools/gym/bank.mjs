@@ -30,7 +30,7 @@ function sourcesOf(dir) {
       else if (f.endsWith('.lua')) out[relative(dir, p).slice(0, -4)] = readFileSync(p, 'utf8');
     }
   };
-  for (const sub of ['core', 'session', 'tune', 'room']) { try { walk(join(dir, sub)); } catch { /* an older engine without it */ } }
+  for (const sub of ['core', 'session', 'tune', 'pitch', 'room']) { try { walk(join(dir, sub)); } catch { /* an older engine without it */ } }
   out.version = readFileSync(join(dir, 'version.lua'), 'utf8');
   return out;
 }

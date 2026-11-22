@@ -1,5 +1,5 @@
--- What the room's logic needs of JavaScript's semantics, so room/lobby, room/seats and
--- room/sync decide exactly as the web's src/net modules do on the same JSON (docs/ROOM.md
+-- What the pitch's logic needs of JavaScript's semantics, so pitch/lobby, pitch/seats and
+-- pitch/sync decide exactly as the web's src/net modules do on the same JSON (docs/PITCH.md
 -- "Values"). Pure Lua 5.4.
 --
 -- A value read by json.decode(text, true) maps onto JavaScript's: nil is undefined (a
@@ -11,7 +11,8 @@
 --   * text(v): JSON.stringify(v) with object keys sorted (numbers printed as JavaScript
 --     prints them: 3 for 3.0, 1e-7, 1e+21), the canonical text a test compares;
 --   * asciiSize(v): the web's asciiSize, JSON.stringify(v) with every character above
---     U+007E counted as 6 bytes: the room's size limits (the web's docs/ROOMS.md section 3).
+--     U+007E counted as 6 bytes: the size rule of the retired rooms server
+--     (the web's docs/ROOMS.md section 3), which the log budget and the rider still use.
 import "core/tw"
 import "session/json"
 
@@ -205,5 +206,6 @@ function js.asciiSize(v)
 	return n
 end
 
-tw.room = tw.room or {}
-tw.room.js = js
+tw.pitch = tw.pitch or {}
+tw.room = tw.pitch -- the old name (before 0.13), the same table: every pitch module imports this one first
+tw.pitch.js = js

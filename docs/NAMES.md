@@ -3,7 +3,7 @@
 Plan of 2026-11-21, with its first part built: `core/namewords.lua` (the words),
 `core/namegen.lua` (names from them), `tools/names.lua` and `tests/names/` (every name,
 reviewed), `tests/lua/test_namegen.lua`. Nothing calls it yet: the session door, the
-room's check and the clients come next (section 8).
+pitch's check and the clients come next (section 8).
 
 ## 1. Why
 
@@ -47,7 +47,7 @@ was archived on 2026-11-21, and its README points here.
 | team   | `<wood> <noun>`        | Birch Batons     | 1,742 |
 | team   | `The <noun>`           | The Lumberjacks  |    58 |
 
-At most 16 characters (`namegen.max`), the room's and the reel's limit. A pairing that is
+At most 16 characters (`namegen.max`), the pitch's and the reel's limit. A pairing that is
 longer is not a name, and the picker skips it. So is a pair in `namewords.never`
 (section 5), and a name whose second word begins with its first ("Pine Pinecones").
 
@@ -86,7 +86,7 @@ own draw.
 | `namegen.make(kind, parts)`       | The text for parts, or nil and why (`kind`, `shape`, `word`, `long`).                                              |
 | `namegen.all(kind)`               | Every name, sorted: for tools and tests, not for a Playdate at play.                                               |
 
-**A name is its text, never an index.** Records, rooms and game files hold "Mighty
+**A name is its text, never an index.** Records, pitches and game files hold "Mighty
 Maple". Adding a word changes no name anyone has. Toontown sent the server four list
 indices instead, so it could only accept a name its lists made. `parse` gives the same
 guarantee from the text, and text keeps game files readable, survives a list
@@ -175,23 +175,24 @@ rest after the first full read.
 
 ## 6. The check at every boundary
 
-A client offers only generated names, but a client is not proof: anyone can send a room
-any text (ROOMS.md in the web repo, "What is not protected"). So each place that shows a
+A client offers only generated names, but a client is not proof: anyone can send a pitch
+any text (the web repo's docs/ROOMS.md, "What is not protected", written for the rooms
+server the pitch server replaced). So each place that shows a
 name to someone else checks it, and shows a default when it fails:
 
 | Boundary                        | Who runs the check                    | When it fails                        |
 | ------------------------------- | ------------------------------------- | ------------------------------------ |
-| A member's name in a room       | the room server, on join and `me`     | the name is dropped: "Player n"      |
-| A team's name in a room's match | the room server, on START             | "Team A" / "Team B"                  |
+| A member's name in a pitch      | the pitch server, on join and `me`    | the name is dropped: "Player n"      |
+| A team's name in a pitch match | the pitch server, on START            | "Team A" / "Team B"                  |
 | A reel or a share               | the share check (it runs the engine)  | refused: "Type a name" becomes "Pick a name" |
 | The pitch card image            | the card renderer                     | the team names are left off          |
 
-The room server is JavaScript and knows no Kubb, so it needs the words in its own
+The pitch server is JavaScript and knows no Kubb, so it needs the words in its own
 language. `parse` is short; the web ports it beside a JSON copy of the lists that the
 engine writes (a `names.words` call, section 8), checked against `tests/names/` so the
 two can never disagree.
 
-**Display never checks; boundaries do.** A client shows any name the room sends. Then
+**Display never checks; boundaries do.** A client shows any name the pitch sends. Then
 clients on two patches of the engine can sit in one lobby even if one has more words.
 
 What this buys outside the game:
@@ -215,11 +216,11 @@ What this buys outside the game:
   If one is a near miss, take the word out and put the near miss in the blocklist.
 - A word is one capitalised word of letters (`test_namegen`), in one list only, so a name
   parses one way.
-- **Adding words is a patch.** No name changes and no throw changes. The room server
+- **Adding words is a patch.** No name changes and no throw changes. The pitch server
   takes a release's words before or with the clients that offer them.
 - **Removing a word is for safety only**, and the pull request says so and adds a row
   to "Words taken out". Names holding it
-  stop being valid: the room shows "Player n", and a client re-rolls that slot the next
+  stop being valid: the pitch shows "Player n", and a client re-rolls that slot the next
   time it opens.
 - `namewords.version` goes up with any change to a list.
 
@@ -230,7 +231,7 @@ In order, each its own pull request:
 1. **The session door.** `kubbCall("names.roll" | "names.step" | "names.valid" |
    "names.words")` for the web and the iPhone. The client passes a seed, the session
    draws from it. Hash neutral: a patch release.
-2. **The room's check.** The web ports `parse`, takes the words from `names.words`, and
+2. **The pitch's check.** The web ports `parse`, takes the words from `names.words`, and
    checks names on join, `me` and START (section 6). The reel's and the share's checks
    call the engine they already run.
 3. **The clients.** Typed names go on the web, the iPhone and the Playdate (section 10,

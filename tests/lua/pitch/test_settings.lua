@@ -1,4 +1,4 @@
--- The engine's own match settings (computer, scene) live in the room document's
+-- The engine's own match settings (computer, scene) live in the pitch document's
 -- top-level `settings`, so a client on 0.8 sharing the lobby keeps them: its lobbyOf
 -- rebuilds `options` from the five keys it knows but passes a top-level key it does not
 -- know through untouched. Proven here with 0.8.2's own reducers:
@@ -6,16 +6,21 @@
 import "session/api"
 import "session/json"
 local json, NULL = tw.web.json, tw.web.json.null
-local lobby = tw.room.lobby
+local lobby = tw.pitch.lobby
 
--- 0.8.2's lobby, loaded beside this engine's (it stores itself on tw.room.lobby, so the
--- current one is put back after).
+-- 0.8.2's lobby, loaded beside this engine's. It imports "room/js", which is pitch/js now
+-- (loaded already), and stores itself on tw.room.lobby, which is tw.pitch.lobby (the old
+-- name is the same table), so the current one is put back after.
 local function oldLobby()
-	local now = tw.room.lobby
+	local now = tw.pitch.lobby
 	local chunk = assert(loadfile("tests/fixtures/room-0.8.2/lobby.lua"))
-	chunk()
-	local old = tw.room.lobby
-	tw.room.lobby = now
+	local plain = import
+	import = function(name) return plain((name:gsub("^room/", "pitch/"))) end
+	local ok, err = pcall(chunk)
+	import = plain
+	assert(ok, err)
+	local old = tw.pitch.lobby
+	tw.pitch.lobby = now
 	assert(old ~= now)
 	return old
 end
@@ -24,9 +29,9 @@ local old = oldLobby()
 -- Each write goes over the wire as JSON, as between two clients.
 local function wire(doc) return json.decode(json.encode(doc), true) end
 
-local function room(name, args)
-	local out = json.decode(kubbCall("room." .. name, json.encode(args)), true)
-	if out.error then error("room." .. name .. ": " .. out.error, 2) end
+local function pitch(name, args)
+	local out = json.decode(kubbCall("pitch." .. name, json.encode(args)), true)
+	if out.error then error("pitch." .. name .. ": " .. out.error, 2) end
 	local v = out.value
 	if rawequal(v, NULL) then return nil end
 	return v
@@ -37,7 +42,7 @@ test("a 0.9 host's computer level and scene survive a 0.8 client's joinTeam and 
 	doc = wire(lobby.setOptions(doc, { computer = "pro", scene = "dusk", wind = "light" }))
 	expect.eq(doc.settings.computer, "pro")
 	expect.eq(doc.settings.scene, "dusk")
-	-- the 0.8 client joins, then sets the room open
+	-- the 0.8 client joins, then sets the pitch open
 	doc = wire(old.joinTeam(doc, "guest", "B"))
 	expect.eq(doc.teams.B[1], "guest")
 	doc = wire(old.setAccess(doc, true))
@@ -65,7 +70,7 @@ end)
 
 test("settings: an invalid value is dropped, an absent one is the default, none is no key", function()
 	local doc = wire(lobby.joinTeam(nil, "host", "A"))
-	expect.eq(doc.settings, nil, "a room that never set one has no settings key")
+	expect.eq(doc.settings, nil, "a pitch that never set one has no settings key")
 	local all = lobby.optionsOf(doc)
 	expect.eq(all.computer, "club")
 	expect.eq(all.scene, "day")
@@ -83,8 +88,8 @@ test("settings: an invalid value is dropped, an absent one is the default, none 
 	expect.eq(doc.settings.scene, "dusk")
 	expect.eq(lobby.optionsOf(doc).computer, "club")
 	-- through the door, as a client calls it
-	expect.eq(room("optionsOf", { doc = doc }).scene, "dusk")
-	expect.eq(room("optionsOf", { doc = NULL }).computer, "club")
+	expect.eq(pitch("optionsOf", { doc = doc }).scene, "dusk")
+	expect.eq(pitch("optionsOf", { doc = NULL }).computer, "club")
 end)
 
 test("a document without settings reads and writes as before", function()

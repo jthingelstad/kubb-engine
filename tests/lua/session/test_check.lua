@@ -1,7 +1,7 @@
 -- Checking a shared match (session/check.lua, session/replay.lua's checks, docs/SESSION.md
 -- "What a server can prove"): the computer's throws made again from the snapshot, a
 -- person's throws held to what the dial can give, a side renamed in a start, the finished
--- room document of a replay, and the 0.7.2 additions to what a replay and a recording say
+-- pitch document of a replay, and the 0.7.2 additions to what a replay and a recording say
 -- (rulings as codes, standing counts, the wide view's landing, the Location line), and
 -- 0.7.4's: the Location line in every file a session writes, and short resign words.
 import "session/session"
@@ -12,10 +12,10 @@ import "session/api"
 import "session/wide"
 import "core/autothrow"
 import "core/frame"
-import "room/lobby"
+import "pitch/lobby"
 tw.web.session.useTune("pointer") -- the web's tune
 local session, json, check, replay = tw.web.session, tw.web.json, tw.web.check, tw.web.replay
-local autothrow, lobby, frame, plan = tw.autothrow, tw.room.lobby, tw.frame, tw.plan
+local autothrow, lobby, frame, plan = tw.autothrow, tw.pitch.lobby, tw.frame, tw.plan
 local floor = math.floor
 
 local START = { year = 2026, month = 11, day = 19, hour = 9, min = 0 }
@@ -544,7 +544,7 @@ end)
 
 -- ---------- item 9: the finished document ----------
 
--- A real room's match, as the web plays it: the lobby's reducers, START with the host's
+-- A real pitch's match, as the web plays it: the lobby's reducers, START with the host's
 -- first snapshot, every action committed with the snapshot after it.
 local function realRoom(seed)
 	local members = { { id = "m7", me = { name = "  Ada  ", level = "pro", engine = tw.engine.version } } }
@@ -586,7 +586,7 @@ local function realRoom(seed)
 	return json.decode(json.encode(doc), true), s
 end
 
-test("a replay's finished document is the one a real room wrote", function()
+test("a replay's finished document is the one a real pitch wrote", function()
 	local doc = realRoom(31)
 	local m = doc.match
 	expect.eq(m.over, true)
@@ -599,7 +599,7 @@ test("a replay's finished document is the one a real room wrote", function()
 	expect.eq(json.encode(out.document), json.encode(doc), "the same document, byte for byte")
 	expect.eq(out.h0, m.h0)
 	expect.eq(out.hashes[#out.hashes], m.hash)
-	expect.truthy(lobby.replayOf(json.decode(json.encode(out.document), true).match), "the room keeps its replay")
+	expect.truthy(lobby.replayOf(json.decode(json.encode(out.document), true).match), "the pitch keeps its replay")
 end)
 
 test("a shared match's document from its start: teams, options, result, the last snapshot", function()
@@ -620,7 +620,7 @@ test("a shared match's document from its start: teams, options, result, the last
 	expect.eq(d.options.wind, m.setup.wind)
 	expect.eq(d.match.players.A[1].name, "Ada")
 	local rep = lobby.replayOf(d.match)
-	expect.truthy(rep, "a replay the room keeps")
+	expect.truthy(rep, "a replay the pitch keeps")
 	-- and that replay plays to the same end
 	local again = replay.new { setup = rep.setup, h0 = rep.h0, log = rep.log }
 	local info = again:finish()
@@ -791,7 +791,7 @@ test("the Location line reaches the live sheet, the over card's file and a repla
 	end
 	local withLoc = doc()
 	call("setClient", { label = old })
-	expect.eq(doc(), withLoc, "the room document is the same with or without a location")
+	expect.eq(doc(), withLoc, "the pitch document is the same with or without a location")
 	expect.truthy(not withLoc:find("throwingwood.com", 1, true) and not withLoc:find("Playdate", 1, true),
 		"no Location in the document")
 end)

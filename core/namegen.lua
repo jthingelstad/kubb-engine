@@ -8,7 +8,7 @@
 --           "<wood> <noun>"                       "Birch Batons"
 -- no longer than namegen.max[kind], not in namewords.never, and with no word that
 -- begins with the one before it ("Pine Pinecones"). Nothing else is a name: `valid` is the
--- check every place that shows a name to someone else makes (the room, the reel,
+-- check every place that shows a name to someone else makes (the pitch, the reel,
 -- the share card), so a client that sends free text is shown a default instead.
 --
 -- Names are stored and sent as their text, never as indices, so adding words never
@@ -23,7 +23,7 @@ local namegen = {}
 namegen.KINDS = { "player", "team" }
 
 -- The longest name, in characters (ASCII: every word is letters only). 16 is the
--- room's and the reel's limit (docs/ROOM.md cleanName, the share card).
+-- pitch's and the reel's limit (docs/PITCH.md cleanName, the share card).
 namegen.max = { player = 16, team = 16 }
 
 namegen.tune = {

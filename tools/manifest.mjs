@@ -1,5 +1,5 @@
 // engine.json: the engine's name and version, where its parts came from, a sha256 for
-// every engine Lua file (core/, room/, session/, tune/ and version.lua, keyed by their path
+// every engine Lua file (core/, pitch/, session/, tune/ and version.lua, keyed by their path
 // from the repository root) and the sha256 of the bundle tools/bundle.mjs writes.
 // Clients vendor a tagged release byte for byte and check their copy against these.
 //   node tools/manifest.mjs write   rewrite the hashes (name, version and sources kept)
