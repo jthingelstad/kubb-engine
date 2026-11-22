@@ -11,7 +11,7 @@ on top". This note is why it is built the way it is, and what it costs.
 ## What the player sees
 
 The player's pitch in the middle of a field of pitches (the ring of 8 round it in a 3 x 3
-grid by default, up to 24; or a row either side for a phone held sideways), each with two
+grid by default, up to 24; or a row either side, which the clients do not use: the thrower's camera does not see it), each with two
 computer teams playing a match of their own: batons in the air, kubbs falling, teams
 walking to the other end, kubbs being raised, a king going down, and after a pause a new
 pair of teams setting out. They are scenery. Nothing on them touches the player's match,

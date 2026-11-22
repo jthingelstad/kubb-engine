@@ -626,8 +626,9 @@ centre (0, 4) does it for everything.
   one when two phones in a shared Tournament match should show the same tournament.
 - `count`: 1 to 24 pitches (default 8). `layout`: `"grid"` (default: the ring of 8 round
   the player's pitch in a 3 x 3 grid, then the ring of 16 in a 5 x 5; beside first, then
-  ahead and behind, then the corners) or `"row"` (a row either side, for a phone held
-  sideways: -1, +1, -2, +2, ... pitches across). `spacing`: `{ x, y }` between pitch
+  ahead and behind, then the corners) or `"row"` (a row either side: -1, +1, -2, +2, ...
+  pitches across; not for the thrower's camera, which does not see it: docs/CLIENTS.md
+  "0.15.1 on top"). `spacing`: `{ x, y }` between pitch
   origins, default `{ x: 8, y: 12 }` (5 m pitches 3 m apart; 8 m pitches 4 m apart);
   at least 5.5 and 8.5.
 - `scene`, `surface`, `set`: as for `new` since 0.14: the scene (default `"tournament"`)
