@@ -37,7 +37,10 @@ local base = { year = 2026, month = 11, day = 20, hour = 9, min = 0 }
 local totals = {}
 local wins = { A = 0, B = 0 }
 for g_i = 1, n do
-	local g, t = thrower.playGame(seed * 100003 + g_i)
+	-- every fourth game by the Kid rules (0.15.0, core/rules rules.kid)
+	local kid = g_i % 4 == 0
+	local g, t = thrower.playGame(seed * 100003 + g_i, nil, nil, kid and { rules = "kid" } or nil)
+	if kid then totals.kid = (totals.kid or 0) + 1 end
 	local bad = tw.order.checkSheet(g)
 	if #bad > 0 then error("game " .. g_i .. ": " .. bad[1]) end
 	for _, side in ipairs { "A", "B" } do

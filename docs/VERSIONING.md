@@ -101,6 +101,76 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.15.0** (minor). Kid mode. Jamie (2026-11-21): "'Kid' would be a super good level to
+  add: Kid, Beginner, Club, Pro… then we can make a mode for kids to have fun with", and
+  "kid level is for kids to have fun with kubb". The computer's levels are Kid, Beginner,
+  Club, Pro, and choosing the Kid computer makes the match a Kid match
+  (docs/notes/kid-mode.md):
+  - **The Kid rules** (`core/rules` `rules.kid`, `rules = "kid"` on `rules.new` and
+    `match.new`, kept as `g.rules`): three base kubbs a side (x = -1, 0, 1); every kubb
+    thrown in and every baton at a kubb, by either side, from the Kid line 2 m in front of
+    the baseline, or the advantage line when that is nearer the middle (the king shot from
+    the baseline); the king knocked down early, by a baton or a kubb thrown in, stood back
+    up where it was and the turn goes on; no punishment kubbs (a kubb out twice is stood by
+    the engine at the fair spot, `raising.fairSpot`, 1 m either side of the middle and 1 m
+    past the centre line, and nobody is asked); no illegal throws (a helicopter counts).
+    Everything else as the standard rules. `match.setup` gives `kid`, `kidY` and
+    `forwardY` from the line.
+  - **The Kid meter** (`plan.meters.kid`): bars about five times the standard's at 6 m,
+    an in-bar gain of 0.02, a gentler pull, shake and scatter past the bars, and a soft
+    flick forgiven (`flickIn`, read by `plan.launch` only on this meter). A small child
+    (the Gym's recorded hand, misses tripled) fells a lone kubb 3 m away 80% of the time
+    and 6 m away 54% (31% and 10% on the standard meter). `tools/meterprobe.lua --meter
+    kid --hands 3,2,1`.
+  - **The Kid computer** (`plan.levels.kid`, `autothrow.tune` `swingScale.kid` 1.5 and
+    `inkast.kid`, `cpu.raising.kid` `first`): misses by its nerves, tosses its kubbs out,
+    raises simply, knows no play. In the Gym (`versus --rules kid`, 300 seeds each way) a
+    child on the Kid meter wins 71.8% (68.2 to 75.5) and 77.3% (74.1 to 80.6) on seeds 1
+    and 2; a match lasts about five turns.
+  - **Session**: `newMatch`'s `computer` takes `"kid"`; with a computer side it sets
+    `opts.rules = "kid"` (also taken outright as `rules: "kid"`), kept in the snapshot
+    only then. A person's throw state carries `meter = "kid"` (`throw.meterFor`), and
+    `checkThrow` holds a throw to the match's meter. The view: `need.kid`, `setup.kid` and
+    `setup.kidY`, `aim.kidY`, `minimap.kidY`; `aim.advText` reads `KID LINE  2.0 M`; a
+    kubb's setup now has its `forwardY` (the baseline in a standard match). Ruling codes
+    `kingUp`, `helicopterCounts` and `placed`. `names.check` knows `opts.rules`,
+    `save.game.rules` and the Kid notes and rulings.
+  - **Pitch**: `MATCH_OPTIONS`' Computer row and `optionRows` gain Kid, first; `LEVELS` is
+    the four; `setOptions` takes `computer: "kid"`.
+  - **Game file**: `[Rules "Kid rules, 2-4-6: ..."]` and `[Base kubbs "3"]`; a king stood
+    back up, a helicopter that counts and a kubb at the fair spot are written as notes (no
+    `E`, no `Z`, no `P`; no pitch line the turn a kubb is placed); `[Throw Levels "... kid"]`.
+    The notation has no way to say where a Kid match's kubbs and batons are thrown from,
+    a king stood back up or a placed kubb that is no punishment (docs/notes/kid-mode.md
+    "What the game file says"). `make games` plays every fourth headless game and five
+    physics matches by the Kid rules through the gate.
+  - **Playdate options** (`core/matchopts`): Kid is the Computer row's fourth value (a
+    choice kept before keeps its level) and steps first (`order`); `apply` sets
+    `opts.rules = "kid"` with it.
+  - Golden: the seventeen matches move no hash; two more are Kid matches (`m18`, a person
+    against the Kid computer; `m19`, the Kid computer both sides). The cpu fixtures' level
+    the engine does not know is renamed `toddler` (it was `kid`); every result is as
+    recorded. `plan.LEVELS` is the four, so `checkThrow`'s `levels` lists `kid` too.
+
+  For clients: sync `v0.15.0` (it shares matches with no 0.14; web and iPhone move
+  together). A Kid match needs one more segment on the Computer row and the Kid line drawn:
+  - **Web**: the solo card's own Computer level row (`OPTION_ROWS` in `src/ui/cards.js`)
+    gains `["kid", "Kid"]` first (or the card takes the engine's row from
+    `pitch.optionRows`); the lobby, which walks the engine's `MATCH_OPTIONS`, has it
+    already. A kept `computer: "kid"` must be a value the card accepts. Draw the Kid line
+    at `aim.kidY` (and the minimap's `kidY`) beside the advantage line (`advY`), and say
+    "Kid match" from `need.kid`; the stance, its limit and `advText` already come from the
+    engine. A Kid match never asks for a punishment kubb.
+  - **iPhone**: the Computer row is the engine's (`MATCH_OPTIONS`), so Kid appears first
+    by itself; `LEVELS` has four. Draw the Kid line from `kidY` in `PitchRenderer`,
+    `SceneRenderer` and `PitchMap` (`advantageY` is only the advantage line), word
+    `StandPad`'s caption for it (it says "up to the advantage line" whenever the forward
+    limit is ahead of the line), and show "Kid match" from `need.kid`.
+  - **Playdate**: sync the core. The COMPUTER row offers KID first; to make it a Kid match
+    the match scene passes `opts.rules` to `match.new` as `rules` and plans the person's
+    throw on `plan.meter("kid")` (the throw scene's `plan.meter()`), and draws the line from
+    the setup's `kidY`. Until it does, KID plays the Kid computer under the standard rules.
+
 - **0.14.0** (minor). Scenes become the engine's, and the Techno scene gets a floor of its
   own. Jamie (2026-11-21): "a Scene should have an allowed set of surfaces and pitch
   types". `core/scenes` (new, so the Playdate has it too) is the catalogue: Park (`day`),

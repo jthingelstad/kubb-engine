@@ -158,7 +158,7 @@ local function setup(i)
 	if how < 0.4 then level = g.pick(LEVELS)
 	elseif how < 0.7 then s.thrower = { id = "p1", level = g.pick(LEVELS) }
 	elseif how < 0.8 then level = g.pick(LEVELS); s.thrower = { id = "p1", level = g.pick(LEVELS) }
-	elseif how < 0.88 then level = "kid" -- a level autothrow does not know
+	elseif how < 0.88 then level = "toddler" -- a level autothrow does not know ("kid" until 0.15, when Kid became one)
 	elseif how < 0.93 then s.thrower = { id = "p1", level = 3 } -- not a string
 	end
 	local scale = g.pick { false, 0, 0.3, 1, 1, 1, 1.7 }

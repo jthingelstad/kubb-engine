@@ -93,6 +93,26 @@ function golden.matches()
 		},
 		near = { 0.35, 0.75, 1.25, 1.9, 2.0 },
 	}
+	-- Since 0.15.0, the Kid rules (core/rules rules.kid): the Kid computer makes a Kid match,
+	-- chosen as a client chooses it. A person (throwing as m13's does, on the Kid meter)
+	-- against the Kid computer ...
+	out[18] = {
+		name = "m18-grass-off-A-near-kid",
+		opts = {
+			mode = "match", cpu = "B", computer = "kid", seed = 1018, surface = "grass",
+			wind = "off", first = "A", start = START, maxTurns = 10,
+		},
+		near = { 0.35, 0.75, 1.25, 1.9, 2.0 },
+	}
+	-- ... and the Kid computer both sides, played to the end (seed 1020: one of its batons
+	-- is a helicopter, which counts).
+	out[19] = {
+		name = "m19-sand-light-B-kid",
+		opts = {
+			mode = "match", cpu = "both", computer = "kid", seed = 1020, surface = "sand",
+			wind = "light", first = "B", start = START, maxTurns = 20,
+		},
+	}
 	return out
 end
 

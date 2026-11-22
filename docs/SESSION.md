@@ -104,7 +104,7 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 | Call                         | Returns           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ---------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `newPractice(opts)`          | view              | `{ scene, surface: "grass" \| "sand" \| "snow" \| "grid", level, set, drill }`. The practice pitch (scenes/drills.lua's free throw); `drill: true` throws kubbs at the circle. Since 0.14 a `scene` named decides the surface and the set as for a match (below), and `setSurface` then takes only a surface the scene allows.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, scene, start, maxTurns, modeName }`. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names). `cpu`: `"A"`, `"B"`, `"both"` or a list. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. **Since 0.14 a scene decides** ("Scenes", below): with `scene` named, `new` takes the surface given only if the scene allows it (else the scene's default) and the set likewise, and an id the catalogue does not have is Park (`"day"`, not kept). With no `scene`, the options stand as given, as before 0.14. Restore, replay, checkStart and renameStart make a match from its options as they were recorded, whatever its scene. |
+| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, rules, scene, start, maxTurns, modeName }`. `rules: "kid"` (since 0.15): the Kid rules whatever the computer (pass and play with two children); absent, a match has them only with the Kid computer. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names). `cpu`: `"A"`, `"B"`, `"both"` or a list. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"kid"` (since 0.15), `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; `"kid"` with a computer side makes the match a Kid match ("Kid matches", below); absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. **Since 0.14 a scene decides** ("Scenes", below): with `scene` named, `new` takes the surface given only if the scene allows it (else the scene's default) and the set likewise, and an id the catalogue does not have is Park (`"day"`, not kept). With no `scene`, the options stand as given, as before 0.14. Restore, replay, checkStart and renameStart make a match from its options as they were recorded, whatever its scene. |
 | `restore(snapshotText)`      | view              | A match from a snapshot. Since 0.13.4 also `{ snap, names: "check" }`, which refuses a snapshot whose names the engine does not allow ("Names", below). Restored while raising, placing a punishment kubb or after the end, the view shows the match's pitch as it stands (pieces and debris, a king that ended the match lying down) in the last throw's frame, as live, until the next throw is set up. The restored session acts for every side and the computer until `setControl` says otherwise.                                                                                                                                                                                                                                   |
 | `snapshot()`                 | text              | The whole match as JSON text. Opaque: store and send it as it is, byte for byte. Matches only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `hash()`                     | `{ hash, bytes }` | FNV-1a 32 of the snapshot text (8 hex digits) and its length. Equal hashes mean equal matches.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -127,7 +127,8 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 
 - `{ kind: "throw", side, setup, cpu, local, candidates?, wind, ... }`. `setup` is the
   throw (`kind`, `projectile` "baton" or "kubb", `n` of `of`, `label`, `kingShot`,
-  `rethrow`, `lineY`, `forwardY`, `advY`, `targets`, `thrower { id, name, level, key }`;
+  `rethrow`, `lineY`, `forwardY`, `advY`, `targets`, `thrower { id, name, level, key }`,
+  and in a Kid match `kid: true` and `kidY`, the Kid line in the view frame;
   `key` is the lineup's key for that player, on a shared pitch the pitch member it
   belongs to).
   `cpu`: the computer throws. `local`: this browser acts for it. `candidates`: the team's
@@ -151,7 +152,8 @@ crowded }`; `ends[i] = { which, pose, inBounds, obstructedBy, ok, why }` (`why`:
 
 Every match need also carries `card` (informational: `{ kind: "settle" | "handoff" |
 "pass", ... }`, the Playdate's cards; nothing waits on them), `turn`, `throws`, `teams`,
-`standing`, `last { text, short }` (the last ruling) and `resignPending`.
+`standing`, `last { text, short }` (the last ruling) and `resignPending`, and in a Kid
+match `kid: true` (since 0.15), so a client can say so on screen.
 
 **items** are the pieces as the renderer draws them: `{ id, kind, team, x, y, z, qw, qx,
 qy, qz, toppled }`, kinds `kubb`, `king`, `baton`, `stake`. **camera** is core/camera's
@@ -160,11 +162,11 @@ point looked at, focal length `f` with principal point `cx cy` for the Playdate'
 240 screen (scale `f` by the canvas width over 400). **aim** is `{ marker { x, y, r, on,
 set, kind, shown }, thrower { x, y, swivel, set }, plan { release, arcSet, tilt, spin,
 level, speed, loft, swivel, dist, back, powerLo, powerHi, releaseLo, releaseHi }, arc
-[{x, y, z}]?, projectile, drill, lineY, forwardY, advY, advText, halfWidth, backMax,
+[{x, y, z}]?, projectile, drill, lineY, forwardY, advY, advText, kidY?, halfWidth, backMax,
 rail { name, kind, n, of, r1, r2 }, flag, restText, verdicts?, wind?, mix, watching }`.
 **dial** is hud.clock's state: `{ phase, arm, crank, back, powerLo, powerHi, releaseLo,
 releaseHi, deadDeg, overDeg, lastBack, lastStop, prompt }`. **minimap** is `{ pieces,
-aim { x0, y0, x1, y1 }, advY, lineY, wind }`.
+aim { x0, y0, x1, y1 }, advY, lineY, kidY?, wind }`.
 
 ### Each frame
 
@@ -246,7 +248,7 @@ All return `{ aim, camera }`, and do nothing unless this browser may aim now.
 Practice also has `setDrill(on)`, `reset()` and `setSurface(name)`, which return a view.
 
 **Levels and the person's meter** (0.13; docs/notes/throw.md "The person's meter"). A
-level (`beginner`, `club`, `pro`) is the computer's standard only: the `computer` option, a
+level (`kid`, `beginner`, `club`, `pro`) is the computer's standard only: the `computer` option, a
 computer side's players. Every person throws on one meter, whatever level `newPractice`,
 a player's entry, a thrower or `setLevel` names; those fields are still taken, kept and
 returned (the view's `plan.level`, `need.level`, `thrower.level`), so older callers do not
@@ -254,7 +256,21 @@ break, and a person's level picker can go. The bars carry the difficulty by dist
 for a short throw, narrow for a long one. The aim view's `plan.powerLo..powerHi` and
 `releaseLo..releaseHi` (and the dial's) are the bars for the throw as it is aimed now and
 change whenever the circle or the stance moves, so a surface redraws its bands from every
-view, as it already does; there is no new field.
+view, as it already does; there is no new field. A Kid match's people throw on the Kid meter
+(0.15, docs/notes/throw.md "The Kid meter"): the same fields, much wider bars.
+
+**Kid matches** (0.15.0, docs/notes/kid-mode.md). The Kid computer (`computer: "kid"` with a
+computer side) or `rules: "kid"` makes the match a Kid match: `opts.rules = "kid"` in the
+snapshot (absent in every other match, whose snapshot is as before), the Kid rules for both
+sides (three base kubbs a side; every kubb and every baton at a kubb thrown from the Kid
+line, 2 m in front of the baseline, or the advantage line beyond it; the king shot from the
+baseline; an early king stood back up; no punishment kubbs, so no `punish` need; a
+helicopter counts) and the Kid meter for every person. What a client does with it:
+`need.kid` to say it is a Kid match; `setup.kidY` (also `aim.kidY` and `minimap.kidY`) to
+draw the Kid line, which in a Kid match is where the thrower stands by default (`forwardY`,
+the stance's limit, is the Kid line or the advantage line beyond it, for kubbs too);
+`aim.advText` reads `KID LINE  2.0 M` while the Kid line is the one thrown from. A kubb's
+setup has `forwardY` too: the baseline in a standard match, as before.
 
 **The controls** (since 0.9; Jamie, 2026-11-20: "more analog allow the slider to select
 any value in a range"). `aim.controls` gives a slider its numbers from the engine:
@@ -755,7 +771,10 @@ part's, `winner` the side that won when the throw ended the match. A baton's cod
 `pushedOut`, `kingWin`, `kingEarly`, `resigned`. A kubb's: `inForNow`, `outForNow`,
 `ownHalfOut`, then at the round's last kubb `in` (n thrown), `rethrow` (n), `punish`
 (n), `lowered`, `rescue` (n), `ownHalf`, or `kingKubb` (the king toppled). The words are
-as they were.
+as they were. A Kid match (0.15.0) adds `kingUp` (the king knocked down early and stood
+back up: "king down early: stood back up" after a baton's parts, "king down: stood back
+up" for a kubb thrown in), `helicopterCounts` ("helicopter: counted") and `placed` (n
+kubbs out twice stood at the fair spot, in place of `punish`).
 
 Since 0.4.1, `timeline.contacts` lists wood-on-wood strikes in physics time
 (seconds from release). Each `{t, a, b, idA, idB, strength}` gives both body

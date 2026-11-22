@@ -80,18 +80,21 @@ refcheck:
 
 # Headless games: GAMES_N seeded random games through the rules engine
 # (tools/games.lua, no physics) into build/games, then the notation gate over
-# all of them. Then PHYS_N matches with real physics (tools/physmatch.lua) into
-# build/physgames, gated the same way. Same seed, same files.
+# all of them (every fourth by the Kid rules, 0.15.0). Then PHYS_N matches with real
+# physics (tools/physmatch.lua) into build/physgames, and PHYS_N Kid matches with the Kid
+# computer into build/physgames-kid, gated the same way. Same seed, same files.
 GAMES_N    := 500
 GAMES_SEED := 1
 PHYS_N     := 5
 
 games:
-	@rm -rf build/games build/physgames
+	@rm -rf build/games build/physgames build/physgames-kid
 	"$(LUA)" tools/games.lua --n $(GAMES_N) --seed $(GAMES_SEED) --out build/games
 	"$(NODE)" tests/node/notation-gate.mjs build/games
 	"$(LUA)" tools/physmatch.lua --n $(PHYS_N) --seed $(GAMES_SEED) --out build/physgames
 	"$(NODE)" tests/node/notation-gate.mjs build/physgames
+	"$(LUA)" tools/physmatch.lua --n $(PHYS_N) --seed $(GAMES_SEED) --rules kid --level kid --out build/physgames-kid
+	"$(NODE)" tests/node/notation-gate.mjs build/physgames-kid
 
 # Real games against the engine's own (tools/realgames.mjs, docs/notes/real-games.md):
 # REAL_N physics matches into build/realgames, then the same figures from them

@@ -35,7 +35,7 @@ function R.constants()
 	return object {
 		DOC_VERSION = lobby.DOC_VERSION, TEAM_MAX = lobby.TEAM_MAX, SEATS = lobby.SEATS,
 		SIDES = { "A", "B" }, NAME_MAX = lobby.NAME_MAX, OPTION_DEFAULTS = defaults,
-		MATCH_OPTIONS = options, LEVELS = { "beginner", "club", "pro" }, LOG_BUDGET = lobby.LOG_BUDGET,
+		MATCH_OPTIONS = options, LEVELS = { table.unpack(lobby.LEVELS) }, LOG_BUDGET = lobby.LOG_BUDGET,
 		REPLAY_VERSION = lobby.REPLAY_VERSION, CLIENT = sync.CLIENT, WITH_BYTES = sync.WITH_BYTES,
 		ENGINE = lobby.ENGINE,
 	}

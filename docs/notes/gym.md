@@ -635,6 +635,22 @@ The computers, before (0.12.0's tune) and after:
 - The ladder between the computers is steeper than in 0.12.0: club beats the new
   beginner every game, pro beats the new club 94.5 in 100.
 
+### Kid (2026-11-22)
+
+Engine 0.15.0: the Kid rules, the Kid meter and the Kid computer (docs/notes/kid-mode.md).
+`versus`, `match.lua` and `physmatch.lua` take `--rules kid`: every match by the Kid rules,
+and the human thrower plans on the Kid meter (`human.meterName`); `level=kid` is a level a
+spec takes. The child is `thrower=human;hand=3;level=club` (the recorded people's club
+parts, misses tripled), against `level=kid`, grass, 300 seeds each way round, turn limit 40:
+
+| seed | child / Kid computer / limit | the child's score (paired 95%) | turns a match |
+|---|---|---|---|
+| 1 | 431 / 169 / 0 | 71.8 (68.2 to 75.5) | 4.7 |
+| 2 | 464 / 136 / 0 | 77.3 (74.1 to 80.6) | 4.8 |
+
+The Kid computer's `nervesDeg` sets it (200 seeds: 1.6 gave 72.0, 2.0 gave 77.5; shipped
+1.8). Its base kubbs "from 8 m" in the scorecard are from the Kid line, 6 m.
+
 ## Speed
 
 On a 10-core Apple M4 (4 performance, 6 efficiency cores), one core, 12 matches each:

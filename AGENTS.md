@@ -112,10 +112,11 @@ iPhone app (the bundle: core, pitch, session and tune).
   docs/notes/computer-player.md, "How a play gets in": built switched off, proven in the
   Gym side against side, then switched on in its own pull request. What the game is (its
   levels and modes, and when a client takes a new tag) is Jamie's call.
-- `lua5.4 tools/meterprobe.lua [--n 400] [--parts perfect,honest,hand,drill]`: the person's
-  meter measured at a lone kubb (a perfect swing, steady swings inside both bars, the Gym's
-  recorded hand scaled x2, x1 and x0.5) and on an inkast spot (docs/notes/throw.md "The
-  person's meter").
+- `lua5.4 tools/meterprobe.lua [--n 400] [--parts perfect,honest,hand,drill] [--meter kid]
+  [--hands 3,2,1]`: the person's meter (or the Kid meter, 0.15) measured at a lone kubb (a
+  perfect swing, steady swings inside both bars, the Gym's recorded hand scaled x2, x1 and
+  x0.5, or the scales given) and on an inkast spot (docs/notes/throw.md "The person's
+  meter", "The Kid meter").
 - `node tools/batonvalue.mjs <games dir> [--json] [--tiers]` (`make batonvalue`): the batons a
   position costs, from scored games or the Gym's, beside Hodges' 2014 table, with bootstrap
   intervals and by tier (docs/notes/real-games.md "Baton value").
@@ -147,7 +148,7 @@ iPhone app (the bundle: core, pitch, session and tune).
 
 `docs/notes/` holds the subsystem notes (rules engine, physics, physics fuzz, the
 reference engine, real games, headless games, the throw, the Kubb Gym, the computer
-player, scenes, and the Tournament's neighbouring pitches, a design). Read the note before changing
+player, scenes, Kid mode, and the Tournament's neighbouring pitches, a design). Read the note before changing
 the part it covers. `docs/SESSION.md` is the session's API, `docs/PITCH.md` the pitch's,
 `docs/VERSIONING.md` and `docs/DETERMINISM.md` the version rules and the reference
 platform, and `docs/CLIENTS.md` what each client (web, iPhone, Playdate) changes to move

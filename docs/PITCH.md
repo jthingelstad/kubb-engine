@@ -354,10 +354,17 @@ are where the Lua decides otherwise, each deliberate and tested
    host set them (`tests/lua/pitch/test_settings.lua` proves it with 0.8.2's own
    reducers, `tests/fixtures/room-0.8.2/`). Inside `options` they would be dropped. A
    document without `settings` reads and writes exactly as before.
-   - `computer`, the computer's level (`beginner`, `club` or `pro`; Jamie, 2026-11-20:
-     "yes this should be a real per game setting"). It is in `MATCH_OPTIONS` (label
-     "Computer") and `OPTION_DEFAULTS` (`club`). A person's own level stays theirs
-     (`me.level`); the option is the computer's only.
+   - `computer`, the computer's level (`kid` since 0.15, `beginner`, `club` or `pro`;
+     Jamie, 2026-11-20: "yes this should be a real per game setting"). It is in
+     `MATCH_OPTIONS` (label "Computer"; Kid first: Kid, Beginner, Club, Pro, so
+     `optionRows` gives the same) and `OPTION_DEFAULTS` (`club`); `LEVELS` lists the four.
+     A person's own level stays theirs (`me.level`); the option is the computer's only.
+     The Kid computer makes the match a Kid match (docs/notes/kid-mode.md): `matchOptions`
+     passes `computer: "kid"`, and the session's `newMatch` sets the Kid rules when the
+     computer plays a side. There is no rules setting in the document: a pitch with two
+     human teams and the Kid computer chosen plays the standard rules. A 0.14 engine's
+     `setOptions` ignores `kid` (not a level it takes) and its documents keep what it
+     wrote; a match starts only between peers on the same major.minor.
    - `scene`, the scene the match is played in (`OPTION_DEFAULTS` `day`). From 0.9 to
      0.13 a look only, any id of lowercase letters, digits and hyphens, 1 to 24
      characters (`isScene`), labelled by the client. Since 0.14 the engine lists the

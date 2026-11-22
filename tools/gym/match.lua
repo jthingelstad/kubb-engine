@@ -9,6 +9,8 @@
 --   lua5.4 tools/gym/match.lua --out DIR [--thrower cpu|human] [--level club]
 --     [--surface Grass] [--seed 1] [--from 1] [--to 10] [--maxturns 40]
 --     [--model tools/gym/human-model.json] [--scatter 1] [--set path=value ...]
+--     [--rules kid] (the Kid rules, 0.15.0: every match by them, the human thrower on the
+--     Kid meter)
 --   lua5.4 tools/gym/match.lua ... --repro <match>:<throw> [--dump file] [--every 1]
 --   lua5.4 tools/gym/match.lua --selftest [--to 3]
 --   (any of them) --engine DIR   the engine's Lua from DIR instead of this checkout
@@ -87,6 +89,7 @@ while i <= #arg do
 	elseif a == "--b" then opt.specB = v; i = i + 1
 	elseif a == "--swap" then opt.swap = tonumber(v); i = i + 1
 	elseif a == "--probe" then opt.probe = true
+	elseif a == "--rules" then opt.rules = v; i = i + 1
 	else error("unknown argument " .. a) end
 	i = i + 1
 end
@@ -138,6 +141,8 @@ local needHuman = opt.thrower == "human" or (teams and (teams.A.thrower == "huma
 if needHuman then
 	human = dofile(here .. "/human.lua")
 	model = human.load(opt.model)
+	-- the Kid rules: a person throws on the Kid meter
+	if opt.rules == "kid" then human.meterName = "kid" end
 elseif opt.thrower ~= "cpu" then
 	error("--thrower cpu or human")
 end
@@ -373,6 +378,7 @@ local plainRaise = dofile(here .. "/versus.lua").defaultRaise(opt.level, opt.thr
 local function play(gi, each)
 	local start = notation.addMinutes(base, (gi - 1) * 41)
 	local m = match.new { start = start, first = (gi % 2 == 0) and "B" or "A", surface = opt.surface,
+		rules = opt.rules,
 		teams = { A = team("A", (gi - 1) % 6 + 1), B = team("B", (gi + 1) % 6 + 1) } }
 	-- a plain run: both sides raise as the engine raises such a side (0.12.0: the
 	-- computer by its level, the human thrower by the engine's advice; before 0.12,

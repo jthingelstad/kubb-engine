@@ -148,7 +148,14 @@ A level is three things.
 - **How well it judges:** the error in its reading of a position. A club player's count
   of the batons a group needs is rougher than a pro's.
 
-Kid is a fourth level, below beginner, and a product decision still open (Q11).
+Kid is a fourth level, below beginner (0.15.0; Jamie, 2026-11-21: "kid level is for kids to
+have fun with kubb"). Choosing it makes a Kid match (docs/notes/kid-mode.md). The Kid
+computer has the hand (`plan.levels.kid`: `nervesDeg` 1.8, `swingScale.kid` 1.5,
+`drillScatter` 2.5), a beginner's inkast with no spin (`inkast.kid`) and a beginner's
+raising (`first`); it knows no play (`field.line`, `inkast.depth`, the row are pro's and
+club's), never raises `apart` or `par`, and places no punishment kubb (the Kid rules have
+none). Its tune is set in the Gym so a child (the human thrower on the Kid meter, hand x3)
+wins about 75 games in 100 (docs/notes/kid-mode.md "The Kid computer").
 
 A level's numbers are not chosen by feel. Each is set so the level's Gym scorecard sits
 in its range in `docs/reference/play-levels.json`, and so a level beats the one below it
@@ -274,5 +281,6 @@ the levels) and is not settled here.
 
 ## Not decided here
 
-The Kid level and mode (Q11; for kids to have fun with kubb, owner-2026-11-21#s7). When each client takes a new tag. Whether a surface uses a
+When each client takes a new tag. (The Kid level and mode were decided and built in 0.15.0:
+docs/notes/kid-mode.md.) Whether a surface uses a
 language model, and for what.

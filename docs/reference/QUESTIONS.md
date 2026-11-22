@@ -261,7 +261,9 @@ census of 2026-11-21.
 
 ## Q11: A Kid level
 
-- **Status:** open: Jamie's to decide
+- **Status:** answered: decided by Jamie (2026-11-21), built in 0.15.0 (docs/notes/kid-mode.md):
+  a gentle mode, not a weaker computer (`owner-2026-11-21#s7`). The two sources below are
+  still to be observed against what was built.
 - **Asks:** Jamie wants a fourth level below beginner, with a mode for children to have
   fun in (`owner-2026-11-21#s2`). What makes it a kid's game?
 - **Recommendation:** Make it a different game, not a weaker beginner: a shorter pitch,

@@ -296,10 +296,14 @@ end
 -- Who throws is core/order's; now and then the team changes a baton's
 -- thrower or its inkaster, drawn from its own generator so the throws
 -- themselves are the same with or without it.
-function thrower.playGame(seed, check, swap)
+-- extra (optional) is merged into the game's options after they are drawn (rules = "kid":
+-- the Kid rules), so the draws are the same with or without it.
+function thrower.playGame(seed, check, swap, extra)
 	local t = thrower.new(seed)
 	local r = t.r
-	local g = rules.new(thrower.options(r))
+	local gopts = thrower.options(r)
+	for k, v in pairs(extra or {}) do gopts[k] = v end
+	local g = rules.new(gopts)
 	local o = order.new(g.teams)
 	local ro = thrower.rng(seed * 31 + 7)
 	local function member(side)

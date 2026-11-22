@@ -34,9 +34,11 @@ matchopts.list = {
 	-- the wind (Jamie and Tyler, 2026-11-14; core/wind)
 	{ key = "wind", label = "WIND", values = { "off", "light", "strong" }, shown = { "OFF", "LIGHT", "STRONG" } },
 	-- the computer's throw level, a game setting (Jamie, 2026-11-20: "yes this should be
-	-- a real per game setting"); club by default. A person's own level stays theirs
-	{ key = "computer", label = "COMPUTER", values = { "beginner", "club", "pro" },
-		shown = { "BEGINNER", "CLUB", "PRO" }, default = 2 },
+	-- a real per game setting"); club by default. A person's own level stays theirs.
+	-- Kid (0.15.0, docs/notes/kid-mode.md) is the fourth value so a choice kept before 0.15
+	-- (an index) keeps its level; `order` is the order a press steps through, Kid first
+	{ key = "computer", label = "COMPUTER", values = { "beginner", "club", "pro", "kid" },
+		shown = { "BEGINNER", "CLUB", "PRO", "KID" }, default = 2, order = { 4, 1, 2, 3 } },
 }
 
 -- Not here: a Kubbs row and a Scene row. The Playdate's scene is Black & White, which
@@ -65,7 +67,14 @@ function matchopts.valid(c)
 end
 
 function matchopts.step(c, key, d)
-	local n = #byKey[key].values
+	local row = byKey[key]
+	local n = #row.values
+	if row.order then
+		local at = 1
+		for i, v in ipairs(row.order) do if v == c[key] then at = i end end
+		c[key] = row.order[(at - 1 + d) % n + 1]
+		return c[key]
+	end
 	c[key] = (c[key] - 1 + d) % n + 1
 	return c[key]
 end
@@ -75,7 +84,9 @@ function matchopts.shown(c, key) return byKey[key].shown[c[key]] end
 
 -- opts (scenes/match options: names, vs, ...) with the surface, the opening,
 -- whether the engine raises the kubbs (autoSettle), the wind and the computer's
--- level (opts.computer: the level each computer player throws at) from the choice.
+-- level (opts.computer: the level each computer player throws at) from the choice. The
+-- Kid computer makes the match a Kid match (0.15.0): opts.rules = "kid", which a client
+-- passes to match.new as `rules` (and plans a person's throw on plan.meter("kid")).
 -- It sets no kubb set (since 0.9): opts.set is left as the caller had it. Since 0.14 it
 -- names the scene, opts.scene = "bw" (nothing in the core reads it; the save keeps none).
 function matchopts.apply(opts, c)
@@ -84,6 +95,7 @@ function matchopts.apply(opts, c)
 	opts.autoSettle = matchopts.value(c, "raising") == "auto" or nil
 	opts.wind = matchopts.value(c, "wind")
 	opts.computer = matchopts.value(c, "computer")
+	opts.rules = opts.computer == "kid" and "kid" or nil
 	opts.scene = matchopts.scene
 	return opts
 end

@@ -8,7 +8,7 @@
 --
 --   lua5.4 tools/physmatch.lua [--n 3] [--seed 1] [--out build/physgames] [--maxturns 40]
 --     [--surface Grass|Sand|Snow] [--scatter 1] [--raise apart|par|together|first]
---     [--level beginner|club|pro] [-v]
+--     [--level kid|beginner|club|pro] [--rules kid] [-v]
 --
 -- --scatter multiplies every mistake of the computer's swing (core/autothrow's
 -- scale): 1 is the game's Playdate, lower a steadier thrower. --level is the
@@ -44,7 +44,7 @@ local function team(side, size)
 end
 
 local n, seed, out, maxTurns, verbose, surface, scatter = 3, 1, "build/physgames", 40, false, "Grass", nil
-local raise, level
+local raise, level, rulesKind
 local i = 1
 while i <= #arg do
 	local a = arg[i]
@@ -55,6 +55,7 @@ while i <= #arg do
 	elseif a == "--surface" then surface = arg[i + 1]; i = i + 1   -- Grass, Sand or Snow
 	elseif a == "--raise" then raise = arg[i + 1]; i = i + 1
 	elseif a == "--level" then level = arg[i + 1]; i = i + 1
+	elseif a == "--rules" then rulesKind = arg[i + 1]; i = i + 1   -- kid: the Kid rules (0.15.0)
 	elseif a == "--scatter" then scatter = tonumber(arg[i + 1]); i = i + 1
 	elseif a == "-v" then verbose = true
 	else error("unknown argument " .. a) end
@@ -87,7 +88,7 @@ local function targetKind(s)
 end
 for gi = 1, n do
 	local start = notation.addMinutes(base, (gi - 1) * 41)
-	local m = match.new { start = start, first = (gi % 2 == 0) and "B" or "A", surface = surface,
+	local m = match.new { start = start, first = (gi % 2 == 0) and "B" or "A", surface = surface, rules = rulesKind,
 		teams = { A = team("A", (gi - 1) % 6 + 1), B = team("B", (gi + 1) % 6 + 1) } }
 	-- both teams are the computer at `level`, so both raise by its policy (0.12.0,
 	-- core/cpu.raising) unless --raise names one: the Gym's plain run does the same

@@ -1,4 +1,4 @@
-# Moving a client from 0.9.0 to 0.14
+# Moving a client from 0.9.0 to 0.15
 
 The web game, the iPhone app and the Playdate game all vendor engine 0.9.0. This page is
 what each changes to move to 0.13.0, built from the "For clients" parts of
@@ -240,6 +240,41 @@ docs/PITCH.md `optionRows` and difference 10):
   (grass, sand, snow, as before) and `apply` sets `opts.scene = "bw"`, which nothing reads
   yet. `core/scenes` and the grid arrive with the core; the Playdate offers neither.
 
+## 0.15 on top
+
+0.15.0 is a minor: Kid mode (docs/notes/kid-mode.md). It adds golden coverage (two Kid
+matches) and new rules and options, so it shares matches with no 0.14. Web and iPhone move
+together. Sync `v0.15.0` in place of `v0.14.0` (web `npm run vendor:sync -- --tag v0.15.0`,
+iPhone `TAG=v0.15.0`, Playdate `make vendor-sync TAG=v0.15.0`). One switch: the Kid
+computer makes the match a Kid match (the Kid rules for both sides, the Kid meter for a
+person); a client shows Kid on its Computer row and draws the Kid line, and the engine does
+the rest (docs/SESSION.md "Kid matches", docs/PITCH.md difference 9).
+
+- **Web**
+  - Must: Kid on the solo card's Computer level row, first (`OPTION_ROWS` in
+    `src/ui/cards.js` holds its own Beginner, Club, Pro; or take the row from
+    `pitch.optionRows`), and a kept `computer: "kid"` accepted wherever saved options are
+    read. The lobby walks the engine's `MATCH_OPTIONS` and has Kid already.
+  - Must: draw the Kid line at `aim.kidY` (and `minimap.kidY`) in the pitch view
+    (`src/game/game.js` passes only `aim.advY` as `advantageY` today). The stance starts on
+    it and `aim.advText` already reads `KID LINE  2.0 M`.
+  - Worth showing: "Kid match" on the hand-off or rail from `need.kid`; the ruling codes
+    `kingUp` ("king down early: stood back up"), `helicopterCounts` and `placed`.
+- **iPhone**
+  - Must: draw the Kid line from `setup.kidY` / `aim.kidY` in `PitchRenderer.swift`,
+    `SceneRenderer.swift` and `PitchMap.swift` (their `advantageY` is the advantage line
+    only), and word `StandPad`'s caption for the Kid line (it says "up to the advantage
+    line" whenever the forward limit is ahead of the line, which in a Kid match is always).
+  - Nothing else must: the Computer row is the engine's `MATCH_OPTIONS`, so Kid is there
+    first, and `LEVELS` has four. Worth showing: "Kid match" from `need.kid`.
+- **Playdate**
+  - The COMPUTER row offers KID first (`core/matchopts`: the fourth stored value, stepped
+    first, so a kept choice keeps its level), and `apply` sets `opts.rules = "kid"`.
+  - Must, for a Kid match: `main.lua` passes `opts.rules` on to `match.new` as `rules`, the
+    throw scene plans a person's throw on `plan.meter("kid")` in a Kid match, and draws the
+    Kid line from the setup's `kidY`. Until then KID is the Kid computer under the standard
+    rules and meter.
+
 ## What the engine now offers that no surface shows yet
 
 - **The computer's reason** (`tw.cpu.last`, since 0.11.1): the play and situation behind
@@ -258,5 +293,5 @@ docs/PITCH.md `optionRows` and difference 10):
 - **Choosing the next thrower**: the session's `thrower` action among
   `need.candidates`; the web has no control for it (its docs/MULTIPLAYER.md "Not done
   yet").
-- **Other meters**: `plan.meters` names one, `standard`; a wider one (a Kid mode) would
-  be another entry (docs/notes/throw.md).
+- **Kid rules without the computer** (0.15): `newMatch`'s `rules: "kid"` gives pass and play
+  the Kid rules and meter; no options card offers it yet.

@@ -92,7 +92,7 @@ end
 -- The meter a person's throw is planned on (plan.meter): the same for every person,
 -- whatever throw.levelFor(s) says.
 function throw.meterFor(s)
-	return plan.meter()
+	return plan.meter(s.meter)
 end
 
 -- ---------- pieces ----------
@@ -330,8 +330,9 @@ local function aimCamera(s, k)
 end
 throw.aimCamera = aimCamera
 
+-- (a kubb's is its setup's forwardY too, since 0.15.0: the baseline in a standard match,
+-- where it is lineY, and the Kid line in a Kid match)
 local function forwardLimit(s)
-	if s.projectile == "kubb" then return s.lineY end
 	return s.forwardY
 end
 throw.forwardLimit = forwardLimit
@@ -483,6 +484,7 @@ function throw.new(opts)
 		surface = opts.surface or throw.tune.surface,
 		set = opts.set or throw.tune.set,
 		defaultLevel = opts.level,
+		meter = opts.meter,   -- the meter a person throws on (plan.meters): "kid" in a Kid match, nil the standard
 		layout = throw.defaultLayout(),
 		items = {}, targets = {}, snaps = {},
 		lineY = throw.tune.lineY, forwardY = throw.tune.lineY, advY = nil,
@@ -522,6 +524,7 @@ function throw.prepare(s, setup)
 	if setup.surface then s.surface = setup.surface end
 	throw.setPieces(s, setup.pieces, setup.debris)
 	s.lineY, s.forwardY, s.advY = setup.lineY, setup.forwardY or setup.lineY, setup.advY
+	s.kidY = setup.kidY
 	s.projectile, s.projectileId = setup.projectile, setup.kubb or setup.batonId
 	s.targetIds = setup.targets
 	s.auto = false
@@ -537,13 +540,17 @@ function throw.prepare(s, setup)
 		s.playerY = max(s.lineY - t.backMax, min(s.forwardY, s.playerY))
 	else
 		s.stanceSet = false
-		s.playerX, s.playerY = 0, (setup.projectile == "baton") and s.forwardY or setup.lineY
+		s.playerX, s.playerY = 0, s.forwardY
 	end
 	s.stanceSide, s.stanceKind = setup.side, setup.projectile
 	freshPlan(s)
 	local adv = s.forwardY - s.lineY
 	s.advMeters = (setup.projectile == "baton" and adv > 0.05) and adv or nil
 	s.advText = s.advMeters and fmt("ADVANTAGE LINE  %.1f M", s.advMeters) or nil
+	-- a Kid match: the line is the Kid line unless the advantage line is beyond it
+	if s.kidY and s.forwardY - s.lineY > 0.05 and (not s.advY or s.advY <= s.kidY + 1e-9) then
+		s.advText = fmt("KID LINE  %.1f M", s.kidY - s.lineY)
+	end
 	s.markerFixed = false
 	if setup.projectile == "kubb" then
 		if not (s.drill and s.markerSide == setup.side) then

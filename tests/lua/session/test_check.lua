@@ -100,7 +100,8 @@ local function playVsComputer(seed, o)
 		wind = ({ "off", "light", "strong" })[seed % 3 + 1], maxTurns = o.maxTurns or 8,
 		surface = ({ "grass", "sand", "snow" })[seed % 3 + 1],
 		teams = { A = { name = "Ada", players = { { name = "Ada", level = "club", key = "m1" } } },
-			B = { name = "Computer", players = { { name = "Computer" } } } } }
+			B = { name = "Computer", players = { { name = "Computer" } } } },
+		computer = o.computer }
 	local s0 = copy(setup)
 	s0.mode = "match"
 	local s = session.new(s0)
@@ -144,7 +145,7 @@ end
 
 local MATCHES = {}
 local function match(seed, o)
-	local key = seed .. (o and o.touch and "t" or "")
+	local key = seed .. (o and o.touch and "t" or "") .. (o and o.computer or "")
 	MATCHES[key] = MATCHES[key] or playVsComputer(seed, o)
 	return MATCHES[key]
 end
@@ -255,6 +256,30 @@ test("checkThrow takes every person's throw the dial made: pointer and touch, ev
 	expect.truthy(kubbs > 10, "kubbs: " .. kubbs)
 	expect.truthy(touch > 15, "touch throws: " .. touch)
 	expect.truthy(lv.beginner and lv.club and lv.pro, "every level fits some throw")
+end)
+
+-- A Kid match (0.15.0): the person throws on the Kid meter, and the check holds each
+-- throw to that meter (a soft flick forgiven, the wider bars), the computer's to the Kid
+-- computer's; the whole replay checks and ends.
+test("a Kid match: checkThrow holds a person's throws to the Kid meter, and the replay checks", function()
+	local n = 0
+	for _, k in ipairs { { 7 }, { 8, true }, { 9 }, { 10, true } } do
+		local m = match(k[1], { touch = k[2], computer = "kid" })
+		expect.eq(m.final.opts.rules, "kid")
+		for _, t in ipairs(m.throws) do
+			local s = session.restore(t.before)
+			expect.eq(s.ts.meter, "kid")
+			local res = check.throw(s, t.action)
+			expect.truthy(res.ok, "seed " .. k[1] .. " action " .. t.i .. ": " .. tostring(res.why))
+			n = n + 1
+		end
+		local r = replay.new { start = m.start, log = noH(m.log), checkCpu = true, checkThrows = true }
+		local info = r:finish()
+		expect.eq(info.forged, false, tostring(info.forgedWhy))
+		expect.eq(info.outOfBounds, false, tostring(info.outOfBoundsWhy))
+		expect.truthy(info.over, "the Kid match ends")
+	end
+	expect.truthy(n > 20, "throws checked: " .. n)
 end)
 
 test("checkThrow refuses a throw at 30 m/s and other throws the dial cannot make", function()

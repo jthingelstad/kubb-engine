@@ -27,7 +27,7 @@ local versus = {}
 local pitch = tw.pitch
 local huge = math.huge
 
-versus.LEVELS = { beginner = true, club = true, pro = true }
+versus.LEVELS = { kid = true, beginner = true, club = true, pro = true }
 versus.THROWERS = { cpu = true, human = true }
 
 -- Gym-only raising policies (the engine's are tw.raising.policies). Each keeps a row
@@ -68,7 +68,7 @@ function versus.parse(str, label)
 			if seen[k] then error("versus: team " .. label .. ": " .. k .. " given twice", 0) end
 			seen[k] = true
 			if k == "level" then
-				if not versus.LEVELS[v] then error("versus: team " .. label .. ": level beginner, club or pro, got " .. v, 0) end
+				if not versus.LEVELS[v] then error("versus: team " .. label .. ": level kid, beginner, club or pro, got " .. v, 0) end
 				spec.level = v
 			elseif k == "thrower" then
 				if not versus.THROWERS[v] then error("versus: team " .. label .. ": thrower cpu or human, got " .. v, 0) end
