@@ -279,7 +279,10 @@ the rest (docs/SESSION.md "Kid matches", docs/PITCH.md difference 9).
 
 0.15.1 is 0.15.0 with the Tournament's neighbouring pitches (docs/SESSION.md
 "Neighbours", docs/notes/tournament.md). No hash moves, so it shares matches with 0.15.0.
-Sync `v0.15.1` in place of `v0.15.0`; nothing must change. The neighbours are worth
+Sync `v0.15.1` in place of `v0.15.0`; nothing must change. Two Kid fixes come with it,
+and a client that worked round them may stop: the wide view now turns `kidY` for Team B
+(draw the far side's Kid line from it), and a counted helicopter's `result.flag` is what
+it knocked down, so the flag need not be rebuilt from the ruling codes. The neighbours are worth
 showing in the Tournament scene (and any scene that wants a field around it), and this is
 the whole of what it takes. The numbers below are measured (docs/notes/tournament.md
 "What it costs").

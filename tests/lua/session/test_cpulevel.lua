@@ -289,6 +289,25 @@ test("the Kid computer makes a Kid match: the rules, the meter, the view", funct
 	for _, x in ipairs(nc2.refused) do
 		expect.truthy(x.kind == "team" or x.kind == "player", "the Kid words are allowed: " .. json.encode(x))
 	end
+	-- a helicopter counts in a Kid match, so its recording's flag says what it did, never
+	-- HELICOPTER (0.15.1; the standard game's flag is unchanged)
+	for _, kidMatch in ipairs { true, false } do
+		local h = vsComputer { computer = kidMatch and "kid" or "club", first = "A" }
+		local c = autothrow.choose(h.setup, autothrow.rng(42), 1)
+		tw.web.throw.showAim(h.ts, c)
+		local L, how = tw.web.throw.cpuLaunch(h.ts, c)
+		h.ts.playerX, h.ts.playerY = c.x, c.y
+		L.tilt, L.legal = 80, false
+		local out = h:apply(json.decode(json.encode(h:throwAction(L, how, { scripted = true, back = c.swing.back,
+			stop = c.swing.releaseAngle }))))
+		local flag = out.recording.result.flag
+		if kidMatch then
+			expect.truthy(flag == "MISS" or flag:find(" DOWN$"), "a Kid helicopter's flag: " .. tostring(flag))
+			expect.truthy(h.m.text:find("helicopter: counted", 1, true), h.m.text)
+		else
+			expect.eq(flag, "HELICOPTER")
+		end
+	end
 	-- the Kid computer with nobody to play (pass and play): no Kid rules; asked outright: yes
 	local pp = session.new { mode = "match", seed = 3, start = START, computer = "kid" }
 	expect.eq(pp.opts.rules, nil)

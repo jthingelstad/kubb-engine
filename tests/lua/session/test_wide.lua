@@ -198,8 +198,9 @@ test("un-turning is the frame's half turn, and A's frame is left alone", functio
 	expect.eq(it.x, 1.2, "the session's own table is not changed")
 	local a = wide.items("A", { it })[1]
 	expect.eq(a.x, 1.2)
-	local aim = wide.aim("B", { advY = 2, thrower = { x = 0.5, y = 0 }, marker = { x = 0, y = 7, r = 0.25 } })
+	local aim = wide.aim("B", { advY = 2, kidY = 2, thrower = { x = 0.5, y = 0 }, marker = { x = 0, y = 7, r = 0.25 } })
 	expect.near(aim.advY, 6, 1e-12)
+	expect.near(aim.kidY, 6, 1e-12, "the Kid line turns with the advantage line (0.15.1)")
 	expect.near(aim.thrower.y, 8, 1e-12)
 	expect.near(aim.marker.y, 1, 1e-12)
 	expect.near(aim.marker.r, 0.25, 1e-12)
