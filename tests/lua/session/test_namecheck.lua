@@ -224,6 +224,24 @@ test("names.check: the reviewer's forgery (generated opts, typed save) is caught
 	forged(e, "save.game.teams.A.players[0].name", "a typed name with its id")
 end)
 
+test("two sides with one name: an honest resignation is allowed (Player 1 resigned: Player 1 wins)", function()
+	-- as a pitch makes it: one unnamed player a side, each "Player 1", each side named after its player
+	local one = { name = "Player 1", players = { { name = "Player 1" } } }
+	local run = play({ seed = 3, cpu = {}, raising = "auto", maxTurns = 12, resignAt = 6,
+		teams = { A = copy(one), B = copy(one) } })
+	local sawRuling = false
+	for i, snap in ipairs(run.snaps) do
+		local rep = call("names.check", { snap = snap })
+		expect.truthy(rep.allowed, "snapshot " .. i .. ": " .. json.encode(rep.refused))
+		for _, l in ipairs(rep.lines) do
+			if l.text == "Player 1 resigned: Player 1 wins" then sawRuling = true end
+		end
+	end
+	expect.truthy(sawRuling, "the match ended on the resignation ruling")
+	local last = run.snaps[#run.snaps]
+	expect.truthy(call("restore", { snap = last, names = "check" }), "and the strict restore takes it")
+end)
+
 test("a place is safe to show: a forged key never reaches the report's place or the strict error", function()
 	local d = base()
 	d["Anything Typed"] = "x"

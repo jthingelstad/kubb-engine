@@ -135,9 +135,11 @@ local function isDown(v)
 	return field(inner) or base(inner)
 end
 local function isRuling(v, teams)
-	for _, t in ipairs(teams) do
-		for _, u in ipairs(teams) do
-			if t ~= u and v == t .. " resigned: " .. u .. " wins" then return true end
+	-- (by side, not by name: two sides may share a name, as two unnamed players are both
+	-- "Player 1", and then the engine writes "Player 1 resigned: Player 1 wins")
+	for i, t in ipairs(teams) do
+		for j, u in ipairs(teams) do
+			if i ~= j and v == t .. " resigned: " .. u .. " wins" then return true end
 		end
 	end
 	for part in (v .. "; "):gmatch("(.-); ") do
