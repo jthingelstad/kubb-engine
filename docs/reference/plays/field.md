@@ -133,6 +133,51 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Engine:** not modelled (0.11.0). The arc and speed come from the distance alone.
 - **Gym:** nothing yet.
 
+## field.drive: Low and hard into a close group
+
+- **When:** field, a baton at the front kubb of a group (another standing field kubb within
+  about 45 cm of it), the front kubb within about 5 m of the stance: from the advantage
+  line above all, and at a group 4 to 5 m out from the baseline.
+- **Play:** Throw low and hard, flat or a little down, the baton straight out of the hand
+  without a flip, into the front kubb's face, so the struck kubb is driven into the ones
+  behind it and the baton carries on into the group.
+- **Why:** A tight group passes a blow on; the harder and lower the baton meets the front
+  kubb, the more it carries into the next. At a group close in a soft lob meets one kubb
+  and stops. The owner's two reports are of the default arc failing exactly there.
+- **Says who:** owner-2026-11-22#s1, owner-2026-11-22#s2, owner-2026-11-22#s3 (Jamie);
+  ko-2017-blasting#p1.5 (Kyle Weakland: power matters most against a tight group);
+  ko-2017-roles#p1.5 (a blaster photographed crouched low in his follow-through)
+- **Basis:** owner, player
+- **Against:** ko-2017-blasting#p1.6, ko-2017-blasting#p1.23: Weakland throws at light to
+  medium power because he cannot throw hard and still hit, and a miss is the worst result
+  (`field.sure`). ko-2017-blasting#p1.3: his damage comes from the baton whipping round
+  after contact, not from one kubb driven into another. `field.corner` and `field.power`
+  are the finesse half of the same choice. Q18 asks whether a target's kind may set the
+  default arc at all.
+- **Levels:** Proposed: club and pro for the computer (`cpu.tune.drive`), not beginner or
+  kid. A person gets it as the default at a field kubb from 0.16.0, at every level.
+- **Engine:** the person's throw from 0.16.0 (docs/notes/throw.md "The drive": ARC under
+  half past 5, the floor, no flip, a field kubb's default arc). The computer's built
+  switched off in 0.16.0 (`core/cpu` decideBaton: at a group within `maxM` it plans
+  `plan.arcFor("field", d)` instead of the shared line; named in `why.facts.drive`,
+  `why.play` and `core/plays` take it when it is switched on). On two hand-written
+  positions after the owner's reports (`tools/driveprobe.lua`, 300 jittered throws) the
+  drive fells 1.93 and 1.95 kubbs a baton against 1.60 and 1.67 on the old default, and
+  two or more 65% and 90% against 57% and 64%; the MuJoCo reference agrees on what such
+  throws fell (docs/notes/throw.md "The force carried into a group").
+- **Gym:** `gym versus`, 300 seeds both ways round, grass, 0.16.0 (2026-11-22). Club with
+  the drive against club without: 62.1% (58.8 to 65.4); pro with against pro without:
+  60.3% (57.1 to 63.4). Switched on at both (`--set cpu.tune.drive.on=1`, 300 matches a
+  configuration): club's turns a game 14.3 to 12.8 (target 8 to 14), three or more 1.9% to
+  3.1% (3 to 7), two 13.8% to 15.2% (8 to 13), turns cleared 70.9% to 74.7% (68 to 80);
+  pro's turns 12.3 to 10.7 (6 to 10), three or more 6.8% to 9.2% (12 to 18), turns cleared
+  78.5% to 84.0% (87 to 94); base kubbs from 8 m and the king unchanged. Club with it
+  against pro with it: 5.3% (3.5 to 7.2), about where club stood against pro without it
+  (3 in 100 on 0.12.0). Ready to be
+  switched on at club and pro in its own pull request; it also answers the person's
+  drive, which took the Gym's human thrower at club from 48.5% to 69.2% against the club
+  computer (62.8% against club with the drive): docs/notes/gym.md "The drive".
+
 ## field.roles: The group first, then the ones left
 
 - **When:** field, a group and one or more single kubbs.
