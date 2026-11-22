@@ -141,6 +141,35 @@ by where every kubb lies once they are all thrown, and they come last.
 - **A rescue is judged at the end too:** an established kubb knocked out and knocked back in
   before the round ends stays where it lies, no `Q`.
 
+### The Kid rules (0.15.0)
+
+A game made with `rules = "kid"` (`rules.new`, `match.new`; kept as `g.rules`, so a save
+keeps it; absent in every game before 0.15) plays the Kid rules, `rules.kid`
+(docs/notes/kid-mode.md has the owner's decision and every choice):
+
+- Three base kubbs a side, `a1`..`a3` and `b1`..`b3` at `rules.kid.baseX` (x = -1, 0, 1);
+  `rules.baseXFor(g.rules)` gives a game's spots (core/cards draws its slots from it).
+  `g:census().total` is 6.
+- `need()`'s `throwY` for a toss is the Kid line (`g:kidLineY(side)`: `rules.kid.line`, 2 m,
+  in front of the attacker's baseline), and for a baton at a kubb `g:kidThrowY(side)`: the
+  Kid line or the advantage line, whichever is further from the baseline. The king shot's
+  is the baseline. `match.setup` gives `s.kid = true`, `s.kidY` (the Kid line, view frame)
+  and `s.forwardY` from `throwY` for every kubb and every baton but the king shot. The
+  sheet's advantage (`A`) is written exactly as in a standard game.
+- `throwBaton` ignores `illegal` (a note `bN helicopter; counted (kid rules)`), and a king
+  toppled before every kubb is down is stood back up where it was (its `moved` pose is not
+  applied) with a note `bN knocked the king down early; stood back up (kid rules)`; the
+  rest of the throw is ruled as if it had stood, so its token has no `E` and the game goes
+  on. `toss` does the same for a kubb thrown in that topples the king (`a kubb thrown in
+  knocked the king down; stood back up (kid rules)`).
+- A kubb out twice joins the punishment queue as before, but `P` is not inked and the
+  punish phase places each at once (`Game:_placeFair`: `raising.fairSpot`, else the
+  standard automatic spot if no fair spot is free), with a note and `t.placed` on the
+  sheet's turn; `need()` never asks for a punishment kubb. `g.judgment.punish` still counts
+  them (match.resolve says "out twice: stood at the fair spot", code `placed`).
+- The rest of the rules (II.B.4a, II.B.7, II.B.11, II.C.4b, rescues, rethrows, raising) are
+  the standard ones.
+
 ## Notation conventions
 
 `core/notation.lua` keeps the score sheet as the engine runs and renders the game file
@@ -157,6 +186,11 @@ reads). pk-kubb-score owns the notation; the engine owns its writer, the rules a
 statistics, and depends on pk-kubb-score one way. Times are `{ year, month, day, hour, min }` tables passed in (no `os.time` in core);
 `tw.notation.filename(start, teamA, teamB)` gives `YYYY-MM-DD-HHMM-<a>-v-<b>.txt`.
 
+- **A Kid game** (0.15.0): `[Rules "Kid rules, 2-4-6: three base kubbs; ..."]` (or "six
+  from the start") and `[Base kubbs "3"]`; no `E` for a king stood back up, no `P` for a
+  kubb stood at the fair spot (and no pitch line that turn: `t.placed`), a helicopter
+  written as what it did; notes say each (docs/notes/kid-mode.md "What the game file
+  says").
 - **`[Throw Levels]`** (since 0.13.2) names the computer's players only, each with the
   level it throws at: `[Throw Levels "computer pro"]` against a person, every player
   computer against computer (`"k pro, m club, playdate beginner"`), and no header when no

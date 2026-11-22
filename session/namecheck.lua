@@ -99,6 +99,9 @@ local NOTES = set {
 	"king toppled by a thrown kubb",
 	"a kubb hit a field kubb in the thrower's own half (II.C.4b)",
 	"resigned during the inkast",
+	-- the Kid rules (0.15.0, core/rules rules.kid)
+	"a kubb thrown in knocked the king down; stood back up (kid rules)",
+	"a kubb out twice was stood at the fair spot, no punishment kubb (kid rules)",
 }
 local NOTE_PATTERNS = {
 	"^b%d+ illegal throw toppled the king early$",
@@ -109,6 +112,8 @@ local NOTE_PATTERNS = {
 	"^b%d+ toppled %d+ base kubbs early; raised %(II%.B%.4a%)$",
 	"^b%d+ pushed a kubb out without toppling; put back %(II%.B%.7%)$",
 	"^b%d+ pushed %d+ kubbs out without toppling; put back %(II%.B%.7%)$",
+	"^b%d+ knocked the king down early; stood back up %(kid rules%)$",
+	"^b%d+ helicopter; counted %(kid rules%)$",
 }
 local function isNote(v)
 	if NOTES[v] then return true end
@@ -123,8 +128,12 @@ local RULING = set {
 	"base kubb early: raised", "pushed out: put back", "own half hit: kubb out", "kubb out for now",
 	"kubb in for now", "own half hit", "kubb in", "all in", "kubb out: rethrown",
 	"out twice: punishment kubb", "on a kubb: lowered", "rescue",
+	-- the Kid rules (0.15.0)
+	"king down: stood back up", "king down early: stood back up", "helicopter: counted",
+	"out twice: stood at the fair spot",
 }
-local RULING_PATTERNS = { "^%d+ out: rethrown$", "^%d+ punishment kubbs$", "^%d+ rescues$" }
+local RULING_PATTERNS = { "^%d+ out: rethrown$", "^%d+ punishment kubbs$", "^%d+ rescues$",
+	"^%d+ out twice: stood at the fair spot$" }
 local function isDown(v)
 	local inner = v:match("^(.+) down$")
 	if not inner then return false end
@@ -264,6 +273,7 @@ RULES[".mem.markerSide"] = side
 RULES[".mem.stanceSide"] = side
 RULES[".mem.stanceKind"] = enum(set { "baton", "kubb" }, "not a projectile")
 RULES[".opts.computer"] = level
+RULES[".opts.rules"] = enum(set { "kid" }, "not a rule set")
 RULES[".opts.cpu[]"] = side
 RULES[".opts.first"] = side
 RULES[".opts.opening"] = enum(OPENINGS, "not an opening")
@@ -295,6 +305,7 @@ RULES[".save.game.kubbs.{}.where"] = enum(WHERE, "not a place")
 RULES[".save.game.lastTosser"] = pid
 RULES[".save.game.opening"] = enum(OPENINGS, "not an opening")
 RULES[".save.game.phase"] = enum(PHASES, "not a phase")
+RULES[".save.game.rules"] = enum(set { "kid" }, "not a rule set")
 RULES[".save.game.raisePolicy"] = function(v) return raising.policies[v] ~= nil, "not a raising policy" end
 RULES[".save.game.surface"] = enum(SURFACES, "not a surface")
 RULES[".save.game.sheet.turns[].batons[].player"] = pid

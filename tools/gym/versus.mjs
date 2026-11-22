@@ -9,7 +9,7 @@ import { execFileSync } from 'node:child_process';
 import * as score from './score.mjs';
 import { runPool, root, LUA } from './pool.mjs';
 
-const LEVELS = ['beginner', 'club', 'pro'];
+const LEVELS = ['kid', 'beginner', 'club', 'pro'];
 const THROWERS = ['cpu', 'human'];
 
 // A team's spec: "level=pro;thrower=cpu;raise=apart;autothrow.tune.inkast.pro.row=0"
@@ -122,6 +122,7 @@ function workerArgs(o, A, B, surface, swap, from, to, extra) {
     '--maxturns', String(o.maxturns)];
   if (A.thrower === 'human' || B.thrower === 'human') a.push('--model', o.model);
   for (const s of o.sets || []) a.push('--set', s);
+  if (o.rules) a.push('--rules', o.rules);
   if (o.engine) a.push('--engine', o.engine);
   return a.concat(extra);
 }
@@ -133,6 +134,7 @@ export function versusRepro(o, A, B, surface, swap, t) {
     `--surface ${surface}`, `--seed ${o.seed}`, `--maxturns ${o.maxturns}`];
   if (A.thrower === 'human' || B.thrower === 'human') parts.push(`--model ${rel(o.model)}`);
   for (const s of o.sets || []) parts.push(`--set ${s}`);
+  if (o.rules) parts.push(`--rules ${o.rules}`);
   if (o.engine) parts.push(`--engine ${rel(o.engine)}`);
   parts.push(`--repro ${t.m}:${t.t}`);
   return parts.join(' ');

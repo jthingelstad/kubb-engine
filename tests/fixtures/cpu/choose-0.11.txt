@@ -322,7 +322,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.77491507099467805
-case 5 toss side=B level=kid thrower=nil scale=0 tune=nil pieces=1
+case 5 toss side=B level=toddler thrower=nil scale=0 tune=nil pieces=1
 a.drill.markerX = -1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 43.0
@@ -403,7 +403,7 @@ a.tumbleRate = 0
 a.x = -1.8999999999999999
 a.y = 0
 next = 0.20915136226373851
-case 6 toss side=A level=kid thrower=nil scale=1 tune=nil pieces=1
+case 6 toss side=A level=toddler thrower=nil scale=1 tune=nil pieces=1
 a.drill.markerX = 1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 42.904452179475619
@@ -1367,7 +1367,7 @@ a.tumbleRate = 3.2817877119377199
 a.x = -0.047665461339056497
 a.y = 0
 next = 0.91507640985313465
-case 18 baton side=A level=kid thrower=nil scale=1 tune=nil pieces=10
+case 18 baton side=A level=toddler thrower=nil scale=1 tune=nil pieces=10
 a.launch.back = 114.19553910712602
 a.launch.legal = true
 a.launch.lenM = -0.00085797354602541493
@@ -3264,7 +3264,7 @@ a.tumbleRate = 5.4978172453798999
 a.x = -2.1022313348483292
 a.y = 0
 next = 0.78949483883520111
-case 43 baton side=B level=kid thrower=nil scale=1.7 tune=nil pieces=8
+case 43 baton side=B level=toddler thrower=nil scale=1.7 tune=nil pieces=8
 a.launch.back = 119.06226218636095
 a.launch.legal = true
 a.launch.lenM = 0.013971879150167718
@@ -3564,7 +3564,7 @@ a.tumbleRate = 4.8133455033474943
 a.x = -0.030374411121010782
 a.y = 0
 next = 0.11740879585725143
-case 47 baton side=B level=kid thrower=nil scale=0 tune=nil pieces=7
+case 47 baton side=B level=toddler thrower=nil scale=0 tune=nil pieces=7
 a.launch.back = 131.2537262134972
 a.launch.legal = true
 a.launch.lenM = 0.0
@@ -4026,7 +4026,7 @@ a.tumbleRate = 0
 a.x = -1.663966855406761
 a.y = 0
 next = 0.995133463754443
-case 53 toss side=B level=kid thrower=nil scale=0 tune=nil pieces=2
+case 53 toss side=B level=toddler thrower=nil scale=0 tune=nil pieces=2
 a.drill.markerX = -1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 43.0
@@ -5485,7 +5485,7 @@ a.tumbleRate = 0
 a.x = -1.3374799298122524
 a.y = 0
 next = 0.846785995035233
-case 72 toss side=A level=kid thrower=nil scale=0 tune=row0 pieces=1
+case 72 toss side=A level=toddler thrower=nil scale=0 tune=row0 pieces=1
 a.drill.markerX = -1.6773878761567174
 a.drill.markerY = 5.0034856313595304
 a.drill.noseDown = 43.0
@@ -6871,7 +6871,7 @@ a.tumbleRate = 4.306294104124432
 a.x = -1.0078384960535913
 a.y = 0
 next = 0.90292643886332069
-case 90 baton side=A level=kid thrower=nil scale=1 tune=nil pieces=7
+case 90 baton side=A level=toddler thrower=nil scale=1 tune=nil pieces=7
 a.launch.back = 133.29949381638627
 a.launch.legal = true
 a.launch.lenM = -0.063137790811057692
@@ -7017,7 +7017,7 @@ a.tumbleRate = 6.0440118762835855
 a.x = 0.0031192076951265316
 a.y = 0
 next = 0.47133446761531239
-case 92 toss side=A level=kid thrower=nil scale=nil tune=nil pieces=6
+case 92 toss side=A level=toddler thrower=nil scale=nil tune=nil pieces=6
 a.drill.markerX = 1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 43.091054843797863
@@ -7179,7 +7179,7 @@ a.tumbleRate = 0
 a.x = 1.3375996359623967
 a.y = 0
 next = 0.82692683146048973
-case 94 toss side=A level=kid thrower=nil scale=1.7 tune=nil pieces=6
+case 94 toss side=A level=toddler thrower=nil scale=1.7 tune=nil pieces=6
 a.drill.markerX = -1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 42.856420603241638
@@ -7341,7 +7341,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.98256446931749997
-case 96 toss side=A level=kid thrower=nil scale=1 tune=nil pieces=2
+case 96 toss side=A level=toddler thrower=nil scale=1 tune=nil pieces=2
 a.drill.markerX = 1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 43.181829863660411
@@ -8192,7 +8192,7 @@ a.tumbleRate = 5.3554057930714816
 a.x = -0.0068565433844924861
 a.y = 1.7001673686318099
 next = 0.081267092452633277
-case 107 baton side=B level=kid thrower=nil scale=1 tune=nil pieces=2
+case 107 baton side=B level=toddler thrower=nil scale=1 tune=nil pieces=2
 a.launch.back = 117.35863137570169
 a.launch.legal = true
 a.launch.lenM = 0.015981213170540746
@@ -8484,7 +8484,7 @@ a.tumbleRate = 4.5479452879467042
 a.x = 1.9522592909634113
 a.y = 0
 next = 0.75722956960762811
-case 111 baton side=B level=kid thrower=nil scale=0.3 tune=nil pieces=7
+case 111 baton side=B level=toddler thrower=nil scale=0.3 tune=nil pieces=7
 a.launch.back = 130.91673377671702
 a.launch.legal = true
 a.launch.lenM = -0.15254622222171826
@@ -8557,7 +8557,7 @@ a.tumbleRate = 3.6849156783402583
 a.x = 1.0188976318109781
 a.y = 0
 next = 0.81576927780711028
-case 112 baton side=A level=kid thrower=nil scale=1 tune=nil pieces=8
+case 112 baton side=A level=toddler thrower=nil scale=1 tune=nil pieces=8
 a.launch.back = 111.51533727512667
 a.launch.legal = true
 a.launch.lenM = -0.045760825950085592
@@ -9035,7 +9035,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.49230689554690094
-case 118 baton side=A level=kid thrower=nil scale=0.3 tune=nil pieces=12
+case 118 baton side=A level=toddler thrower=nil scale=0.3 tune=nil pieces=12
 a.launch.back = 112.4402631325945
 a.launch.legal = true
 a.launch.lenM = 0.0021816759200304751
@@ -9505,7 +9505,7 @@ a.tumbleRate = 5.8324650064048873
 a.x = 1.7901239206083117
 a.y = 0
 next = 0.23427185158643113
-case 124 baton side=A level=kid thrower=nil scale=1.7 tune=nil pieces=8
+case 124 baton side=A level=toddler thrower=nil scale=1.7 tune=nil pieces=8
 a.launch.back = 130.34423817052746
 a.launch.legal = true
 a.launch.lenM = -0.44220629052611043
@@ -9724,7 +9724,7 @@ a.tumbleRate = 6.3649120664337664
 a.x = -2.049033964704722
 a.y = 0.32713392283767462
 next = 0.42469926916500483
-case 127 baton side=B level=kid thrower=nil scale=nil tune=nil pieces=6
+case 127 baton side=B level=toddler thrower=nil scale=nil tune=nil pieces=6
 a.launch.back = 72.095216675335735
 a.launch.legal = true
 a.launch.lenM = 0.0020182181196095393
@@ -9797,7 +9797,7 @@ a.tumbleRate = 10.581488770468436
 a.x = 1.8377568155527113
 a.y = 3.1387644088827074
 next = 0.82725592174311724
-case 128 baton side=A level=kid thrower=nil scale=1 tune=nil pieces=7
+case 128 baton side=A level=toddler thrower=nil scale=1 tune=nil pieces=7
 a.launch.back = 116.55715990096428
 a.launch.legal = true
 a.launch.lenM = 0.03186535213433659
@@ -10478,7 +10478,7 @@ a.tumbleRate = 0
 a.x = -1.2948554408736526
 a.y = 0
 next = 0.38402140921356287
-case 137 toss side=B level=kid thrower=nil scale=0 tune=nil pieces=7
+case 137 toss side=B level=toddler thrower=nil scale=0 tune=nil pieces=7
 a.drill.markerX = 2.1162413965910671
 a.drill.markerY = 5.189929053385816
 a.drill.noseDown = 43.0
@@ -12731,7 +12731,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.46244323389832231
-case 166 toss side=A level=kid thrower=nil scale=0.3 tune=nil pieces=8
+case 166 toss side=A level=toddler thrower=nil scale=0.3 tune=nil pieces=8
 a.drill.markerX = -1.6413270272314548
 a.drill.markerY = 5.7579001879651512
 a.drill.noseDown = 42.944546803982092
@@ -13939,7 +13939,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.58547423135999055
-case 182 toss side=A level=kid thrower=nil scale=nil tune=nil pieces=6
+case 182 toss side=A level=toddler thrower=nil scale=nil tune=nil pieces=6
 a.drill.markerX = -1.738646193128079
 a.drill.markerY = 4.529386175402033
 a.drill.noseDown = 42.99199266558832
@@ -14790,7 +14790,7 @@ a.tumbleRate = 10.933124883187121
 a.x = -2.0081120406230912
 a.y = 2.6702878952492028
 next = 0.65438188394008379
-case 193 baton side=B level=kid thrower=nil scale=1 tune=nil pieces=5
+case 193 baton side=B level=toddler thrower=nil scale=1 tune=nil pieces=5
 a.launch.back = 131.65889300757226
 a.launch.legal = true
 a.launch.lenM = 0.1979680916225853
@@ -16184,7 +16184,7 @@ a.tumbleRate = 10.426420593792354
 a.x = -1.7028088313154877
 a.y = 3.1067859993781894
 next = 0.67676013817708958
-case 211 baton side=B level=kid thrower=nil scale=1 tune=nil pieces=8
+case 211 baton side=B level=toddler thrower=nil scale=1 tune=nil pieces=8
 a.launch.back = 112.69312786637688
 a.launch.legal = true
 a.launch.lenM = 0.004128975740155626
@@ -17173,7 +17173,7 @@ a.tumbleRate = 0
 a.x = -1.8999999999999999
 a.y = 0
 next = 0.6806290644971924
-case 224 toss side=A level=kid thrower=nil scale=0 tune=nil pieces=2
+case 224 toss side=A level=toddler thrower=nil scale=0 tune=nil pieces=2
 a.drill.markerX = 1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 43.0
@@ -18924,7 +18924,7 @@ a.tumbleRate = 4.2884117498098231
 a.x = 0.97517329850234091
 a.y = 0
 next = 0.82937570086622214
-case 247 toss side=B level=kid thrower=nil scale=1 tune=nil pieces=2
+case 247 toss side=B level=toddler thrower=nil scale=1 tune=nil pieces=2
 a.drill.markerX = -2.0915113884955643
 a.drill.markerY = 5.2572010455142903
 a.drill.noseDown = 43.031404635554999
@@ -19086,7 +19086,7 @@ a.tumbleRate = 0
 a.x = -1.4360206657089292
 a.y = 0
 next = 0.92024808555864546
-case 249 toss side=B level=kid thrower=nil scale=1.7 tune=nil pieces=9
+case 249 toss side=B level=toddler thrower=nil scale=1.7 tune=nil pieces=9
 a.drill.markerX = -1.930529942922294
 a.drill.markerY = 4.8062320552207529
 a.drill.noseDown = 43.006029511253843
@@ -20213,7 +20213,7 @@ a.tumbleRate = 0
 a.x = -1.2970281740650533
 a.y = 0
 next = 0.92411756229039055
-case 264 toss side=A level=kid thrower=nil scale=0.3 tune=nil pieces=8
+case 264 toss side=A level=toddler thrower=nil scale=0.3 tune=nil pieces=8
 a.drill.markerX = 1.9699741915799676
 a.drill.markerY = 4.3733137452128297
 a.drill.noseDown = 42.941034836684274
@@ -20934,7 +20934,7 @@ a.tumbleRate = 7.4625705403743741
 a.x = 2.1746163835749028
 a.y = 3.2698695447761565
 next = 0.33860367661211982
-case 273 toss side=B level=kid thrower=nil scale=nil tune=nil pieces=7
+case 273 toss side=B level=toddler thrower=nil scale=nil tune=nil pieces=7
 a.drill.markerX = -1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 43.181037957005763
@@ -22069,7 +22069,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.17337369376176381
-case 288 toss side=A level=kid thrower=nil scale=1 tune=nil pieces=8
+case 288 toss side=A level=toddler thrower=nil scale=1 tune=nil pieces=8
 a.drill.markerX = 1.9401737001724539
 a.drill.markerY = 4.9738835419934082
 a.drill.noseDown = 42.690487131139598
@@ -23439,7 +23439,7 @@ a.tumbleRate = 0
 a.x = -1.6589724523946641
 a.y = -0.49070951296016574
 next = 0.36339051449987153
-case 306 toss side=A level=kid thrower=nil scale=1 tune=nil pieces=10
+case 306 toss side=A level=toddler thrower=nil scale=1 tune=nil pieces=10
 a.drill.markerX = 1.8999999999999999
 a.drill.markerY = 4.5899999999999999
 a.drill.noseDown = 42.789608863878691
@@ -23682,7 +23682,7 @@ a.tumbleRate = 0
 a.x = 1.2170247308909892
 a.y = 0
 next = 0.035203902083638966
-case 309 toss side=B level=kid thrower=nil scale=1.7 tune=nil pieces=0
+case 309 toss side=B level=toddler thrower=nil scale=1.7 tune=nil pieces=0
 a.drill.markerX = -1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 42.25335963882992
@@ -24533,7 +24533,7 @@ a.tumbleRate = 7.5516043675715965
 a.x = 2.2961793478578327
 a.y = 1.8272058060392737
 next = 0.31448259932406486
-case 320 baton side=A level=kid thrower=nil scale=1 tune=nil pieces=3
+case 320 baton side=A level=toddler thrower=nil scale=1 tune=nil pieces=3
 a.launch.back = 89.883048462137864
 a.launch.legal = true
 a.launch.lenM = 0.00070784428655713339
@@ -24825,7 +24825,7 @@ a.tumbleRate = 3.9044986506284878
 a.x = -1.0273914986755699
 a.y = 0
 next = 0.87369130400353234
-case 324 baton side=A level=kid thrower=nil scale=1.7 tune=nil pieces=6
+case 324 baton side=A level=toddler thrower=nil scale=1.7 tune=nil pieces=6
 a.launch.back = 130.49620196289578
 a.launch.legal = true
 a.launch.lenM = 0.17691957333905978
@@ -25133,7 +25133,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.64124267188947892
-case 328 toss side=A level=kid thrower=nil scale=nil tune=row0into0 pieces=2
+case 328 toss side=A level=toddler thrower=nil scale=nil tune=row0into0 pieces=2
 a.drill.markerX = 1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 43.258995452008328
@@ -25214,7 +25214,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.15436066608350785
-case 329 toss side=B level=kid thrower=nil scale=1 tune=nil pieces=10
+case 329 toss side=B level=toddler thrower=nil scale=1 tune=nil pieces=10
 a.drill.markerX = 1.8999999999999999
 a.drill.markerY = 4.5899999999999999
 a.drill.noseDown = 42.899042444272482
@@ -25376,7 +25376,7 @@ a.tumbleRate = 0
 a.x = 1.835781397204846
 a.y = 0
 next = 0.60480900072009214
-case 331 toss side=B level=kid thrower=nil scale=0.3 tune=row0 pieces=5
+case 331 toss side=B level=toddler thrower=nil scale=0.3 tune=row0 pieces=5
 a.drill.markerX = -1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 43.095421323996298
@@ -27459,7 +27459,7 @@ a.tumbleRate = 11.256216494916362
 a.x = 1.7226927473209797
 a.y = 2.9007286671549082
 next = 0.82307973953250768
-case 358 toss side=A level=kid thrower=nil scale=nil tune=nil pieces=8
+case 358 toss side=A level=toddler thrower=nil scale=nil tune=nil pieces=8
 a.drill.markerX = 1.3853606164455412
 a.drill.markerY = 4.9694325275355897
 a.drill.noseDown = 43.199494338627694
@@ -27686,7 +27686,7 @@ a.tumbleRate = 6.3497331990532562
 a.x = -1.7042951289098709
 a.y = 0
 next = 0.80010918090130123
-case 361 baton side=B level=kid thrower=nil scale=0 tune=nil pieces=11
+case 361 baton side=B level=toddler thrower=nil scale=0 tune=nil pieces=11
 a.launch.back = 115.80639697599881
 a.launch.legal = true
 a.launch.lenM = 0.0
@@ -28270,7 +28270,7 @@ a.tumbleRate = 8.4751132846532702
 a.x = 0.0029472060408443218
 a.y = 0
 next = 0.51226073085540968
-case 369 baton side=B level=kid thrower=nil scale=0.3 tune=nil pieces=4
+case 369 baton side=B level=toddler thrower=nil scale=0.3 tune=nil pieces=4
 a.launch.back = 79.461751308490946
 a.launch.legal = true
 a.launch.lenM = -0.017402485277531601
@@ -28343,7 +28343,7 @@ a.tumbleRate = 10.172178143597206
 a.x = -1.9667847495991735
 a.y = 3.0550094915088266
 next = 0.91877404685949349
-case 370 toss side=A level=kid thrower=nil scale=nil tune=nil pieces=2
+case 370 toss side=A level=toddler thrower=nil scale=nil tune=nil pieces=2
 a.drill.markerX = -1.4974275512620805
 a.drill.markerY = 5.3572263249532943
 a.drill.noseDown = 42.917976703227161
@@ -28424,7 +28424,7 @@ a.tumbleRate = 0
 a.x = -1.4974275512620805
 a.y = 0
 next = 0.53326145376382528
-case 371 toss side=B level=kid thrower=nil scale=1 tune=nil pieces=10
+case 371 toss side=B level=toddler thrower=nil scale=1 tune=nil pieces=10
 a.drill.markerX = -1.6899942021816967
 a.drill.markerY = 4.9340274381789522
 a.drill.noseDown = 43.090859882942183
@@ -28748,7 +28748,7 @@ a.tumbleRate = 0
 a.x = -1.4594554415903984
 a.y = -0.24786111991852522
 next = 0.22185911445120268
-case 375 toss side=B level=kid thrower=nil scale=1 tune=row0into0 pieces=1
+case 375 toss side=B level=toddler thrower=nil scale=1 tune=row0into0 pieces=1
 a.drill.markerX = -1.8999999999999999
 a.drill.markerY = 4.75
 a.drill.noseDown = 43.104279601131033
@@ -29226,7 +29226,7 @@ a.tumbleRate = 8.5144354670929534
 a.x = -2.032394475676119
 a.y = 0.98914731526747346
 next = 0.66371339248839145
-case 381 baton side=B level=kid thrower=nil scale=nil tune=nil pieces=3
+case 381 baton side=B level=toddler thrower=nil scale=nil tune=nil pieces=3
 a.launch.back = 86.988965557629285
 a.launch.legal = true
 a.launch.lenM = 3.7595478218650824e-05
@@ -29518,7 +29518,7 @@ a.tumbleRate = 7.8386474535194202
 a.x = -1.6290813356451688
 a.y = 2.4188637000042945
 next = 0.9452213053081383
-case 385 baton side=B level=kid thrower=nil scale=nil tune=nil pieces=6
+case 385 baton side=B level=toddler thrower=nil scale=nil tune=nil pieces=6
 a.launch.back = 118.00245123755616
 a.launch.legal = true
 a.launch.lenM = 0.026358686611760402
@@ -30685,7 +30685,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.74525601113704598
-case 400 baton side=A level=kid thrower=nil scale=nil tune=nil pieces=8
+case 400 baton side=A level=toddler thrower=nil scale=nil tune=nil pieces=8
 a.launch.back = 102.96629083896042
 a.launch.legal = true
 a.launch.lenM = 0.0027601021232160601
@@ -30831,7 +30831,7 @@ a.tumbleRate = 8.8885945720917263
 a.x = -1.4737612944049761
 a.y = 2.8646256648935378
 next = 0.042116769628708035
-case 402 baton side=A level=kid thrower=nil scale=1 tune=nil pieces=7
+case 402 baton side=A level=toddler thrower=nil scale=1 tune=nil pieces=7
 a.launch.back = 82.029720530741088
 a.launch.legal = true
 a.launch.lenM = -0.011036690345058326
@@ -31731,7 +31731,7 @@ a.tumbleRate = 0
 a.x = -1.8999999999999999
 a.y = 0
 next = 0.41447031909084908
-case 414 toss side=A level=kid thrower=nil scale=1 tune=nil pieces=10
+case 414 toss side=A level=toddler thrower=nil scale=1 tune=nil pieces=10
 a.drill.markerX = 1.5486901879310606
 a.drill.markerY = 5.0698455416923158
 a.drill.noseDown = 43.297935512639029
@@ -32136,7 +32136,7 @@ a.tumbleRate = 0
 a.x = 1.8999999999999999
 a.y = 0
 next = 0.27280371475294579
-case 419 toss side=B level=kid thrower=nil scale=0.3 tune=nil pieces=10
+case 419 toss side=B level=toddler thrower=nil scale=0.3 tune=nil pieces=10
 a.drill.markerX = -1.8742171169258652
 a.drill.markerY = 4.808199240899687
 a.drill.noseDown = 43.037532376007825
@@ -33109,7 +33109,7 @@ a.tumbleRate = 6.5661818067723843
 a.x = 0.022504660561680795
 a.y = 0
 next = 0.28470699469065947
-case 432 baton side=A level=kid thrower=nil scale=1 tune=nil pieces=8
+case 432 baton side=A level=toddler thrower=nil scale=1 tune=nil pieces=8
 a.launch.back = 108.45536974571039
 a.launch.legal = true
 a.launch.lenM = 0.017385965945103658
@@ -34130,7 +34130,7 @@ a.tumbleRate = 5.5351672879477141
 a.x = -1.267535915817134
 a.y = 0
 next = 0.41528428757124047
-case 445 baton side=B level=kid thrower=nil scale=1 tune=nil pieces=10
+case 445 baton side=B level=toddler thrower=nil scale=1 tune=nil pieces=10
 a.launch.back = 118.38882732555801
 a.launch.legal = true
 a.launch.lenM = 0.047273716747813208
@@ -36246,7 +36246,7 @@ a.tumbleRate = 4.0498338020906868
 a.x = -0.033119716029614207
 a.y = 0
 next = 0.037135355209126468
-case 473 baton side=B level=kid thrower=nil scale=0 tune=nil pieces=8
+case 473 baton side=B level=toddler thrower=nil scale=0 tune=nil pieces=8
 a.launch.back = 131.20908093113573
 a.launch.legal = true
 a.launch.lenM = 0.0

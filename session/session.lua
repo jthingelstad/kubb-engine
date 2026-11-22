@@ -268,6 +268,11 @@ local function matchOptions(o)
 	-- 0.9) and one that names club have the snapshot a match always had; absent, the
 	-- computer throws at club (autothrow.tune.level)
 	if plan.levels[o.computer] and o.computer ~= autothrow.tune.level then out.computer = o.computer end
+	-- the Kid rules (0.15.0, docs/notes/kid-mode.md): the Kid computer makes the match a
+	-- Kid match (the Kid rules for both sides, the Kid meter for a person); `rules = "kid"`
+	-- asks for them outright (pass and play with two children, later). Kept only for a Kid
+	-- match, so every other match has the snapshot a match always had
+	if o.rules == "kid" or (out.computer == "kid" and #cpu > 0) then out.rules = "kid" end
 	-- the scene, a look only (pitch/lobby.isScene): kept only when given, valid and not
 	-- "day", the default, so the start is otherwise the one a match always had. The
 	-- physics and the rules never read it
@@ -296,6 +301,12 @@ end
 -- (session/namecheck reads a replay's setup through it, on a copy: matchOptions fills in
 -- the caller's start table)
 session.matchOptions = matchOptions
+
+-- The meter a match's people throw on (plan.meters): the Kid meter in a Kid match, else
+-- nil (plan.tune.meter, the standard one).
+function session.meterOf(opts)
+	return (opts and opts.rules == "kid") and "kid" or nil
+end
 
 local function isCpu(s, side)
 	for _, c in ipairs(s.opts.cpu or {}) do if c == side then return true end end
@@ -331,7 +342,7 @@ function session.new(o)
 	end
 	s.opts = matchOptions(o)
 	s.seed = s.opts.seed
-	s.ts = throw.new { surface = s.opts.surface, set = s.opts.set }
+	s.ts = throw.new { surface = s.opts.surface, set = s.opts.set, meter = session.meterOf(s.opts) }
 	local mode = s.opts.mode
 	if not mode then
 		local n = #s.opts.cpu
@@ -345,7 +356,7 @@ function session.new(o)
 		teams[side] = { name = t.name, players = ps }
 	end
 	s.m = cmatch.new { start = s.opts.start, surface = SURFACES[s.opts.surface], opening = s.opts.opening,
-		teams = teams, first = s.opts.first, mode = mode, cpu = s.opts.cpu }
+		teams = teams, first = s.opts.first, mode = mode, cpu = s.opts.cpu, rules = s.opts.rules }
 	s.byHand = s.opts.raising == "hand"
 	s.side, s.lastThrower = nil, nil
 	s:advance()
@@ -544,6 +555,10 @@ local function plainSetup(setup)
 		kind = setup.kind, side = setup.side, projectile = setup.projectile, kubb = setup.kubb,
 		n = setup.n, of = setup.of, label = setup.label, kingShot = setup.kingShot or false,
 		rethrow = setup.rethrow or false, lineY = setup.lineY, forwardY = setup.forwardY, advY = setup.advY,
+		-- a Kid match (0.15.0): kid is true and kidY is the Kid line (view frame), which
+		-- every kubb and baton at a kubb is thrown from (forwardY is where the thrower
+		-- may stand up to: the Kid line, or the advantage line beyond it)
+		kid = setup.kid, kidY = setup.kidY,
 		targets = setup.targets, batonId = setup.batonId,
 		-- key: the lineup's key for the player (on the web, the pitch member it belongs to)
 		thrower = setup.thrower and { id = setup.thrower.id, name = setup.thrower.name,
@@ -657,6 +672,8 @@ function Session:need()
 	out.standing = { A = cmatch.standing(self.m, "A"), B = cmatch.standing(self.m, "B") }
 	out.last = self.m.text and { text = self.m.text, short = session.short(self.m.text) } or nil
 	out.resignPending = self.resignPending
+	-- a Kid match (0.15.0, docs/notes/kid-mode.md): a client may say so on screen
+	if self.kind == "match" and self.opts.rules == "kid" then out.kid = true end
 	return out
 end
 
@@ -703,7 +720,7 @@ function Session:aimView()
 		arc = arc,
 		controls = throw.controls(ts),
 		projectile = ts.projectile, drill = ts.drill,
-		lineY = ts.lineY, forwardY = ts.forwardY, advY = ts.advY, advText = ts.advText,
+		lineY = ts.lineY, forwardY = ts.forwardY, advY = ts.advY, advText = ts.advText, kidY = ts.kidY,
 		halfWidth = throw.tune.halfWidth, backMax = throw.tune.backMax,
 		rail = rail,
 		flag = ts.flagText, restText = ts.restText,
@@ -726,7 +743,7 @@ function Session:minimap(items)
 	return {
 		pieces = dots,
 		aim = { x0 = ts.playerX, y0 = ts.playerY, x1 = ts.markerX, y1 = ts.markerY },
-		advY = ts.advY, lineY = ts.lineY,
+		advY = ts.advY, lineY = ts.lineY, kidY = ts.kidY,
 		wind = ts.windText and { x = ts.windX, y = ts.windY, text = ts.windText } or nil,
 	}
 end
@@ -1378,7 +1395,7 @@ function session.restore(text, control, opts)
 	m.cpu = s.opts.cpu
 	s.m = m
 	s.byHand = s.opts.raising == "hand"
-	s.ts = throw.new { surface = s.opts.surface, set = s.opts.set }
+	s.ts = throw.new { surface = s.opts.surface, set = s.opts.set, meter = session.meterOf(s.opts) }
 	setMem(s.ts, d.mem or {})
 	s.side, s.lastThrower = d.side, d.lastThrower
 	if d.settle then

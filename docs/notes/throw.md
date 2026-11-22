@@ -586,8 +586,8 @@ harder.
   projectile (`plan.meterLevel`), kept as the solution's `level`; `plan.launch` reads it
   from there as it reads a level. `throw.levelFor`, `s.level`, `defaultLevel`, a player's
   `level`, `Session:setLevel` and practice's `level` are still taken and kept, and change
-  nothing in a person's throw. A second, wider meter (a Kid mode) would be another entry in
-  `plan.meters` and a `throw.meterFor` that picks it; nothing else needs to change.
+  nothing in a person's throw. A second, wider meter is the Kid meter (0.15.0, below):
+  another entry in `plan.meters`, picked by `throw.meterFor` from the throw state's `meter`.
 - **The bars carry the difficulty by distance.** The half widths are `powerHalf8` (2
   degrees) and `releaseHalf8` (7.5) at 8 m, times `1 + widen x (8 - d)` (`widen` 0.45,
   never under `narrowMin` 0.5), the distance from the stance to the circle held to `nearM`
@@ -687,3 +687,38 @@ A drilled kubb onto the basket's spot (1.9 m out, 4.75 m), one tap of spin, 400 
 
 In the Gym (docs/notes/gym.md "The person's meter") each hand's game rows are set beside
 the reference row it should sit in.
+
+## The Kid meter (0.15)
+
+A Kid match (docs/notes/kid-mode.md) plans and launches every person's throw on
+`plan.meters.kid`: the session gives its throw state `meter = "kid"` (`session.meterOf`) and
+`throw.meterFor(s)` returns `plan.meter(s.meter)`; `checkThrow` holds the throw to the same
+meter (`ctx.meter`). The same shape as the standard meter with other numbers, and one field
+of its own:
+
+| | standard | Kid |
+|---|---|---|
+| `powerHalf8`, `releaseHalf8` (half widths at 8 m) | 2, 7.5 | 11, 30 |
+| `widen` (how much wider a degree a metre nearer) | 0.45 | 0.3 |
+| bars at 6 m / at 3 m and under | 3.8 / 14.2, 6.5 / 24.4 | 17.6 / 48, 27.5 / 75 |
+| `inGain` (an error inside a bar counts) | 0.1 | 0.02 |
+| `pullPerDeg` (the release's pull past its bar) | 0.15 | 0.08 |
+| `shakeGain` (the shake past STEADY) | 0.75 | 0.5 |
+| `roughGain` (a kubb's scatter past a bar) | 6 | 3 |
+| `flickIn` (a soft flick's shortfall counts) | none: in full | 0.3 |
+
+- **The honest rule holds.** Inside both bars and steady the throw goes where aimed: 100%
+  of such swings fell a lone kubb from 2 to 6 m and 99% at 8 m. The in-bar gain is smaller
+  because the bars are wider: at 0.1 a tenth of a 17-degree power error is 1.7 degrees,
+  enough to land a baton 0.4 m long at 6 m, and a child's swings inside the bars missed one
+  in five.
+- **The flick** (`flickIn`, read by `plan.launch` and kept by `plan.meterLevel`): the flick
+  that counts is `1 - flickIn x (1 - flickFrac)`, for the speed, the power verdict and the
+  tumble alike, so SHORT still means short. `checkThrow` starts the flicks it allows from
+  `minFlickFrac` so counted.
+- Calibrated with `tools/meterprobe.lua --meter kid --hands 3,2,1` (`--meter` names the
+  meter; on the Kid meter a helicopter counts as thrown, as the Kid rules do): the recorded
+  hand with its misses tripled, a small child, fells a lone kubb 3 m away 80% of the time
+  and one 6 m away (a base kubb from the Kid line) 54% (82 / 80 / 75 / 54 / 29 at 2 / 3 /
+  4 / 6 / 8 m); on the standard meter the same hand fells 31% and 10%. The full table is in
+  docs/notes/kid-mode.md.

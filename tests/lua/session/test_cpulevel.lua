@@ -206,7 +206,8 @@ test("the pitch: the host picks the computer's level; a pitch without it is as b
 	local row = c.MATCH_OPTIONS[#c.MATCH_OPTIONS]
 	expect.eq(row[1], "computer")
 	expect.eq(row[2], "Computer")
-	expect.eq(row[3][2][2], "Club")
+	expect.eq(row[3][1][1], "kid", "Kid first (0.15.0)")
+	expect.eq(row[3][3][2], "Club")
 	expect.eq(pitch("optionLabel", { key = "computer", value = "pro" }), "Pro")
 end)
 
@@ -218,4 +219,112 @@ test("the Playdate's option table: a COMPUTER row, club by default", function()
 	expect.eq(matchopts.apply({}, c).computer, "pro")
 	expect.eq(matchopts.valid({ computer = 7 }).computer, 2, "an odd choice falls back to club")
 	expect.eq(matchopts.valid({}).computer, 2, "a choice kept before the row existed: club")
+	-- Kid (0.15.0): kept as the fourth value, so a choice kept before keeps its level, and
+	-- stepped to first: left of Beginner, and right of Pro round to it
+	c = matchopts.defaults()
+	matchopts.step(c, "computer", -1)
+	expect.eq(matchopts.value(c, "computer"), "beginner")
+	matchopts.step(c, "computer", -1)
+	expect.eq(matchopts.value(c, "computer"), "kid")
+	expect.eq(matchopts.shown(c, "computer"), "KID")
+	local o = matchopts.apply({}, c)
+	expect.eq(o.computer, "kid")
+	expect.eq(o.rules, "kid", "the Kid computer makes a Kid match")
+	matchopts.step(c, "computer", -1)
+	expect.eq(matchopts.value(c, "computer"), "pro", "round from Kid to Pro")
+	expect.eq(matchopts.apply({}, c).rules, nil)
+	expect.eq(matchopts.valid({ computer = 4 }).computer, 4, "Kid kept")
+end)
+
+-- Kid (0.15.0, docs/notes/kid-mode.md): the Kid computer makes the match a Kid match, the
+-- Kid rules for both sides and the Kid meter for a person; the view says so and where the
+-- Kid line is; the snapshot keeps it; a match without it is as before.
+test("the Kid computer makes a Kid match: the rules, the meter, the view", function()
+	local s = vsComputer { computer = "kid", first = "A" }
+	expect.eq(s.opts.computer, "kid")
+	expect.eq(s.opts.rules, "kid")
+	expect.eq(s.m.game.rules, "kid")
+	expect.eq(s.ts.meter, "kid")
+	expect.eq(s.opts.teams.B.players[1].level, "kid")
+	local n = s:need()
+	expect.eq(n.kid, true)
+	expect.eq(n.setup.kid, true)
+	expect.eq(n.setup.kidY, 2)
+	expect.eq(n.setup.forwardY, 2, "the person stands up to the Kid line")
+	local v = s:view()
+	expect.eq(v.aim.kidY, 2)
+	expect.eq(v.minimap.kidY, 2)
+	expect.eq(v.aim.thrower.y, 2, "the stance starts on the Kid line")
+	expect.eq(v.aim.advText, "KID LINE  2.0 M")
+	-- the person's bars are the Kid meter's: wider than the standard's at the same distance
+	local plan = tw.plan
+	local d = v.aim.plan.dist
+	local kid = plan.meterLevel(plan.meter("kid"), d, "baton")
+	local std = plan.meterLevel(plan.meter(), d, "baton")
+	expect.near(v.aim.plan.powerHi - v.aim.plan.powerLo, 2 * kid.powerHalf, 1e-9)
+	expect.truthy(kid.powerHalf > 3 * std.powerHalf, "much wider")
+	-- the snapshot keeps it, restore brings it back, names.check allows it
+	local snap = s:snapshot()
+	expect.truthy(snap:find('"rules":"kid"', 1, true))
+	local r = session.restore(snap)
+	expect.eq(r.m.game.rules, "kid"); expect.eq(r.ts.meter, "kid")
+	local nc = json.decode(kubbCall("names.check", json.encode({ snap = snap })))
+	-- (Ada is a typed name, refused as one; nothing else may be)
+	for _, x in ipairs(nc.refused) do
+		expect.truthy(x.kind == "team" or x.kind == "player", "only the typed name: " .. json.encode(x))
+	end
+	-- the Kid rules' notes and ruling words are the engine's own
+	local d = json.decode(snap)
+	local t1 = d.save.game.sheet.turns[1]
+	t1.notes = { "b1 knocked the king down early; stood back up (kid rules)", "b2 helicopter; counted (kid rules)",
+		"a kubb thrown in knocked the king down; stood back up (kid rules)",
+		"a kubb out twice was stood at the fair spot, no punishment kubb (kid rules)" }
+	d.save.text = "field kubb down; king down early: stood back up; helicopter: counted"
+	local nc2 = json.decode(kubbCall("names.check", json.encode({ snap = d })))
+	for _, x in ipairs(nc2.refused) do
+		expect.truthy(x.kind == "team" or x.kind == "player", "the Kid words are allowed: " .. json.encode(x))
+	end
+	d.save.text = "out twice: stood at the fair spot; king down: stood back up; 2 out twice: stood at the fair spot"
+	nc2 = json.decode(kubbCall("names.check", json.encode({ snap = d })))
+	for _, x in ipairs(nc2.refused) do
+		expect.truthy(x.kind == "team" or x.kind == "player", "the Kid words are allowed: " .. json.encode(x))
+	end
+	-- the Kid computer with nobody to play (pass and play): no Kid rules; asked outright: yes
+	local pp = session.new { mode = "match", seed = 3, start = START, computer = "kid" }
+	expect.eq(pp.opts.rules, nil)
+	local pk = session.new { mode = "match", seed = 3, start = START, rules = "kid" }
+	expect.eq(pk.opts.rules, "kid"); expect.eq(pk.m.game.rules, "kid")
+	-- every other level: as before, no rules key
+	expect.truthy(not vsComputer { computer = "pro" }:snapshot():find('"rules":', 1, true))
+end)
+
+test("a Kid match plays to its end, and its file passes as Kid rules with three base kubbs", function()
+	local s = vsComputer { computer = "kid", maxTurns = 30 }
+	playOut(s)
+	expect.eq(s:need().kind, "over")
+	local sh = s:sheet()
+	expect.truthy(sh.text:find('[Base kubbs "3"]', 1, true))
+	expect.truthy(sh.text:find("[Rules \"Kid rules", 1, true))
+	expect.truthy(sh.text:find("kid", 1, true), "Throw Levels names the Kid computer")
+	local nc = json.decode(kubbCall("names.check", json.encode({ snap = s:snapshot() })))
+	-- (Ada is a typed name, refused as one; nothing else may be)
+	for _, x in ipairs(nc.refused) do
+		expect.truthy(x.kind == "team" or x.kind == "player", "only the typed name: " .. json.encode(x))
+	end
+end)
+
+test("the pitch: the Computer row has Kid first, and a pitch with the Kid computer starts a Kid match", function()
+	local row = pitch("optionRows", { scene = "day" }).rows
+	local comp = row[#row]
+	expect.eq(comp[1], "computer"); expect.eq(comp[3][1][1], "kid"); expect.eq(comp[3][1][2], "Kid")
+	expect.eq(pitch("optionLabel", { key = "computer", value = "kid" }), "Kid")
+	local d = pitch("joinTeam", { doc = NULL, id = "m1", side = "A" })
+	d = pitch("setOptions", { doc = d, options = { computer = "kid" } })
+	local lu = pitch("lineup", { doc = d, members = { { id = "m1", me = { name = "Ada" } } } })
+	local o = pitch("matchOptions", { doc = d, lineup = lu, seed = 5, start = START })
+	expect.eq(o.computer, "kid")
+	o.mode = "match"
+	local s = session.new(o)
+	expect.eq(s.opts.rules, "kid")
+	expect.eq(pitch("constants", {}).LEVELS[1], "kid")
 end)

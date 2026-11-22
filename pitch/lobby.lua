@@ -38,7 +38,8 @@ lobby.TEAM_MAX = 6
 lobby.SEATS = 2 * lobby.TEAM_MAX
 lobby.SIDES = { "A", "B" }
 lobby.NAME_MAX = 16
-lobby.LEVELS = { "beginner", "club", "pro" }
+-- (kid since 0.15.0: the Kid computer, which makes the match a Kid match; docs/notes/kid-mode.md)
+lobby.LEVELS = { "kid", "beginner", "club", "pro" }
 -- The most the document may grow to while it carries a replay's log (the pitch's limit is
 -- 256 KB): about 600 actions.
 lobby.LOG_BUDGET = 248 * 1024
@@ -100,7 +101,7 @@ lobby.MATCH_OPTIONS = {
 	{ "wind", "Wind", { { "off", "Off" }, { "light", "Light" }, { "strong", "Strong" } } },
 	{ "set", "Kubbs", { { "classic", "Classic" }, { "usa", "USA" }, { "sweden", "Sweden" },
 		{ "minnesota", "Minnesota" }, { "wisconsin", "Wisconsin" } } },
-	{ "computer", "Computer", { { "beginner", "Beginner" }, { "club", "Club" }, { "pro", "Pro" } } },
+	{ "computer", "Computer", { { "kid", "Kid" }, { "beginner", "Beginner" }, { "club", "Club" }, { "pro", "Pro" } } },
 }
 
 local OPTION_VALUES = {}

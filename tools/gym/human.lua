@@ -136,7 +136,7 @@ function human.choose(s, r, level, model, hand)
 		taps = tw.drill.plannedSpin(a0.drill.spin) / plan.tune.spinPerStep
 	end
 	local q = { projectile = kubb and "kubb" or "baton", px = P.px, py = P.py, tx = P.tx, ty = P.ty,
-		level = level, meter = plan.meter and plan.meter() or nil, surface = s.surface, spin = taps }
+		level = level, meter = plan.meter and plan.meter(human.meterName) or nil, surface = s.surface, spin = taps }
 	if kubb then
 		q.release = plan.arcFor("drill")
 	else

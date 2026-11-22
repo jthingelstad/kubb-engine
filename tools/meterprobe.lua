@@ -25,6 +25,8 @@
 --
 --   lua5.4 tools/meterprobe.lua [--n 400] [--ranges 4,6,8]
 --     [--parts perfect,honest,hand,drill] [--hand club] [--seed 1]
+--     [--meter kid] (a meter of plan.meters; the Kid meter, 0.15.0, also counts a helicopter
+--     as thrown, as the Kid rules do) [--hands 2,1,0.5] (the hand scales the hand part draws)
 --     [--set plan.meters.standard.powerHalf8=4] (one tune a --set; a surface's number as
 --     world.surfaces.grid.mu=0.5) [--surface grass|sand|snow|grid]
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
@@ -49,6 +51,7 @@ local human = dofile(sourceDir .. "/tools/gym/human.lua")
 local model = human.load(sourceDir .. "/tools/gym/human-model.json")
 
 local n, seed, hand = 400, 1, "club"
+local meterName, hands = nil, { 2, 1, 0.5 }
 local SURFACE = "grass"
 local ranges = { 4, 6, 8 }
 local parts = { perfect = true, honest = true, hand = true, drill = true }
@@ -65,6 +68,8 @@ while i <= #arg do
 	elseif a == "--ranges" then ranges = list(v, true); i = i + 1
 	elseif a == "--hand" then hand = v; i = i + 1
 	elseif a == "--surface" then SURFACE = v; i = i + 1
+	elseif a == "--meter" then meterName = v; i = i + 1
+	elseif a == "--hands" then hands = list(v, true); i = i + 1
 	elseif a == "--parts" then
 		parts = {}
 		for _, p in ipairs(list(v)) do parts[p] = true end
@@ -82,7 +87,8 @@ while i <= #arg do
 end
 
 local PY = 1
-local METER = plan.meter()
+local METER = plan.meter(meterName)
+local KID = meterName == "kid"   -- the Kid rules: a helicopter counts as thrown
 local STEADY = plan.tune.steadyBelow
 
 local function throwAt(d, yaw, L)
@@ -107,7 +113,7 @@ end
 
 local function pct(a, b) return b > 0 and 100 * a / b or 0 end
 
-print(fmt("meterprobe: the person's meter, %d throws a cell, seed %d", n, seed))
+print(fmt("meterprobe: the person's meter (%s), %d throws a cell, seed %d", meterName or plan.tune.meter, n, seed))
 print("bars by range (half widths, degrees): power / release, and the release's pull past its bar (deg/deg)")
 for _, d in ipairs(ranges) do
 	local sol = solveAt(d)
@@ -172,6 +178,7 @@ local scaled = function(sw, sol, k) return human.scale(sw, sol, k) end
 -- recorded people on club's, a master on pro's; the recorded hand within about 4 points,
 -- the other two as guides (docs/notes/throw.md "The person's meter").
 local TARGETS = { [2] = { 45, 22, 10 }, [1] = { 72, 48, 27 }, [0.5] = { 88, 70, 45 } }
+local NAMES = { [3] = "a child x3", [2] = "newcomer x2", [1] = "recorded x1", [0.5] = "master x0.5" }
 
 if parts.hand then
 	local p = human.part(model, hand, "baton")
@@ -179,7 +186,9 @@ if parts.hand then
 	local head = "  hand        |"
 	for _, d in ipairs(ranges) do head = head .. fmt("    %2.0f m    |", d) end
 	print(head)
-	for _, hk in ipairs { { "newcomer x2", 2 }, { "recorded x1", 1 }, { "master x0.5", 0.5 } } do
+	local hks = {}
+	for _, k in ipairs(hands) do hks[#hks + 1] = { NAMES[k] or ("x" .. k), k } end
+	for _, hk in ipairs(hks) do
 		local line = fmt("  %-11s |", hk[1])
 		for _, d in ipairs(ranges) do
 			local sol = solveAt(d)
@@ -190,14 +199,14 @@ if parts.hand then
 				local L = plan.launch(sol, sw, { nerves = nr }, {})
 				if L.powerV == 0 and L.releaseV == 0 and L.steady then I = I + 1 end
 				local yaw = yr.next() * math.pi / 2
-				if L.legal then
+				if L.legal or KID then
 					local _, f = throwAt(d, yaw, L)
 					if f then F = F + 1 end
 				end
 			end
 			line = line .. fmt(" %3.0f%% (%2.0f) |", pct(F, n), pct(I, n))
 		end
-		local tg = TARGETS[hk[2]]
+		local tg = not KID and TARGETS[hk[2]]
 		if tg then line = line .. fmt("  target at 4 / 6 / 8 m: %d / %d / %d", tg[1], tg[2], tg[3]) end
 		print(line)
 	end

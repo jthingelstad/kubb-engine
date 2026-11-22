@@ -139,8 +139,8 @@ test("plan: a lower arc needs more backswing for the same target; farther needs 
 	expect.truthy(solve("baton", 0, 0, -1, 8, 90).swivel < 0)
 end)
 
-test("plan: the levels' targets narrow from beginner to pro", function()
-	expect.eq(#plan.LEVELS, 3)
+test("plan: the levels' targets narrow from kid to pro", function()
+	expect.eq(#plan.LEVELS, 4)
 	local wP, wR = math.huge, math.huge
 	for _, name in ipairs(plan.LEVELS) do
 		local s = solve("baton", 0, 0, 0, 8, 90, name)

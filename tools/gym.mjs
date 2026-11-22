@@ -12,8 +12,9 @@
 //   node tools/gym.mjs bank <records dir> [--json file] [--engine dir]
 //   node tools/gym.mjs fit <records dir> [--write]
 //   node tools/gym.mjs versus --a "<spec>" --b "<spec>" [--n 300] [--seed 1]
-//       [--surfaces Grass] [--jobs N] [--json file] [--maxturns 40] [--probe 2]
+//       [--surfaces Grass] [--jobs N] [--json file] [--maxturns 40] [--probe 2] [--rules kid]
 //       spec: level=pro;thrower=cpu;raise=apart;<tune path>=<number>... (';' or ',')
+//       --rules kid: every match by the Kid rules (0.15.0), a person on the Kid meter
 //
 // Quick (the default) plays 40 matches a configuration, full 300. --real is a
 // pk-kubb-score checkout's games folder (default: $PK_KUBB_SCORE/games, else the sibling
@@ -61,6 +62,7 @@ function parse(argv) {
     else if (a === '--a') o.a = take();
     else if (a === '--b') o.b = take();
     else if (a === '--probe') o.probe = Number(take());
+    else if (a === '--rules') o.rules = take();
     else if (a === '--write') o.write = true;
     else if (a === '--keep') o.keep = true;
     else if (a === '--gate') o.gate = true;
