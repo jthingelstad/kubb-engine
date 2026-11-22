@@ -155,6 +155,11 @@ Every client shows its own version with the engine's beside it, in one form:
   - `checkThrow` on a person's throw checks it against the meter: a throw that fits lists
     every level and `atLevel` is true.
   - Web and iPhone must both be on 0.13 to share a match.
+  - **Playdate** (the core, with its own call to `plan.solve`): the session does this for
+    the web and the iPhone, but the Playdate builds a person's plan itself, so it passes
+    `meter = plan.meter()` in place of `level` in that query and no `level` to
+    `plan.launch`. Without it a person still throws on a level's bars and nerves, as on
+    0.12.
 
   **The pitch rename.** The shared-pitch module is `pitch`, as the clients and the pitch
   server already say (the web's docs/PITCH-SERVER.md, "Naming"): the directory `room/` is
