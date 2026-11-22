@@ -20,7 +20,9 @@
 --          corner to corner (9.4 m) at about 10:17, 13.3 m at 11, 20 m at 12.
 --   loft   the release angle sets the launch angle (plan.loftFor), a line
 --          through 5 o'clock = 12 degrees and 3 o'clock = 32 (half past 1 =
---          47, 12 o'clock = 62).
+--          47, 12 o'clock = 62). Under half past 5 (driveKneeDeg, 15: loft 7)
+--          the drive (0.16): a steeper line down to loft -15 at 6 o'clock, a
+--          release at the bottom of the swing thrown flat or down, hard.
 --
 -- One frame throughout: the thrower's view frame (core/frame), throwing
 -- from lineY toward +y, x to the right. Swivel is radians from straight
@@ -55,8 +57,31 @@ plan.tune = {
 	-- the loft scale (plan.loftFor): a line through two points
 	loftRel1 = 30,  loftAt1 = 12,  -- 5 o'clock: low and flat
 	loftRel2 = 90,  loftAt2 = 32,  -- 3 o'clock: the normal throw
-	loftMinDeg = 2,        -- the launch angle never goes under this ...
+	-- the drive (0.16, docs/notes/throw.md "The drive"; the owner, owner-2026-11-22#s2:
+	-- "We need a way to throw low and hard into a group"): under driveKneeDeg the loft
+	-- falls on a steeper line, from loftFor(driveKneeDeg) (7) to loftAt0 at a release
+	-- of 0 (the bottom of the swing). Above the knee every loft is as before
+	driveKneeDeg = 15,
+	loftAt0 = -15,
+	loftMinDeg = -15,      -- a baton's launch angle never goes under this (2 until 0.16) ...
+	lineMinDeg = 2,        -- ... the one line's this (plan.loftFor's line: a thrown kubb's loft, and a
+	                       -- swing's about a plan from the knee up, as every loft before 0.16)
 	loftMaxDeg = 75,       -- ... or over this (a sky ball reaches it)
+	-- The floor of a drive: the planned release never asks for a launch speed the swing
+	-- cannot give a person steadily, a backswing past driveBackMaxDeg (half past 10, 9
+	-- degrees past a baseline baton's 131), nor for a line the geometry cannot make (the
+	-- hand too low over the aim for that loft). plan.solve raises a release planned under
+	-- the floor to it (plan.arcFloor), so ARC at a target runs from its floor up
+	driveBackMaxDeg = 140,
+	-- A drive does not flip (owner-2026-11-22#s3: "When throwing at a close Kubb players
+	-- do not even have the baton flip. It comes out of the hand and powers into the
+	-- group."). Under the knee the planned tumble eases from the level's own at the
+	-- knee's loft (7) to none at a release loft of driveTurnToDeg: the baton leaves the hand
+	-- upright (or as the short throw's hand tips it) and arrives near upright, turned a
+	-- small part of a turn at most. No sideways spin: the tilt, and so the helicopter
+	-- rule, is the swing's as before
+	driveTurnToDeg = -4,   -- release loft (plan.loftFor, before a short throw's flattening): no turn
+	                       -- here and under; the knee's loft (7) keeps the level's own, a line between
 	-- the plan (B + d-pad)
 	-- A baton's default release goes by how far away its target is, never by what the
 	-- target is (Jamie, 2026-11-20: "The closer you are to the target the lower you
@@ -72,8 +97,19 @@ plan.tune = {
 	arcNearM = 2, arcNearDeg = 15,
 	arcFarM = 8,  arcFarDeg = 60,
 	arc = { drill = 135 }, -- a drilled kubb's default release: half past 1
+	-- A baton's default release at a field kubb (0.16, plan.arcFor "field"): firm and low
+	-- at close range, the drive at 1.5 m, back on the line every target shares at 8 m
+	-- (the owner, of a throw on
+	-- the old default from the advantage line 1.4 m from a group, owner-2026-11-22#s2:
+	-- "A real player would throw hard at a tight group this close"). Knots of (distance
+	-- m, release degrees), straight between them; under the first and over the last as
+	-- they are. Launch lofts (after a short throw's flattening, flight.handAt): 7 at 1 m
+	-- and under (the point-blank bowl, as before), -4.6 at 1.5 m (6.6 m/s), 1.5 at 3 m,
+	-- 5 at 4 m (10.6 m/s), 14.5 at 6 m and 22 at 8 m (as before). A base kubb's and the
+	-- king's stay on the line above at every distance
+	fieldArc = { 1.0, 15, 1.5, 6, 4, 13.6, 6, 37.5, 8, 60 },
 	arcStepDeg = 15,       -- B + up/down moves the release target half an hour
-	releaseMinDeg = 15,    -- the planned release stays between half past 5 ...
+	releaseMinDeg = 0,     -- the planned release stays between 6 o'clock (15, half past 5, until 0.16) ...
 	releaseMaxDeg = 165,   -- ... and half past 12
 	tiltStepDeg = 5,       -- B + left/right on a baton: one tap tilts the spin plane this much. Measured
 	                       -- (tools/tiltgroups.lua, 2026-11-15): tilt deflects the baton after its first
@@ -379,21 +415,58 @@ function plan.backForSpeed(speed)
 	return plan.backFor(plan.reachForSpeed(speed))
 end
 
--- The launch angle (degrees) for a release angle (degrees past 6 o'clock on
--- the forward side), clamped to loftMinDeg..loftMaxDeg.
-function plan.loftFor(releaseDeg)
+-- The launch angle (degrees) for a planned release angle (degrees past 6 o'clock on
+-- the forward side), clamped to loftMinDeg..loftMaxDeg: under driveKneeDeg the drive's
+-- steeper line (0.16). line: the one line through 5 and 3 o'clock whatever the release,
+-- clamped to lineMinDeg, as every loft was before 0.16 (a thrown kubb's, which has no
+-- drive, and the swing's error about a plan: plan.launchLoft).
+function plan.loftFor(releaseDeg, line)
 	local t = plan.tune
-	local l = t.loftAt1 + (releaseDeg - t.loftRel1) * (t.loftAt2 - t.loftAt1) / (t.loftRel2 - t.loftRel1)
+	local k = t.driveKneeDeg
+	local l
+	if line then
+		l = t.loftAt1 + (releaseDeg - t.loftRel1) * (t.loftAt2 - t.loftAt1) / (t.loftRel2 - t.loftRel1)
+		if l < t.lineMinDeg then return t.lineMinDeg end
+		if l > t.loftMaxDeg then return t.loftMaxDeg end
+		return l
+	elseif releaseDeg < k then
+		-- the drive's steeper line (0.16)
+		local lk = t.loftAt1 + (k - t.loftRel1) * (t.loftAt2 - t.loftAt1) / (t.loftRel2 - t.loftRel1)
+		l = t.loftAt0 + releaseDeg * (lk - t.loftAt0) / k
+	else
+		l = t.loftAt1 + (releaseDeg - t.loftRel1) * (t.loftAt2 - t.loftAt1) / (t.loftRel2 - t.loftRel1)
+	end
 	if l < t.loftMinDeg then return t.loftMinDeg end
 	if l > t.loftMaxDeg then return t.loftMaxDeg end
 	return l
 end
 
--- The release angle (degrees) for a launch angle: plan.loftFor's inverse.
-function plan.releaseFor(loftDeg)
+-- The release angle (degrees) for a launch angle: plan.loftFor's inverse (line: the
+-- one line's).
+function plan.releaseFor(loftDeg, line)
 	local t = plan.tune
-	if loftDeg < t.loftMinDeg then loftDeg = t.loftMinDeg elseif loftDeg > t.loftMaxDeg then loftDeg = t.loftMaxDeg end
+	local lmin = line and t.lineMinDeg or t.loftMinDeg
+	if loftDeg < lmin then loftDeg = lmin elseif loftDeg > t.loftMaxDeg then loftDeg = t.loftMaxDeg end
+	if line then return t.loftRel1 + (loftDeg - t.loftAt1) * (t.loftRel2 - t.loftRel1) / (t.loftAt2 - t.loftAt1) end
+	local k = t.driveKneeDeg
+	local lk = t.loftAt1 + (k - t.loftRel1) * (t.loftAt2 - t.loftAt1) / (t.loftRel2 - t.loftRel1)
+	if loftDeg < lk then return (loftDeg - t.loftAt0) * k / (lk - t.loftAt0) end
 	return t.loftRel1 + (loftDeg - t.loftAt1) * (t.loftRel2 - t.loftRel1) / (t.loftAt2 - t.loftAt1)
+end
+
+-- The launch loft (degrees, before a short throw's flattening) of a swing whose release
+-- counts as effRel against a plan at release planned: a plan from the knee up, or a
+-- thrown kubb, plan.loftFor(effRel, true) as always; a drive, its planned loft plus the
+-- error at the one line's slope, a third of a degree a degree (0.16), so a release off
+-- the plan costs the same loft whatever the plan, and a drive's error never falls onto
+-- the drive's steeper line.
+function plan.launchLoft(planned, effRel, kubb)
+	local t = plan.tune
+	if kubb or planned >= t.driveKneeDeg then return plan.loftFor(effRel, true) end
+	local l = plan.loftFor(planned) + (effRel - planned) * (t.loftAt2 - t.loftAt1) / (t.loftRel2 - t.loftRel1)
+	if l < t.loftMinDeg then return t.loftMinDeg end
+	if l > t.loftMaxDeg then return t.loftMaxDeg end
+	return l
 end
 
 -- The baton's planned tumble rate (rad/s) for a clean launch at speed (m/s)
@@ -415,9 +488,11 @@ function plan.tumbleFor(speed, loftDeg, T, level)
 	return r
 end
 
--- Clamp a planned release to releaseMinDeg..releaseMaxDeg.
-function plan.clampRelease(releaseDeg)
+-- Clamp a planned release to releaseMinDeg..releaseMaxDeg (projectile "kubb": from
+-- driveKneeDeg, a thrown kubb has no drive).
+function plan.clampRelease(releaseDeg, projectile)
 	local t = plan.tune
+	if projectile == "kubb" and releaseDeg < t.driveKneeDeg then return t.driveKneeDeg end
 	if releaseDeg < t.releaseMinDeg then return t.releaseMinDeg end
 	if releaseDeg > t.releaseMaxDeg then return t.releaseMaxDeg end
 	return releaseDeg
@@ -439,13 +514,25 @@ function plan.clampSpin(taps)
 	return taps
 end
 
--- The default release (degrees): a drilled kubb's (kind "drill"), or a baton's for a
--- target d metres from the stance (plan.tune "A baton's default release"; any other
--- kind, which no longer counts; d nil: arcFarM, a baseline throw).
+-- The default release (degrees): a drilled kubb's (kind "drill"), a baton's at a field
+-- kubb d metres from the stance (kind "field", 0.16: plan.tune.fieldArc), or a baton's
+-- at anything else, a base kubb, the king, an empty spot (plan.tune "A baton's default
+-- release"; d nil: arcFarM, a baseline throw).
 function plan.arcFor(kind, d)
 	local t = plan.tune
 	if kind == "drill" then return t.arc.drill end
+	if kind == "field" and d then
+		local k = t.fieldArc
+		if d <= k[1] then return plan.clampRelease(k[2]) end
+		for i = 3, #k - 1, 2 do
+			if d <= k[i] then
+				return plan.clampRelease(k[i - 1] + (d - k[i - 2]) * (k[i + 1] - k[i - 1]) / (k[i] - k[i - 2]))
+			end
+		end
+		return plan.clampRelease(k[#k])
+	end
 	d = d or t.arcFarM
+	if d < t.arcNearM then return t.arcNearDeg end
 	return plan.clampRelease(t.arcNearDeg + (d - t.arcNearM) * (t.arcFarDeg - t.arcNearDeg) / (t.arcFarM - t.arcNearM))
 end
 
@@ -512,8 +599,8 @@ end
 -- For a kubb also drill.solveAt's x, band and T.
 function plan.solve(q, out)
 	local lv = q.meter or levelOf(q.level)
-	local rel = plan.clampRelease(q.release or plan.arcFor(q.projectile == "kubb" and "drill" or "baton"))
-	local loft = plan.loftFor(rel)
+	local rel = plan.clampRelease(q.release or plan.arcFor(q.projectile == "kubb" and "drill" or "baton"), q.projectile)
+	local loft = plan.loftFor(rel, q.projectile == "kubb")
 	local px, py, tx, ty = q.px, q.py, q.tx, q.ty
 	if q.projectile == "kubb" then
 		drill.solveAt(tx, ty, py, loft, out, px, q.surface, (q.spin or 0) * plan.tune.spinPerStep)
@@ -533,6 +620,28 @@ function plan.solve(q, out)
 		if flat ~= 1 then loft = loft * flat end
 		local R = d - fwd
 		if R < 0.1 then R = 0.1 end
+		local pt = plan.tune
+		if rel < pt.driveKneeDeg then
+			-- the drive's floor (plan.tune.driveBackMaxDeg): a release whose line the hand
+			-- cannot make or whose speed is past the swing's is raised to the lowest that
+			-- can, never past the knee (above it every release is as before 0.16)
+			local vmax = plan.speedFor(pt.driveBackMaxDeg)
+			local function fits(r)
+				local sp = carrySpeed(R, rad(plan.loftFor(r) * flat), h - z)
+				return sp == sp and sp > 0 and sp <= vmax
+			end
+			if not fits(rel) then
+				local lo, hi = rel, pt.driveKneeDeg
+				if fits(hi) then
+					for _ = 1, 24 do
+						local m = 0.5 * (lo + hi)
+						if fits(m) then hi = m else lo = m end
+					end
+				end
+				rel = hi
+				loft = plan.loftFor(rel) * flat
+			end
+		end
 		local speed, T = carrySpeed(R, rad(loft), h - z)
 		if near > 0 and z > 0 and speed < ft.nearSpeed and h - z > 0.005 then
 			-- the hand is as low as it goes (flight.handAt) and the bowl would still
@@ -572,6 +681,14 @@ function plan.solve(q, out)
 				if r < lo then r = lo elseif r > hi then r = hi end
 			end
 			out.tumble = r > plan.tune.tumbleMin and r or plan.tune.tumbleMin
+		end
+		if rel < pt.driveKneeDeg then
+			-- a drive does not flip (plan.tune.driveTurnToDeg): from the knee's loft down
+			-- the planned turn eases to none
+			local l0 = plan.loftFor(pt.driveKneeDeg)
+			local f = (l0 - plan.loftFor(rel)) / (l0 - pt.driveTurnToDeg)
+			if f > 1 then f = 1 end
+			out.tumble = out.tumble * (1 - f)
 		end
 	end
 	if q.meter then
@@ -774,7 +891,7 @@ function plan.launch(sol, r, opts, out)
 	end
 	if rel < 0 then rel = 0 end
 	local effRel = sol.release + shrink(rel - sol.release, lv.releaseHalf, lv.inGain)
-	out.loft = plan.loftFor(effRel)
+	out.loft = plan.launchLoft(sol.release, effRel, kubb)
 	-- a short baton's flatter release (flight.handAt, plan.solve's loftShare)
 	if not kubb and sol.loftShare and sol.loftShare ~= 1 then out.loft = out.loft * sol.loftShare end
 	-- overpower: every 30 degrees past the power target multiplies the shake's costs

@@ -337,12 +337,21 @@ local function forwardLimit(s)
 end
 throw.forwardLimit = forwardLimit
 
+-- The standing target a baton's circle is on (within snapRadius of its centre), or nil.
+local function circleOn(s)
+	if s.projectile == "kubb" or not s.snaps then return nil end
+	return plan.snap(s.markerX, s.markerY, s.snaps, #s.snaps, throw.tune.snapRadius)
+end
+
 -- The default release for the throw as it is planned now: a drill's, or a baton's
--- for the distance from the stance to the circle (plan.arcFor).
+-- for the distance from the stance to the circle and what the circle is on (plan.arcFor:
+-- from 0.16 a field kubb's is firmer and lower close in; a base kubb's, the king's and
+-- an empty spot's as before).
 function throw.defaultArc(s)
 	if s.projectile == "kubb" then return plan.arcFor("drill") end
 	local dx, dy = s.markerX - s.playerX, s.markerY - s.playerY
-	return plan.arcFor("baton", math.sqrt(dx * dx + dy * dy))
+	local on = circleOn(s)
+	return plan.arcFor(on and kindOf(on) == "field" and "field" or "baton", math.sqrt(dx * dx + dy * dy))
 end
 
 local function replan(s)
@@ -364,8 +373,7 @@ local function replan(s)
 	-- (plan.aimZFor), and the arc ends on that piece's near face (s.aimFace, m
 	-- along the throw from the stance); an empty spot is aimed at the ground
 	-- (scenes/throw.lua replan)
-	local on = nil
-	if not kubb and s.snaps then on = plan.snap(s.markerX, s.markerY, s.snaps, #s.snaps, throw.tune.snapRadius) end
+	local on = circleOn(s)
 	if on then
 		local king = on.kind == "king"
 		q.aimZ = plan.aimZFor(king and "king" or "kubb")
@@ -378,6 +386,16 @@ local function replan(s)
 	end
 	local sol = plan.solve(q, {})
 	s.sol = sol
+	-- the lowest release this throw can be planned at (plan.solve's drive floor, 0.16):
+	-- ARC's real range for the throw in hand (throw.controls)
+	if kubb then
+		s.arcMin = plan.tune.driveKneeDeg
+	else
+		local r = q.release
+		q.release = plan.tune.releaseMinDeg
+		s.arcMin = plan.solve(q, {}).release
+		q.release = r
+	end
 	s.swivel, s.loftDeg = sol.swivel, sol.loft
 	s.planLevel, s.planDirty = throw.levelFor(s), false
 end
@@ -659,14 +677,14 @@ function throw.freeStance(s)
 end
 
 function throw.setArc(s, releaseDeg)
-	s.release, s.arcSet = plan.clampRelease(releaseDeg), true
+	s.release, s.arcSet = plan.clampRelease(releaseDeg, s.projectile), true
 	replan(s)
 	aimCamera(s)
 end
 
 -- B + up/down: the release half an hour a step.
 function throw.stepArc(s, step)
-	s.release = plan.clampRelease(s.release + step * plan.tune.arcStepDeg)
+	s.release = plan.clampRelease(s.release + step * plan.tune.arcStepDeg, s.projectile)
 	s.arcSet, s.planDirty = true, true
 	replan(s)
 	aimCamera(s)
@@ -711,7 +729,9 @@ function throw.controls(s)
 	local pt = plan.tune
 	local kubb = s.projectile == "kubb"
 	local out = {
-		arc = { min = pt.releaseMinDeg, max = pt.releaseMaxDeg, value = s.release, set = s.arcSet and true or false,
+		arc = { min = s.arcMin or pt.releaseMinDeg, max = pt.releaseMaxDeg,
+			value = math.max(s.release, s.arcMin or pt.releaseMinDeg), set = s.arcSet and true or false,
+			knee = pt.driveKneeDeg,
 			default = throw.defaultArc(s), tick = pt.arcTickDeg, step = pt.arcStepDeg,
 			unit = "deg", scope = "throw" },
 	}
