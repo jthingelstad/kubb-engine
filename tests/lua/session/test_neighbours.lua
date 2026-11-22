@@ -282,6 +282,18 @@ test("deterministic: two runs agree, and slices of any size give the same events
 	local t = 0
 	_G.__kubbClock = function() t = t + 0.003; return t end
 	expect.eq(events({ budgetMs = 1 }), a, "by a clock")
+	-- a host may pass steps on one call and budgetMs on the next: a pitch that paused in
+	-- one mode goes on in the other, and the events are still the same
+	call("neighbours.open", { seed = 9, count = 6, now = 50 })
+	local mixed, now, n = {}, 50, 0
+	while now < 230 - 1e-9 do
+		now = math.min(230, now + 1 / 20)
+		n = n + 1
+		local r = call("neighbours.advance", n % 2 == 0 and { now = now, steps = 60 } or { now = now, budgetMs = 1 })
+		for _, e in ipairs(r.events) do mixed[#mixed + 1] = e end
+	end
+	call("neighbours.close")
+	expect.eq(json.encode(mixed), a, "steps and a clock turn about")
 	_G.__kubbClock = nil
 	expect.truthy(#a > 20000, "and there is something in them: " .. #a .. " bytes")
 end)
