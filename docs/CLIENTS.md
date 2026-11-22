@@ -1,4 +1,4 @@
-# Moving a client from 0.9.0 to 0.15.1
+# Moving a client from 0.9.0 to 0.16.0
 
 The web game, the iPhone app and the Playdate game all vendor engine 0.9.0. This page is
 what each changes to move to 0.13.0, built from the "For clients" parts of
@@ -350,6 +350,62 @@ the whole of what it takes. The numbers below are measured (docs/notes/tournamen
   tracks the last throw's side, and reads it once from the base kubbs for a restored match.
 - The measured drawing cost was 0.05 to 0.2 ms a frame on the web and about 1 ms on a
   phone, so neither thinned the field beyond skipping pitches wholly off screen.
+
+## 0.16 on top
+
+0.16.0 is a minor: the drive, a baton thrown flat or down and hard into a group
+(docs/notes/throw.md "The drive"), and a thrown kubb's bars narrowed to a baton's on the
+standard meter ("The thrown kubb on the person's meter"). No golden hash moves (the
+corpus's person throws replay their recorded launches, and the computer's are bit for bit
+as before), but a person can now make throws a 0.15 engine's `check.throw` refuses (a
+release under 15) and a 0.15 session plans other defaults, so it shares matches with no
+0.15. Web and iPhone move together. Sync `v0.16.0` (web `npm run vendor:sync -- --tag
+v0.16.0`, iPhone `TAG=v0.16.0`, Playdate `make vendor-sync TAG=v0.16.0`).
+
+What every client gets for nothing: a baton whose circle is on a standing field kubb plans
+a field kubb's default arc (firm and low close in: a release of 6, launch loft -4.6 at
+6.5 m/s at 1.5 m; the old line from 8 m), a drive under the knee does not turn end over
+end, a plan under the throw's floor is raised to it, and the power band, the planned
+speed and `aim.arc` follow. A thrown kubb is planned and launched on narrower bars. The
+verdict's words are as before and right for a drive: SHORT and LONG are the power, LOW and
+HIGH the stop against the bar, and PULLED the release past it; a drive that lands short is
+SHORT. A helicopter is the tilt alone, as before.
+
+- **Web**
+  - Must: the ARC slider's range from `aim.controls.arc` every frame it is drawn, not 15 to
+    165: `min` is the throw's floor (0 at a kubb a metre away, about 12 at 4 m, 15 from
+    about 5 m) and moves as the circle and the stance move. A slider fixed at 15 cannot
+    reach the drive, and one fixed at 0 offers throws under the floor (they are planned at
+    the floor, so nothing breaks, but the thumb and the throw disagree). `value` is never
+    under `min`.
+  - Must: the side view draws `aim.arc` as it is, down as well as up: from 0.16 a planned
+    flight can leave the hand going down (a launch loft under 0) and meet the kubb's face
+    lower than the hand. A view that assumes the arc rises first, or that scales its height
+    from the arc's peak over the hand, would draw a drive flat along the ground or clip it
+    (not checked against the web's code for this release).
+  - Worth showing: a tick or a change of colour on the ARC slider at `arc.knee` (15, half
+    past 5), with the part under it named DRIVE; the clock's release band under half past
+    5 is where a drive is released.
+- **iPhone**
+  - Must: the same two: the ARC slider takes `min` from `controls.arc` each frame, and the
+    side view draws `aim.arc` with a falling start. Both as the web's (not checked against
+    the app's code for this release: look for a range fixed at 15 and a view that assumes
+    the arc rises).
+  - Worth showing: DRIVE under the knee, as the web.
+- **Playdate** (it vendors the core only and plans in its own `scenes/throw.lua`)
+  - Must, for the drive: B + down steps the release under 15 (`plan.clampRelease(r,
+    projectile)`: pass the projectile, so a thrown kubb still stops at 15), and the throw
+    scene's replan passes `"field"` to `plan.arcFor` when the circle is on a standing field
+    kubb (as `session/throw.lua` `throw.defaultArc` does) to get the new default. Until
+    then the Playdate's person throws the 0.15 default at field kubbs, and its drive only
+    by stepping the arc down.
+  - Gets for nothing: `plan.solve`'s floor and the drive's turn, the narrower kubb bars on
+    the standard meter, and `plan.launch`'s loft (`plan.launchLoft`). The crank feeds the
+    same arm degrees to `core/swing`, and the recorded device traces replay as before
+    (`test_swing`). Check that the aim arc (`drawArc`, the same parabola from the hand as
+    `session/throw`'s `arcLaunch`) draws a falling start.
+    The cost per aim frame is unchanged; a plan under the knee costs one bisection (24
+    steps of a carry) when the plan changes, and the floor for the slider one more solve.
 
 ## What the engine now offers that no surface shows yet
 

@@ -297,6 +297,8 @@ Every number that is a guess lives in one table per module, with a comment:
   limit, the shake's tilt and pull, overpower, STEADY, the baton's tumble (`tumbleTurns`,
   `armR`, `wristShare`, `tumbleMin`: "The baton's tumble"), the height a clean baton's
   centre goes through a standing piece (`aimHeightShare` 0.3, 0.5 until 0.9: "Aimed through the piece");
+  the drive (0.16: `driveKneeDeg`, `loftAt0`, `lineMinDeg`, `driveBackMaxDeg`,
+  `driveTurnToDeg`, `fieldArc`: "The drive");
   `tw.plan.levels` (beginner, club, pro: the computer's standard, `autothrow.cpuLevel`;
   the targets' half widths, the error inside a target, the shake and overpower costs, the
   nerves and `tumbleSd`; `plan.LEVELS` in menu order); `tw.plan.meters` (the person's
@@ -722,3 +724,198 @@ of its own:
   and one 6 m away (a base kubb from the Kid line) 54% (82 / 80 / 75 / 54 / 29 at 2 / 3 /
   4 / 6 / 8 m); on the standard meter the same hand fells 31% and 10%. The full table is in
   docs/notes/kid-mode.md.
+
+## The drive (0.16)
+
+The owner, from two reports on 0.15.1 (`docs/reference/observations/owner-2026-11-22.md`):
+at a tight group from the baseline his two batons felled the front kubb only (`s1`), and
+from the advantage line 1.4 m from a group the default arc was "normal and far too soft"
+(`s2`: "We need a way to throw low and hard into a group"); after the next match, "When
+throwing at a close Kubb players do not even have the baton flip. It comes out of the hand
+and powers into the group" (`s3`). Until 0.16 a baton could not be thrown flat or down:
+the plan's floor was a release of 15 (half past 5, loft 7) and the speed went with the
+distance, so at 1.4 m the hardest throw the plan allowed was under 4.5 m/s.
+
+**What was measured first** (`lua5.4 tools/driveprobe.lua`, the two positions written out
+by hand in `tests/fixtures/drive/positions.lua`, 150 to 300 throws a setting with a seeded
+jitter of 0.6 degrees of aim, 1 degree of loft, 3% of speed, 6 degrees of tilt and 0.06
+turns). Kubbs felled per baton and the share felling two or more, each launch at the speed
+that puts the baton's centre through the front kubb at the plan's aim height
+(`plan.aimZFor`, 0.17 m: a vertical baton's lower end 0.3 of the way up the kubb):
+
+| group 1, 4.17 m from the baseline | loft | m/s | backswing | kubbs | 2+ | the baton at rest |
+|---|---|---|---|---|---|---|
+| 0.15's default | 12.4 | 8.3 | 112 | 1.60 | 57% | 0.7 m past the group, half of them wide |
+| loft 8 | 8 | 9.4 | 123 | 1.81 | 63% | 1.4 m past |
+| loft 5 | 5 | 10.6 | 134 | 2.31 | 78% | 1.5 m past |
+| flat | 0 | 14.4 | 168 | 2.54 | 81% | 4.3 m past |
+
+| group 2, 1.42 m from the advantage line | loft | m/s | backswing | kubbs | 2+ | the baton at rest |
+|---|---|---|---|---|---|---|
+| 0.15's default | 5.0 | 4.4 | 74 | 1.67 | 64% | in the group |
+| flat | 0 | 5.4 | 84 | 1.85 | 75% | in the group, 16% past |
+| loft -5 | -5 | 6.9 | 98 | 1.99 | 92% | 59% past, 15% wide |
+| loft -10 | -10 | 11.3 | 140 | 2.17 | 96% | 2.8 m past |
+
+Lower and harder fells more in this physics at both, as long as the baton still meets the
+kubb's face: aimed through its middle (7.5 cm, a vertical baton's lower end in the turf)
+the same lofts fell no more than the default (1.4 to 1.8), and at the old default the
+reported player's own soft flick (SLOW) fell fewer still. The baton goes on through the
+group and past it, or off it to the side; it does not go over. A baton that does not
+turn end over end (`--turn 0`) fells as many or more (group 1 at loft 5: 2.48; group 2 at
+-5: 2.04). The reference engine (below, "The force carried into a group") agrees on what
+these throws fell.
+
+**The release scale.** One ARC control, its range extended down: under `driveKneeDeg` (15,
+half past 5, loft 7) the planned loft falls on a steeper line to `loftAt0` (-15) at a
+release of 0, 6 o'clock (`plan.loftFor`; `releaseMinDeg` 0, `loftMinDeg` -15). Above the
+knee every loft is as before. The swing's error about a plan keeps the one line's slope, a
+third of a degree of loft a degree of release, whatever the plan (`plan.launchLoft`): a
+release 10 degrees early costs 3.3 degrees of loft at a drive as at a lob, so a drive is
+not a trap for an early stop, and a plan from the knee up launches bit for bit as before.
+A thrown kubb has no drive: its release starts at the knee and its loft is the one line's
+(`plan.clampRelease(r, "kubb")`, `plan.loftFor(r, true)`).
+
+**The plan for a drive** is the plan as before: `plan.solve` carries the baton's centre
+through the target at the aim height (`plan.aimZFor`, nearer the kubb's face under
+`flight.tune.nearM`) from the hand `flight.handAt` gives for the distance, at whatever
+loft, flat and downward included; the speed is what that line needs, so the power target
+moves out with it (a longer backswing), and the meter's bars are the distance's as
+before. The aim arc draws the same parabola from the hand to the face, down as well as
+up.
+
+**The floor.** A release is planned no lower than the lowest the swing can make: the
+planned speed at most `plan.speedFor(driveBackMaxDeg)` (140 degrees, about 10.9 m/s, 9
+past a baseline baton's 131) and the line one the hand can make (a hand 0.6 m up cannot
+throw down onto a kubb 4 m away). `plan.solve` raises a plan under the floor to it (24
+bisection steps between the plan and the knee, only when the plan is under the knee), and
+never past the knee, so from the knee up nothing changes: at 8 m the floor is the knee.
+The floor by distance (a kubb's aim height, the person's meter): 0.0 at 1 m, 0.3 at 1.5
+m, 5.0 at 2 m, 9.3 at 3 m, 12.3 at 4 m, 14.8 at 5 m, 15 from 6 m. `aim.controls.arc.min`
+is that floor for the throw in hand (`docs/SESSION.md`).
+
+**The turn** (`driveTurnToDeg`). Under the knee the planned tumble eases from the level's
+own at the knee's loft (7) to none at a release loft of -4 and under: a close drive leaves
+the hand upright (tipped forward as the short throw's hand tips it under `nearM`) and
+arrives near upright, a small part of a turn. Its tilt is the swing's, so the helicopter
+rule (`legalTiltDeg`) is as before: a drive is legal exactly when another throw with the
+same swing would be. The nerves' turn draw is added as before and the rate never goes
+under `tumbleMin` (no backspin), so `session/check`'s tumble bound already holds.
+
+**The default** (`plan.tune.fieldArc`, `plan.arcFor("field", d)`). A baton whose circle is on
+a standing field kubb (within `snapRadius`) defaults to a field kubb's arc; a base kubb,
+the king and an empty spot keep the line every target shared (`plan.arcFor("baton", d)`).
+Jamie on 2026-11-20 ("arc based on target is just obviously wrong") set one line for every
+target; this keeps it for every target but the field kubb, as the owner's report now asks
+(Q18 in `docs/reference/QUESTIONS.md`). The field kubb's line, knots of distance and
+release, straight between: 15 at 1 m and under (the point-blank bowl, unchanged), 6 at 1.5
+m, 13.6 at 4 m, 37.5 at 6 m, 60 at 8 m. What a newcomer who touches nothing throws:
+
+| distance | release | launch loft | m/s | backswing | turns | 0.15's loft and m/s |
+|---|---|---|---|---|---|---|
+| 1.5 m | 6.0 | -4.6 | 6.5 | 95 | 0 | 5.2, 4.6 |
+| 3 m | 10.6 | 0.5 | 10.0 | 128 | 0.20 | 9.5, 7.1 |
+| 4 m | 13.6 | 4.9 | 10.3 | 131 | 0.41 | 12.0, 8.1 |
+| 6 m | 37.5 | 14.5 | 10.0 | 128 | 0.5 | 17.0, 9.5 |
+| 8 m | 60 | 22.0 | 10.3 | 131 | 0.5 | the same |
+
+On the two positions (300 throws each, the same jitter): group 1 falls 1.93 a baton (65%
+two or more) to the new default against 1.60 (57%), group 2 1.95 (90%) against 1.67
+(64%). `tests/lua/test_drive.lua` pins both at a margin of 0.15 kubbs a baton (at n = 60 it
+measures +0.31 and +0.33).
+
+**At a lone kubb** (`tools/meterprobe.lua --arc field|base`, 300 throws): the recorded hand
+fells a lone field kubb 85% / 85% / 69% at 1.5 / 2 / 4 m on 0.15's default and 89% / 93% /
+71% on the drive; a newcomer (x2) 50% / 49% / 35% against 67% / 77% / 38%. On the Kid meter
+a small child's hand (x3) 79% / 83% / 78% at 1.5 / 2 / 3 m against 85% / 88% / 85%: from the
+Kid line the drive is the kinder throw. A perfect swing fells it every time on both.
+
+**What did not change.** Base kubbs from 8 m, the king, every plan from the knee up and
+the computer's throws (`cpu.tune.drive` is off: `docs/reference/plays/field.md`
+`field.drive`) launch bit for bit as before; `tools/physdump.lua` is unchanged. The Playdate's
+crank feeds the same arm degrees (`core/swing`, the device traces in `test_swing`
+unchanged); a plan under the knee costs it one bisection when the plan changes, never per
+frame.
+
+### The force carried into a group
+
+The owner (`s3`): "Batons are not carrying enough force into the kubbs. That is why we
+aren't getting triples and more at the rate that real games get them." Measured against
+MuJoCo (`tools/mjref`, `export.lua --cases drive`, then `ours.lua`, `mjsim.py` and
+`tools/mjref/drive.py`; 2026-11-22). Two kinds of case:
+
+- **The two positions**, 30 jittered throws a setting in both engines (no stakes, the
+  "mech" ground both can model). Kubbs felled per baton, ours against MuJoCo's four
+  solver variants: group 1 at 0.15's plan 1.73 against 1.60 to 1.83, flat 1.80 against
+  1.37 to 1.60; group 2 at 0.15's plan 1.60 against 1.73 to 1.77, flat 1.60 against 1.40 to
+  1.63, -5 1.40 against 1.57 to 1.67, a standing hand at -10 1.80 against 1.90 to 2.07. At n
+  = 30 a difference under about 0.3 is noise: on what a drive fells the two engines agree,
+  ours a little under at the advantage line and a little over from the baseline. Where the
+  baton goes differs: from the baseline flat, ours stops 3 m past the group and MuJoCo's
+  runs 5 to 7 m (the turf's run-on, measured before: docs/notes/reference-engine.md).
+- **A column of three** face to face along the throw, 0.5 cm or 3 cm apart, struck level
+  at the aim height by an upright baton not turning or turning at 12 rad/s, at 6, 8, 10
+  and 12 m/s: each kubb's peak energy and momentum. With 3 cm gaps the variants agree and
+  ours gives the front kubb 15 to 30% less energy (10 m/s, no turn: 2.53 J against 3.03 to
+  3.16; turning: 2.81 against 3.77 to 4.12) and the second about 20% less (0.79 against 0.97
+  to 1.03). Touching (0.5 cm), ours keeps the blow in the front kubb (10 m/s: 2.53, 0.38,
+  0.36 J down the column) where MuJoCo's reference and half-step variants pass it on (1.57
+  to 1.61, 1.40 to 1.44, 0.88), but its stiff variant is close to ours (1.09, 0.49, 0.48):
+  MuJoCo does not agree with itself there. In every column case all three kubbs fall in
+  both engines, so none of it changes a count.
+
+- **A column of six**, the same blows (8 throws a column: 6 to 12 m/s, turning or not):
+  kubbs toppled of 48. With 2 mm between faces ours topples 7 (8 on the game's ground)
+  against MuJoCo's 23 (reference), 19 (half step), 15 (stiff) and 35 (soft); with 5 mm, 11
+  (13) against 15, 18, 16 and 14. Here every variant topples more than ours: in a column
+  that stands all but touching, ours keeps the blow in the first two kubbs and the rest
+  move together slowly, where the reference passes it down the column. This is the study
+  behind Q16's third cause (a touching column of six toppling 0.10 of the time against
+  0.62 to 0.74), confirmed.
+
+What it is not, in ours (`build`-only probes of the column of six, 2 mm, the "mech"
+ground): 12 velocity passes, 16 bounce passes, no warm start, a smaller slop, a slower
+push and a contact margin of 0.5 or 1 mm move it by at most 4 kubbs of 48. What moves it is
+the material between kubbs: friction `pairMu` 0.2 topples 26, bounce `pairE` 0.6 topples
+19. But MuJoCo is given the same 0.4 and 0.35 and topples 15 to 35, so the numbers are not
+wrong; how ours solves two kubbs pressed face to face (`collide.boxBox`'s contacts and the
+pair solve in `core/world`) loses what the same numbers pass on in the reference.
+
+No physics change was made in 0.16.0. On the counts the game scores from realistic groups
+(the two positions) the engines agree within sampling, and the column of six, where the
+reference does support a change, needs the box-box contact itself reworked and measured
+against `tools/physdump.lua`, the Gym's rows that must not move (base kubbs from 8 m, the
+king, the inkast's settling, the touched-and-stood rate) and this column: work of its own,
+with the column of six as its test (`tools/mjref` `--cases drive`). Changing `pairMu` or
+`pairE` instead would put the cause in the wrong place, and the owner's 23.5%
+touched-and-stood rate argues against lower friction. What the reference and the owner
+agree on now is the throw: a harder, lower baton fells more, and that is what 0.16 gives
+the person. The doubles and triples the Gym gained (below) come from it.
+
+### The thrown kubb on the person's meter (0.16)
+
+The owner (`s4`): "Drilling physics is great. Amazing. But the player can now drill too
+good." The physics of the kubb's flight and landing is unchanged. On 0.15 a thrown kubb's
+bars were 1.35 times a baton's (`kubbPower`, `kubbRelease`), so most of the recorded hand's
+drill swings fell inside both and kept the clean hand (`drillScatter` 0.35, pro's): they
+landed dead 74% of the time, against the club computer's 56%. From 0.16 a kubb's bars are a
+baton's (`kubbPower` and `kubbRelease` 1); what an error inside or past them costs is as
+before. `lua5.4 tools/meterprobe.lua --parts drill --n 400` (one tap of spin onto the
+basket's spot, 1.9 m out and 4.75 m deep, an empty half):
+
+| thrower | median | rms | within 0.15 m | within 0.3 m | landed dead | out | scatter |
+|---|---|---|---|---|---|---|---|
+| recorded hand x1, 0.15 | 8 cm | 79 cm | 64% | 74% | 74% | 2% | 0.88 |
+| recorded hand x1, 0.16 | 16 cm | 82 cm | 50% | 62% | 62% | 3% | 1.33 |
+| recorded hand x0.5 (a master), 0.15 | 4 cm | 35 cm | 90% | 95% | 93% | 1% | 0.43 |
+| recorded hand x0.5, 0.16 | 4 cm | 30 cm | 85% | 87% | 89% | 1% | 0.54 |
+| steady inside both bars, 0.15 and 0.16 | 4 to 5 cm | 9 to 12 cm | 96 to 97% | 98% | 94 to 97% | 0% | 0.36 |
+| dead centre, steady | 2 cm | 9 to 10 cm | 97% | 97 to 98% | 96% | 0% | 0.36 |
+| the computer at club | 8 cm | 30 cm | 69% | 79% | 56% | 2% | 1.00 |
+| the computer at pro | 3 cm | 9 cm | 97% | 98% | 96% | 0% | 0.35 |
+
+So the recorded hand now lands dead about as often as the club computer and groups a
+little looser than it near the spot, a steady hand inside the bars is a pro's, and a
+perfect swing lands where it was aimed. Narrower still (0.8, 0.6) took the recorded hand
+under half within 0.3 m, below the club computer on every column. The Kid meter is its own
+entry and keeps 1.35. The Gym's groups by thrower are in docs/notes/gym.md "The drive".

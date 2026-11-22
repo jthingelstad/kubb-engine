@@ -283,9 +283,22 @@ tick, step, unit, scope }` (`arc` also `set`, `spin` also `radPerTap` and `baseR
 `tiltTickDeg`, `spinTick`); `step` what a press jumps by (the step calls). `scope` is
 `"throw"` or `"turn"` (below).
 
+The drive (0.16). A baton's `arc.min` is the throw's floor, not a constant: the lowest
+release whose line the hand can make and whose speed the swing can give a person steadily
+(`plan.tune.driveBackMaxDeg`, a backswing of 140), worked out by `replan` whenever the
+circle or the stance moves (`plan.solve` with release 0). It is 0 at a kubb a metre away, 5
+at 2 m, about 12 at 4 m and 15 (the knee) from about 5 m, where nothing under the knee can
+be made. `arc.knee` (15) is where the drive starts: under it the planned loft falls on the
+drive's steeper line and the planned turn eases to none by a release of 7.5 (a release
+loft of -4, before a short throw's flattening), so a slider can mark it. A
+value set under the floor is kept (`setArc` clamps to 0 to 165 only) and planned at the
+floor, so moving the circle nearer gives it back; `arc.value` is never under `arc.min`.
+`aim.plan.speed`, `back` and the power band move out with the drive's speed as with any
+other plan, and `aim.arc` is the planned flight, down as well as up.
+
 | Control | Range | Default | Tick | Step | Physically |
 | ------- | ----- | ------- | ---- | ---- | ---------- |
-| `arc` | 15 to 165 clock degrees (half past 5 to half past 12) | the plan's own (`plan.arcFor`, since 0.10): a baton's goes by the distance from the stance to the aim circle, never the target's kind, 15 at 2 m or closer rising 7.5 a metre to 60 at 8 m (a straight line, clamped to the range); a drilled kubb 135 | 5 | 15 | the release target; the loft is `plan.loftFor` of it, about 7 to 57 degrees |
+| `arc` | a baton's: its floor for the throw in hand (`min`, 0.16) to 165 clock degrees (half past 12); a kubb's: 15 (half past 5) to 165 | the plan's own (`plan.arcFor`): a baton's goes by the distance from the stance to the aim circle, 15 at 2 m or closer rising 7.5 a metre to 60 at 8 m; from 0.16 a baton whose circle is on a standing field kubb takes a field kubb's (`plan.tune.fieldArc`: 15 at 1 m and under, 6 at 1.5 m, 13.6 at 4 m, 37.5 at 6 m, 60 at 8 m); a drilled kubb 135 | 5 | 15 | the release target; the loft is `plan.loftFor` of it: from the knee (`knee`, 15) up the line through 5 and 3 o'clock, 7 to 57 degrees; under it the drive, down to -15 at 0 (docs/notes/throw.md "The drive") |
 | `tilt` | -20 to 20 degrees | 0 | 1 | 5 | the baton's spin plane tipped, before the shake's tilt; over 30 with the shake is a helicopter |
 | `spin` | -3 to 3 taps | 0 | 0.25 | 1 | 22 rad/s a tap about the kubb's long axis, + clockwise from behind (rolls right), on top of the wrist's 3 rad/s spiral, which goes the spin's way from 0.11: -69 to +69 rad/s. From 0.11 a spun kubb that lands dead rolls that way, about 5 cm for one tap, 16 for two and 33 for three on grass, and the aim allows for it (`drill.rollFor`) |
 

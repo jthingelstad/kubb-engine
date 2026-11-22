@@ -42,6 +42,14 @@ goes to `build/mjref/report.md`, with every number in `report.json`.
   - The clean drill to a mark 6 m out: lofts 30 and 47, 0 to 3 taps, nose 41/45/49
     degrees, on each surface.
   - Free flight against `flight.carry`.
+  - Not in `make mjref`: the drive (0.16.0, `lua5.4 tools/mjref/export.lua <dir> --cases
+    drive [--per 30]`, the same flag to `ours.lua`, then `mjsim.py` and `python3
+    tools/mjref/drive.py <dir>`): the two group positions of
+    `tests/fixtures/drive/positions.lua` thrown at a setting with a seeded jitter, and a
+    column of three struck by an upright baton turning or not at 6 to 12 m/s. `drive.py`
+    compares them as distributions (kubbs felled, two or more, the baton's rest) and the
+    column by each kubb's peak energy and momentum. Results: docs/notes/throw.md "The force
+    carried into a group".
 - Contact parameters (MuJoCo):
   - Solver: elliptic friction cones, `impratio` 10, the Newton solver (200 iterations,
     tolerance 1e-12) and the `implicitfast` integrator.
