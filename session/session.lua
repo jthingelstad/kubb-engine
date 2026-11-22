@@ -684,12 +684,21 @@ local function plainSettled(st)
 	if not st then return nil end
 	local list = {}
 	for i, e in ipairs(st.list or {}) do
+		-- (0.17.0) the surroundings, as raiseInfo and punishInfo give them for a kubb by
+		-- hand: every other piece and the king, in the raiser's view frame (a punishment
+		-- kubb's others only those near its half, as punishInfo's)
+		local others = {}
+		for _, o in ipairs(e.others or {}) do
+			local p = viewPose(e.side, o.pose)
+			if e.kind == "raise" or (p.y >= -0.2 and p.y <= 4.2) then others[#others + 1] = { id = o.id, pose = p } end
+		end
 		if e.kind == "raise" then
 			list[i] = { kind = "raise", id = e.id, side = e.side, which = e.which,
 				lying = viewPose(e.side, e.lying), standing = viewPose(e.side, e.standing),
-				displaced = e.displaced, crowded = e.crowded }
+				displaced = e.displaced, crowded = e.crowded, others = others, king = viewPose(e.side, e.king) }
 		else
-			list[i] = { kind = "punish", id = e.id, side = e.side, pose = viewPose(e.side, e.pose) }
+			list[i] = { kind = "punish", id = e.id, side = e.side, pose = viewPose(e.side, e.pose),
+				others = others, king = viewPose(e.side, e.king) }
 		end
 	end
 	return { raised = st.raised, punished = st.punished, list = list }

@@ -462,6 +462,12 @@ it takes to offer computer players.
   king now reads `"KING BACK UP"` or the kubbs alone, so nothing need rebuild it from the
   ruling), and say a rethrow from `need.setup.rethrow` with its own count, "rethrow 1 of 1",
   never adding it to the first round's.
+- **Web and iPhone, the engine's raises in full**: each `setup.settled` entry now has
+  `others` and `king`, the surroundings in the raiser's view frame as `raiseInfo` gives
+  them for a raise by hand (and as `punishInfo` gives them for a punishment kubb), turned
+  to the world frame in the wide view. Draw a watched engine raise with the raise-by-hand
+  view: the kubb from `lying` to `standing`, `others` and `king` around it, entry by
+  entry; nothing need be taken from the next throw's `items` or converted.
 - **Pitch server** (`backend/pitch-server`)
   - Must: check the names of computer seats. `core.mjs`'s check of a document's names
     (`teamNames`, `match.players`, and a start's `meta`) gains `doc.computers[id].name`

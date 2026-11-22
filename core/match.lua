@@ -347,6 +347,18 @@ end
 -- setup's `settled`): { kind = "raise", id, side (who raised), which (the end, as a
 -- raise action names it), lying, standing (poses, the engine's frame), displaced,
 -- crowded } or { kind = "punish", id, side, pose }. Nothing here is saved or hashed.
+-- Since 0.17.0 each entry also has the surroundings as they stood while it was done,
+-- what a raise or a punishment kubb by hand is shown with (the session's raiseInfo and
+-- punishInfo, Game:context): `others` = { { id, kind, pose } } every other piece on the
+-- pitch, and `king` its pose (the engine's frame). Per entry, since a kubb raised earlier
+-- stands among the next one's others.
+local function surroundings(g, side, id)
+	local ctx = g:context(side, id)
+	local others = {}
+	for i, o in ipairs(ctx.others) do others[i] = { id = o.id, kind = o.kind, pose = poseCopy(o.pose) } end
+	return others, poseCopy(ctx.king)
+end
+
 function match.settle(m)
 	local g = m.game
 	local raised, punished = 0, 0
@@ -355,17 +367,21 @@ function match.settle(m)
 		local n = g:need()
 		if n.kind == "raise" then
 			local lying = poseCopy(n.pose)
+			local others, king = surroundings(g, n.side, n.kubb)
 			local c = g:raise(nil, match.raisePolicy(m, n.side))
 			raised = raised + 1
 			list[#list + 1] = { kind = "raise", id = n.kubb, side = n.side, which = c.which, lying = lying,
-				standing = poseCopy(c.pose), displaced = c.displaced or false, crowded = c.crowded or false }
+				standing = poseCopy(c.pose), displaced = c.displaced or false, crowded = c.crowded or false,
+				others = others, king = king }
 			list[#list].standing.standing = true
 		elseif n.kind == "punish" then
 			local id = n.kubb
+			local others, king = surroundings(g, n.side, id)
 			g:autoPunishment()
 			punished = punished + 1
 			local k = g.kubbs[id]
-			list[#list + 1] = { kind = "punish", id = id, side = n.side, pose = poseCopy(k and k.pose) }
+			list[#list + 1] = { kind = "punish", id = id, side = n.side, pose = poseCopy(k and k.pose),
+				others = others, king = king }
 		else
 			break
 		end

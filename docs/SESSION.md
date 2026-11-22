@@ -148,7 +148,15 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
   each entry says `frame: "world"`. A session restored from a snapshot after the raise
   hands out none (the kubbs already stand raised in its items); nothing of it is in a
   snapshot, an action or a hash. A raise the engine makes is shown from `setup.settled`:
-  never compare pieces before and after, or convert frames.
+  never compare pieces before and after, or convert frames. Since 0.17.0 each entry also
+  carries its surroundings as they stood while it was done, what a raise or punishment
+  kubb by hand is shown with: `others` `[{ id, pose }]` (every other piece on the pitch,
+  as `raiseInfo`'s `others`; for a punishment kubb only those near its half, as
+  `punishInfo`'s) and `king` (its pose), in the same raiser's view frame (the world frame,
+  turned, in the wide view). They are per entry: a kubb raised earlier stands among the
+  next one's `others`. So a client draws the engine's raise with the code and the picture
+  it draws a raise by hand with, and the next thrower's `items` (in the other team's
+  frame) are not needed for it.
   `cpu`: the computer throws (a side the computer plays, or since 0.17 a computer player
   in a team; `thrower.cpu` is then true too, and `thrower.level` its level). `local`: this
   browser acts for it. `candidates`: the team's players when the team has more than one
