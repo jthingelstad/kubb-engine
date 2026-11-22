@@ -512,7 +512,9 @@ census of 2026-11-21.
   now drill too well (owner-2026-11-22#s4); 0.16.0 narrowed a thrown kubb's bars to a
   baton's for that. Nothing has been narrowed on fit 2.
 - **Recommendation:** Wait for the evidence before narrowing: about 200 throws a cell from
-  10 or more matches and 5 or more players.
+  10 or more matches and 5 or more players. What narrowing would take is measured in
+  docs/notes/throw.md "Bars that bring the recorded hand to club": the release bar does
+  it, the power bar hardly matters.
 - **Settle by:** the owner's word on who the meter is for, then the recorded matches above,
   then the Gym against the chosen rows.
 - **Touches:** none
