@@ -249,7 +249,7 @@ What this buys outside the game:
 
 In order, each its own pull request:
 
-1. **The session door.** Done (0.13.2): `kubbCall("names.roll" | "names.step" |
+1. **The session door.** Done (0.13.3): `kubbCall("names.roll" | "names.step" |
    "names.choices" | "names.make" | "names.valid" | "names.words" | "names.all")`
    (docs/SESSION.md "Names"). The client passes a seed, the session draws from it with
    `plan.rng`. Hash neutral: a patch release. What a client does next is in

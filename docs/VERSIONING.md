@@ -95,6 +95,31 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.13.3** (patch). Generated names reach the web and the iPhone. The session's new
+  `names.*` calls (`roll`, `step`, `choices`, `make`, `valid`, `words`, `all`;
+  docs/SESSION.md "Names") make, step and check player and team names from
+  `core/namewords`, drawing from a seed the client passes (`plan.rng`), so a seed gives
+  one name on every client. `names.valid` marks the engine's own names ("Computer",
+  "Team A", "Player 1") as `default`, apart from `ok`, so a boundary can accept
+  `ok or default` while a client checking its own stored name is not fooled by them.
+  `names.words` gives the lists, the shapes, the rules' number and a hash of them all,
+  which is enough to check a name without Lua; a test does it in JavaScript over every
+  name and over two thousand near misses. No pitch reducer changes: a pitch still takes
+  a typed name (docs/NAMES.md section 8, step 2, says where the check goes and how it is
+  staged). Hash neutral: no golden hash moves, and 0.13.3 shares matches with 0.13.0 to
+  0.13.2. The session has one more file, `session/names.lua`.
+
+  For clients: sync the tag; nothing must change.
+  - **Web and iPhone**, to replace typed names: `names.roll` on first run, and keep the
+    text; the name row from `names.roll` with `keep` for Shuffle and locks, and
+    `names.step` or `names.choices` per word; names that arrive from outside checked with
+    `names.valid`, accepting `ok` or `default`; every name from `names.all` measured in
+    the client's own font to size the row. A side of one player is named after that
+    player, so a team name's check accepts a player's name there.
+  - **The web's pitch server** can check names without Lua from `names.words`, and
+    compare its `hash` with a client's.
+  - **Playdate**: nothing; it calls `core/namegen` directly.
+
 - **0.13.2** (patch). The game file's `[Throw Levels]` names the computer's players only.
   Since 0.13.0 a level is the computer's standard and a person's changes nothing in their
   throw, so a file that wrote `[Throw Levels "you club, computer club"]` presented the
