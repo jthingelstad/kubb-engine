@@ -35,13 +35,13 @@ autothrow.tune = {
 	-- the recorded tournament games (Jamie, 2026-11-17), club and beginner below it.
 	-- Beginner 1.6 until 0.13: then it cleared 88% of its fields against beginner's
 	-- reference 35 to 55 and a newcomer on the person's meter won 3 games in 100; at
-	-- 2.15 it clears about half and the newcomer wins about 55 (docs/notes/gym.md
+	-- 2.2 it clears about half and the newcomer wins about 52 (docs/notes/gym.md
 	-- "The person's meter")
 	drillSpin = 1,           -- taps of axial spin on every drill, to steady the flight: what a
 	                         -- thrower's hand does, not a thing a level's name decides (until
 	                         -- 0.10: beginner 0, club 1, pro 2). One tap is the least that holds
 	                         -- the nose to the touch; the levels differ by their swings' mistakes
-	swingScale = { beginner = 2.15, club = 1.3, pro = 1 },
+	swingScale = { beginner = 2.2, club = 1.3, pro = 1 },
 	batonShort = 0,          -- m the baton's target is short of the kubb's center: none, the
 	                         -- center, where a player's target snaps (measured 2026-11-15 with
 	                         -- the plan's arcs: a clean baton landing up to 0.2 m past the
