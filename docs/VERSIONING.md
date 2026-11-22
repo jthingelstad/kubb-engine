@@ -121,6 +121,11 @@ Every client shows its own version with the engine's beside it, in one form:
     changes, and the 19 golden matches give every hash as recorded. The neighbours touch
     no state the session keeps; the tests run them beside a session in one Lua state and
     its snapshots and recordings do not move.
+  - **Two Kid fixes, output only** (found by the web's move to 0.15.0): the wide view
+    turns `aim.kidY` and `minimap.kidY` for Team B, as it turns the advantage line (it
+    left them in the thrower's frame, so a client could not draw the far side's Kid line);
+    and a Kid match's counted helicopter has a recording `result.flag` of what it knocked
+    down (`MISS`, `1 DOWN`), not `HELICOPTER`. Neither is in a snapshot or a hash.
   - **For clients**: nothing must change. Showing neighbours is docs/CLIENTS.md "0.15.1 on
     top": a worker with a second engine (web), a second `lua_State` (iPhone); the Playdate
     does nothing.
