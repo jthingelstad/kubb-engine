@@ -65,11 +65,15 @@ test("with the 0.12.0 plays off and 0.12's beginner and club, autothrow.choose m
 	local saved, beginner = {}, ss.beginner
 	for name, p in pairs(cpu.tune) do saved[name] = p.on; p.on = 0 end
 	ss.beginner = 1.6
+	-- (0.17.0) the king shot's own mistakes, which 0.11 did not have
+	local ks, kingSaved = tw.autothrow.tune.kingScale, {}
+	for k, v in pairs(ks) do kingSaved[k] = v; ks[k] = 1 end
 	local club = tw.autothrow.cpuLevel("club")
 	local clubNerves, planNerves = club.nervesDeg, tw.plan.levels.club.nervesDeg
 	club.nervesDeg, tw.plan.levels.club.nervesDeg = 0.8, 0.8
 	local ok, err = pcall(against, "choose-0.11.txt")
 	for name, p in pairs(cpu.tune) do p.on = saved[name] end
+	for k, v in pairs(kingSaved) do ks[k] = v end
 	ss.beginner = beginner
 	club.nervesDeg, tw.plan.levels.club.nervesDeg = clubNerves, planNerves
 	if not ok then error(err, 0) end
