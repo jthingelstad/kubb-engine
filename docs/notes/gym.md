@@ -161,7 +161,10 @@ thrower" below.
 web repository's `npm run games:pull` writes one). The records are private: names and room
 codes. The tools take the folder as an argument and never copy it; the snapshots and actions
 go to the workers in a temporary folder that is removed before the command ends, and
-`tools/gym/human-model.json` holds only counts and quantiles.
+`tools/gym/human-model.json` holds only counts and quantiles. Test play is left out: the
+four pitches of a QA pass on 2026-11-22 (`TEST_PITCHES` in `tools/gym/records.mjs`, the
+web's list) and everything under `dev/` (the web's dev Worker's pushes), whose "people"
+are scripts.
 
 For each person's throw (`tools/gym/invert.lua`): restore the snapshot before it, plan it as
 the player's session did (stance, target; the arc and tilt or spin the player set, which a
