@@ -100,9 +100,8 @@ world.tune = {
 	                       -- baton lying in the groove of two lying batons rolled there with
 	                       -- nothing to stop it, rocked at the sleep threshold and held the
 	                       -- throw open to maxTime (the Gym gate's unsettled throw, 2026-11-22;
-	                       -- docs/notes/physics.md, "A baton rocking in a groove")
-	pairRollAfter = 4,     -- s: ... from this long after the throw only, so that every throw that
-	                       -- settles sooner keeps its hashes; the whole term waits for a minor
+	                       -- docs/notes/physics.md, "A baton rocking in a groove"); from the
+	                       -- first step since 1.0 (from 4 s into a throw in 0.18)
 	warm = 0.9,            -- fraction of last step's ground impulses applied up front
 	gyro = true,           -- gyroscopic term (torque-free precession; implicit, stable)
 	flightTurns = 4,       -- a drilled kubb's turn in flight (the air's turn, the gyroscopic term
@@ -2127,9 +2126,13 @@ function world.step(w)
 					end
 				end
 			end
-			-- a baton resting on other pieces: their rolling resistance (pairRoll),
-			-- late in a throw only (pairRollAfter)
-			if b.rrStamp == stamp and w.time > t.pairRollAfter then rollResist(b, t.pairRoll, b.rrImp) end
+			-- a baton resting on other pieces: their rolling resistance (pairRoll), from
+			-- a resting push, never more than its weight's this step (a blow is not a brake)
+			if b.rrStamp == stamp then
+				local imp, wt = b.rrImp, b.m * t.g * dt
+				if imp > wt then imp = wt end
+				rollResist(b, t.pairRoll, imp)
+			end
 			if b.dig > 0 then
 				b.dig = b.dig * exp(-dt / surf.digTime)
 				if b.dig < 1e-5 then b.dig = 0 end

@@ -1066,7 +1066,7 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     before and after, the match case 0.006 to 0.009; the change makes one contact fewer
     and a few comparisons). Not bit-identical: every throw where a baton meets a kubb or
     the king along a face or an edge.
-- **A baton rocking in a groove** (0.18.0, 2026-11-22; the Gym gate on the refitted person,
+- **A baton rocking in a groove** (0.18.0, from the first step in 1.0.0, 2026-11-22; the Gym gate on the refitted person,
   `unsettled: field: 1`). Traced on desktop Lua at match 20 of seed 1, throw 171 (human at
   club, Grass; CI on Linux names 20:108, the same gate on another libm, not reproducible
   here): the third baton came to lie across two lying, sleeping batons, in the groove
@@ -1084,12 +1084,25 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     `rollResist` with `pairRoll` (2 mm, a guess: wood on wood, a fifth of short grass)
     times the sum of those contacts' normal impulses. The throw above rests at 4.3 s;
     every earlier throw of that match is unchanged.
-  - **Late only.** From the first step it is not hash-neutral (with the sleeping-piece
-    contacts alone it moved 26 of 881 golden actions, first m04-grass-light-B, action 28),
-    so 0.18.0 applies it only after `pairRollAfter` (4 s), when every golden throw has
-    settled: no golden hash moves by it, and it ends exactly the throws that would
-    otherwise be held open. The term belongs from the first step and waits for a minor
-    with its Gym rows measured.
+  - **Late only, in 0.18.** From the first step it is not hash-neutral (with the
+    sleeping-piece contacts alone it moved 26 of 881 golden actions, first
+    m04-grass-light-B, action 28), so 0.18.0 applied it only after `pairRollAfter` (4 s),
+    when every golden throw had settled.
+  - **From the first step, 1.0.** `pairRollAfter` is gone, and the push the lever works
+    on is capped at the baton's weight in the step (`m g dt`, as the ground's load is in a
+    step that strikes): uncapped, a baton's blow on a kubb was a brake on its spin, and
+    the first golden throw moved. Measured against 0.18.0 (2026-11-22): the Gym, 300
+    matches a configuration, seed 1, grass, computer and person at beginner, club and pro,
+    `gym compare` finds 6 of 612 figures past 99%, what chance gives (the pro rows' half
+    turn and lean at the touch, the person at pro's best take of a group of three, 4.48
+    -> 4.60); took two 7.1, 16.5, 23.3, 9.0, 11.4, 16.5% -> 7.2, 16.6, 23.8, 8.7, 11.5,
+    16.8; three or more 0.7, 3.4, 10.0, 1.0, 1.6, 2.6% -> 0.7, 3.5, 10.1, 1.0, 1.5, 2.6;
+    base kubbs toppled 20.9, 31.0, 37.0, 41.2, 35.0, 33.8% -> 20.7, 31.1, 36.7, 41.4,
+    35.0, 33.9. `make physfuzz N=2000 SEED=1`: energy 156 -> 157, penetration 125 both,
+    rest 1 -> 0, finite 6 both, dt 28 -> 29, mirror 8 both. Not bit-identical
+    (`tools/physdump.lua --games 2`): any step where a baton rests on another piece. The
+    golden corpus moves from the first match's first action (a baton resting on a kubb
+    after its throw), so `make golden`.
 - **A glance at a top corner** (2026-11-22, the owner's report of a kubb that stood after
   a fast hit; known, unfixed). The report's last throw replayed (`tools/reportprobe.lua`):
   the front kubb was struck on its top corner by a baton at 8.6 m/s coming down at 3.2 m/s,
