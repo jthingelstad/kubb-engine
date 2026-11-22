@@ -111,23 +111,26 @@ Every client shows its own version with the engine's beside it, in one form:
     longer changes their throw.
   - **The bars go by distance.** Wide for a short throw, narrow for a long one: 5.6 and 21
     degrees either side at 4 m, 3.8 and 14.2 at 6 m, 2 and 7.5 at 8 m.
-  - **A long miss costs more.** Past the power bar the first 10 degrees count one for one
-    up to 5 m, rising to 3.5 times at 8 m; inside the bar nothing changes.
+  - **A degree is a degree.** Past the power bar the backswing counts one for one at every
+    range, so the same backswing carries the same distance whatever the target.
+  - **The release sets the line.** A release past its bar pulls a baton off the line,
+    0.15 degrees a degree: late (HIGH) to the left, early (LOW) to the right. Inside the
+    bar, none. The verdict says so: HIGH or LOW with PULLED LEFT or RIGHT.
   - **An honest meter.** A steady swing inside both bars goes where it was aimed (a
     perfect swing fells a lone kubb at 4, 6 and 8 m every time; steady swings anywhere
     inside both bars 99 to 100%) and never comes back PULLED; outside a bar a miss reads
     SHORT, LONG, LOW, HIGH or SHAKY.
   - **A person's kubb** keeps a clean hand (pro's) inside both bars and steady, and
     scatters with the shake and with how far past a bar the swing went.
-  - **The beginner computer** misses about 45% of its field batons and clears about half
-    its fields (it was 33% and 88%, better than beginner play): a newcomer wins about 55
-    games in 100 against it (was 3), a typical player about 49 against club.
+  - **The beginner computer** misses about 43% of its field batons and clears about half
+    its fields (it was 33% and 88%, better than beginner play): a newcomer wins about 52
+    games in 100 against it (was 3). A typical player wins about 60 against club.
 
   How: `plan.meters`, `plan.meter`, `plan.meterLevel`; `plan.solve` takes `q.meter` and
-  keeps the meter's table for the distance as the solution's `level`; `plan.shrink`'s
-  `outGain` and `outCap`, `plan.shakeCounts`, `plan.unshake` and `plan.scatterFor`. The
+  keeps the meter's table for the distance as the solution's `level`;
+  `plan.releasePull`, `plan.shakeCounts`, `plan.unshake` and `plan.scatterFor`. The
   session plans a person's throw on `throw.meterFor(s)`, and `checkThrow` holds a person's
-  throw to the meter. `autothrow.tune.swingScale.beginner` 1.6 to 2.15. The Gym's human
+  throw to the meter. `autothrow.tune.swingScale.beginner` 1.6 to 2.2. The Gym's human
   thrower plans on the meter and takes a hand scale (`hand=` in a versus spec);
   `tools/meterprobe.lua` measures the meter against the reference rows.
 

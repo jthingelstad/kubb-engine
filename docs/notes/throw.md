@@ -597,15 +597,24 @@ harder.
   and a crank. The session's bands are the solution's `powerLo..powerHi` and
   `releaseLo..releaseHi` as before (`bandEdges`, the aim view's `plan`), and `replan` runs
   when the circle or the stance moves, so a surface draws the new bars with no new field.
-- **Past the power bar, a long throw costs more.** The first `outCapDeg` (10) degrees past
-  the power bar's edge count `outGain` each: 1 up to `outFromM` (5 m), rising on a line to
-  `outGain8` (3.5) at 8 m (1.83 at 6 m, 4.3 at 9 m); past those ten degrees, one for one
-  again, so a wild swing is not made wilder than its own error (`plan.shrink`'s `outGain`
-  and `outCap`). A degree past the bar at 8 m sends the baton farther off than a degree at
-  4 m, which is how the reference's long-range rows are met without a bar too thin to
-  use. The release past its bar stays one for one at every range: the stop then pins the
-  loft whatever release was planned, which is what lets `checkThrow` hold a person's loft
-  (an `outGain` on the release would let any loft past the bar fit some planned release).
+- **A degree is a degree.** Past the power bar the backswing counts one for one at every
+  range: the same backswing carries the same distance whatever the target, less only the
+  bar's own forgiveness (`powerHalf x (1 - inGain)`). A first calibration made a degree
+  past the bar count up to 3.5 times at 8 m; it was taken out before the release because
+  the same arm then threw different distances by where the target was (a 121 degree
+  backswing carried about 6 m aimed at 6 m and 4.5 m aimed at 8 m), which a person cannot
+  learn.
+- **The release sets the line.** A real 8 m miss is mostly sideways (a kubb is about 0.4
+  degrees wide from there), and a steady swing had no sideways input. For a person's
+  baton (the king shot included) the part of the release past its bar pulls the throw off
+  the line, `pullPerDeg` (0.15) degrees a degree (`plan.releasePull`): a late release, past
+  the bar's top (HIGH), pulls left; an early one (LOW) pulls right. One fixed convention,
+  not the shake's pull, so a player can learn it. Inside the bar there is none. It is an
+  angle, so the miss in metres grows with the range by itself: 5 degrees late at 8 m is
+  10 cm left, 10 degrees 21 cm; at 4 m half that. The loft still follows the release, and
+  the verdict reads true: a release past its bar comes back HIGH or LOW and PULLED LEFT or
+  RIGHT. The thrown kubb is not pulled (its scatter past a bar does that job), nor the
+  computer. `checkThrow` takes the pull from the stop, which the loft pins.
 - **The meter is honest.** Inside a bar an error counts `inGain` (0.1) of itself, at every
   range. A steady swing's shake counts `shakeIn` (0.1) of itself (`plan.shakeCounts`:
   `plan.shrink` with `steadyBelow` as the bar), so a steady swing does not tilt or pull the
@@ -638,16 +647,33 @@ standing kubb on grass, turned 0 to 90 degrees):
 | steady swings evenly inside both bars, fell | 100% | 100% | 100% | 99% |
 | a dead-centre steady swing, fell | 100% | 100% | 100% | 100% |
 | steady swings inside both bars, PULLED | 0% | 0% | 0% | 0% |
-| the recorded hand x2 (a newcomer), fell (target) | 51% | 40% (45) | 22% (22) | 12% (10) |
-| the recorded hand x1, fell (target) | 84% | 72% (72) | 48% (48) | 28% (27) |
-| the recorded hand x0.5 (a master), fell (target) | 94% | 92% (88) | 80% (70) | 52% (45) |
+| the recorded hand x2 (a newcomer), fell (target) | 49% | 36% (45) | 18% (22) | 10% (10) |
+| the recorded hand x1, fell (target) | 84% | 72% (72) | 50% (48) | 27% (27) |
+| the recorded hand x0.5 (a master), fell (target) | 94% | 92% (88) | 80% (70) | 63% (45) |
 
 The recorded hand is the Gym's fitted human thrower's club baton part, its misses about
 the target centre scaled (`human.scale`). On 0.12.0 the same hand at club (club's bars,
 inGain and nerves) felled 59 / 44 / 22 at 4 / 6 / 8 m (x1), 26 / 20 / 10 (x2), 89 / 73 / 27
-(x0.5). The master sits above pro's row at 6 and 8 m and the newcomer a little under
-beginner's at 4 m: narrowing the bars further for the one would push the recorded hand
-off its row.
+(x0.5). The master sits above pro's row at 6 and 8 m (at 8 m most of a master's releases
+stay inside the bar, so the pull rarely reaches it) and the newcomer under beginner's at
+4 and 6 m: a narrower release bar with a smaller pull brings the master to 56 to 60 at
+8 m but takes the recorded hand to 23 to 25 and the newcomer lower still, so the bars are
+left where the recorded hand lands on its row.
+
+Flights at 8 m (a clean swing but for the one error named; carry to the first touch of
+the ground, the line's miss at the target, no nerves):
+
+| swing | backswing | carry | side at 8 m | verdicts |
+|---|---|---|---|---|
+| clean | 131.3 | 8.0 m | 0 | ON ON STEADY STRAIGHT |
+| backswing 6 short | 125.3 | 7.5 m | 0 | SHORT ON STEADY STRAIGHT |
+| backswing 10 short | 121.3 | 7.0 m | 0 | SHORT ON STEADY STRAIGHT |
+| backswing 15 short | 116.3 | 6.3 m | 0 | SHORT ON STEADY STRAIGHT |
+| backswing 10 long | 141.3 | 9.2 m | 0 | LONG ON STEADY STRAIGHT |
+| release 5 past the bar, late | 131.3 | 8.4 m | 10 cm left | ON HIGH STEADY PULLED LEFT |
+| release 10 past the bar, late | 131.3 | 8.7 m | 21 cm left | ON HIGH STEADY PULLED LEFT |
+| release 5 past the bar, early | 131.3 | 7.7 m | 10 cm right | ON LOW STEADY PULLED RIGHT |
+| release 10 past the bar, early | 131.3 | 7.3 m | 21 cm right | ON LOW STEADY PULLED RIGHT |
 
 A drilled kubb onto the basket's spot (1.9 m out, 4.75 m), one tap of spin, 400 drills:
 
