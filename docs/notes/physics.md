@@ -1145,6 +1145,29 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     real baton does to a kubb's top edge (docs/reference/QUESTIONS.md Q21). If real
     grazes fall, the fix ships with a sharper rounding (2 to 3 mm); if they skim, the
     engine already over-fells them and the phase is the smaller error.
+- **A baton that meets the ground first** (2026-11-22; the owner: batons should bang the
+  kubbs, not tap them). Of the person's touches of a lone kubb (`tools/groundfirst.lua`,
+  fit 2, 300 throws a range) 29% at 6 m and 38% at 8 m meet the turf first, and reach the
+  kubb at 6.2 and 5.8 m/s against 9.7 and 9.8 on the fly. They are not weak throws: they
+  meet the ground at 9.4 and 9.5 m/s. The ground's account (means, joules; the baton's
+  translational + rotational energy):
+
+  | 8 m, ground first | meeting the ground | off it again | 0.1 s later | at the kubb |
+  | --- | --- | --- | --- | --- |
+  | ours, as played | 11.35 + 0.01 (9.52 m/s) | 4.44 + 1.38 (5.89) | | 4.54 + 1.39 (5.95) |
+  | ours, the same throws, no kubb | 11.35 + 0.01 | 4.59 + 1.38 (6.01) | 3.89 + 1.23 (5.51) | |
+  | ours, no kubb, flat (no texture, dig or bite) | 11.35 + 0.01 | 4.69 + 1.54 (6.08) | 4.37 + 1.47 (5.86) | |
+  | MuJoCo `ref` (6 and 8 m, 105 landings) | 11.20 + 0.02 (9.46) | 5.00 + 1.25 (6.28) | 4.72 + 1.22 (6.10) | |
+
+  About 45% of the energy goes in the first strike in both engines (`stiff` and `hard`
+  within 1%), and about 1.4 J of what is left is spin: the leading end is held as it
+  strikes and the baton pivots over it. The term is the friction at that end: flat with
+  `mu` 0 the baton keeps 80% (7.8 m/s), with `mu` 0.2 63%, at grass's 0.7 55%; `e` 0.6
+  instead of 0.15 keeps 69%; the texture's bumps and drag, dig, bite and rolling
+  resistance move it by 0 to 3%. MuJoCo shares the coefficients (it is given ours), so it
+  confirms the mechanics, not grass's `mu` at an impact; nothing to fix against it. What
+  the soft arrival costs is small: a ground-first touch fells the lone kubb 93% (6 m, of
+  54) and 92% (8 m, of 51), on the fly 100% (of 133 and 84).
 - Tried and rejected (2026-11-13): `dt` 1/120 halves the steps but fails three behaviour
   tests and the bigger contact margin gives ghost hits; 3 solver iterations instead of 4
   would save about 8% of a collision step but changes the feel, so it was not applied.
