@@ -1154,7 +1154,7 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
 
   | 8 m, ground first | meeting the ground | off it again | 0.1 s later | at the kubb |
   | --- | --- | --- | --- | --- |
-  | ours, as played | 11.35 + 0.01 (9.52 m/s) | 4.44 + 1.38 (5.89) | | 4.54 + 1.39 (5.95) |
+  | ours, as played (the 49 of 51 that left the ground before the kubb) | 11.32 + 0.01 (9.51 m/s) | 4.55 + 1.37 (5.98) | | 4.38 + 1.33 (5.78) |
   | ours, the same throws, no kubb | 11.35 + 0.01 | 4.59 + 1.38 (6.01) | 3.89 + 1.23 (5.51) | |
   | ours, no kubb, flat (no texture, dig or bite) | 11.35 + 0.01 | 4.69 + 1.54 (6.08) | 4.37 + 1.47 (5.86) | |
   | MuJoCo `ref` (6 and 8 m, 105 landings) | 11.20 + 0.02 (9.46) | 5.00 + 1.25 (6.28) | 4.72 + 1.22 (6.10) | |
