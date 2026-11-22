@@ -70,6 +70,64 @@ test("drive: the floor is the lowest release the swing can make, never above the
 	expect.eq(a.speed, b.speed)
 end)
 
+-- 1.0: a line whose drag-free speed is already past the swing's costs no carry. Drag only
+-- adds to the speed a line needs (measured over every line the game can plan, the hand
+-- over the aim: the carry speed is at least the drag-free one wherever that one is near
+-- the swing's top speed), so the pre-check never refuses a line the carry would take.
+test("drive: the drag-free pre-check never refuses a line the carry would take", function()
+	local g, k = flight.tune.g, flight.tune.dragK.baton
+	local vmax = plan.speedFor(plan.tune.driveBackMaxDeg)
+	local n = 0
+	for Ri = 10, 80, 5 do
+		local R = Ri / 10
+		for _, hz in ipairs { 0.05, 0.2, 0.36, 0.43, 0.6 } do
+			for ei = -150, 100, 2 do
+				local e = math.rad(ei / 10)
+				local den = R * math.tan(e) + hz
+				if den > 0 then
+					local c = math.cos(e)
+					local vdf = math.sqrt(g * R * R / (2 * c * c * den))
+					if vdf > vmax and vdf < 2 * vmax then
+						n = n + 1
+						local sp = flight.speedForCarry(R, e, hz, k)
+						expect.truthy(not (sp == sp and sp > 0 and sp <= vmax),
+							string.format("R %g hz %g loft %g: carry %g under %g", R, hz, ei / 10, sp, vmax))
+					end
+				end
+			end
+		end
+	end
+	expect.truthy(n > 500, "lines checked: " .. n)
+end)
+
+test("drive: a kept drive raised to a new floor runs no carry that returns nan", function()
+	local real = flight.speedForCarry
+	local bad, calls = 0, 0
+	flight.speedForCarry = function(...)
+		local v, T = real(...)
+		calls = calls + 1
+		if v ~= v then bad = bad + 1 end
+		return v, T
+	end
+	local ok, err = pcall(function()
+		for _, d in ipairs { 1.5, 2, 2.21, 3, 4, 5 } do
+			for i = 1, 5 do
+				-- the circle moves a little: each solve finds a new floor
+				solve(d + i * 1e-3, 0)
+				plan.arcFloor({ projectile = "baton", px = 0.01 * i, py = 0, tx = 0, ty = d, release = 3,
+					meter = plan.meter(), aimZ = plan.aimZFor("king") })
+			end
+		end
+	end)
+	flight.speedForCarry = real
+	assert(ok, err)
+	expect.eq(bad, 0, "carries that returned nan (" .. calls .. " in all)")
+	-- the floors as docs/notes/throw.md gives them (a kubb's aim height, the person's meter)
+	for d, f in pairs { [1.5] = 0.3, [2] = 5.0, [3] = 9.3, [4] = 12.3, [5] = 14.8 } do
+		expect.near(solve(d, 0).release, f, 0.05, "the floor at " .. d .. " m")
+	end
+end)
+
 -- The two positions: the old default (plan.sharedArcFor) against 0.16's, each thrown n times with the same seeded jitter of aim, loft, speed,
 -- tilt and turn as tools/driveprobe.lua. Measured there with 300 throws (docs/notes/
 -- throw.md "The drive"); pinned here at n = 60 with a margin of 0.15 kubbs a baton.

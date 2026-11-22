@@ -856,6 +856,22 @@ its line does not fit; from 0.18.0 by Illinois steps from the line's geometric l
 kept for the last geometry, about what a default plan costs: 0.02 ms in desktop Lua at 2
 to 6 m where 0.16's 24 bisection steps, each line no speed reaches running 3000 carry
 steps, cost 0.58 to 0.71 ms), and never past the knee, so from the knee up nothing changes: at 8 m the floor is the knee.
+That cheap floor held only while the stance and circle repeated: a kept drive raised to a
+new floor (the circle or the stance moved) cost about 0.47 ms at 2 to 5 m, because the
+search's first line (the 6 o'clock release) and its start just over the line straight at
+the aim both pass within 1e-4 m of the aim and their carries ran 3000 steps to return nan.
+From 1.0 a line whose drag-free speed, `sqrt(g R^2 / (2 cos^2 e (R tan e + hz)))`, is
+already past the swing's top speed is unfit with no carry (drag only adds to the speed a
+line needs: over every line with the hand over the aim, the carry speed was measured at
+1.004 times the drag-free speed or more wherever that is near the top speed, and no line
+the carry takes is refused), the top speed is worked out once for its tune, and a line
+that fits keeps its carry for the plan. In desktop Lua a kept drive raised to a new floor
+costs 0.025 to 0.09 ms (worst 0.16) and a default plan 0.005 to 0.008 ms (0.017 to 0.019
+on 0.18). Over 1 to 8 m every centimetre, three stances and the ground, kubb and king aim
+heights, the floor moves by under 1e-7 degrees except where the carry speed itself steps
+(it is not monotonic by about 1e-3 m/s where the carry's last midpoint step changes): at a
+kubb 2.21 m away the search now finds the lower of two roots 7e-4 degrees apart. No
+golden plan moves.
 The floor by distance (a kubb's aim height, the person's meter): 0.0 at 1 m, 0.3 at 1.5
 m, 5.0 at 2 m, 9.3 at 3 m, 12.3 at 4 m, 14.8 at 5 m, 15 from 6 m. `aim.controls.arc.min`
 is that floor for the throw in hand (`docs/SESSION.md`).
