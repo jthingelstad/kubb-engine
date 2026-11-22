@@ -19,7 +19,7 @@
     "note": "room/ is src/net's lobby.js, seats.js and sync.js in Lua; tests/room/vectors/ were recorded from this commit (docs/ROOM.md)"
   },
   "files": {
-    "core/autothrow.lua": "3bf6c2fe3b48918a5253c065a5b43ce2dedb239e17c46784e02ac97133043306",
+    "core/autothrow.lua": "db09e4bf61e91b0cf941e6472510761f56c5749d7541935487e15fe655e061f3",
     "core/bench.lua": "763ad4227dbc59ac8279b42165afbd2945ed951b5ad00e8934f239f534194e7f",
     "core/body.lua": "7984503fa805f27b9acc4cdfe998f730178a6c7fa5edf2f28950d274819c3b31",
     "core/burstpick.lua": "2c3f468a44b041a4161f2f7db7f49efbba2d16c2585ec7ac5b2610af22a4ce10",
@@ -56,7 +56,7 @@
     "core/rules.lua": "ca456c75feabcc018c1210a14bd18edc9b6f369ce9621fd0efd4be745430e980",
     "core/save.lua": "27cb87941e929a186884b3d38c4eae6ef86adca764b3af04ca5bb9ce3b5cfff2",
     "core/swing.lua": "c55fd9282c913a1f12cfb463e887e64372846ac32ff5d704b54b4a65510c5b4a",
-    "core/throwplan.lua": "6ebb9d3946883738f980c8b9a832cfb6a2c0802cc63803ba605ecbb9351df698",
+    "core/throwplan.lua": "a3214295f3463955a2e06797d7caa2e8769703605f2b1c013956d8272696ec53",
     "core/trace.lua": "677a86eeea08ff9cfae63f57a0852f7e3a140428de278db0da6c1cf63ddc1896",
     "core/tw.lua": "d3bb3a81977440239e9024e243aa3b3dce2ba418b19d87075b8268b73aeff167",
     "core/vec.lua": "16ed8c29ccd68dcc7cff60892b5b2e767aaf01635e7fad30e593f09247326393",
@@ -69,7 +69,7 @@
     "room/seats.lua": "6bbc5db4cddf33f6f49f8d4887840134eb9d02d86ec2d2969203e84c140ef1bc",
     "room/sync.lua": "b7703c43982aad5abfe7275d908f1ee4d9f0b1ae2570622193b9d572c8883cb1",
     "session/api.lua": "8168f1b206b094278e2f8554707a2958a71dfb23138d6cde222466e2802687ea",
-    "session/check.lua": "78342c1d530f6de76f5d9fb17ded4b8254bdfbf3739b8a12eed557f698f74bb3",
+    "session/check.lua": "0c4ffeee866f944cfbbad6c9964528df5fcf70de6e00a36952a2707a6004fb56",
     "session/json.lua": "c67017eb3aa54b2ebc68000999b7a7c770dab6d7ec45d5e6f2a481bfe38e25b0",
     "session/replay.lua": "f405db2e8a36616ec4321fbb855ba8b0536ed8ba7183ec90468411800b19f11e",
     "session/session.lua": "38aafd561895be0870043cb938e254861e72159095332e9cf124f2d44693e033",
@@ -81,6 +81,6 @@
     "version.lua": "68b3dfbb8f428ef47844017960f267122855b961923aab8e6566d3d6714a232a"
   },
   "bundle": {
-    "sha256": "8706f6c811c74183c160272e3b96e5cf003b385668619003f5dc4c6faba4a318"
+    "sha256": "af8f46f7a09e1be41dcacdc6ce1343dec5efce1ad19d472db2c2c643547cfa7c"
   }
 }

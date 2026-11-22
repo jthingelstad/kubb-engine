@@ -2,7 +2,7 @@
 -- the random stream, over tests/lua/cpucases.lua's setups, line for line against a
 -- fixture. tests/fixtures/cpu/choose.txt is the engine as shipped (tools/cpufixture.lua
 -- rewrote it in 0.12.0 when field.line and inkast.depth were switched on, and in 0.13.0
--- when the beginner's swing scale went from 1.6 to 2.15);
+-- when the beginner's swing scale went from 1.6 to 2.2);
 -- tests/fixtures/cpu/choose-0.11.txt is 0.11.0's, which the engine must still match with
 -- those plays switched off (docs/notes/computer-player.md, "How a play gets in"). Integers
 -- and strings must match exactly. Floats must agree to one part in 10^9: the fixture
