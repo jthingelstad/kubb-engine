@@ -11,10 +11,10 @@ export function git(args, cwd = root) {
   try { return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim(); } catch { return null; }
 }
 
-// The engine (core, session, tune, room, version.lua: those the ref has) of git ref `ref` into folder dir.
+// The engine (core, session, tune, pitch (room before 0.13), version.lua: those the ref has) of git ref `ref` into folder dir.
 export function extractEngine(ref, dir) {
   const have = new Set((git(['ls-tree', '--name-only', ref]) || '').split('\n'));
-  const paths = ['core', 'session', 'tune', 'room', 'version.lua'].filter(p => have.has(p));
+  const paths = ['core', 'session', 'tune', 'pitch', 'room', 'version.lua'].filter(p => have.has(p));
   const tar = execFileSync('git', ['archive', ref, ...paths], { cwd: root, maxBuffer: 1 << 28 });
   execFileSync('tar', ['-x', '-C', dir], { input: tar });
 }

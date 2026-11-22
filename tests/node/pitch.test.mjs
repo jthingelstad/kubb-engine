@@ -1,32 +1,69 @@
-// The room's calls under wasmoon, the reference platform (docs/ROOM.md "Equivalence").
-// 1. Every committed vector (tests/room/vectors/, recorded from the web's JavaScript by
-//    tools/room-vectors.mjs) through kubbCall("room.<name>"), compared with what the
-//    JavaScript returned, and every result's text byte stable.
-// 2. When the web's modules are here, the same scenarios and more seeds run live through
-//    both, the JavaScript and the engine side by side: $KUBB_WEB always (a failure there
-//    with the committed vectors passing means the web has moved on since the commit
-//    engine.json names), the sibling ../kubb.thingelstad.xyz checkout only while it is at
-//    that commit.
+// The pitch's calls under wasmoon, the reference platform (docs/PITCH.md "The vectors").
+// Every committed vector (tests/pitch/vectors/, a frozen corpus recorded from the web's
+// JavaScript at the commit engine.json's pitchFrom names) through kubbCall("pitch.<name>"),
+// compared with what the JavaScript returned, every result's text byte stable, and the
+// old spelling "room.<name>" giving the same bytes.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createEngine } from './wasm.mjs';
 import { root } from '../../tools/bundle.mjs';
-import { canon, generate, jsAdapter, matches, normalise } from '../../tools/room-scenarios.mjs';
-import { headOf, loadWeb, webDir } from '../../tools/room-vectors.mjs';
 
-const DIR = path.join(root, 'tests/room/vectors');
+const DIR = path.join(root, 'tests/pitch/vectors');
 const index = JSON.parse(fs.readFileSync(path.join(DIR, 'index.json'), 'utf8'));
 const engine = await createEngine();
-const constants = JSON.parse(engine.text('room.constants', '{}')).value;
+const constants = JSON.parse(engine.text('pitch.constants', '{}')).value;
 const VERSION = JSON.parse(fs.readFileSync(path.join(root, 'engine.json'), 'utf8')).version;
 
+// ---------- canonical JSON, FNV-1a and the comparison (as the vectors were written) ----------
+
+function canon(v) {
+  if (v === null || typeof v !== 'object') return JSON.stringify(v ?? null);
+  if (Array.isArray(v)) return '[' + v.map((x) => (x === undefined ? 'null' : canon(x))).join(',') + ']';
+  const keys = Object.keys(v)
+    .filter((k) => v[k] !== undefined)
+    .sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  return '{' + keys.map((k) => JSON.stringify(k) + ':' + canon(v[k])).join(',') + '}';
+}
+
+function fnv(text) {
+  let h = 0x811c9dc5;
+  for (const b of Buffer.from(text, 'utf8')) {
+    h ^= b;
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, '0');
+}
+
+// A match (it has seq) or a replay (v and log) keeps an `engine` only in the Lua.
+function normalise(v, found = []) {
+  if (Array.isArray(v)) return v.map((x) => normalise(x, found));
+  if (v && typeof v === 'object') {
+    const out = {};
+    const strip = 'seq' in v || ('v' in v && 'log' in v);
+    for (const [k, x] of Object.entries(v)) {
+      if (strip && k === 'engine') found.push(x);
+      else out[k] = normalise(x, found);
+    }
+    return out;
+  }
+  return v;
+}
+
+// Does `got` (a result, normalised) match `want` (a step's out)?
+function matches(got, want) {
+  const text = canon(got);
+  if (want && typeof want === 'object' && !Array.isArray(want) && '$fnv' in want)
+    return fnv(text) === want.$fnv && Buffer.byteLength(text) === want.$bytes;
+  return text === canon(want);
+}
+
 // One call through the door: the result text and its value.
-function lua(call, args) {
-  const text = engine.text(`room.${call}`, JSON.stringify(args));
+function lua(call, args, prefix = 'pitch') {
+  const text = engine.text(`${prefix}.${call}`, JSON.stringify(args));
   const out = JSON.parse(text);
-  if ('error' in out) throw new Error(`room.${call}: ${out.error}`);
+  if ('error' in out) throw new Error(`${prefix}.${call}: ${out.error}`);
   return { text, value: out.value };
 }
 
@@ -45,8 +82,9 @@ function run(sc) {
   sc.steps.forEach((step, i) => {
     const args = subst(step.args, doc);
     const { text, value } = lua(step.call, args);
-    // byte stable: the same call again gives the same bytes
+    // byte stable: the same call again gives the same bytes, and so does the old spelling
     if (i % 7 === 0) assert.equal(lua(step.call, args).text, text, `${sc.name} step ${i + 1}: the same bytes twice`);
+    if (i % 11 === 0) assert.equal(lua(step.call, args, 'room').text, text, `${sc.name} step ${i + 1}: room. is pitch.`);
     const found = [];
     const got = normalise(value, found);
     if (!matches(got, step.out))
@@ -59,7 +97,7 @@ function run(sc) {
 
 test('the vectors name the web commit engine.json records', () => {
   const m = JSON.parse(fs.readFileSync(path.join(root, 'engine.json'), 'utf8'));
-  assert.equal(m.roomFrom.commit, index.web);
+  assert.equal(m.pitchFrom.commit, index.web);
 });
 
 test('every committed vector matches under wasmoon', () => {
@@ -75,30 +113,16 @@ test('the constants are the JavaScript\'s, plus the engine\'s', () => {
   assert.deepEqual(constants.SIDES, ['A', 'B']);
 });
 
-const wdir = webDir();
-let web = await loadWeb(wdir);
-let skip = !web && 'no web checkout here';
-if (web && !process.env.KUBB_WEB && headOf(wdir) !== index.web) {
-  skip = `the sibling web checkout is at ${String(headOf(wdir)).slice(0, 7)}, the vectors are from ${index.web.slice(0, 7)} (KUBB_WEB=<dir> compares anyway)`;
-  web = null;
-}
-test('live: the web\'s JavaScript and the engine agree, step by step', { skip }, () => {
-  const seeds = Array.from({ length: 60 }, (_, i) => 5001 + i);
-  let n = 0;
-  for (const sc of generate(jsAdapter(web), seeds)) n += run(sc);
-  assert.ok(n > 1000, `${n} steps`);
+test('room. is the old spelling of pitch.; an error names the call as it was made', () => {
+  assert.equal(engine.text('room.constants', '{}'), engine.text('pitch.constants', '{}'));
+  assert.match(JSON.parse(engine.text('room.nope', '{}')).error, /unknown call room\.nope/);
+  assert.match(JSON.parse(engine.text('pitch.nope', '{}')).error, /unknown call pitch\.nope/);
+  assert.match(JSON.parse(engine.text('room.lobbyOf', '[1]')).error, /^room\.lobbyOf: /);
+  assert.match(JSON.parse(engine.text('pitch.lobbyOf', '[1]')).error, /^pitch\.lobbyOf: /);
 });
 
-test('live: the web\'s constants are the engine\'s', { skip }, () => {
-  for (const [k, v] of Object.entries(web.lobby)) {
-    if (k !== k.toUpperCase()) continue;
-    assert.deepEqual(constants[k], JSON.parse(JSON.stringify(v)), k);
-  }
-  assert.equal(constants.CLIENT, web.sync.CLIENT);
-});
-
-// Several engines in one room (room/engines.lua, since 0.8.1): the same answers under
-// wasmoon as tests/lua/room/test_engines.lua finds under desktop Lua.
+// Several engines in one pitch (pitch/engines.lua, since 0.8.1): the same answers under
+// wasmoon as tests/lua/pitch/test_engines.lua finds under desktop Lua.
 test('engineFor, carried, announce and speakAs under wasmoon', () => {
   const both = ['0.8', '0.7'];
   const fresh = (id, engine) => ({ id, connected: true, me: { name: id, ...lua('announce', { carries: both, engine }).value } });

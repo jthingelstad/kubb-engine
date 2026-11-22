@@ -1,4 +1,4 @@
--- The log budget's measure (room/lobby.lua docSize, 0.7.3): a replay that commits a whole
+-- The log budget's measure (pitch/lobby.lua docSize, 0.7.3): a replay that commits a whole
 -- match in one pass keeps each log entry's size instead of encoding the whole document
 -- again on every action. Two clients on 0.7.2 and 0.7.3 commit the same document, so the
 -- number must be js.asciiSize(l) itself, at every action: here every commit made with
@@ -6,15 +6,15 @@
 -- sizes and the two documents must be the same. Matches: the computer's throws on both
 -- sides (natural matches), two long matches of short throws whose length the turn limit
 -- sets (one ending just under LOG_BUDGET, one crossing it, so the drop happens), and
--- every commitAction step of the room's vectors.
+-- every commitAction step of the pitch's vectors.
 import "session/session"
 import "session/json"
 import "session/replay"
 import "session/api"
-import "room/lobby"
-import "room/js"
+import "pitch/lobby"
+import "pitch/js"
 tw.web.session.useTune("pointer") -- the web's tune
-local session, json, replay, lobby, js = tw.web.session, tw.web.json, tw.web.replay, tw.room.lobby, tw.room.js
+local session, json, replay, lobby, js = tw.web.session, tw.web.json, tw.web.replay, tw.pitch.lobby, tw.pitch.js
 local NULL = json.null
 
 local START = { year = 2026, month = 11, day = 19, hour = 9, min = 0 }
@@ -185,8 +185,8 @@ test("a match that crosses LOG_BUDGET drops its log at the same action as 0.7.2"
 	expect.eq(lobby.replayOf(doc.match), nil, "no replay")
 end)
 
-test("the room's vectors: every commitAction with sizes is 0.7.2's", function()
-	local DIR = "tests/room/vectors/"
+test("the pitch's vectors: every commitAction with sizes is 0.7.2's", function()
+	local DIR = "tests/pitch/vectors/"
 	local function read(path)
 		local f = assert(io.open(path, "rb"))
 		local t = f:read("a")
@@ -211,7 +211,7 @@ test("the room's vectors: every commitAction with sizes is 0.7.2's", function()
 		begin(file)
 		for _, step in ipairs(sc.steps) do
 			local args = subst(step.args, doc)
-			local res = json.decode(kubbCall("room." .. step.call, json.encode(args)), true)
+			local res = json.decode(kubbCall("pitch." .. step.call, json.encode(args)), true)
 			if step.call == "commitAction" then
 				lobby.commitAction(args.doc, { n = args.n, seq = args.seq, snap = args.snap, hash = args.hash,
 					action = args.action, over = args.over }, sizes)

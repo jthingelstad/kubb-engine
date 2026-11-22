@@ -1,10 +1,10 @@
--- Who acts in a shared match (docs/ROOM.md "Who acts"): the web's src/net/seats.js in
+-- Who acts in a shared match (docs/PITCH.md "Who acts"): the web's src/net/seats.js in
 -- Lua. Pure.
 --
 -- ctx = {
 --   players:   { A: [{ id, name }], B: [...] }   the match's players (doc.match.players)
 --   cpu:       "A" | "B" | null                  the computer's side
---   host:      memberId                          the room's host now
+--   host:      memberId                          the pitch's host now
 --   connected: [memberId, ...]                   the members connected now (a Set in JS)
 -- }
 --
@@ -12,13 +12,13 @@
 --   they are not connected, the first connected member of that team in throwing order
 --   takes it (it is still that player's throw on the sheet); failing that, the host.
 -- - A raise or a punishment kubb is for any connected member of the defending team
---   (need.side), else the host. The room's compare-and-set settles two at once.
+--   (need.side), else the host. The pitch's compare-and-set settles two at once.
 -- - The computer's throws are the host's client's (cpu: true), and only its.
 import "core/tw"
 import "session/json"
-import "room/js"
+import "pitch/js"
 
-local json, js = tw.web.json, tw.room.js
+local json, js = tw.web.json, tw.pitch.js
 local object = json.object
 local truthy, same, get, includes = js.truthy, js.same, js.get, js.includes
 
@@ -113,8 +113,9 @@ function seats.playingSide(ctx, me)
 	return nil
 end
 
--- The next host when the host has gone: the room lets only the earliest-joined connected
--- member claim (the web's docs/ROOMS.md 2.4), so that is who tries. members: the room's
+-- The next host when the host has gone: the earliest-joined connected member, the only one
+-- the retired rooms server let claim (the web's docs/ROOMS.md 2.4; the pitch server now
+-- picks the host itself, docs/PITCH.md "Calls live play no longer makes"). members: the pitch's
 -- list in joined order. nil while the host is here.
 function seats.nextHost(members, host)
 	local h
@@ -128,5 +129,5 @@ function seats.nextHost(members, host)
 	return nil
 end
 
-tw.room = tw.room or {}
-tw.room.seats = seats
+tw.pitch = tw.pitch or {}
+tw.pitch.seats = seats

@@ -1,5 +1,7 @@
--- How a client keeps its match in step with the room (docs/ROOM.md "Staying in step"):
--- the web's src/net/sync.js in Lua. Pure.
+-- How a client kept its match in step through a shared document (docs/PITCH.md "Calls
+-- live play no longer makes"): the web's src/net/sync.js in Lua, as it was. Pure. Live play
+-- on the pitch server no longer uses it (the server holds the log and relays each action);
+-- its calls stay because what clients call only grows (docs/VERSIONING.md).
 --
 -- The acting client applies its action, then commits the snapshot after it as action
 -- `seq` with the action riding along (`with`). Every other client gets the new document
@@ -8,24 +10,25 @@
 -- hash: it adopts the committed snapshot instead.
 import "core/tw"
 import "session/json"
-import "room/js"
+import "pitch/js"
 
-local json, js = tw.web.json, tw.room.js
+local json, js = tw.web.json, tw.pitch.js
 local object = json.object
 local truthy, same, get = js.truthy, js.same, js.get
 
 local sync = {}
 
--- The client name the web puts in a rider's `c` (the web's docs/ROOMS.md section 7). Another
--- client passes its own (`ios`).
+-- The client name the web put in a rider's `c` (the retired rooms server's, the web's
+-- docs/ROOMS.md section 7). Another client passes its own (`ios`).
 sync.CLIENT = "web"
--- The room's limit on `with` (the web's docs/ROOMS.md section 3): the default for rider's bytes.
+-- The retired rooms server's limit on `with` (the web's docs/ROOMS.md section 3): the default
+-- for rider's bytes.
 sync.WITH_BYTES = 4096
 
 -- What to do with a document version that arrived.
 --   loc = { n, seq }  the match number and the last action number this client holds
 --                     (applied or queued to apply)
---   doc the room's document; w its `with` (or nil); mine: our own write
+--   doc the pitch's document; w its `with` (or nil); mine: our own write
 -- Returns one of:
 --   { kind = "lobby" }                       no match running
 --   { kind = "start", match }                another match than ours: take it
@@ -50,7 +53,7 @@ function sync.decide(loc, doc, w, mine)
 	return object { kind = "apply", match = m, action = get(w, "a") }
 end
 
--- The `with` for an action, or nil when it would not fit the room's limit (`bytes`, as
+-- The `with` for an action, or nil when it would not fit the limit (`bytes`, as
 -- ASCII JSON, default 4096): then the others just adopt the snapshot. `c` names the
 -- client that committed it (default "web"); `e`, when given, the engine's version (the
 -- web sends neither yet; the web's docs/ROOMS.md section 7). The recorder keeps them with the
@@ -64,5 +67,5 @@ end
 
 sync.asciiSize = js.asciiSize
 
-tw.room = tw.room or {}
-tw.room.sync = sync
+tw.pitch = tw.pitch or {}
+tw.pitch.sync = sync

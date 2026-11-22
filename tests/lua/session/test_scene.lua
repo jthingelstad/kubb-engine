@@ -1,21 +1,21 @@
 -- A match carries its scene, a look only: kept in the start like the kubb set, through
--- checkStart, renameStart, restore, replay and the room's options; never read by the
+-- checkStart, renameStart, restore, replay and the pitch's options; never read by the
 -- physics or the rules. An id is lowercase letters, digits and hyphens, 1 to 24
--- characters (room/lobby.isScene); "day", the default, is not written.
+-- characters (pitch/lobby.isScene); "day", the default, is not written.
 import "session/session"
 import "session/json"
 import "session/replay"
 import "session/api"
-import "room/lobby"
+import "pitch/lobby"
 tw.web.session.useTune("pointer")
-local session, json, replay, lobby, NULL = tw.web.session, tw.web.json, tw.web.replay, tw.room.lobby,
+local session, json, replay, lobby, NULL = tw.web.session, tw.web.json, tw.web.replay, tw.pitch.lobby,
 	tw.web.json.null
 
 local START = { year = 2026, month = 11, day = 20, hour = 12, min = 0 }
 
-local function room(name, args)
-	local out = json.decode(kubbCall("room." .. name, json.encode(args)), true)
-	if out.error then error("room." .. name .. ": " .. out.error, 2) end
+local function pitch(name, args)
+	local out = json.decode(kubbCall("pitch." .. name, json.encode(args)), true)
+	if out.error then error("pitch." .. name .. ": " .. out.error, 2) end
 	local v = out.value
 	if rawequal(v, NULL) then return nil end
 	return v
@@ -91,25 +91,25 @@ test("checkStart, renameStart, restore and replay keep the scene", function()
 	expect.eq(replay.new({ setup = session.setupOf(wstart), log = log }):finish().differs, false)
 end)
 
-test("the room carries the host's scene to the match; a room without one is as before", function()
-	local doc = room("joinTeam", { doc = NULL, id = "m1", side = "A" })
+test("the pitch carries the host's scene to the match; a pitch without one is as before", function()
+	local doc = pitch("joinTeam", { doc = NULL, id = "m1", side = "A" })
 	expect.eq(doc.settings, nil, "no settings until the host sets one")
-	expect.eq(room("optionsOf", { doc = doc }).scene, "day", "absent: the default")
-	doc = room("setOptions", { doc = doc, options = { scene = "dusk" } })
+	expect.eq(pitch("optionsOf", { doc = doc }).scene, "day", "absent: the default")
+	doc = pitch("setOptions", { doc = doc, options = { scene = "dusk" } })
 	expect.eq(doc.settings.scene, "dusk")
 	expect.eq(doc.options.scene, nil, "not in options, which an older engine rebuilds")
-	expect.eq(room("optionsOf", { doc = doc }).scene, "dusk")
-	expect.eq(room("setOptions", { doc = doc, options = { scene = "Not One" } }), nil, "refused: nothing changes")
-	local d2 = room("setOptions", { doc = doc, options = { surface = "sand" } })
+	expect.eq(pitch("optionsOf", { doc = doc }).scene, "dusk")
+	expect.eq(pitch("setOptions", { doc = doc, options = { scene = "Not One" } }), nil, "refused: nothing changes")
+	local d2 = pitch("setOptions", { doc = doc, options = { surface = "sand" } })
 	expect.eq(d2.settings.scene, "dusk", "an update without the scene keeps it")
-	expect.eq(room("cleanOptions", { options = { scene = "dusk" } }).scene, nil, "cleanOptions is the JavaScript's")
-	expect.eq(room("lobbyOf", { doc = { settings = { scene = "x y" } } }).settings, nil, "an invalid one is dropped")
-	local lu = room("lineup", { doc = doc, members = { { id = "m1", me = { name = "Ada" } } } })
-	local o = room("matchOptions", { doc = doc, lineup = lu, seed = 5, start = START })
+	expect.eq(pitch("cleanOptions", { options = { scene = "dusk" } }).scene, nil, "cleanOptions is the JavaScript's")
+	expect.eq(pitch("lobbyOf", { doc = { settings = { scene = "x y" } } }).settings, nil, "an invalid one is dropped")
+	local lu = pitch("lineup", { doc = doc, members = { { id = "m1", me = { name = "Ada" } } } })
+	local o = pitch("matchOptions", { doc = doc, lineup = lu, seed = 5, start = START })
 	expect.eq(o.scene, "dusk")
 	o.mode = "match"
 	expect.eq(session.new(o).opts.scene, "dusk")
-	local c = room("constants", {})
+	local c = pitch("constants", {})
 	expect.eq(c.OPTION_DEFAULTS.scene, "day")
 	for _, row in ipairs(c.MATCH_OPTIONS) do expect.truthy(row[1] ~= "scene", "the client labels scenes") end
 end)

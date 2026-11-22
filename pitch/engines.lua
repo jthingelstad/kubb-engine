@@ -1,12 +1,12 @@
--- Several engines in one room (docs/ROOM.md "Engines in one match"): which engine a
+-- Several engines in one pitch (docs/PITCH.md "Engines in one match"): which engine a
 -- pitch's next match runs on, worked out from what each member carries, and what a
 -- client that carries several engines announces so that clients carrying one (every
 -- release before 0.8.1) still agree with it.
 --
 -- A member's presence (`me`) names its engine in `engine`, as every client since 0.3
 -- does. A client that carries several also sends `engines`, every major.minor it
--- carries, and writes its `engine` as the room's engine followed by MARK ("0.7+engines").
--- The room server merges `me` field by field, so an older client rejoining under the
+-- carries, and writes its `engine` as the pitch's engine followed by MARK ("0.7+engines").
+-- The pitch server merges `me` field by field, so an older client rejoining under the
 -- same member id overwrites `engine` but leaves a stale `engines` behind: `engines` is
 -- believed only while `engine` carries MARK. An older client reads `engine` through
 -- majorMinor, which ignores what follows the minor, so it sees "0.7".
@@ -14,10 +14,10 @@
 -- Pure: nothing here changes what startCheck, startMatch or mayPlay decide.
 import "core/tw"
 import "session/json"
-import "room/js"
-import "room/lobby"
+import "pitch/js"
+import "pitch/lobby"
 
-local json, js, lobby = tw.web.json, tw.room.js, tw.room.lobby
+local json, js, lobby = tw.web.json, tw.pitch.js, tw.pitch.lobby
 local NULL, object = json.null, json.object
 local get, same = js.get, js.same
 
@@ -48,7 +48,7 @@ function E.compare(a, b)
 end
 
 -- A list of versions as major.minors, each once, newest first, at most MAX (one
--- member's list; `whole` keeps every entry, for the engines of everyone in a room).
+-- member's list; `whole` keeps every entry, for the engines of everyone in a pitch).
 -- Anything that is not a version is left out; a non-list is an empty list.
 function E.list(v, whole)
 	local out, seen = {}, {}
@@ -85,7 +85,7 @@ function E.carried(me)
 	return one and { one } or {}
 end
 
--- The presence fields a client that carries `carries` sends while the room's engine is
+-- The presence fields a client that carries `carries` sends while the pitch's engine is
 -- `engine`: { engine = "<engine>+engines", engines = [...] }. Without an `engine`, or
 -- with one it does not carry, its newest. Nil when it carries nothing.
 function E.announce(carries, engine)
@@ -100,10 +100,10 @@ function E.announce(carries, engine)
 end
 
 -- The engine the pitch's next match runs on: the newest major.minor that the host and
--- every player in the lineup (lobby.lineup: the teams' members still in the room) carry,
+-- every player in the lineup (lobby.lineup: the teams' members still in the pitch) carry,
 -- and `me` too when given (a member asking what to announce before it takes a seat).
 -- `carries`, when given, is what `me` carries (its own presence may not have come back
--- from the room yet). Watchers do not count: START checks only players.
+-- from the pitch yet). Watchers do not count: START checks only players.
 --
 -- Returns { engine, missing = [ids], unknown = [ids] }. `engine` is null when no engine
 -- is carried by all; then `missing` names those who do not carry the engine the most of
@@ -154,7 +154,7 @@ function E.engineFor(doc, members, host, me, carries)
 	for _, list in ipairs(lists) do
 		for _, mm in ipairs(list) do all[#all + 1] = mm end
 	end
-	all = E.list(all, true) -- MAX is each member's limit, not the room's
+	all = E.list(all, true) -- MAX is each member's limit, not the pitch's
 
 	local hasHost = host ~= nil and not js.isNull(host)
 	local hostList = hasHost and lists[1] or {}
@@ -182,7 +182,7 @@ end
 
 -- The members as a host that runs START on `engine` passes them to that engine's
 -- startMatch: each member that carries `engine` (E.carried) with its `me.engine` set to
--- it, the rest as they were. A member whose new announcement has not reached the room
+-- it, the rest as they were. A member whose new announcement has not reached the pitch
 -- yet is then not refused for it. Nothing else changes; the list keeps its order.
 function E.speakAs(members, engine)
 	local mm = lobby.majorMinor(engine)
@@ -209,5 +209,5 @@ function E.speakAs(members, engine)
 	return out
 end
 
-tw.room = tw.room or {}
-tw.room.engines = E
+tw.pitch = tw.pitch or {}
+tw.pitch.engines = E

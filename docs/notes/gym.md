@@ -26,7 +26,7 @@ checkout; without it the reference column is left out), `--gate` (exit 1 on a ha
 defect, below). `make gym GYM="--full --json build/gym.json"` passes options through.
 
 The JSON (`"tool": "kubb-gym"`) carries the engine version and commit (and whether core,
-session, tune or room had local changes), the mode, seed, sets, the human model's version
+session, tune or pitch had local changes), the mode, seed, sets, the human model's version
 and fit counts, every counter (so `compare` can do its statistics) and the anomaly clusters
 with their repro commands.
 
@@ -189,11 +189,11 @@ on desktop Lua to show how far desktop agrees with the reference.
 ## Compare and sweep
 
 `compare` takes two `--json` scorecards, or two git refs: it writes each ref's engine (core,
-session, tune, room, version.lua) to a temporary folder, plays it with this checkout's gym
+session, tune, pitch, version.lua) to a temporary folder, plays it with this checkout's gym
 tools (`match.lua --engine DIR`), and removes the folder. With `--json` or `--keep` the
 engine goes to `build/gym/engine-<commit>` and stays, so the saved replay commands still
 run. An engine folder (a prototype
-copy holding core, session, tune, room and version.lua) is played as it is; `run`, `bank`
+copy holding core, session, tune, pitch (room before 0.13) and version.lua) is played as it is; `run`, `bank`
 and `--records` take one too (`--engine DIR`), so a candidate that is not a commit can be
 scored, compared and banked. It prints only the figures whose
 difference is past 2.58 standard errors (99%: a page has about 80 figures, so at 95% four

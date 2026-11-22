@@ -1,13 +1,14 @@
--- The equivalence vectors (docs/ROOM.md "Equivalence") under desktop Lua: every step of
--- tests/room/vectors/, recorded from the web's JavaScript by tools/room-vectors.mjs, run
--- through kubbCall("room.<name>") and compared with what the JavaScript returned.
--- tests/node/room.test.mjs runs the same vectors under wasmoon.
+-- The vectors (docs/PITCH.md "The vectors") under desktop Lua: every step of
+-- tests/pitch/vectors/, a frozen corpus recorded from the web's JavaScript at the commit
+-- engine.json's pitchFrom names, run through kubbCall("pitch.<name>") and compared with what
+-- the JavaScript returned.
+-- tests/node/pitch.test.mjs runs the same vectors under wasmoon.
 import "session/api"
 import "session/json"
-import "room/js"
-local json, js, NULL = tw.web.json, tw.room.js, tw.web.json.null
+import "pitch/js"
+local json, js, NULL = tw.web.json, tw.pitch.js, tw.web.json.null
 
-local DIR = "tests/room/vectors/"
+local DIR = "tests/pitch/vectors/"
 
 local function readFile(path)
 	local f = assert(io.open(path, "rb"))
@@ -58,11 +59,11 @@ end
 
 local index = json.decode(readFile(DIR .. "index.json"), true)
 local ENGINE = tw.engine.version
-local MM = tw.room.lobby.ENGINE
+local MM = tw.pitch.lobby.ENGINE
 
 test("the vectors were recorded from the web commit engine.json names", function()
 	local manifest = json.decode(readFile("engine.json"))
-	expect.eq(manifest.roomFrom and manifest.roomFrom.commit, index.web, "engine.json roomFrom.commit")
+	expect.eq(manifest.pitchFrom and manifest.pitchFrom.commit, index.web, "engine.json pitchFrom.commit")
 end)
 
 local total = 0
@@ -73,7 +74,7 @@ for _, file in ipairs(index.scenarios) do
 		for i, step in ipairs(sc.steps) do
 			local args = subst(step.args, doc, ENGINE)
 			local argText = json.encode(args)
-			local outText = kubbCall("room." .. step.call, argText)
+			local outText = kubbCall("pitch." .. step.call, argText)
 			local res = json.decode(outText, true)
 			if res.error then error(string.format("%s step %d %s: %s", file, i, step.call, res.error), 0) end
 			-- byte stable: the engine's own output decodes and encodes to the same text

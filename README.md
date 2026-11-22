@@ -6,20 +6,20 @@ throw and the computer player (`core/throwplan`; `core/read`, `core/plays`, `cor
 `core/autothrow`, docs/notes/computer-player.md), matches
 (`core/match`) and the Planet Kubb Notation writer (`core/notation`, `core/gamefile`);
 the session (`session/`), a practice pitch or a match behind one door, `kubbCall`,
-with JSON in and out (docs/SESSION.md); and the room (`room/`), a shared pitch's
-document and who acts in it, behind the same door (docs/ROOM.md); and generated names for
+with JSON in and out (docs/SESSION.md); and the pitch (`pitch/`), a shared pitch's
+document and who acts in it, behind the same door (docs/PITCH.md); and generated names for
 players and teams (`core/namegen`, `core/namewords`, docs/NAMES.md). It has no drawing,
 input, network or file access; a client supplies those.
 
 The core was extracted from the Playdate game (`playdate-kubb`, `source/core/`) and the
-session and the room from the web game (`kubb.thingelstad.xyz`, `lua/web/` and
+session and the pitch from the web game (`kubb.thingelstad.xyz`, `lua/web/` and
 `src/net/`), at the commits recorded in `engine.json`.
 
 ## Layout
 
 - `core/`: rules, physics, notation.
-- `room/`: a shared pitch's document, its reducers, who acts and staying in step.
-- `session/`: the session and its API (`session/api.lua`), the room's calls too.
+- `pitch/`: a shared pitch's document, its reducers, who acts, the pitch's engine.
+- `session/`: the session and its API (`session/api.lua`), the pitch's calls too.
 - `tune/`: a host's values for the core's tune tables (`tune/pointer.lua`, the web's).
 - `version.lua`: the engine's version.
 
@@ -34,7 +34,8 @@ Three clients run this engine unchanged:
 Each vendors a tagged release (`vX.Y.Z`) byte for byte and never edits its copy: the
 Playdate takes `core/`, the web and the iPhone the whole engine, as files or as the
 bundle (`make bundle`: `build/kubb-engine-sources.json`, one JSON module map, and its
-sha256). `engine.json` holds the engine's name and version, a sha256 for every engine
+sha256). `docs/CLIENTS.md` is what each client changes to move to this release.
+`engine.json` holds the engine's name and version, a sha256 for every engine
 Lua file and the bundle's, so a client can check its copy. The version rules are in
 `docs/VERSIONING.md`; why the reference results are wasm's is in `docs/DETERMINISM.md`.
 
@@ -51,15 +52,13 @@ the first match (docs/SESSION.md "Starting").
 Needs Lua 5.4 and Node; run `npm ci` once (wasmoon, for the wasm tests).
 
 - `make test`: the core's Lua tests (`tests/lua/`), the session's
-  (`tests/lua/session/`) and the room's (`tests/lua/room/`, with the vectors in
-  `tests/room/vectors/`), the notation gate over `tests/fixtures/games/` and its refusal
+  (`tests/lua/session/`) and the pitch's (`tests/lua/pitch/`, with the frozen vectors in
+  `tests/pitch/vectors/`), the notation gate over `tests/fixtures/games/` and its refusal
   cases (`tests/fixtures/bad/`), the session under wasmoon, the golden hashes and the
   `engine.json` check.
 - `make golden`: rewrite the golden hashes (only with a minor version bump);
   `make golden-native`: how far desktop Lua agrees with them.
 - `make bundle`: the engine as one JSON file in `build/`.
-- `make room-vectors KUBB_WEB=<dir>`: rewrite the room's vectors from the web's
-  JavaScript (read only).
 - `make games`: 500 seeded rules-only games and 5 physics matches, every one gated.
 - `make physfuzz`: the physics fuzzer (a measuring tool).
 - `make realgames`: optional; needs a pk-kubb-score checkout (`PK_KUBB_SCORE`).

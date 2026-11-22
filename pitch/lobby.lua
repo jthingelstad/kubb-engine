@@ -1,11 +1,12 @@
--- A shared pitch's document and its reducers (docs/ROOM.md): the web's src/net/lobby.js
--- in Lua, so every client (the web, the iPhone app) writes the room's document the same
--- way. Pure: no clock, no randomness (the host passes its seed and start time in).
+-- A shared pitch's document and its reducers (docs/PITCH.md). It began as the web's
+-- src/net/lobby.js in Lua; since engine 0.3 that file is a thin wrapper over these calls,
+-- so this is the one implementation and every client (the web, the iPhone app) writes the
+-- pitch's document the same way. Pure: no clock, no randomness (the host passes its seed and start time in).
 --
--- Each reducer takes the room's current document (json.decode(text, true)) and returns
--- the whole new document, or nil to change nothing (the room client then writes nothing).
--- The functions keep the JavaScript names and decide exactly as the JavaScript does on the
--- same JSON, with these differences, each deliberate (docs/ROOM.md "Differences"):
+-- Each reducer takes the pitch's current document (json.decode(text, true)) and returns
+-- the whole new document, or nil to change nothing (the pitch client then writes nothing).
+-- The functions keep the JavaScript names and decide exactly as the JavaScript did on the
+-- same JSON (tests/pitch/vectors/), with these differences, each deliberate (docs/PITCH.md "Differences"):
 --   * lobbyOf keeps top-level keys it does not know, so a newer client's fields survive
 --     an older client's write (the JavaScript drops them);
 --   * startMatch writes match.engine, this engine's major.minor, and refuses while a
@@ -18,9 +19,9 @@
 import "core/tw"
 import "version"
 import "session/json"
-import "room/js"
+import "pitch/js"
 
-local json, js = tw.web.json, tw.room.js
+local json, js = tw.web.json, tw.pitch.js
 local NULL, object = json.null, json.object
 local truthy, same, get, includes = js.truthy, js.same, js.get, js.includes
 
@@ -33,7 +34,7 @@ lobby.SEATS = 2 * lobby.TEAM_MAX
 lobby.SIDES = { "A", "B" }
 lobby.NAME_MAX = 16
 lobby.LEVELS = { "beginner", "club", "pro" }
--- The most the document may grow to while it carries a replay's log (the room's limit is
+-- The most the document may grow to while it carries a replay's log (the pitch's limit is
 -- 256 KB): about 600 actions.
 lobby.LOG_BUDGET = 248 * 1024
 lobby.REPLAY_VERSION = 1
@@ -42,7 +43,7 @@ local OPTION_KEYS = { "surface", "opening", "raising", "wind", "set" }
 lobby.OPTION_DEFAULTS = { surface = "grass", opening = "2-4-6", raising = "hand", wind = "off", set = "classic",
 	computer = "club", scene = "day" }
 
--- The engine's own options (docs/ROOM.md "Differences"), which the JavaScript does not
+-- The engine's own options (docs/PITCH.md "Differences"), which the JavaScript does not
 -- know. They live in the document's top-level `settings` ({ computer?, scene? }), not
 -- in `options`: an older engine's lobbyOf rebuilds `options` from the five keys it
 -- knows but keeps a top-level key it does not know, so a 0.8 client's joinTeam or
@@ -123,7 +124,7 @@ end
 -- The lobby-level rule for START: every player but the host (who runs this engine) must
 -- name an engine (me.engine) whose major.minor is this engine's. A player without one
 -- (an older web client) passes only when `lenient`. `players` is the lineup's, `members`
--- the room's [{ id, me }]. Returns { ok, engine, differ = [ids], unknown = [ids] }.
+-- the pitch's [{ id, me }]. Returns { ok, engine, differ = [ids], unknown = [ids] }.
 function lobby.startCheck(players, members, host, lenient)
 	local byId = {}
 	if js.isTable(members) then
@@ -228,8 +229,8 @@ end
 local KNOWN = { v = true, teams = true, options = true, open = true, started = true, n = true, match = true,
 	settings = true }
 
--- The document as it stands, or a fresh lobby (a room's document is null until someone
--- writes it; an expired room comes back empty too). Unlike the JavaScript, top-level keys
+-- The document as it stands, or a fresh lobby (a pitch's document is null until someone
+-- writes it; an expired pitch comes back empty too). Unlike the JavaScript, top-level keys
 -- it does not know are kept as they are.
 function lobby.lobbyOf(doc)
 	local d = js.isTable(doc) and doc or {}
@@ -316,7 +317,7 @@ function lobby.setOptions(doc, options)
 	return l
 end
 
--- Every match option the room holds, defaults filled in: `options`' five and the
+-- Every match option the pitch holds, defaults filled in: `options`' five and the
 -- engine's own from `settings` (computer "club", scene "day" when absent). The one place
 -- a client reads them all.
 function lobby.optionsOf(doc)
@@ -339,8 +340,8 @@ function lobby.setAccess(doc, open)
 	return l
 end
 
--- What the host tells the room server about an open pitch, for the home page's list, or
--- nil while it is invite only. `members`: the room's members; `over`: the match on
+-- What the host tells the pitch server about an open pitch, for the home page's list, or
+-- nil while it is invite only. `members`: the pitch's members; `over`: the match on
 -- screen has ended.
 function lobby.openListing(doc, members, over)
 	local l = lobby.lobbyOf(doc)
@@ -354,7 +355,7 @@ function lobby.openListing(doc, members, over)
 	}
 end
 
--- Forget members who left the room for good (`present`: the ids still in it). Between
+-- Forget members who left the pitch for good (`present`: the ids still in it). Between
 -- matches only; the match keeps its own players.
 function lobby.pruneTeams(doc, present)
 	local l = lobby.lobbyOf(doc)
@@ -370,7 +371,7 @@ function lobby.pruneTeams(doc, present)
 end
 
 -- Who plays: the lobby's teams with each member's name, the computer on an empty side.
--- `members`: the room's [{ id, me }]; members no longer in the room are left out.
+-- `members`: the pitch's [{ id, me }]; members no longer in the pitch are left out.
 -- Returns { players, cpu } or nil when nobody is on a team.
 function lobby.lineup(doc, members)
 	local l = lobby.lobbyOf(doc)
@@ -424,7 +425,7 @@ function lobby.matchOptions(doc, lu, seed, start)
 		first = "A",
 	}
 	for _, k in ipairs(OPTION_KEYS) do o[k] = l.options[k] end
-	-- the engine's own: only when set, so a room without them starts the match it always did
+	-- the engine's own: only when set, so a pitch without them starts the match it always did
 	for _, k in ipairs(OWN_KEYS) do o[k] = l.settings and l.settings[k] or nil end
 	return o
 end
@@ -510,7 +511,7 @@ end
 -- loser drops its action and adopts. `action` goes on the replay's log with the hash after
 -- it; `over` when it ended the match. A log that cannot stay whole (no action, a gap, or
 -- the document past LOG_BUDGET) is dropped: that match has no replay. `sizes` (optional,
--- not part of the room's call): see docSize; the same size, so the same decision.
+-- not part of the pitch's call): see docSize; the same size, so the same decision.
 function lobby.commitAction(doc, a, sizes)
 	local l = lobby.lobbyOf(doc)
 	local m = l.match
@@ -552,7 +553,7 @@ function lobby.replayOf(match)
 	}
 end
 
--- The same check for a replay that came from elsewhere (the room's kept copy).
+-- The same check for a replay that came from elsewhere (the pitch's kept copy).
 function lobby.isReplay(r)
 	if not truthy(r) or not js.isTable(r) then return false end
 	if not same(get(r, "v"), lobby.REPLAY_VERSION) then return false end
@@ -569,7 +570,7 @@ function lobby.isReplay(r)
 end
 
 -- REMATCH: back to the lobby with the same teams (the old match is dropped from the
--- document; its replay was kept by the room when it ended).
+-- document; its replay was kept by the pitch when it ended).
 function lobby.backToLobby(doc, n)
 	local l = lobby.lobbyOf(doc)
 	if not l.started or (n ~= nil and not js.isNull(n) and not same(l.n, n)) then return nil end
@@ -578,5 +579,5 @@ function lobby.backToLobby(doc, n)
 	return l
 end
 
-tw.room = tw.room or {}
-tw.room.lobby = lobby
+tw.pitch = tw.pitch or {}
+tw.pitch.lobby = lobby

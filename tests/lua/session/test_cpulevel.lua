@@ -1,7 +1,7 @@
 -- The computer's level is a game setting (Jamie, 2026-11-20: "yes this should be a real
 -- per game setting"): the match option `computer` (beginner, club or pro; absent: club,
 -- as before), in newMatch, the start, checkStart and renameStart, restore, replay, the
--- game file's [Throw Levels], the room's options and the Playdate's option table.
+-- game file's [Throw Levels], the pitch's options and the Playdate's option table.
 import "session/session"
 import "session/json"
 import "session/check"
@@ -9,17 +9,17 @@ import "session/replay"
 import "session/api"
 import "core/autothrow"
 import "core/matchopts"
-import "room/lobby"
+import "pitch/lobby"
 tw.web.session.useTune("pointer")
 local session, json, check, replay, autothrow = tw.web.session, tw.web.json, tw.web.check, tw.web.replay,
 	tw.autothrow
-local matchopts, lobby, NULL = tw.matchopts, tw.room.lobby, tw.web.json.null
+local matchopts, lobby, NULL = tw.matchopts, tw.pitch.lobby, tw.web.json.null
 
 local START = { year = 2026, month = 11, day = 20, hour = 11, min = 0 }
 
-local function room(name, args)
-	local out = json.decode(kubbCall("room." .. name, json.encode(args)), true)
-	if out.error then error("room." .. name .. ": " .. out.error, 2) end
+local function pitch(name, args)
+	local out = json.decode(kubbCall("pitch." .. name, json.encode(args)), true)
+	if out.error then error("pitch." .. name .. ": " .. out.error, 2) end
 	local v = out.value
 	if rawequal(v, NULL) then return nil end
 	return v
@@ -139,7 +139,7 @@ test("checkStart, renameStart, restore and replay keep the computer's level", fu
 	local setup = session.setupOf(start)
 	local r2 = replay.new { setup = setup, log = log }
 	expect.eq(r2:finish().differs, false)
-	-- the room document of the replay names the option
+	-- the pitch document of the replay names the option
 	local r3 = replay.new { start = start, log = log, document = true }
 	r3:finish()
 	local doc, dwhy = r3:document()
@@ -161,38 +161,38 @@ test("the game file's [Throw Levels] names the computer's level", function()
 		"without the option only the person's, as before: " .. tostring(l2))
 end)
 
-test("the room: the host picks the computer's level; a room without it is as before", function()
-	local doc = room("joinTeam", { doc = NULL, id = "m1", side = "A" })
+test("the pitch: the host picks the computer's level; a pitch without it is as before", function()
+	local doc = pitch("joinTeam", { doc = NULL, id = "m1", side = "A" })
 	expect.eq(doc.settings, nil, "absent until set")
-	expect.eq(room("optionsOf", { doc = doc }).computer, "club", "absent: the default")
-	doc = room("setOptions", { doc = doc, options = { computer = "pro" } })
+	expect.eq(pitch("optionsOf", { doc = doc }).computer, "club", "absent: the default")
+	doc = pitch("setOptions", { doc = doc, options = { computer = "pro" } })
 	expect.eq(doc.settings.computer, "pro")
 	expect.eq(doc.options.computer, nil)
 	expect.eq(doc.options.surface, "grass")
-	expect.eq(room("optionsOf", { doc = doc }).computer, "pro")
-	expect.eq(room("setOptions", { doc = doc, options = { computer = "legend" } }), nil, "an unknown level changes nothing")
-	expect.eq(room("lobbyOf", { doc = { settings = { computer = "legend" } } }).settings, nil, "an invalid one is dropped")
-	local lu = room("lineup", { doc = doc, members = { { id = "m1", me = { name = "Ada", level = "club" } } } })
-	local o = room("matchOptions", { doc = doc, lineup = lu, seed = 5, start = START })
+	expect.eq(pitch("optionsOf", { doc = doc }).computer, "pro")
+	expect.eq(pitch("setOptions", { doc = doc, options = { computer = "legend" } }), nil, "an unknown level changes nothing")
+	expect.eq(pitch("lobbyOf", { doc = { settings = { computer = "legend" } } }).settings, nil, "an invalid one is dropped")
+	local lu = pitch("lineup", { doc = doc, members = { { id = "m1", me = { name = "Ada", level = "club" } } } })
+	local o = pitch("matchOptions", { doc = doc, lineup = lu, seed = 5, start = START })
 	expect.eq(o.computer, "pro")
 	o.mode = "match"
 	local s = session.new(o)
 	expect.eq(s.opts.teams.B.players[1].level, "pro", "the empty side's computer plays at the host's level")
 	expect.eq(s.opts.teams.A.players[1].level, "club", "the member's own level")
-	-- a room without the option starts what it always did
-	local d0 = room("joinTeam", { doc = NULL, id = "m1", side = "A" })
-	local o0 = room("matchOptions", { doc = d0, lineup = lu, seed = 5, start = START })
+	-- a pitch without the option starts what it always did
+	local d0 = pitch("joinTeam", { doc = NULL, id = "m1", side = "A" })
+	local o0 = pitch("matchOptions", { doc = d0, lineup = lu, seed = 5, start = START })
 	expect.eq(o0.computer, nil)
 	o0.mode = "match"
 	expect.eq(session.new(o0).opts.teams.B.players[1].level, nil)
 	-- the constants a client draws the option from
-	local c = room("constants", {})
+	local c = pitch("constants", {})
 	expect.eq(c.OPTION_DEFAULTS.computer, "club")
 	local row = c.MATCH_OPTIONS[#c.MATCH_OPTIONS]
 	expect.eq(row[1], "computer")
 	expect.eq(row[2], "Computer")
 	expect.eq(row[3][2][2], "Club")
-	expect.eq(room("optionLabel", { key = "computer", value = "pro" }), "Pro")
+	expect.eq(pitch("optionLabel", { key = "computer", value = "pro" }), "Pro")
 end)
 
 test("the Playdate's option table: a COMPUTER row, club by default", function()
