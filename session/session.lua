@@ -1364,8 +1364,10 @@ function Session:apply(a)
 	assert(self.kind == "match", "only a match takes " .. tostring(t))
 	local g = self.m.game
 	-- a raise or a punishment kubb placed by hand carries the host's stamp as a throw does
-	-- (0.18.0), so a match that ends on the next throw's resignation still has a finish
-	if (t == "raise" or t == "punish") and stampOf(a.at) then self.finish = stampOf(a.at) end
+	-- (0.18.0), so a match that ends on the next throw's resignation still has a finish.
+	-- Kept only once the action is taken: a refused one must leave the match as it was,
+	-- since `finish` is in the snapshot and its hash
+	local stamp = (t == "raise" or t == "punish") and stampOf(a.at) or nil
 	if t == "raise" then
 		assert(self.phase == "settle" and self.settle.mode == "raise", "no kubb to raise")
 		local choice = a.choice and I(a.choice) or nil
@@ -1374,6 +1376,7 @@ function Session:apply(a)
 		assert(choice == nil or dec.choices[choice], "no raising choice " .. tostring(choice))
 		-- no choice: the default raiseInfo offered (the side's policy, match.raisePolicy)
 		g:raise(choice, cmatch.raisePolicy(self.m, n.side))
+		if stamp then self.finish = stamp end
 		self.settle.raised = self.settle.raised + 1
 		self.card = nil
 		if not settleBegin(self) then self.settle = nil; self:advance() end
@@ -1384,6 +1387,7 @@ function Session:apply(a)
 		local wx, wy = frame.point(n.side, F(a.x), F(a.y))
 		local ok, why = g:placePunishment({ x = wx, y = wy, standing = true, angle = 0 })
 		if not ok then return { ok = false, why = why, label = whyLabel(why), need = self:need() } end
+		if stamp then self.finish = stamp end
 		self.settle.placed = self.settle.placed + 1
 		self.card = nil
 		if not settleBegin(self) then self.settle = nil; self:advance() end

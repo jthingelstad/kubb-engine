@@ -229,18 +229,18 @@ for name, lv in pairs(plan.levels) do
 		nervesLen = lv.nervesLen, tumbleTurns = lv.tumbleTurns, tumbleSd = lv.tumbleSd,
 		drillScatter = lv.drillScatter }
 end
--- A level table with its nerves times k (the king shot), kept per level and k.
+-- A level table with its nerves times k (the king shot). One table per level and k is
+-- reused, and filled from the level on every call: the Gym serves each team's own nerves
+-- through the same level table (tools/gym/versus.lua), so a copy made once would keep
+-- whichever team threw at the king first.
 local kingLevels = {}
 local function kingLevel(lv, k)
 	local byK = kingLevels[lv]
 	if not byK then byK = {}; kingLevels[lv] = byK end
 	local o = byK[k]
-	if not o then
-		o = {}
-		for key, v in pairs(lv) do o[key] = v end
-		o.nervesDeg, o.nervesLen = lv.nervesDeg * k, lv.nervesLen * k
-		byK[k] = o
-	end
+	if not o then o = {}; byK[k] = o end
+	for key, v in pairs(lv) do o[key] = v end
+	o.nervesDeg, o.nervesLen = lv.nervesDeg * k, lv.nervesLen * k
 	return o
 end
 

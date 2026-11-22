@@ -19,7 +19,7 @@
     "note": "pitch/ (room/ before 0.13) began as src/net's lobby.js, seats.js and sync.js in Lua, now the one implementation; tests/pitch/vectors/ are a frozen corpus recorded from this commit (docs/PITCH.md)"
   },
   "files": {
-    "core/autothrow.lua": "c46958c31dfb4dbf2b08f37aa476752ac0b3af22db1c77908038999a37c2c3bf",
+    "core/autothrow.lua": "ba313f992acdf415a7bc49aa4eca27e506646acc867de4aeb2d6c4062092f59e",
     "core/bench.lua": "763ad4227dbc59ac8279b42165afbd2945ed951b5ad00e8934f239f534194e7f",
     "core/body.lua": "7984503fa805f27b9acc4cdfe998f730178a6c7fa5edf2f28950d274819c3b31",
     "core/burstpick.lua": "2c3f468a44b041a4161f2f7db7f49efbba2d16c2585ec7ac5b2610af22a4ce10",
@@ -76,7 +76,7 @@
     "session/names.lua": "24ad83176ac83dc39d97c75e7fb52cead05c93302fd3d4e55d64b94caa5cab01",
     "session/neighbours.lua": "4738b5caf24092ab08bfeed17d0d6c4b4accefe3defda7fc68440df8568e6e5b",
     "session/replay.lua": "25575574766f680f9c595520744d4398415a362f7114088f1a94794c9c78b3b0",
-    "session/session.lua": "6d57765dc58dd11278c872fd14650d31019a4697cef0047eb36f6359b8ce5664",
+    "session/session.lua": "cb1092d36696e63bfd1ea678e20a6960ec7b156a17c2d56d30211277920f2a47",
     "session/throw.lua": "0f6d78a1e125c35b09a11be9174a137064954b0729f83a84a1bb1654e4b2d5ac",
     "session/touch.lua": "1785c2057390574d94f42fde5945558e42ae20186a74d5bd8bc6d523231d4371",
     "session/wide.lua": "28a1015175dab0fcc08d844ad4a71fac46c8a55a76ffc7a9ac0336c127f27e85",
@@ -85,6 +85,6 @@
     "version.lua": "11e0251c858bd7ab45e8f055e9a99e344e41762bdc8e1e4c635d5e3481cb2e24"
   },
   "bundle": {
-    "sha256": "8b9ae23e7cd6cf81ee41034c295813f7aaf868f13ac39c3a6f54712a9afd8318"
+    "sha256": "ceb46512372c0ff1b466243cadf58e1f4ff91c3d79302f8b50c28f7eb6578656"
   }
 }

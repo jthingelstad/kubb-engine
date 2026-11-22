@@ -86,6 +86,12 @@ test("stamps: a raise and a punishment kubb by hand carry the host's stamp", fun
 		local n = s:need()
 		if n.kind == "over" or raised then break end
 		if n.kind == "raise" then
+			-- a raise that is refused leaves the match as it was: `finish` is in the hash
+			local before, hash = s.finish, s:hash()
+			local ok = pcall(s.apply, s, { type = "raise", choice = 99, at = clockAt(32) })
+			expect.eq(ok, false, "no such raising choice")
+			expect.eq(s.finish, before, "a refused raise's stamp is not kept")
+			expect.eq(s:hash(), hash, "and the match is the same match")
 			s:apply { type = "raise", at = clockAt(33) }
 			expect.eq(s.finish.min, 33, "the raise's stamp is the finish so far")
 			raised = true
@@ -104,6 +110,43 @@ test("stamps: a raise and a punishment kubb by hand carry the host's stamp", fun
 		end
 	end
 	expect.truthy(raised, "a person raised by hand")
+end)
+
+test("stamps: a refused punishment kubb keeps no stamp; the one placed does", function()
+	-- two people; every kubb is thrown three times too hard, so it is out twice and the
+	-- other side places it by hand
+	local s = session.new { mode = "match", seed = 1, start = START, maxTurns = 4, raising = "hand",
+		teams = { A = { name = "Ada", players = { { name = "Ada", level = "club", key = "m1" } } },
+			B = { name = "Bo", players = { { name = "Bo", level = "club", key = "m2" } } } } }
+	local r = autothrow.rng(3)
+	local placed = false
+	for _ = 1, 400 do
+		local n = s:need()
+		if n.kind == "over" or placed then break end
+		if n.kind == "punish" then
+			local before, hash = s.finish, s:hash()
+			local king = s:apply { type = "punish", x = 0, y = 4, at = clockAt(35) }
+			expect.eq(king.ok, false, "a punishment kubb on the king is refused")
+			expect.eq(s.finish, before, "its stamp is not kept")
+			expect.eq(s:hash(), hash, "and the match is the same match")
+			local o = s:apply { type = "punish", x = n.cursor.x, y = n.cursor.y, at = clockAt(36) }
+			expect.eq(o.ok, true)
+			expect.eq(s.finish.min, 36, "the placement's stamp is the finish so far")
+			placed = true
+		elseif n.kind == "raise" then
+			s:apply { type = "raise" }
+		else
+			local ts = s.ts
+			local c = autothrow.choose(s.setup, r, 1)
+			tw.web.throw.showAim(ts, c)
+			local L, how = tw.web.throw.cpuLaunch(ts, c)
+			if ts.drill then L.speed = L.speed * 3 end
+			ts.playerX, ts.playerY = c.x, c.y
+			s:apply(json.decode(json.encode(s:throwAction(L, how, { scripted = true, back = c.swing.back,
+				stop = c.swing.releaseAngle }))))
+		end
+	end
+	expect.truthy(placed, "a punishment kubb was placed by hand")
 end)
 
 test("stamps: the start's utcOffset is kept, round-trips, and moves a hash only when given", function()
