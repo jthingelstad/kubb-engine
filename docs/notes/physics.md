@@ -3,6 +3,35 @@
 Subsystem notes moved out of `AGENTS.md` (2026-11-17). The hard rules are also in
 `AGENTS.md`; this file keeps the detail and the history. Paths are from the repo root.
 
+## Open after 1.0.0
+
+Found while the clients moved to 1.0.0 (2026-11-22), none fixed in it. Each needs a minor
+(it moves hashes) or a measurement first.
+
+- **A seated kubb that rocks without falling steps at the next throw.** A standing kubb
+  that a throw rocks (often one nothing touched) ends the playback up to its seat away
+  from where it began: the turf gave and it stands nearer plumb. The next world seats it
+  again, so the client draws it stepping by that much at the next throw's first frame (the
+  web measured 1.1 degrees on snow and 0.43 on grass; seed 5, Minnesota, both sides the
+  computer, raising automatic, maxTurns 6). Clients draw items as given and cannot fix it.
+  The note under "The seat" says a kubb that has moved keeps the pose it came to rest in;
+  `match.settleStanding` now leaves a kubb within `settleDeg + seat` alone and the next
+  build seats it afresh, so the two disagree. To settle: a rocked kubb either keeps its
+  rest pose (and its seat is gone until it is stood again) or is never rocked off its seat
+  by a throw that does not move it.
+- **A kept drive raised to a new floor is still dear on the Playdate.** 1.0.0's drag-free
+  check made it 5 to 19 times cheaper in desktop Lua (0.025 to 0.09 ms), but on the device
+  it measured 34 ms at 1.5 m and 77 ms at 3 m (max 88), about 850 to 1100 times desktop
+  where the rest of a plan runs at 280 to 430: what is left is carry steps. The Playdate
+  keeps its guard (no such solve while the circle or the stance moves). A cheaper carry,
+  or a floor found without one, would let it go (playdate-kubb docs/notes/performance.md
+  "Engine 1.0").
+- **A glance at a top corner** depends on where the step falls ("A glance at a top corner"
+  below; the fix is the local branch `at-touch`, waiting on docs/reference/QUESTIONS.md
+  Q21, a filmed count of what a real graze does).
+- **The iPhone's distance tab** rounds to whole metres where the web now reads tenths under
+  5 m ("1.5 M"); the engine gives `dist` unrounded, so this is the iPhone's to match.
+
 ## Physics
 
 DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `world`,
