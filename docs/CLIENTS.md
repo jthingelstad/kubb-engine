@@ -12,19 +12,19 @@ is new and optional.
 ## Every client
 
 - **Sync the tag**, each by its own command, from a kubb-engine checkout beside it:
-  web `npm run vendor:sync -- --tag v0.13.0` (with `--keep`, so 0.9 moves to
-  `vendor/engines/0.9/`), iPhone `TAG=v0.13.0` and `v0.9.0` added to `OLDER` in
+  web `npm run vendor:sync -- --tag v0.13.0`, iPhone `TAG=v0.13.0` in
   `scripts/vendor-engine.sh`, then `scripts/vendor-engine.sh sync`, Playdate
   `make vendor-sync TAG=v0.13.0` (core only).
-- **Carry 0.9 beside 0.13.** Every minor from 0.10 to 0.13 changes what a seeded match
-  does, so a match plays, replays, renders and is checked only on its own
-  `match.engine` (VERSIONING.md "Carrying several engines"). The web and the iPhone keep
-  0.9 (and 0.8, 0.7) for matches started on them. There is nothing to carry for 0.10 to
-  0.12: no client shipped them.
+- **Carry the newest engine alone.** A client carries an engine only while we have
+  decided it is supported, and today that is the newest minor (VERSIONING.md "Carrying
+  several engines"; decided 2026-11-21, after this guide was first written to keep 0.9
+  beside 0.13). Drop 0.9, 0.8 and 0.7: web `vendor:sync` with `--drop`, iPhone an empty
+  `OLDER`. A match, replay or reel made on a dropped engine is not replayed on another;
+  the client says it was made on an older version of the game.
 - **Web and iPhone share a match only on the same major.minor.** Both must be on 0.13
   to play each other; a pitch whose players carry no common engine says who must
-  update (`engineFor`'s `missing`). Ship both at once, or keep 0.9 carried until both
-  have.
+  update (`engineFor`'s `missing`). A player whose client has no supported engine is told to
+  update; ship both clients close together so that is brief.
 
 ## Web (`kubb.thingelstad.xyz`)
 
@@ -113,7 +113,10 @@ Must:
 - **A kubb throw's scatter (0.11).** `world.launchDrill` takes the scatter as its last
   argument (nil: 1); the core's drills change with it.
 - **The arc's default (0.10).** `autothrow.tune.drillSpin` is a number, `plan.tune.arc`
-  holds only `drill`, and `drill.body`'s fifth argument is the loft.
+  holds only `drill`, and `drill.body`'s fifth argument is the loft. `plan.arcFor` takes
+  the distance: `scenes/throw.lua` called it with the target's kind alone, which since
+  0.10 silently gives every target the 8 m arc; pass the distance from the stance to
+  the aim circle, as `session/throw.lua`'s `defaultArc` does.
 - **Raising by side (0.12).** In VS PLAYDATE the core infers the computer is Team B and
   raises by level, with nothing to change. Two things need the Playdate's own change:
   `scenes/settle.lua` offers its first end with `g.raisePolicy` (`apart`); pass
@@ -139,6 +142,15 @@ it shares matches with 0.13.0. Sync `v0.13.1` in place of `v0.13.0` above, and:
   that describe them (`src/ui/sheet.js`, `src/engine/index.js`, docs/CLIENT.md).
 - **iPhone**: nothing in Swift. Run `SoloTests` and the sheet's snapshot again.
 - **Playdate**: `scenes/sheet.lua` skips lines where `gamefile.isPosition(line)` is true.
+  The Playdate's own notation gate, its fixtures and its vendored reader move to
+  Notation 2 with it (pk-kubb-score `v2-2026.11`), or every game file its self-tests
+  write fails the gate.
+- **Playdate, on the device**: `raising.policies.par` costs about 33 ms a decision on
+  the device (0.06 ms in desktop Lua), and a settle makes every raise in one call, so
+  eight kubbs add about 0.2 s to a still frame. The Playdate sets `tw.cpu.raising.pro`
+  and its automatic raising of a person's kubbs to `apart` from its own setup code
+  (never by editing the vendored core). The pro computer's attacking plays cost one
+  89 ms frame and stay on.
 
 ## 0.13.2 on top
 
