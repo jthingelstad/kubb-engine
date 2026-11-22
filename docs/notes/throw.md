@@ -945,3 +945,50 @@ little looser than it near the spot, a steady hand inside the bars is a pro's, a
 perfect swing lands where it was aimed. Narrower still (0.8, 0.6) took the recorded hand
 under half within 0.3 m, below the club computer on every column. The Kid meter is its own
 entry and keeps 1.35. The Gym's groups by thrower are in docs/notes/gym.md "The drive".
+
+### A hard throw's power bar (0.17.0)
+
+The person's power bar went by the distance alone, so a drive at 3 m on a full swing
+(10 m/s, a backswing of 128) held a 3 m bar, 6.5 degrees either side, where the same swing
+at 8 m holds 2. The recorded swings say a full swing is the harder one to hold: `node
+tools/gym.mjs fit <records>` (273 recorded batons on engines 0.2 to 0.7) prints a baton's
+misses by the backswing its plan asked for, and a plan of 125 degrees or more was missed
+by a median 7.6 degrees of backswing (17 throws) against 4.2 and 4.4 under 110 and from
+110 to 125 (183 and 73), its release by 13.1 against 8.9 and 9.5. (Those hard plans were
+mostly baselines; the sample cannot tell the distance from the power.)
+
+From 0.17.0 a baton's power bar on the standard meter also goes by its planned speed
+(`plan.meters.standard.powerSpeed`, read by `plan.meterLevel`): the speed counts as the
+distance a throw on the line before needs it at (5.5 m/s 2 m, 7.1 3 m, 8.1 4 m, 8.9 5 m,
+9.5 6 m, 10.3 8 m, straight between), and the bar is that distance's when it is farther
+than the target. The release bar still goes by the distance. Bars (half widths, degrees):
+
+| distance | the line's speed | power bar, 0.16 | power bar, 0.17 |
+|---|---|---|---|
+| 1.5 m | 6.5 | 6.5 | 6.5 |
+| 2 m | 8.3 | 6.5 | 5.4 |
+| 3 m | 10.0 | 6.5 | 2.7 |
+| 4 m | 10.3 | 5.6 | 2.1 |
+| 6 m | 10.0 | 3.8 | 2.7 |
+| 8 m | 10.3 | 2.0 | 2.0 |
+
+A softer throw a person plans (ARC up) keeps the distance's bar. The Kid meter has no
+`powerSpeed` and is unchanged. What it costs at a lone kubb (`tools/meterprobe.lua`): the
+recorded hand fells one at 4 m 62% where it felled 71%; in matches the field batons' misses
+are 32.1% (club's row 30 to 40), where they were 29.6%. In the Gym it is what brings the
+recorded hand back to about even with the club computer once both drive (docs/notes/gym.md
+"The computer's drive").
+
+### Coming down on top (0.17.0)
+
+From 0.16.0 the Gym's human club thrower's batons "came down on top" of a kubb (the
+contact within 1 cm of its top, its normal near vertical) on 6.2% of throws where they did
+on 3.1% before, against the owner's estimate of at most 3 to 5. Two sweeps (40 matches,
+human club): the aim height (`aimHeightShare` 0.2 against 0.3) moves it by nothing (6.3%
+against 6.2%); the drive's turn does it all (`driveTurnToDeg` -40, a drive that keeps most
+of its half turn, 3.2%). A baton that does not flip arrives near upright with its lower end
+leading, and one a little high puts that end on the kubb's top face. It is not the lob onto
+the top the owner's estimate describes: such a touch topples the kubb 95% of the time (84%
+with the turn), and the take is the same within noise (two 10.7% and 10.3%, three or more
+1.7% and 1.3%). The no-flip drive is the owner's (owner-2026-11-22#s3), so it stays; the
+owner's 3 to 5 is a turning baton's.

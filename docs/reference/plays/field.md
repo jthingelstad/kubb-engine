@@ -154,30 +154,27 @@ Every `Levels` line is a proposal of ours, not a source's.
   after contact, not from one kubb driven into another. `field.corner` and `field.power`
   are the finesse half of the same choice. Q18 (closed: one line for every target,
   lowered).
-- **Levels:** Proposed: club and pro for the computer (`cpu.tune.drive`), not beginner or
-  kid. A person gets it as the default close in from 0.16.0 (one line for every target),
-  at every level.
+- **Levels:** club and pro for the computer from 0.17.0 (`cpu.tune.drive`), not beginner
+  or kid. A person gets it as the default close in from 0.16.0 (one line for every
+  target), at every level.
 - **Engine:** the person's throw from 0.16.0 (docs/notes/throw.md "The drive": ARC under
-  half past 5, the floor, no flip, the lowered default line). The computer's built
-  switched off in 0.16.0 (`core/cpu` decideBaton: at a group within `maxM` it plans
-  `plan.arcFor("baton", d)` instead of `plan.sharedArcFor(d)`; named in `why.facts.drive`,
-  `why.play` and `core/plays` take it when it is switched on). On two hand-written
-  positions after the owner's reports (`tools/driveprobe.lua`, 300 jittered throws) the
-  drive fells 1.93 and 1.95 kubbs a baton against 1.60 and 1.67 on the old default, and
-  two or more 65% and 90% against 57% and 64%; the MuJoCo reference agrees on what such
-  throws fell (docs/notes/throw.md "The force carried into a group").
-- **Gym:** `gym versus`, 300 seeds both ways round, grass, 0.16.0 (2026-11-22). Club with
-  the drive against club without: 62.1% (58.8 to 65.4); pro with against pro without:
-  60.3% (57.1 to 63.4). Switched on at both (`--set cpu.tune.drive.on=1`, 300 matches a
-  configuration): club's turns a game 14.3 to 12.8 (target 8 to 14), three or more 1.9% to
-  3.1% (3 to 7), two 13.8% to 15.2% (8 to 13), turns cleared 70.9% to 74.7% (68 to 80);
-  pro's turns 12.3 to 10.7 (6 to 10), three or more 6.8% to 9.2% (12 to 18), turns cleared
-  78.5% to 84.0% (87 to 94); base kubbs from 8 m and the king unchanged. Club with it
-  against pro with it: 5.3% (3.5 to 7.2), about where club stood against pro without it
-  (3 in 100 on 0.12.0). Ready to be
-  switched on at club and pro in its own pull request; it also answers the person's
-  drive, which took the Gym's human thrower at club from 48.5% to 69.2% against the club
-  computer (62.8% against club with the drive): docs/notes/gym.md "The drive".
+  half past 5, the floor, no flip, the lowered default line). The computer's from 0.17.0 at
+  club and pro (`core/cpu` decideBaton, `cpu.tune.drive`): every baton planned on a
+  person's default line (`plan.arcFor`) instead of the line before (`plan.sharedArcFor`),
+  named `field.drive` when the arc at a field kubb is a drive. Built in 0.16.0 for a close
+  group only; the whole line beat that. On two hand-written positions after the owner's
+  reports (`tools/driveprobe.lua`, 300 jittered throws) the drive fells 1.93 and 1.95 kubbs
+  a baton against 1.60 and 1.67 on the old default; the MuJoCo reference agrees on what
+  such throws fell (docs/notes/throw.md "The force carried into a group").
+- **Gym:** `gym versus`, 300 seeds both ways round, grass. 0.16.0 (the group drive,
+  switched off): club with it against club without 62.1% (58.8 to 65.4), pro 60.3% (57.1 to
+  63.4). 0.17.0: the line for every baton against the group drive, both teams driving,
+  56.0% (52.7 to 59.3) at club and 55.0% (51.9 to 58.1) at pro. Switched on: club's three
+  or more 1.9% to 3.4% (3 to 7), turns a game 14.3 to 12.4, cleared 70.9% to 78.2%; pro's
+  three or more 6.8% to 9.9% (12 to 18), turns 12.3 to 10.5, cleared 78.5% to 85.2%;
+  club's two (15.9%) and king (93.5%) further over their rows. With a hard throw's power
+  bar the recorded hand plays club about even again (48.0%), a newcomer beats beginner
+  65.3% and a master plays pro about even (49.7%): docs/notes/gym.md "The computer's drive".
 
 ## field.roles: The group first, then the ones left
 
