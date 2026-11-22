@@ -10,7 +10,8 @@
 --     [--set world.tune.x=v] [--engine DIR] [--drop id,id] (lying debris taken off the
 --     pitch first: what the struck piece does without them) [--case T FILE] (every body
 --     within a metre of the first watched piece, and the thrown baton, as they are at T s, in
---     tools/mjref's case format, written to FILE: the same moment for MuJoCo)
+--     tools/mjref's case format, written to FILE: the same moment for MuJoCo) [--contacts] (every
+--     contact between a watched piece and another piece each step: point, normal, gap)
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local sourceDir = here .. "/.."
 for k = 1, #arg - 1 do if arg[k] == "--engine" then sourceDir = arg[k + 1] end end
@@ -30,6 +31,7 @@ local fmt, sqrt, deg, acos = string.format, math.sqrt, math.deg, math.acos
 local path = assert(arg[1], "usage: reportprobe.lua <report.json> --watch id,id")
 local watch, every, untilT, sets = {}, 2, 1.5, {}
 local drop = nil
+local showContacts = false
 local caseT, caseOut, caseDone = nil, nil, false
 local i = 2
 while i <= #arg do
@@ -40,6 +42,7 @@ while i <= #arg do
 	elseif a == "--set" then sets[#sets + 1] = v; i = i + 1
 	elseif a == "--engine" then i = i + 1
 	elseif a == "--case" then caseT, caseOut = tonumber(v), arg[i + 2]; i = i + 2
+	elseif a == "--contacts" then showContacts = true
 	elseif a == "--drop" then drop = {}; for id in v:gmatch("[^,]+") do drop[id] = true end; i = i + 1
 	else error("unknown option " .. a) end
 	i = i + 1
@@ -98,6 +101,18 @@ world.step = function(w)
 	end
 	for k in pairs(per) do per[k] = nil end
 	step0(w)
+	if showContacts and w.time <= untilT then
+		local C = tw.collide.C
+		for ci = 1, C.n do
+			local A, B = C.A[ci], C.B[ci]
+			local hit = false
+			for _, id in ipairs(watch) do if (A and A.id == id) or (B and B.id == id) then hit = true end end
+			if hit and B then
+				print(fmt("    t %.3f contact %s-%s p (%.3f %.3f %.4f) n (%+.2f %+.2f %+.2f) sep %+.4f", w.time, A.id, B.id,
+					C.px[ci], C.py[ci], C.pz[ci], C.nx[ci], C.ny[ci], C.nz[ci], C.sep[ci]))
+			end
+		end
+	end
 	if caseT and w.time >= caseT and not caseDone then
 		caseDone = true
 		local c0
@@ -126,7 +141,7 @@ world.step = function(w)
 					table.sort(parts)
 					print(fmt("t %.3f %s v %.2f (%+.2f %+.2f %+.2f) w %.1f tilt %.1f z %.4f  %s", w.time, id,
 						sqrt(b.vx * b.vx + b.vy * b.vy + b.vz * b.vz), b.vx, b.vy, b.vz,
-						sqrt(b.wx * b.wx + b.wy * b.wy + b.wz * b.wz), deg(acos(up)), b.z, table.concat(parts, "  ")))
+						sqrt(b.wx * b.wx + b.wy * b.wy + b.wz * b.wz), deg(acos(up)), b.z, table.concat(parts, "  ") .. fmt("  ground %.3f", b.groundImpulse or 0)))
 				end
 			end
 		end
