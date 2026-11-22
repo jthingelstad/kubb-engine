@@ -913,6 +913,11 @@ touched-and-stood rate argues against lower friction. What the reference and the
 agree on now is the throw: a harder, lower baton fells more, and that is what 0.16 gives
 the person. The doubles and triples the Gym gained (below) come from it.
 
+That work was done on 2026-11-22 (docs/notes/physics.md "A blow down a column"): kubb on
+kubb alone and the piles of a throw-in agree with the reference or fell more; the column
+of six struck by a baton is still the one case outside its band, and no sound change to
+the contacts brought it in, so the physics is as it was.
+
 ### The thrown kubb on the person's meter (0.16)
 
 The owner (`s4`): "Drilling physics is great. Amazing. But the player can now drill too

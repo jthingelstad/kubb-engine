@@ -858,6 +858,141 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     have a pair bounce.
   - Not bit-identical: any step with a bounce between two pieces faster than
     `restitutionSpeed`.
+- **A blow down a column** (2026-11-22, the owner after a match: "Batons are not carrying
+  enough force into the kubbs. That is why we aren't getting triples and more at the rate
+  that real games get them"). A study of kubb on kubb against MuJoCo. No physics was
+  changed: on the groups a throw-in leaves ours stands inside the reference's band or over
+  it, and every change that brought the one case it misses into the band was either
+  unsound or put the cause in the wrong place. The measuring tools and the pinned cases
+  stay.
+  - **The cases** (`tests/fixtures/contact/columns.lua`): columns of three and six kubbs
+    face to face along the throw, touching, 2 mm, 5 mm and 2 cm apart; struck by an
+    upright baton flying level (6, 9 and 12 m/s, turning at 12 rad/s or not, the lower
+    end of its segment 3, 4.5 or 8 cm up), or by the front kubb itself set moving as a
+    blow leaves it (0.3, 0.6 and 1.0 N s at 4, 10 and 14 cm), no baton: kubb on kubb
+    alone; and five piles of the kind a throw-in leaves (a 2 x 3 block 2 mm apart, a
+    seven-kubb pile, a fence of four across the throw, a wedge of five, three in line 8
+    cm apart) struck by the level baton across the front face. `lua5.4
+    tools/columnprobe.lua` runs them in our engine (`--trace <id>` step by step: each
+    kubb's speed and turn and each pair's impulse), `export.lua <dir> --cases column` and
+    `mjsim.py --variants ref,dt2,stiff,soft,hard` in MuJoCo (`hard`, new: a contact four
+    times stiffer than `stiff` at a quarter of its step, toward the rigid limit),
+    `tools/mjref/column.py <dir> [--by] [--energy]` compares them, and
+    `tools/mjref/chainlog.py <dir> <id>` prints MuJoCo's step by step beside
+    `columnprobe --trace`. `tests/lua/test_column.lua` pins the column of six and the
+    piles.
+  - **Measured** (kubbs toppled, the share of all thrown at; ours on the flat ground
+    MuJoCo models, and MuJoCo's five variants, ref / dt2 / stiff / soft / hard):
+
+    | case | ours | MuJoCo | | case | ours | MuJoCo |
+    | --- | --- | --- | --- | --- | --- | --- |
+    | col6 touching, baton | 24 | 47 / 47 / 56 / 51 / 49 | | col6 touching, pushed | 9 | 15 / 13 / 26 / 17 / 15 |
+    | col6 2 mm, baton | 12 | 51 / 43 / 32 / 61 / 38 | | col6 2 mm, pushed | 4 | 2 / 4 / 0 / 6 / 0 |
+    | col6 5 mm, baton | 17 | 31 / 32 / 32 / 37 / 31 | | col6 5 mm, pushed | 0 | 2 / 0 / 4 / 4 / 4 |
+    | col6 2 cm, baton | 13 | 31 / 32 / 27 / 40 / 35 | | col6 2 cm, pushed | 0 | 4 / 4 / 4 / 4 / 4 |
+    | col3 touching, baton | 93 | 93 / 91 / 93 / 96 / 91 | | col3 touching, pushed | 48 | 52 / 48 / 59 / 52 / 48 |
+    | col3 2 mm, baton | 76 | 96 / 98 / 94 / 93 / 94 | | col3 2 mm, pushed | 37 | 37 / 37 / 44 / 44 / 37 |
+    | col3 5 mm, baton | 91 | 91 / 96 / 94 / 94 / 96 | | col3 5 mm, pushed | 37 | 41 / 41 / 48 / 33 / 37 |
+    | col3 2 cm, baton | 87 | 91 / 83 / 87 / 89 / 87 | | col3 2 cm, pushed | 33 | 37 / 37 / 41 / 33 / 44 |
+    | block 2 x 3 | 61 | 56 / 56 / 56 / 58 / 56 | | fence of four | 54 | 33 in all five |
+    | pile of seven | 60 | 51 / 52 / 45 / 56 / 52 | | wedge of five | 100 | 97 / 97 / 100 / 98 / 98 |
+    | three in line, 8 cm | 97 | 100 / 100 / 92 / 97 / 97 | | | | |
+
+    Kubb on kubb alone agrees: a column pushed by its front kubb topples as many in both,
+    to a few points, at every gap. So do the piles, or ours fells more (the fence 54
+    against 33). The columns of three agree but at 2 mm. What ours misses is a baton
+    driven into a column of six: 12 to 24% against 27 to 61%, at every gap, and the
+    stiffest variant (`hard`) is not nearer ours than the others. MuJoCo's variants agree
+    on that much; this is the case the 0.16 study found (docs/notes/throw.md "The force
+    carried into a group").
+  - **Where it is lost.** The same column started in both engines from MuJoCo's own state
+    20 ms after the blow (`ref`): ours topples 44% against 47 and 49% (2 mm); from 0.1 s
+    36% against 45 and 50. At 2 cm, 19% against 28 and 29 from 20 ms, 22 against 26 and
+    29 from 0.1 s. So most of it is made in the first 20 ms, while the baton strikes and
+    the blow goes down the column, and a few points after.
+  - **What it is not** (the baton into the column of six, all gaps, 432 kubbs; ours 16%):
+    the step (1/480 s 18%, 1/960 19%), the contact margin (0.5 mm 18%), the solver's passes
+    (16 velocity and 16 bounce passes 20%), the bounce threshold (`restitutionSpeed` 0.2
+    17%, 0.1 16%), the box-box
+    manifold (two square faces 2 mm apart: four points, each from both boxes, the face
+    normal; a kubb tipped 2 to 20 degrees onto the next: its top edge on the face, the
+    face's normal; nothing lost and no wrong feature), the rounding of a kubb's edge to a
+    baton (`batonRound` 0.002 19%, 0.005 17%), and where a baton's contacts sit on a face
+    (each end of the clipped stretch a contact of its own: 16%; with square edges too, 19%).
+  - **What it is.** Three things, each with a number:
+    - **The blow inside one step moves the column as a block.** A contact whose approach
+      began inside the step (the baton's push reaching the second kubb 2 mm away) has
+      none when the step begins (`v0`), so the bounce passes hold it at rest: the first
+      three kubbs move as one, 1.61 / 1.38 / 1.14 m/s and 15 to 22 rad/s together, and
+      the next step the whole column slides at 0.6 m/s with no turn left (`columnprobe
+      --trace col-col6-0.002-b0.045-9-0`; MuJoCo's stiffest variant passes it on kubb by
+      kubb, the front one stopped and lifted, the back ones turning). It is why the column
+      2 mm or 5 mm apart is far below and 2 cm is less so. Three ways to give those
+      contacts their bounce were built and measured: Newton's rule with the approach each
+      first met in the bias passes (col6 baton 34%, inside the band at 2 and 5 mm, the
+      touching column 42%), the island met contact by contact in order of depth, each a
+      small impact of its own and the footing's impulse kept between them (15%), and
+      Poisson's rule, each contact bouncing e times the impulse that stopped it (19%).
+      The first is the only one in the band, and it is not sound: down a pushed column
+      each kubb takes more energy than the one in front of it (0.027, 0.066, 0.093, 0.095
+      J, MuJoCo 0.030, 0.023, 0.011, 0.007), so pushed columns go over the band (col6 2 mm
+      pushed 15%, col3 2 mm pushed 52%) and the 2 x 3 block to 67%. The sound two do not
+      fell more. None was kept.
+    - **Friction between kubbs in a struck column.** It is the one number that moves the
+      case: kubb on kubb friction 0.2 (the baton's left at 0.4) 36%, 0 58%. MuJoCo given
+      0.8 between kubbs topples the column of six as ours does at 0.4 (2 mm: 24 and 14%
+      for `ref` and `hard`, against ours 12; 2 cm: 10 and 6, ours 13), while its piles do
+      not move (the block 56 and 56, the pile of seven 52 and 51). Ours at 0.2 is inside
+      the band on the columns (36%), the pushed columns (4%) and the piles. So in a struck
+      column the rub between kubbs holds ours about twice as hard as the reference at the
+      same coefficient. Part of it is the block: its push goes through the first face
+      (1.52 N s between the first two kubbs in the step of the blow, MuJoCo's stiffest
+      0.80), and friction is that times 0.4; but met kubb by kubb the first face takes 0.73
+      and the column falls no more, so the rest is not found. The coefficient is not wrong
+      (clean dry wood 0.25 to 0.5, and the owner's 23.5% of touched kubbs left standing
+      argues against less), so it was left.
+    - **The baton's blow lands a little low on the face.** Struck level at 9 m/s, the
+      front kubb leaves at 2.48 m/s turning at 32 rad/s in ours, 2.80 and 37 in MuJoCo:
+      the same normal impulse (1.49 and 1.48 N s) and the same friction (0.60 and 0.61),
+      but its centre 10.9 cm up the face in ours (contacts at 7.5 and 14 cm) against 11.7
+      in MuJoCo (4.5 and 15 cm, 69% at the top). That is the 15 to 30% less energy in the
+      front kubb the 0.16 study saw; with no friction on the baton ours gives 2.87 and 38.
+      Ends of the stretch and sharper edges did not move it (above); it reaches every
+      kubb a baton strikes, base kubbs and the king among them, so it was left.
+  - **What a player would get from the column fix.** The Gym (`node tools/gym.mjs --engine
+    <dir> --throwers cpu,human --levels club,pro --n 300`, seed 1, grass; the computer with
+    `cpu.tune.drive.on=1` too) on 0.16.0, on 0.16.0 with the in-band Newton rule above,
+    and on 0.16.0 with kubb on kubb friction 0.2 (the one number that put the column in its
+    band). Field batons that took two / three or more / toppled four or more, by thrower
+    and level, against real games' 16.0 / 10.0:
+
+    | | 0.16.0 | the Newton rule | kubb on kubb 0.2 |
+    | --- | --- | --- | --- |
+    | cpu club | 13.8 / 1.9 / 0.1 | 13.2 / 1.9 / 0.1 | 14.2 / 2.5 / 0.2 |
+    | cpu pro | 22.2 / 6.8 / 0.8 | 22.3 / 6.9 / 0.8 | 21.9 / 7.6 / 0.9 |
+    | cpu club, drive on | 15.2 / 3.1 / 0.2 | 15.1 / 3.1 / 0.2 | |
+    | cpu pro, drive on | 22.9 / 9.2 / 1.0 | 23.3 / 9.0 / 1.0 | |
+    | human club | 11.3 / 1.6 / 0.1 | 11.2 / 1.6 / 0.1 | 11.5 / 1.7 / 0.1 |
+    | human pro | 16.3 / 2.9 / 0.2 | 16.1 / 2.7 / 0.2 | 16.0 / 3.0 / 0.2 |
+
+    `gym compare` finds nothing past 99% for the Newton rule but the energy anomaly (the
+    world gaining over 0.02 J in a step: 1.7 to 2.8, 1.9 to 3.2, 5.7 to 8.3 per 1000
+    throws); for the friction, the computer at club's three or more (1.9 to 2.5) and a
+    few small rows. Base kubbs from 8 m, the king, touched and stood and rethrown kubbs do
+    not move in either. The columns a baton meets in a match are few: what keeps the
+    person's triples down is the groups the person leaves, not how a blow passes through
+    them. The person's field group at pro is 0.65 m from its centre on average (the pro
+    computer's 0.27), 7% of its kubbs touch another (30%; the owner's range for real play
+    60 to 90%), and one baton could take a group of three or more whole in 0.5% of them.
+    Before the next physics change, tighten the person's groups: the thrown kubb on the
+    meter (docs/notes/throw.md "The thrown kubb on the person's meter") and how a
+    person's kubbs are raised (`par`). The raise comparison
+    (`gym versus --a "level=pro;raise=<policy>" --b "level=pro;raise=apart"`, 300 seeds
+    both ways round): the pro computer attacking groups raised `together` (45% of their
+    kubbs touching another) takes three or more with 10.9% of its field batons and four or
+    more with 1.5, against 7.8 and 0.9 at groups raised `apart` (11% touching); raised
+    `toward`, 8.0% (29% touching). The Newton rule gives 10.4, 8.0 and 7.9. On this engine
+    a touching group gives the computer more triples, not fewer.
 - Tried and rejected (2026-11-13): `dt` 1/120 halves the steps but fails three behaviour
   tests and the bigger contact margin gives ghost hits; 3 solver iterations instead of 4
   would save about 8% of a collision step but changes the feel, so it was not applied.
