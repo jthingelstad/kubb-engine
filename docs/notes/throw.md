@@ -586,6 +586,51 @@ tuned with.
 
 The refit and what it moves are in docs/notes/gym.md "Fitting the human thrower".
 
+### Bars that bring the recorded hand to club (a measurement; nothing shipped)
+
+What narrowing the standard meter's bars alone would do to fit 2's recorded hand, for Q19
+(`tools/meterprobe.lua --parts hand,drill --n 400 --set plan.meters.standard.<k>=<v>`;
+`gym versus --a "level=club;thrower=human" --b "level=<level>" --set ...`, 300 seeds both
+ways round). The aims: a lone kubb at 8 m felled 27% of the time (the club row) and a
+thrown kubb landed dead about as often as the club computer's (56%). One bar at a time
+first (the recorded hand, x1; felled at 8 m / landed dead):
+
+| change | 8 m | dead |
+| --- | --- | --- |
+| shipped (`powerHalf8` 2, `releaseHalf8` 7.5, kubb x1) | 44% | 78% |
+| `powerHalf8` 1.6 / 1.3 / 1.0 / 0.8 | 42 / 41 / 42 / 41% | 67 / 62 / 49 / 42% |
+| `releaseHalf8` 6 / 4.5 / 3.5 / 2.5 | 38 / 34 / 32 / 27% | 74 / 67 / 55 / 40% |
+| kubb bars x0.75 / x0.55 / x0.4 (`kubbPower`, `kubbRelease`) | 44% | 61 / 43 / 28% |
+
+The power bar hardly moves a baton (fit 2's people seldom miss the power by more than its
+inside counts); the release bar does, and it narrows a thrown kubb's too (its bars are a
+baton's times the kubb factors). Two candidates:
+
+- **Moderate, A:** `releaseHalf8` 4.5 (from 7.5), nothing else.
+- **Reaching the rows, B:** `releaseHalf8` 3.5 and `powerHalf8` 1.3, with the kubb factors at
+  1.2 so a thrown kubb is not narrowed past the aim.
+
+| | shipped | A | B |
+| --- | --- | --- | --- |
+| power bar half width at 4 / 6 / 8 m (degrees of backswing) | 5.6 / 3.8 / 2.0 | the same | 3.6 / 2.5 / 1.3 |
+| release bar half width at 4 / 6 / 8 m (degrees on the clock) | 21.0 / 14.2 / 7.5 | 12.6 / 8.5 / 4.5 | 9.8 / 6.6 / 3.5 |
+| the release bar whole at 8 m, as clock time (30 degrees an hour) | 15 degrees, 30 min | 9 degrees, 18 min | 7 degrees, 14 min |
+| x2 felled at 4 / 6 / 8 m | 52 / 32 / 22% | 44 / 22 / 16% | 36 / 19 / 16% |
+| x1 felled at 4 / 6 / 8 m (club rows 72 / 48 / 27) | 76 / 60 / 44% | 71 / 51 / 34% | 64 / 44 / 29% |
+| x0.5 felled at 4 / 6 / 8 m | 88 / 79 / 67% | 86 / 73 / 62% | 83 / 70 / 56% |
+| thrown kubb x2 / x1 / x0.5: landed dead (club computer 56%) | 38 / 78 / 92% | 24 / 67 / 91% | 19 / 54 / 88% |
+| x1: median rest from its spot, within 0.3 m | 6 cm, 79% | 10 cm, 72% | 18 cm, 60% |
+| the person (x1) against beginner / club / pro | 98.5 / 86.4 / 19.7% | 98.5 / 61.8 / 4.5% | 97.2 / 35.3 / 2.3% |
+
+(B's x2 / x1 / x0.5 felled rows are with the kubb factors at 1, which change no baton.)
+What it would feel like: A keeps the power as it is and narrows the release bar by two
+fifths: at 8 m the stop must land within about 4.5 degrees of the target
+either side, nine minutes of the clock where it is fifteen now. B asks for the backswing
+within 1.3 degrees at 8 m and the stop within 3.5 (seven minutes): a long baton has to be
+nearly exact, and the person wins about a third of games against club, where the owner's
+target for a typical online player is about four in ten (owner-2026-11-21#s6). Both rest on
+fit 2, 212 throws from 6 matches (docs/notes/gym.md); nothing was changed in the meter.
+
 ## The person's meter (0.13)
 
 The owner, 2026-11-21 (`docs/reference/observations/owner-2026-11-21.md` `s8`): "player
