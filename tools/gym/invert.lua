@@ -19,8 +19,15 @@
 --            from this engine's targets) and thrown with the same nerve draws, with
 --            forensics
 --
+--   selftest (--selftest N) N seeded throws made by this engine's own session from
+--            known swings (back and stop off the plan's targets, a flick, a shake and a
+--            pull, the nerves seeded by the swing as a person's are), recorded as the
+--            session records them and inverted: prints how many came back and the
+--            largest error in each recovered part. Needs no records.
+--
 --   lua5.4 tools/gym/invert.lua --in FILE --out FILE [--engine DIR] [--played]
 --       [--rethrow FILE]
+--   lua5.4 tools/gym/invert.lua --selftest 200 [--engine DIR]
 --
 -- Input lines: { k, kind = "room", before = snapshot, a = action, hash } or
 -- { k, kind = "browser", start = snapshot, actions = [...], hashes = [...] } (the
@@ -59,11 +66,12 @@ do
 		elseif a == "--engine" then i = i + 1
 		elseif a == "--played" then opt.played = true
 		elseif a == "--rethrow" then opt.rethrow = v; i = i + 1
+		elseif a == "--selftest" then opt.selftest = tonumber(v); i = i + 1
 		else error("invert: unknown option " .. a) end
 		i = i + 1
 	end
 end
-assert(opt.input and opt.out, "usage: invert.lua --in FILE --out FILE [--engine DIR] [--played] [--rethrow FILE]")
+assert(opt.selftest or (opt.input and opt.out), "usage: invert.lua --in FILE --out FILE [--engine DIR] [--played] [--rethrow FILE]")
 
 local function F(x) return (x or 0) + 0.0 end
 
@@ -140,8 +148,19 @@ local function invertOn(ts, a, release, tilt, spin)
 	local unit = F(L1.tilt) - F(L0.tilt)
 	local dt = F(R.tilt) - F(L0.tilt)
 	local pull = dt < 0 and -1 or 1
-	local shake = unit > 0 and abs(dt) / unit or 0
-	if shake > 1 then return nil, "shake past 1" end
+	if unit > 0 and abs(dt) > unit * (1 + 1e-9) then return nil, "shake past 1" end
+	-- the tilt grows with the shake as it counts, which on a person's meter (0.13 on) is
+	-- not the shake itself (plan.shakeCounts: a steady shake is forgiven), so the shake
+	-- is found by bisection on the tilt it makes, not by proportion
+	local shake = 0
+	if unit > 0 and dt ~= 0 then
+		local lo, hi, want = 0, 1, abs(dt)
+		for _ = 1, 60 do
+			local mid = 0.5 * (lo + hi)
+			if F(launch(ts, swingOf(back, stop, 1, mid, 1)).tilt) - F(L0.tilt) < want then lo = mid else hi = mid end
+		end
+		shake = 0.5 * (lo + hi)
+	end
 	-- the side draw: the swivel past what the pull makes
 	local Ls = launch(ts, swingOf(back, stop, 1, shake, pull))
 	local zs = (Ls.sdSide and Ls.sdSide > 0) and deg(F(R.swivel) - F(Ls.swivel)) / Ls.sdSide or 0
@@ -298,6 +317,61 @@ local function kindOf(ts, a)
 end
 
 -- ---------- main ----------
+
+if opt.selftest then
+	-- throws this engine makes from known swings, recorded and inverted (see the top)
+	local START = { year = 2026, month = 11, day = 22, hour = 9, min = 0 }
+	local rng = plan.rng(20261122)
+	local n, got, worst = 0, 0, { back = 0, stop = 0, flick = 0, shake = 0, pull = 0, err = 0 }
+	local kinds = {}
+	local seed = 0
+	while n < opt.selftest do
+		seed = seed + 1
+		local s = session.new { mode = "match", seed = seed, start = START, maxTurns = 3,
+			teams = { A = { name = "Ada", players = { { name = "Ada", level = "club", key = "m1" } } },
+				B = { name = "Bo", players = { { name = "Bo", level = "club", key = "m2" } } } } }
+		for _ = 1, 40 do
+			local need = s:need()
+			if need.kind ~= "throw" or n >= opt.selftest then break end
+			local ts = s.ts
+			local sol = ts.sol
+			local kubb = ts.projectile == "kubb"
+			local back = sol.back + rng.normal(10)
+			local stop = sol.release + rng.normal(8)
+			if back < 0 then back = 0 end
+			local flick = rng.uniform(0, 1) < 0.5 and 1 or rng.uniform(0.85, 1)
+			local shake = rng.uniform(0, 0.6)
+			local pull = rng.uniform(0, 1) < 0.5 and -1 or 1
+			local r = swingOf(back, stop, flick, shake, pull)
+			ts.nerves = nil
+			local L, how = throw.playerLaunch(ts, r)
+			local a = s:throwAction(L, how, { back = back, stop = stop, input = "pointer",
+				verdicts = { powerV = L.powerV, releaseV = L.releaseV, steady = L.steady, sideV = L.sideV } })
+			local before = s:snapshot()
+			local s2 = session.restore(before)
+			s2:need()
+			local ok, rv = pcall(invert, s2.ts, a)
+			n = n + 1
+			kinds[how] = (kinds[how] or 0) + 1
+			if ok and rv and rv.err < 1e-6 then
+				got = got + 1
+				local function dd(k, x, y) local d = abs(x - y); if d > worst[k] then worst[k] = d end end
+				dd("flick", rv.flick, flick)
+				dd("shake", rv.shake, shake)
+				dd("pull", rv.pull, pull)
+				dd("err", rv.err, 0)
+			end
+			local okA = pcall(function() s:apply(a) end)
+			if not okA then break end
+		end
+	end
+	local kk = {}
+	for k, v in pairs(kinds) do kk[#kk + 1] = k .. " " .. v end
+	table.sort(kk)
+	print(string.format("invert selftest (engine %s): %d of %d recovered (%s); largest error: flick %.2g, shake %.2g, pull %.2g, launch %.2g",
+		(tw.engine and tw.engine.version) or "?", got, n, table.concat(kk, ", "), worst.flick, worst.shake, worst.pull, worst.err))
+	os.exit(got == n and 0 or 1)
+end
 
 local rethrow = {}
 if opt.rethrow then

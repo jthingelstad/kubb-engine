@@ -57,6 +57,55 @@ export function readRecords(dir) {
   for (const name of readdirSync(dir).sort()) {
     const sub = join(dir, name);
     if (!statSync(sub).isDirectory()) continue;
+    if (name === 'pitch') {
+      // The pitch server's records (since 0.13; the web's backend/api/API.md "Pushes"):
+      // pitch/<code>/<made>/<n>-<seq>.json.gz, the signed push byte for byte. A `start`
+      // (seq 0) carries the first snapshot, each `act` its action and the snapshot
+      // after it (backend/pitch-server/PROTOCOL.md: "snap: the snapshot after it"), so
+      // a throw is paired with the snapshot of the push one seq before it, when that one
+      // was kept.
+      for (const code of readdirSync(sub).sort()) {
+        const cd = join(sub, code);
+        if (!statSync(cd).isDirectory()) continue;
+        let codeHas = false;
+        for (const made of readdirSync(cd).sort()) {
+          const md = join(cd, made);
+          if (!statSync(md).isDirectory()) continue;
+          const byMatch = new Map();
+          for (const f of readdirSync(md)) {
+            if (!f.endsWith('.json.gz') && !f.endsWith('.json')) continue;
+            const r = parse(join(md, f));
+            const b = r && r.body;
+            if (!b || typeof b.n !== 'number') continue;
+            if (!byMatch.has(b.n)) byMatch.set(b.n, new Map());
+            const seq = r.topic === 'start' ? 0 : b.seq;
+            byMatch.get(b.n).set(seq, { topic: r.topic, b });
+          }
+          for (const [, steps] of [...byMatch].sort((x, y) => x[0] - y[0])) {
+            const st = steps.get(0);
+            const e = st && st.b.meta && st.b.meta.version ? st.b.meta.version : null;
+            const mk = `m${k + 1}`;
+            let any = false;
+            for (const seq of [...steps.keys()].sort((x, y) => x - y)) {
+              const s = steps.get(seq);
+              if (s.topic !== 'act') continue;
+              const a = s.b.a;
+              const prev = steps.get(seq - 1);
+              if (!a || a.type !== 'throw' || a.scripted || !a.swing) continue;
+              info.throwsRecorded++;
+              if (!prev || typeof prev.b.snap !== 'string') { info.unpaired = (info.unpaired || 0) + 1; continue; }
+              lines.push({ k: mk, i: seq, kind: 'room', before: prev.b.snap, a, hash: s.b.h, e });
+              any = true;
+              info.clients.add(s.b.c || 'web');
+              if (e) info.engines.add(e);
+            }
+            if (any) { k++; info.matches++; info.pitch = (info.pitch || 0) + 1; codeHas = true; }
+          }
+        }
+        if (codeHas) info.rooms++;
+      }
+      continue;
+    }
     if (name === 'browser') {
       for (const day of readdirSync(sub).sort()) {
         const dd = join(sub, day);

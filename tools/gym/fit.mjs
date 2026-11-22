@@ -17,9 +17,10 @@ import { mkdtempSync, rmSync, writeFileSync, readFileSync, chmodSync, mkdirSync,
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readRecords } from './records.mjs';
+import { browserToRoom } from './wasmreplay.mjs';
 import { runPool, git, extractEngine, root } from './pool.mjs';
 
-export const MODEL_VERSION = 1;
+export const MODEL_VERSION = 2; // 2: refitted 2026-11-22 from the pitch server and browser records (engine 0.13.1); 1: 2026-11-20, rooms on 0.7.1 (human-model-0.7.json)
 const ACCEPT = 1e-6;
 const QS = Array.from({ length: 21 }, (_, i) => i / 20);
 
@@ -43,7 +44,13 @@ function corr(a, b) {
 // Every recorded throw recovered: { throws: [per throw: the worker's line plus engine],
 // info, engines, tmp }. Keeps the temporary folder (the caller removes it with done()).
 export async function recover(dir, { jobs = 4, played = true } = {}) {
-  const { lines, info } = readRecords(dir);
+  const read = readRecords(dir);
+  const info = read.info;
+  // a browser match replayed under wasmoon on its own engine: one line a throw, with
+  // the snapshot its player saw (tools/gym/wasmreplay.mjs)
+  const wasm = await browserToRoom(read.lines);
+  const lines = wasm.lines;
+  info.browserReplay = wasm.stats;
   const tmp = mkdtempSync(join(tmpdir(), 'kubb-gym-rec-'));
   chmodSync(tmp, 0o700);
   const done = () => rmSync(tmp, { recursive: true, force: true });
