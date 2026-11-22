@@ -253,4 +253,112 @@ function cases.all()
 	return list
 end
 
+-- The drive into a group (0.16.0, docs/notes/throw.md "The drive"): the two group
+-- positions of tests/fixtures/drive/positions.lua (no stakes), a baton thrown at the
+-- front kubb at a setting (the plan at the default arc, or a launch loft with the speed
+-- that puts its centre through the kubb's middle) with a seeded jitter of aim (0.6
+-- degrees), loft (1 degree), speed (3%), tilt (6 degrees) and turn (0.06 turns), `per`
+-- throws a setting. Not part of cases.all(): export.lua --cases drive.
+function cases.drive(per)
+	per = per or 30
+	local here = arg and arg[0] and arg[0]:match("^(.*)/[^/]*$") or "."
+	local POS = dofile(here .. "/../../tests/fixtures/drive/positions.lua")
+	local list = {}
+	local settings = {
+		group1 = { "plan", 0 },
+		group2 = { "plan", 0, -5, "stand-10" },
+	}
+	for _, name in ipairs { "group1", "group2" } do
+		local pos = POS[name]
+		local st, tg = pos.stance, pos.pieces[pos.target]
+		local dx, dy = tg.x - st.x, tg.y - st.y
+		local d = sqrt(dx * dx + dy * dy)
+		local swivel = math.atan(dx, dy)
+		for _, set in ipairs(settings[name]) do
+			local clean, hand
+			if set == "plan" then
+				local sol = plan.solve({ projectile = "baton", px = st.x, py = st.y, tx = tg.x, ty = tg.y,
+					release = plan.arcFor("baton", d), meter = plan.meter(), aimZ = plan.aimZFor("kubb") }, {})
+				clean = { speed = sol.speed, loft = sol.loft, swivel = sol.swivel, tumble = sol.tumble, T = sol.flightT }
+				hand = { sol.handZ, sol.handFwd, sol.handTip }
+			else
+				local loft, h, fwd, tip = set, nil, nil, nil
+				if type(set) == "string" then
+					loft = tonumber(set:match("stand(.+)"))
+					h, fwd, tip = flight.tune.handHeight, 0, 0
+				else
+					local _
+					h, fwd, _, _, tip = flight.handAt(d)
+				end
+				local speed, T = flight.speedForCarry(d - fwd, rad(loft), h - body.kinds.kubb.hz, flight.tune.dragK.baton)
+				local lv = plan.meterLevel(plan.meter(), d, "baton")
+				local r = plan.tumbleFor(speed, loft, T, lv)
+				if d < flight.tune.nearM then
+					local turnDeg, share = flight.nearTurn(d)
+					r = r + ((rad(turnDeg) - tip) / T - r) * share
+				end
+				clean = { speed = speed, loft = loft, swivel = swivel, tumble = r, T = T }
+				hand = { h, fwd, tip }
+			end
+			local rng = plan.rng(4099 + #list)
+			for k = 1, per do
+				local s = { world.batonLaunchState(st.x, st.y, clean.swivel + rad(rng.normal(0.6)),
+					clean.loft + rng.normal(1), clean.speed * (1 + rng.normal(0.03)),
+					math.max(0, clean.tumble + rng.normal(0.06) * 2 * math.pi / clean.T), rng.normal(6),
+					hand[1], hand[2], hand[3]) }
+				local bodies = {}
+				local field = {}
+				for i, p in ipairs(POS.pieces(pos)) do
+					local qw, qx, qy, qz = p.qw, p.qx, p.qy, p.qz
+					if not qw then
+						qw, qx, qy, qz = quat.fromAxisAngle(0, 0, 1, p.yaw or 0)
+						if p.kind == "baton" then
+							local a, b, c, e = quat.fromAxisAngle(1, 0, 0, -math.pi / 2)
+							qw, qx, qy, qz = quat.mul(qw, qx, qy, qz, a, b, c, e)
+						end
+					end
+					bodies[#bodies + 1] = resting(p.id, p.kind, p.x, p.y, qw, qx, qy, qz)
+					if pos.pieces[i].field then field[#field + 1] = p.id end
+				end
+				bodies[#bodies + 1] = fromState("baton", "baton", s, { projectile = true })
+				add(list, { id = string.format("drive-%s-%s-%02d", name, tostring(set), k), scen = "drive",
+					group = name .. " " .. tostring(set), params = { k = k }, surface = "grass", duration = 4,
+					extra = { field = field, backY = (function()
+						local m = -math.huge
+						for _, p in ipairs(pos.pieces) do if p.field then m = math.max(m, p.y) end end
+						return m end)() },
+					bodies = bodies })
+			end
+		end
+	end
+	-- the force carried into a group (the owner, owner-2026-11-22#s3): a column of three
+	-- (or six) kubbs face to face along the throw, `gap` apart, struck by a baton flying level 5 cm
+	-- from the front face with its centre at the plan's aim height (plan.aimZFor: its lower
+	-- end 0.3 of the way up the kubb), upright, either not turning (the close drive) or
+	-- turning end over end at `turn` rad/s (top end forward), at v m/s
+	for _, col in ipairs { { 3, 0.005 }, { 3, 0.03 }, { 6, 0.002 }, { 6, 0.005 } } do
+		local ncol, gap = col[1], col[2]
+		for _, v in ipairs { 6, 8, 10, 12 } do
+			for _, turn in ipairs { 0, 12 } do
+				local bodies = {}
+				local field = {}
+				for i = 1, ncol do
+					local y = 1 + (i - 1) * (2 * body.kinds.kubb.hy + gap)
+					bodies[i] = resting("k" .. i, "kubb", 0, y)
+					field[i] = "k" .. i
+				end
+				local z = plan.aimZFor("kubb")
+				bodies[ncol + 1] = { id = "baton", kind = "baton", pos = v3(0, 1 - body.kinds.kubb.hy - body.kinds.baton.r - 0.05, z),
+					quat = { 1, 0, 0, 0 }, vel = v3(0, v, 0), angvel = v3(-turn, 0, 0), projectile = true }
+				local tag = ncol == 3 and "" or (ncol .. "-")
+				add(list, { id = string.format("drive-chain-%s%g-%g-%g", tag, gap, v, turn), scen = "drive",
+					group = string.format("column of %d gap %g turn %g v %g", ncol, gap, turn, v),
+					params = { v = v, turn = turn, gap = gap, n = ncol },
+					surface = "grass", duration = 3, extra = { field = field, backY = bodies[ncol].pos[2] }, bodies = bodies })
+			end
+		end
+	end
+	return list
+end
+
 return cases

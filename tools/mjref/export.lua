@@ -1,7 +1,7 @@
 -- tools/mjref/export.lua: writes the game's geometry, masses, inertias and
 -- contact and material tunables (params.json) and the canonical scenarios
 -- (cases.json) for the MuJoCo side (tools/mjref/mjref.py).
---   lua5.4 tools/mjref/export.lua build/mjref
+--   lua5.4 tools/mjref/export.lua build/mjref [--cases drive [--per 30]]
 local M = dofile((arg[0]:match("^(.*)/[^/]*$") or ".") .. "/common.lua")
 local json = M.json
 local out = assert(arg[1], "usage: export.lua <outdir>")
@@ -36,6 +36,6 @@ local function write(name, s)
 	f:close()
 end
 write("params.json", json.encode(params))
-local list = M.cases.all()
+local list = M.list()
 write("cases.json", json.encode(list))
 print(string.format("export: %d cases -> %s", #list, out))

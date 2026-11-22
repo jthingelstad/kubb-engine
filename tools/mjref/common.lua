@@ -32,4 +32,16 @@ function M.surface(name, mode)
 	return flat
 end
 
+-- The case list a run uses: cases.all(), or with `--cases drive` (anywhere in arg) the
+-- drive cases alone (cases.drive, 0.16.0), `--per n` throws a setting.
+function M.list()
+	local which, per = "all", nil
+	for i = 1, #arg do
+		if arg[i] == "--cases" then which = arg[i + 1] end
+		if arg[i] == "--per" then per = tonumber(arg[i + 1]) end
+	end
+	if which == "drive" then return M.cases.drive(per) end
+	return M.cases.all()
+end
+
 return M

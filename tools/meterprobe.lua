@@ -19,8 +19,10 @@
 --             on the person's meter, steady swings drawn evenly inside both bars and a
 --             dead-centre steady swing on it, and the computer
 --             at club and pro (autothrow's swing at its level, as it drills): the
---             median rest distance from the spot (cm), the share within 0.3 m, the
---             share that landed dead (world.tune deadLanding), and the mean scatter
+--             median and rms rest distance from the spot (cm), the share within a
+--             kubb's length (0.15 m) and within 0.3 m, the share that landed dead
+--             (world.tune deadLanding), that rested out of the pitch, and the mean
+--             scatter; the recorded hand at each of --hands' scales
 -- A measuring tool: it changes nothing in the engine.
 --
 --   lua5.4 tools/meterprobe.lua [--n 400] [--ranges 4,6,8]
@@ -29,6 +31,8 @@
 --     as thrown, as the Kid rules do) [--hands 2,1,0.5] (the hand scales the hand part draws)
 --     [--set plan.meters.standard.powerHalf8=4] (one tune a --set; a surface's number as
 --     world.surfaces.grid.mu=0.5) [--surface grass|sand|snow|grid]
+--     [--arc field|base] (the baton's default arc under 6 m: a field kubb's, from 0.16,
+--     or the line every target shared before)
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local sourceDir = here .. "/.."
 local imported = {}
@@ -53,6 +57,7 @@ local model = human.load(sourceDir .. "/tools/gym/human-model.json")
 local n, seed, hand = 400, 1, "club"
 local meterName, hands = nil, { 2, 1, 0.5 }
 local SURFACE = "grass"
+ARC = "field"
 local ranges = { 4, 6, 8 }
 local parts = { perfect = true, honest = true, hand = true, drill = true }
 local function list(s, num)
@@ -70,6 +75,7 @@ while i <= #arg do
 	elseif a == "--surface" then SURFACE = v; i = i + 1
 	elseif a == "--meter" then meterName = v; i = i + 1
 	elseif a == "--hands" then hands = list(v, true); i = i + 1
+	elseif a == "--arc" then ARC = v; i = i + 1
 	elseif a == "--parts" then
 		parts = {}
 		for _, p in ipairs(list(v)) do parts[p] = true end
@@ -107,8 +113,11 @@ local function throwAt(d, yaw, L)
 end
 
 local function solveAt(d)
+	-- the default arc a person's circle on the kubb gets: from 0.16 a field kubb's under 6 m
+	-- (plan.arcFor "field", the drive close in); --arc base for the line every target shared
+	local kind = (d >= 6 or ARC == "base") and "base" or "field"
 	return plan.solve({ projectile = "baton", px = 0, py = PY, tx = 0, ty = PY + d,
-		release = plan.arcFor("baton", d), meter = METER, aimZ = plan.aimZFor(d >= 6 and "base" or "field") }, {})
+		release = plan.arcFor(kind, d), meter = METER, aimZ = plan.aimZFor(kind) }, {})
 end
 
 local function pct(a, b) return b > 0 and 100 * a / b or 0 end
@@ -227,22 +236,25 @@ if parts.drill then
 			if b.deadAt then dead = true end
 			if world.isAtRest(w) then break end
 		end
-		return sqrt((b.x - mx) ^ 2 + (b.y - my) ^ 2), dead
+		return sqrt((b.x - mx) ^ 2 + (b.y - my) ^ 2), dead, world.outside(b.x, b.y)
 	end
 	local function row(name, make)
-		local ds, near, dead, sc = {}, 0, 0, 0
+		local ds, near, kubb, dead, out, sc, rr = {}, 0, 0, 0, 0, 0, 0
 		local r, nr = plan.rng(seed * 4100 + 3), plan.rng(seed * 5200 + 9)
 		for j = 1, n do
 			local L, sol = make(r, nr)
-			local dist, dd = drillThrow(L, sol, seed * 100000 + j)
+			local dist, dd, o = drillThrow(L, sol, seed * 100000 + j)
 			ds[#ds + 1] = dist
 			if dist <= 0.3 then near = near + 1 end
+			if dist <= 0.15 then kubb = kubb + 1 end
 			if dd then dead = dead + 1 end
+			if o then out = out + 1 end
 			sc = sc + (L.scatter or 1)
+			rr = rr + dist * dist
 		end
 		table.sort(ds)
-		print(fmt("  %-26s | %5.0f cm | %4.0f%%  | %4.0f%% | %.2f", name, 100 * ds[1 + #ds // 2],
-			pct(near, n), pct(dead, n), sc / n))
+		print(fmt("  %-26s | %5.0f cm | %5.0f cm | %4.0f%%  | %4.0f%%  | %4.0f%% | %4.0f%% | %.2f", name,
+			100 * ds[1 + #ds // 2], 100 * sqrt(rr / n), pct(kubb, n), pct(near, n), pct(dead, n), pct(out, n), sc / n))
 	end
 	local function personSol()
 		local st = plan.stance(mx, my, 0, 0, at.halfWidth, {})
@@ -251,12 +263,14 @@ if parts.drill then
 	end
 	local p = human.part(model, hand, "drill")
 	print(fmt("\na drilled kubb onto the basket's spot (%.2f, %.2f m), one tap of spin", mx, my))
-	print("  thrower                    | median   | <0.3 m | dead  | scatter")
-	row(fmt("person, recorded (%s)", hand), function(r, nr)
-		local sol = personSol()
-		local sw = human.swing(sol, p, r, {})
-		return plan.launch(sol, sw, { projectile = "kubb", tilt = 0, spin = taps, nerves = nr }, {}), sol
-	end)
+	print("  thrower                    | median   | rms      | <0.15 m | <0.3 m | dead  | out   | scatter")
+	for _, k in ipairs(hands) do
+		row(fmt("person, recorded (%s) x%g", hand, k), function(r, nr)
+			local sol = personSol()
+			local sw = scaled(human.swing(sol, p, r, {}), sol, k)
+			return plan.launch(sol, sw, { projectile = "kubb", tilt = 0, spin = taps, nerves = nr }, {}), sol
+		end)
+	end
 	row("person, in the bars steady", function(r, nr)
 		local sol = personSol()
 		local lv = sol.level

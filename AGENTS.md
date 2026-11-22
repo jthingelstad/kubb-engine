@@ -117,6 +117,10 @@ iPhone app (the bundle: core, pitch, session and tune).
   perfect swing, steady swings inside both bars, the Gym's recorded hand scaled x2, x1 and
   x0.5, or the scales given) and on an inkast spot (docs/notes/throw.md "The person's
   meter", "The Kid meter").
+- `lua5.4 tools/driveprobe.lua [--n 200] [--plan] [--stand] [--lofts ...]` (0.16): a baton
+  swept from the default arc down to a drive into the two hand-written group positions
+  (`tests/fixtures/drive/positions.lua`), with a seeded jitter: kubbs felled, two or more,
+  where the baton rests (docs/notes/throw.md "The drive").
 - `node tools/batonvalue.mjs <games dir> [--json] [--tiers]` (`make batonvalue`): the batons a
   position costs, from scored games or the Gym's, beside Hodges' 2014 table, with bootstrap
   intervals and by tier (docs/notes/real-games.md "Baton value").

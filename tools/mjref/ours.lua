@@ -3,7 +3,7 @@
 -- trace per case and mode to ours.jsonl: each body's pose, velocity, angular
 -- velocity (world frame) and whether it pressed the ground, every `every`
 -- steps (240 Hz / every), until all is at rest or the case's duration.
---   lua5.4 tools/mjref/ours.lua build/mjref [--every 2] [--only prefix]
+--   lua5.4 tools/mjref/ours.lua build/mjref [--every 2] [--only prefix] [--cases drive [--per 30]]
 local M = dofile((arg[0]:match("^(.*)/[^/]*$") or ".") .. "/common.lua")
 local json = M.json
 local world, body = tw.world, tw.body
@@ -13,6 +13,7 @@ local i = 2
 while arg[i] do
 	if arg[i] == "--every" then every = tonumber(arg[i + 1]); i = i + 2
 	elseif arg[i] == "--only" then only = arg[i + 1]; i = i + 2
+	elseif arg[i] == "--cases" or arg[i] == "--per" then i = i + 2 -- M.list reads them
 	else error("unknown option " .. arg[i]) end
 end
 
@@ -79,7 +80,7 @@ end
 
 local f = assert(io.open(out .. "/ours.jsonl", "w"))
 local n, t0 = 0, os.clock()
-for _, c in ipairs(M.cases.all()) do
+for _, c in ipairs(M.list()) do
 	if not only or c.id:sub(1, #only) == only then
 		for _, mode in ipairs { "mech", "game" } do
 			f:write(run(c, mode), "\n")
