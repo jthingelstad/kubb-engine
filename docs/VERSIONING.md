@@ -101,6 +101,39 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.16.0** (minor). The drive: a baton thrown flat or down and hard into a group, and
+  a person's thrown kubb held to narrower bars (docs/notes/throw.md "The drive", "The
+  thrown kubb on the person's meter"; the owner's reports,
+  docs/reference/observations/owner-2026-11-22.md).
+  - **The release scale** (`core/throwplan`): under `driveKneeDeg` (15) the planned loft
+    falls on a steeper line to `loftAt0` (-15) at a release of 0 (`releaseMinDeg` 0,
+    `loftMinDeg` -15). A swing's error about a plan keeps the one line's slope
+    (`plan.launchLoft`), so a plan from the knee up launches as before. A thrown kubb has no
+    drive (`plan.clampRelease(r, "kubb")`, `plan.loftFor(r, true)`).
+  - **The floor**: `plan.solve` raises a plan under the knee to the lowest release whose
+    line the hand can make and whose speed is at most `plan.speedFor(driveBackMaxDeg)` (140).
+  - **The turn**: under the knee the planned tumble eases to none by a release loft of
+    `driveTurnToDeg` (-4); the tilt and the helicopter rule are as before.
+  - **The default**: a baton whose circle is on a standing field kubb plans
+    `plan.arcFor("field", d)` (`plan.tune.fieldArc`: the drive at 1.5 m, the shared line at
+    8 m); base kubbs, the king and empty spots as before (Q18).
+  - **The thrown kubb's bars** on the standard meter are a baton's (`kubbPower`,
+    `kubbRelease` 1, from 1.35). The Kid meter is unchanged.
+  - **The computer**: `field.drive` (`cpu.tune.drive`) built switched off; nothing it does
+    changes (`tests/fixtures/cpu/choose.txt` passes untouched).
+  - **The session**: `aim.controls.arc.min` is the throw's floor and `arc.knee` the knee;
+    `session/check` admits the drive (releases from 0, the plan the action names first) and
+    refuses a launch the plan at its floor could not give.
+  - **Golden hashes**: none moves (19 matches, 729 actions): the corpus's person throws
+    replay their recorded launches, and every computer throw is planned from the knee up.
+    It is a minor because a person can make throws a 0.15 `check.throw` refuses and plans
+    other defaults: 0.16 shares matches with no 0.15. `tools/physdump.lua` is unchanged.
+  - **Measuring tools**: `tools/driveprobe.lua` (the two group positions), `tools/mjref`
+    `--cases drive` and `drive.py` (the drive and a struck column against MuJoCo),
+    `tools/meterprobe.lua --arc` and the drill part's rms, within a kubb's length and out.
+  - **For clients**: docs/CLIENTS.md "0.16 on top": ARC's range from `aim.controls.arc`, a
+    side view that draws a falling arc, and on the Playdate the projectile passed to
+    `plan.clampRelease` and `"field"` to `plan.arcFor`.
 - **0.15.1** (patch). The Tournament's neighbouring pitches (docs/notes/tournament.md):
   computer-against-computer matches on the pitches around the player's, as live scenery,
   behind `neighbours.open`, `neighbours.advance`, `neighbours.view` and

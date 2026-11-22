@@ -745,3 +745,57 @@ Nothing here is tuned or fixed: these are for Jamie.
   not correlated (no hot or cold hand).
 - Surfaces other than grass are run only when asked (`--surfaces`).
 - The bank re-throws only; it does not replay whole recorded matches on the new engine.
+
+## The drive (0.16.0)
+
+What 0.16.0 changed in the Gym (docs/notes/throw.md "The drive", "The thrown kubb on the
+person's meter"). `node tools/gym.mjs --full` (300 matches a configuration, seed 1, grass)
+on 0.15.1 and on 0.16.0, and on 0.16.0 with `--set cpu.tune.drive.on=1` (the computer's
+`field.drive`, built switched off). The computer's columns are bit for bit 0.15.1's: its
+throws are planned from the knee up. Field batons that took two, three or more, the share
+taking two or more, then base kubbs from 8 m, the king, turns a game and turns cleared:
+
+| | took 2 | took 3+ | 2+ | 8 m | king | turns | cleared | rethrown |
+|---|---|---|---|---|---|---|---|---|
+| human beginner, 0.15.1 | 7.2 | 0.5 | 7.7 | 37.1 | 88.8 | 13.0 | 63.0 | 10.3 |
+| human beginner, 0.16.0 | 9.4 | 1.0 | 10.4 | 36.6 | 88.4 | 13.7 | 64.3 | 19.2 |
+| human club, 0.15.1 | 9.1 | 1.1 | 10.2 | 28.9 | 84.2 | 15.3 | 61.3 | 7.6 |
+| human club, 0.16.0 | 11.3 | 1.6 | 12.9 | 29.1 | 84.0 | 14.4 | 64.4 | 9.0 |
+| human pro, 0.15.1 | 13.3 | 1.6 | 14.9 | 28.3 | 81.8 | 14.5 | 64.6 | 6.2 |
+| human pro, 0.16.0 | 16.3 | 2.9 | 19.1 | 28.7 | 85.3 | 13.3 | 69.9 | 7.4 |
+| cpu beginner, both | 6.5 | 0.6 | 7.2 | 8.4 | 69.5 | 25.3 | 51.7 | 4.5 |
+| cpu club, both | 13.8 | 1.9 | 15.7 | 25.4 | 86.5 | 14.3 | 70.9 | 1.2 |
+| cpu club, drive on | 15.2 | 3.1 | 18.4 | 26.0 | 91.7 | 12.8 | 74.7 | 1.1 |
+| cpu pro, both | 22.2 | 6.8 | 29.0 | 34.3 | 96.8 | 12.3 | 78.5 | 0.3 |
+| cpu pro, drive on | 22.9 | 9.2 | 32.1 | 34.5 | 96.8 | 10.7 | 84.0 | 0.4 |
+| real games, all teams | 16.0 | 10.0 | 26.0 | 32.7 | 83.8 | 8.9 | 83.4 | 14.1 |
+
+(The king's 91.7 at club with the drive on is inside its interval of about 4 points.)
+The play-levels rows (`docs/reference/play-levels.json`): club's three or more is 3 to 7
+and pro's 12 to 18, so the drive takes club into its row and pro half way to its; turns a
+game move toward 8 to 14 and 6 to 10. Four or more: the human pro 0.1% to 0.2%, the pro
+computer with the drive 0.8% to 1.2% (forensics' "toppled four or more"). Base kubbs from 8
+m and the king do not move.
+
+The thrown kubb's narrower bars (owner-2026-11-22#s4) show in the human club column: a
+drill rests 0.60 m from its mark on average against 0.45 on 0.15.1, 43% over 0.3 m against
+32% (the club computer: 0.21 m, 24%; its median is nearer, its tail shorter), the lying
+group touching 30% against 40% (the club computer 40%), three or more touching in a
+chain 13% against 21% (24%), and kubbs rethrown 9.0% against 7.6% (club's row 11 to 18).
+
+Who wins, `gym versus`, 300 seeds both ways round:
+
+| A | B | A's score |
+|---|---|---|
+| club, drive on | club | 62.1% (58.8 to 65.4) |
+| pro, drive on | pro | 60.3% (57.1 to 63.4) |
+| club, drive on | pro, drive on | 5.3% (3.5 to 7.2) |
+| human club, 0.15.1 | club, 0.15.1 | 48.5% (44.5 to 52.5) |
+| human club, 0.16.0 | club | 69.2% (65.6 to 72.8) |
+| human club, 0.16.0 | club, drive on | 62.8% (59.1 to 66.6) |
+
+The person's drive is the largest change: the Gym's person at club, who won about one game
+in two against the club computer on 0.15.1, wins about seven in ten on 0.16.0, and six in
+ten once the computer drives too. The owner's target for a typical online player against
+club is about four in ten (owner-2026-11-21#s6), so club wants retuning with the drive on
+(the order of work's step 4, docs/notes/computer-player.md); that is Jamie's call.

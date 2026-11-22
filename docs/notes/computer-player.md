@@ -268,6 +268,11 @@ Then plays, by what `gym versus` shows matters most. Its first results (2026-11-
    four games in ten against it (0.12.0: about 16 in 100). `inkast.deep` at club and
    `inkast.chase` at pro.
 5. `inkast.first` and `inkast.steer`.
+   (0.16.0) `field.drive`, the low hard throw at a close group, is built switched off
+   (`cpu.tune.drive`) with its Gym result in its play: it wins about 60 games in 100 at club
+   and at pro side against side, and it belongs with club's retuning, because the person's
+   drive in 0.16.0 took the Gym's person at club to about seven wins in ten against the club
+   computer (docs/notes/gym.md "The drive").
 6. The punishment plays, and `king.corner` as a Gym experiment.
 
 The levels are far apart: pro beats club 97 games in 100 and club beats beginner 94
