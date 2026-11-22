@@ -496,6 +496,16 @@ it takes to offer computer players.
     (`match.hasPerson`); and the save to keep the lineup's `cpu` (it keeps `m.lineup`
     already).
 
+## 0.17 on top
+
+0.17.0 is a minor: the computer drives at club and pro (it plans every baton on the
+person's default line), and a person's hard throw holds a full swing's power bar. Sync
+`v0.17.0` in place of `v0.16.0`; nothing must change. It shares matches with no 0.16: web
+and iPhone move together. Worth showing: the computer's reason `field.drive` ("Driven low
+and hard into the field kubb, the way the line throws close in.") from `tw.cpu.last`, and
+the narrower power band on a drive, which a client draws from `aim.plan.powerLo` and
+`powerHi` as before.
+
 ## What the engine now offers that no surface shows yet
 
 - **The computer's reason** (`tw.cpu.last`, since 0.11.1): the play and situation behind

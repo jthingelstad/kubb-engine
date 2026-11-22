@@ -154,6 +154,26 @@ Every client shows its own version with the engine's beside it, in one form:
     client draws the engine's raise as it draws one by hand.
   - **For clients**: docs/CLIENTS.md "0.17 on top". Shares matches with no 0.16.
 
+- **0.17.0** (minor). The computer's drive (`field.drive`, docs/reference/plays/field.md),
+  switched on at club and pro as "How a play gets in" asks, and a hard throw's power bar.
+  - **The computer**: at club and pro every baton is planned on a person's default line
+    (`plan.arcFor`, the drive close in) instead of the line before (`plan.sharedArcFor`).
+    Side against side it beat the group-only drive it was built as (56.0% at club, 55.0%
+    at pro) and the computer without it (docs/notes/gym.md "The computer's drive").
+    Beginner and kid throw as before. `core/plays` names `field.drive` when the arc at a
+    field kubb is a drive. `tests/fixtures/cpu/choose.txt` is rewritten
+    (`tools/cpufixture.lua`); the 0.11 fixture still holds with every play off.
+  - **The person's meter**: a baton's power bar also goes by its planned speed
+    (`plan.meters.standard.powerSpeed`): a drive on a full swing holds a full swing's bar
+    (docs/notes/throw.md "A hard throw's power bar"). The Kid meter is unchanged.
+  - **Golden hashes** (`make golden`: 19 matches, 701 actions): every match with a club or
+    pro computer moves at its first baton the line plans differently from the line before
+    (the openers from the baseline at 8 m are the same), and the three with a person at
+    club or pro (m13, m14, m17) also at the person's first hard throw under 8 m. m15
+    (beginner both sides), m18 and m19 (Kid) keep every hash. Two winners change (m09,
+    m10, ending two turns sooner); the rest keep theirs.
+  - **For clients**: nothing must change; 0.17 shares matches with no 0.16 (the
+    computer's throws differ). docs/CLIENTS.md "0.17 on top".
 - **0.16.0** (minor). The drive: a baton thrown flat or down and hard into a group, and
   a person's thrown kubb held to narrower bars (docs/notes/throw.md "The drive", "The
   thrown kubb on the person's meter"; the owner's reports,
