@@ -505,6 +505,20 @@ function plan.clampRelease(releaseDeg, projectile)
 	return releaseDeg
 end
 
+-- The lowest release plan.solve will plan question q at (0.16, the drive's floor): a
+-- baton's floor for its stance, target and aim height (plan.tune.driveBackMaxDeg; the
+-- knee where nothing under it can be made), a thrown kubb's the knee. q is not changed.
+-- A client that steps ARC itself (the Playdate's B + up/down) steps from
+-- max(release, floor) and never under the floor, so a step always moves the throw.
+function plan.arcFloor(q)
+	if q.projectile == "kubb" then return plan.tune.driveKneeDeg end
+	local r = q.release
+	q.release = plan.tune.releaseMinDeg
+	local f = plan.solve(q, {}).release
+	q.release = r
+	return f
+end
+
 -- Clamp a planned tilt (a baton, degrees) to -tiltMaxDeg..tiltMaxDeg and a planned spin
 -- (a kubb, taps, any fraction) to -spinSteps..spinSteps.
 function plan.clampTilt(deg)

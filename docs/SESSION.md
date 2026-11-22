@@ -304,8 +304,14 @@ at 2 m, about 12 at 4 m and 15 (the knee) from about 5 m, where nothing under th
 be made. `arc.knee` (15) is where the drive starts: under it the planned loft falls on the
 drive's steeper line and the planned turn eases to none by a release of 7.5 (a release
 loft of -4, before a short throw's flattening), so a slider can mark it. A
-value set under the floor is kept (`setArc` clamps to 0 to 165 only) and planned at the
-floor, so moving the circle nearer gives it back; `arc.value` is never under `arc.min`.
+value set under the floor is raised to it (`setArc` keeps what ARC shows). When the
+circle or the stance moves and the floor rises past the kept value, the throw is planned
+(and shown) at the floor, and when the floor falls again it comes back to the kept value,
+the one the player last saw. A step (`stepArc`) goes from the release as it is planned,
+never from a kept value under the floor, and never under the floor, so every step and
+every reversal at the floor moves the throw at once; `arc.value` and `aim.plan.release`
+are always the planned release (Codex on #47). Tilt and spin have fixed ranges and no
+floor: a step at an end and back moves them at once as before.
 `aim.plan.speed`, `back` and the power band move out with the drive's speed as with any
 other plan, and `aim.arc` is the planned flight, down as well as up.
 

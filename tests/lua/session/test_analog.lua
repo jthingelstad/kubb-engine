@@ -30,7 +30,7 @@ test("setTilt, setSpin and setArc take any value and clamp to the range", functi
 	s:setArc(500)
 	expect.eq(s.ts.release, pt.releaseMaxDeg)
 	s:setArc(-4)
-	expect.eq(s.ts.release, pt.releaseMinDeg)
+	expect.eq(s.ts.release, s.ts.arcMin, "never under the throw's floor (0.16: 15 at 8 m)")
 	s:setDrill(true)
 	s:setSpin(1.37)
 	expect.eq(s.ts.spin, 1.37)

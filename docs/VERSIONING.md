@@ -112,6 +112,8 @@ Every client shows its own version with the engine's beside it, in one form:
     drive (`plan.clampRelease(r, "kubb")`, `plan.loftFor(r, true)`).
   - **The floor**: `plan.solve` raises a plan under the knee to the lowest release whose
     line the hand can make and whose speed is at most `plan.speedFor(driveBackMaxDeg)` (140).
+    `plan.arcFloor(q)` gives it; ARC keeps a set value no lower than the floor and steps
+    from the release as planned, never under the floor (Codex on #47).
   - **The turn**: under the knee the planned tumble eases to none by a release loft of
     `driveTurnToDeg` (-4); the tilt and the helicopter rule are as before.
   - **The default**: one line by distance for every target, lowered (`plan.tune.arcLine`:
