@@ -68,9 +68,10 @@
     "pitch/lobby.lua": "ec156ff4515f5d9a1c867c4ff39a4093db92057134dac6b8ea50e7facf64325b",
     "pitch/seats.lua": "6c12eec6c699d43d29c297fc680038cd0220041dd3f31e8813526c6f7c68fb92",
     "pitch/sync.lua": "fcdda8e612f296267603e47b268ded6ed8fecf7ed4d46a7c50cd25ba4ad2b60b",
-    "session/api.lua": "6bcc7b1dc0741f7cae914675982f9f117c5b8183276dbec41ec58179dd0b083f",
+    "session/api.lua": "5cbfd6932d1aedf6aa42a603e4eb51b7fe9b7925b92864a9a1de03b6833c381e",
     "session/check.lua": "0c4ffeee866f944cfbbad6c9964528df5fcf70de6e00a36952a2707a6004fb56",
     "session/json.lua": "8d0668bd82f2b3537fff0d76e986d813fc94104560ebcf2ae66416bf2f79185c",
+    "session/names.lua": "d7bffbdc94422267556932b3632eee5dab1e7f1045fb2a424f69f09e84803d02",
     "session/replay.lua": "5b3e4d901e9abce5fb290228d58e3cec01ff3003b1e7152c06fea993cd7860d4",
     "session/session.lua": "d1dd7bac80432102290dc1b9586539fa4ec62ddfb790fbf27f9d567901b9c284",
     "session/throw.lua": "ecc300f57732b4a6b7efa05b2a412096c3321d71a38066508329169620564963",
@@ -81,6 +82,6 @@
     "version.lua": "2cf53c94dc90425e00eb1b67813f1ef4e1323536ff027256fbefe430f1a19f44"
   },
   "bundle": {
-    "sha256": "792325e3a628d182dd85521da2e5586de905f3c78b5f4863225792038f0112c8"
+    "sha256": "6beee7b48f02406e3ad850cb774fb897b4200c92b356df2b03fb265f8a938198"
   }
 }

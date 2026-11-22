@@ -29,6 +29,7 @@ frame is the throwing side's (the defending side's for raising and punishment).
 | `session/replay.lua`  | `tw.web.replay`: a finished match played again from its options and its log, read only.                            |
 | `session/check.lua`   | `tw.web.check`: a shared match's throws checked: the computer's made again, a person's held to the dial.           |
 | `session/wide.lua`    | `tw.web.wide`: the wide view, one camera for the whole pitch.                                                      |
+| `session/names.lua`   | `tw.web.names`: generated names, `kubbCall("names.<name>")` (below, "Names"; docs/NAMES.md).                       |
 | `session/json.lua`    | `tw.web.json`: deterministic JSON (sorted keys, shortest round-trip floats, integers kept apart from floats).      |
 | `pitch/`              | The pitch's calls, `kubbCall("pitch.<name>")` (`room.` before 0.13): a shared pitch's document, who acts (docs/PITCH.md). |
 | `tune/pointer.lua`    | `tw.tune.pointer`: a pointer's values for the core's tune tables, and the session's dial and throw tables.         |
@@ -388,6 +389,92 @@ kubb leaves at (`drill.noseFor`), which the check holds, so a forged nose is ref
 every release (`a drill released very early or at the sky end takes no forged noseDown`,
 `tests/lua/session/test_check.lua`).
 
+### Names
+
+Generated player and team names (docs/NAMES.md), since 0.13.2:
+`kubbCall("names.<name>", argsJson)`, dispatched like `pitch.<name>`. Like the pitch's
+calls they need no `useTune`, `new` or match. Results are plain objects; an argument that
+is wrong (a kind that is not `"player"` or `"team"`, a shape the kind does not have, a
+slot out of range, a seed that is not a whole number) is `{"error": "names.<call>: ..."}`
+as for every session call. A name that cannot be made is not an error: its `text` is
+`null`.
+
+**parts** is `{ shape, words: [word, ...] }`: the shape's id (`"adj"` for a player;
+`"adj"`, `"the"` or `"wood"` for a team: `names.words().shapes`) and one word per slot, in
+order. **slot** is 0-based, an index into `words`. A name is always kept and sent as its
+text; parts are for a picker.
+
+| Call            | Arguments                    | Returns                                                                                                                                                                                                                                                       |
+| --------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `names.roll`    | `{ kind, seed, keep? }`      | `{ text, parts }`: a name drawn from `seed` (any whole number; the client's own random draw) through the engine's seeded stream (`plan.rng`), so the same seed gives the same name on every client. `keep`: the locked slots, `{ shape, words: [word \| null, ...] }`; a lock keeps the shape, and `{ shape }` alone picks the shape and draws every word. A kept word not in its slot's list (taken out for safety, or a typo) is drawn again. `text` and `parts` null when the kept words make no name. |
+| `names.step`    | `{ kind, parts, slot, dir? }` | `{ text, parts, moved }`: the next word in `slot` (`dir` 1, the default, or -1) that makes a name with the other words, round the list: a picker's arrows, the crank. `moved` false, the parts as they came, when no other word fits. `parts` needs every word. |
+| `names.choices` | `{ kind, parts, slot }`      | `{ words }`: every word `slot` can take with the other words as they are, in `step`'s order: what a wheel or a list offers. The other slots need their words.                                                                                                  |
+| `names.make`    | `{ kind, parts }`            | `{ text, why }`: the text, or `text` null and `why`: `"word"` (missing, or not in its slot's list), `"long"`, `"never"` or `"repeat"` (a word that begins with the one before it).                                                                             |
+| `names.valid`   | `{ kind, text }`             | `{ ok, parts, default }`: `ok` and `parts` when `text` is a generated name of `kind` (exact: one space, the words' capitals); `default` when it is one of the engine's own names for no name (`defaults` below). A boundary takes `ok` or `default`; a client asking whether its own kept name still stands reads `ok`. |
+| `names.words`   | `{}`                         | `{ version, rules, max, lists, shapes, never, defaults, hash }`: everything a check outside Lua needs to give `valid`'s answer (below).                                                                                                                       |
+| `names.all`     | `{ kind }`                   | `{ names }`: every name of the kind, sorted (about 110 KB for teams): to measure the widest name in a client's own font, once or at build time.                                                                                                                |
+
+`names.words`:
+
+- `lists`: `{ adjectives, woods, teams }`, each word once, letters only, capitalised.
+- `shapes`: `{ player: [...], team: [...] }`, each `{ id, prefix, slots }`: `prefix` a
+  literal first word (`"The"`) or null, `slots` the list each slot draws from.
+- `max`: `{ player, team }`, the longest name in characters (16).
+- `never`: whole names that are never names, though each word is fine.
+- `defaults`: `"Computer"`, `"Team A"`, `"Team B"`, `"Player 1"` to `"Player 6"`: what the
+  engine and the pitch write when there is no name (a computer side, a side with no name,
+  a member with none). Not generated, never typed.
+- `version`: `namewords.version`, up with any change to a list. `rules`: up with any
+  change to how a name is checked beyond its words.
+- `hash`: FNV-1a 32 (8 hex digits) of the canonical JSON of every other field (keys
+  sorted at every level, no spaces: the engine's encoder, or `JSON.stringify` with sorted
+  keys). Two ends that hold the same `hash` check names the same way.
+
+A name is valid for a kind when it is a string of at most `max[kind]` characters, its
+words split on single spaces (no empty word), it is not in `never`, no word begins with
+the word before it (ignoring case), and it matches one of the kind's shapes: the
+`prefix` when there is one, then one word from each slot's list. `tests/node/names.test.mjs`
+holds that check in JavaScript, made from `names.words` alone, and proves it agrees with
+`names.valid` on every name and on thousands of near misses.
+
+A team's name on a side of one player is that player's name (the pitch's `matchOptions`
+and `renameStart` do this), so a boundary checking a team takes a player name there too.
+
+Worked examples (each line is `kubbCall(name, args)` and its result):
+
+```
+names.roll    {"kind":"player","seed":42}
+           -> {"parts":{"shape":"adj","words":["Midsummer","Myrtle"]},"text":"Midsummer Myrtle"}
+names.roll    {"kind":"team","seed":7,"keep":{"shape":"adj","words":[null,"Lumberjacks"]}}
+           -> {"parts":{"shape":"adj","words":["Epic","Lumberjacks"]},"text":"Epic Lumberjacks"}
+names.step    {"kind":"player","parts":{"shape":"adj","words":["Mighty","Maple"]},"slot":1}
+           -> {"moved":true,"parts":{"shape":"adj","words":["Mighty","Myrtle"]},"text":"Mighty Myrtle"}
+names.choices {"kind":"player","parts":{"shape":"adj","words":["Magnificent","Maple"]},"slot":1}
+           -> {"words":["Ash","Elm","Fir","Oak","Pear","Pine","Plum","Teak"]}
+names.make    {"kind":"player","parts":{"shape":"adj","words":["Salty","Walnut"]}}
+           -> {"text":null,"why":"never"}
+names.valid   {"kind":"team","text":"Birch Batons"}
+           -> {"default":false,"ok":true,"parts":{"shape":"wood","words":["Birch","Batons"]}}
+names.valid   {"kind":"player","text":"Computer"}
+           -> {"default":true,"ok":false,"parts":null}
+```
+
+What a client does with them:
+
+- **First run**: `names.roll` with a seed of its own, keep the `text`.
+- **On opening**: `names.valid` on the kept text; when `ok` is false (a word taken out for
+  safety), `names.roll` with the still-good words in `keep` (a kept word no longer in its
+  list is drawn again), or with none.
+- **The name row**: Shuffle is `names.roll` with a new seed and the locked words in
+  `keep`; each word's arrows are `names.step`; a wheel or list offers `names.choices`.
+  Changing a team's shape is `names.roll` with `keep: { shape }` (and any word that has a
+  slot of the same list in the new shape). Show `text`; store `text`.
+- **Layout**: measure every name from `names.all` in the client's own font once (a test or
+  a build step) and size the row for the widest. The longest in characters is not the
+  widest in a proportional font, so the engine gives the whole list, not one name.
+- **Boundaries**: `names.valid` (or the JavaScript check from `names.words` where no Lua
+  runs) wherever a name arrives from outside: docs/NAMES.md section 6.
+
 ### Actions (a match among browsers)
 
 | Call                | Returns                                                 |
@@ -663,6 +750,9 @@ the sequential random generators.
   match with the computer on one side and scripted dial swings on the other, a second
   only applies its actions, a third restores mid-match; after every action the
   recordings are identical and the hashes equal) and a replay.
+- Names: `tests/lua/session/test_names.lua` (desktop) and `tests/node/names.test.mjs`
+  (wasmoon) check the `names.*` calls, the same fingerprint of 300 seeds' names on both,
+  and a JavaScript check built from `names.words` alone against `names.valid`.
 - `make golden-check`: the golden hashes, the gate for hash-neutral changes
   (docs/DETERMINISM.md).
 
