@@ -170,10 +170,16 @@ Every client shows its own version with the engine's beside it, in one form:
     pro computer moves at its first baton the line plans differently from the line before
     (the openers from the baseline at 8 m are the same), and the three with a person at
     club or pro (m13, m14, m17) also at the person's first hard throw under 8 m. m15
-    (beginner both sides), m18 and m19 (Kid) keep every hash. Two winners change (m09,
+    (beginner both sides), m18 and m19 (Kid) keep every hash. The pinned neighbours hash
+    moves too (`7e4b4e4e`: the neighbours' club and pro computers drive). Two winners change (m09,
     m10, ending two turns sooner); the rest keep theirs.
-  - **For clients**: nothing must change; 0.17 shares matches with no 0.16 (the
-    computer's throws differ). docs/CLIENTS.md "0.17 on top".
+  - **A match's length**: `frame({ at })` and `Session:cpuAction(at)` put the host's time
+    stamp on the action they make, a raise or punish action's `at` counts as a throw's
+    does, and a match no action stamped has no End or Duration line and no minutes (it
+    was 0 minutes: the finish fell back to the start). No hash moves without a stamp.
+  - **For clients**: nothing must change to play; stamp `frame` to get a match's length.
+    0.17 shares matches with no 0.16 (the computer's throws differ). docs/CLIENTS.md
+    "0.17 on top".
 - **0.16.0** (minor). The drive: a baton thrown flat or down and hard into a group, and
   a person's thrown kubb held to narrower bars (docs/notes/throw.md "The drive", "The
   thrown kubb on the person's meter"; the owner's reports,

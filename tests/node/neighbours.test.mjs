@@ -87,7 +87,7 @@ function fnv(text) {
 }
 
 // seed 9, six pitches, 3 minutes of clock in 1/20 s steps: every event, hashed
-const NEIGHBOURS_HASH = 'f3f06bfd'; // 0.16.0: each throw's recording carries hits and landing (was bafb735b)
+const NEIGHBOURS_HASH = '7e4b4e4e'; // 0.17.0: the club and pro computers drive (0.16.0 f3f06bfd: hits and landing; bafb735b before)
 
 test('neighbours.open under wasmoon: the field, generated teams, any scene', async () => {
   const e = await engine();
