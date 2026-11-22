@@ -25,7 +25,7 @@
     "core/burstpick.lua": "2c3f468a44b041a4161f2f7db7f49efbba2d16c2585ec7ac5b2610af22a4ce10",
     "core/camera.lua": "c0b7f5f1ed1b7f39a38f9c486d44ed6ea4127fefcbe02ef8f108d3b8e4de4a52",
     "core/cards.lua": "a4c5c453da4345f0aa78c686d753c968726693dd0ab3d9238d279c50925b3d5f",
-    "core/collide.lua": "9ae658604d61fb350094d6748443dd73ef446f32552e0db635cb65a82ce15976",
+    "core/collide.lua": "98bb505a9955ae874571315b7507360ce32c031095912e0f5dc3bb124650a7e5",
     "core/cpu.lua": "fd4302705702f24d938959afe304728ded50e5436c6202350560bb915ec6fe51",
     "core/debris.lua": "ccc8553bd70a231cc939adea8e511e842b5ab6ddd21b9afc45a904cce698fa17",
     "core/drill.lua": "ce52799e1941dcd5afaa1ffc26b1c0ba932f655c19cb2a27bcab7ec569f00f1b",
@@ -85,6 +85,6 @@
     "version.lua": "11e0251c858bd7ab45e8f055e9a99e344e41762bdc8e1e4c635d5e3481cb2e24"
   },
   "bundle": {
-    "sha256": "29a9bab3ce3f23e208c72c5ecb20a360c8d17097ef7fb328a22b500ccbbb5698"
+    "sha256": "42bb025133069a5cb27aed8cfc70cfcf654bb23e267bf9e3ab3a590178761f99"
   }
 }

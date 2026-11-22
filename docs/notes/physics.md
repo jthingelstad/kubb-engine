@@ -960,8 +960,8 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
       but its centre 10.9 cm up the face in ours (contacts at 7.5 and 14 cm) against 11.7
       in MuJoCo (4.5 and 15 cm, 69% at the top). That is the 15 to 30% less energy in the
       front kubb the 0.16 study saw; with no friction on the baton ours gives 2.87 and 38.
-      Ends of the stretch and sharper edges did not move it (above); it reaches every
-      kubb a baton strikes, base kubbs and the king among them, so it was left.
+      Found and fixed in 0.18.0 ("The baton's blow", below): the blow was held at an
+      interior contact between the two ends of the line.
   - **What a player would get from the column fix.** The Gym (`node tools/gym.mjs --engine
     <dir> --throwers cpu,human --levels club,pro --n 300`, seed 1, grass; the computer with
     `cpu.tune.drive.on=1` too) on 0.16.0, on 0.16.0 with the in-band Newton rule above,
@@ -996,6 +996,73 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     more with 1.5, against 7.8 and 0.9 at groups raised `apart` (11% touching); raised
     `toward`, 8.0% (29% touching). The Newton rule gives 10.4, 8.0 and 7.9. On this engine
     a touching group gives the computer more triples, not fewer.
+- **The baton's blow** (0.18.0, 2026-11-22; the owner: "Batons are not carrying enough
+  force into the kubbs"). A baton lying along a kubb's face meets it along a line, and
+  `collide.capsuleBox` made three contacts there: the closest point of the segment to the
+  box (for a segment parallel to the face, the point level with the box's centre) and each
+  end of the stretch clipped to the face ("A baton along a face or an edge"). The middle
+  one is redundant, a mix of the two ends, but the sequential solver meets it first and
+  the blow stays there: an upright baton driven level at 9 m/s into a lone kubb's back
+  face, the lower end of its segment 4.5 cm up, pushed at 7.5 cm (0.70 N s) and 14 cm
+  (0.79), nothing at 4.5 cm, so its blow sat 10.9 cm up the face, where MuJoCo's line from
+  4.5 to 15 cm puts it at 11.7 (69% at the top), and the kubb left at 2.48 m/s turning at
+  32.4 rad/s against 2.76 to 2.80 and 36.7 in all four variants. The normal impulse (1.49
+  and 1.48 N s) and the friction (0.60 and 0.61) were the same: the lever was not.
+  - **Not MuJoCo's softness.** Its `ref`, `stiff` and `hard` variants give the same
+    2.76 to 2.80 m/s and 36.7 rad/s; struck in free space (no ground, no gravity) the
+    kubb's speed in ours and MuJoCo's agree to a few percent before and after, so it is
+    where the impulse acts, not how much there is.
+  - **The fix** (`core/collide.lua` `capsuleBox`): when both ends of the stretch make a
+    contact, the closest point between them is dropped (its record overwritten by the last
+    end's, no table), unless it is deeper than both ends by more than `CLIP_TOL_IN` (0.2
+    mm: a stretch over a rounded edge, where the middle can be the deepest point). The same
+    blow now pushes at 4.5 cm (0.35 N s) and 14 cm (1.13), and the kubb leaves at 2.70 m/s
+    and 36.0 rad/s. Over the lone kubb struck at 3, 4.5 and 8 cm (the segment's lower end),
+    6, 9 and 12 m/s, turning at 12 rad/s or not (`tools/columnprobe.lua --only col1`,
+    `tools/mjref --cases column`), the kubb's speed one step after the touch against
+    MuJoCo's: mean 0.87 -> 0.91 of it, its turn 0.88 -> 0.93; struck low and not turning
+    0.94 -> 0.96 and 0.95 -> 0.97; turning 0.84 -> 0.90 and 0.86 -> 0.94; the kubb's
+    energy about 0.76 -> 0.83 of MuJoCo's.
+  - **What is left.** Struck high (the segment's lower end 8 cm up, a short line from 8 to
+    14 cm), ours is unchanged at 0.83 and 0.81 of MuJoCo's: the two ends already were the
+    contacts. MuJoCo puts 86% of that blow at the top (15 cm), ours 69% at 14 cm. A sharp
+    edge (`batonRound` 0) takes ours from 2.20 to 2.35 m/s against 2.78; the rest is how a
+    two-point impact is shared, which a rigid solve with a bounce target at each point does
+    not do as a compliant impact does. The rounding is Tyler's play test's (a baton
+    clipping a top edge pressed the kubb down) and stays.
+  - **What it moved.** Little, because a baton seldom meets a face along a line: it
+    arrives leaning 14 to 29 degrees and turning, and meets an edge or a corner. In 10
+    matches at pro (`tools/physmatch.lua`), 2005 of 26344 baton-on-box contact calls
+    dropped a middle point, most of them a lying baton resting on a kubb. A lone kubb near
+    where it stops falling (baton 0.5 to 1.4 m/s) falls when MuJoCo says it falls in 69 of
+    72 cases before and after. `make mjref` by scenario: broadside 0.028 and 0.028, king
+    0.029 -> 0.025, tip, domino, drill, landing, end on and flight unchanged; the tip
+    thresholds the same to the digit. The columns and piles: within their noise (the
+    column of six 2 mm apart 13 -> 12 of 108; the pinned cases hold). The drive's two
+    positions (`tools/driveprobe.lua --plan`, 200 throws): group 1 1.51 -> 1.53 and 1.94
+    -> 1.98 kubbs a baton, group 2 the same. `make physfuzz N=2000 SEED=1`: energy 155 ->
+    155, penetration 176 -> 181 (the deepest 32 mm both, at the base kubbs), rest, finite
+    and mirror unchanged, dt 24 -> 23.
+  - **The Gym** (300 matches a configuration, seed 1, grass, 0.16.0 on main against this;
+    computer and human thrower at beginner, club and pro, and the computer at club and pro
+    with `cpu.tune.drive.on=1`): `gym compare` finds nothing past 99% in any of the
+    rows that must hold or the ones the fix was for. Took two / three or more / four or
+    more, before -> after: cpu beginner 6.5 / 0.6 / 0.0 -> 6.7 / 0.7 / 0.0, club 13.8 /
+    1.9 / 0.1 -> 13.7 / 1.9 / 0.1, pro 22.2 / 6.8 / 0.8 -> 21.8 / 6.8 / 0.8; with the
+    drive club 15.2 / 3.1 / 0.2 -> 15.3 / 3.2 / 0.2, pro 22.9 / 9.2 / 1.0 -> 22.7 / 9.5 /
+    1.0; human beginner 9.0 / 0.9 / 0.0 -> 9.0 / 1.0 / 0.0, club 11.3 / 1.6 / 0.1 -> 11.4
+    / 1.6 / 0.1, pro 16.3 / 2.9 / 0.2 -> 16.5 / 2.6 / 0.1. Base kubbs from 8 m: 8.4, 25.4,
+    34.3, 36.6, 29.1, 28.6% -> 8.4, 25.4, 34.3, 36.3, 29.2, 28.4% (cpu beginner, club, pro,
+    human beginner, club, pro; with the drive 26.0, 34.5 -> 26.1, 35.0); the king 69.5,
+    86.5, 96.8, 94.2, 83.6, 88.6% -> 68.6, 88.7, 95.8, 91.2, 85.8, 87.7% (with the drive
+    91.7, 96.8 -> 93.1, 96.8); a miss that touched the kubb and left it standing 15.1,
+    11.0, 12.4, 8.3, 8.0, 6.9% -> 15.3, 11.1, 12.5, 8.8, 7.8, 6.7% of misses (the recorded
+    bank's 23.5% is real throws on 0.7); the struck kubb toppled 84.2 to 95.6% both. Every
+    level stays where it was against `docs/reference/play-levels.json`, so nothing needs
+    recalibrating. Cost: nothing measurable (`core/bench` 0.0194 to 0.0197 ms a step
+    before and after, the match case 0.006 to 0.009; the change makes one contact fewer
+    and a few comparisons). Not bit-identical: every throw where a baton meets a kubb or
+    the king along a face or an edge.
 - Tried and rejected (2026-11-13): `dt` 1/120 halves the steps but fails three behaviour
   tests and the bigger contact margin gives ghost hits; 3 solver iterations instead of 4
   would save about 8% of a collision step but changes the feel, so it was not applied.
