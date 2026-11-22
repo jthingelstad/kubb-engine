@@ -1181,14 +1181,29 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
   confirms the mechanics, not grass's `mu` at an impact; nothing to fix against it. What
   the soft arrival costs is small: a ground-first touch fells the lone kubb 93% (6 m, of
   54) and 92% (8 m, of 51), on the fly 100% (of 133 and 84).
-- **The seat** (built switched off, 2026-11-22; the owner asked for it by name: kubbs
-  stand too firmly). `world.tune.seatOn` 1 leans a kubb standing plumb (set down or
-  raised: its pose a turn about the vertical alone) up to its surface's `seat` degrees,
-  in a direction of its own, seeded from where it stands (`world.seedFrom` of x, y and
-  its turn), so the same each time a world is built there. It rests on the edge it leans
-  to; once anything wakes it, it is the ordinary physics' (a nudge rocks it back plumb,
-  the turf gave), and a kubb that has moved keeps the pose it came to rest in. Off (0, as
-  shipped) nothing changes: `make golden-check` passes untouched.
+- **The seat** (built switched off, 2026-11-22, and on from 1.0.0; the owner asked for it
+  by name: kubbs stand too firmly. Switched on by the owner, 2026-11-22: "yes turn on the
+  kubbs too stable"). `world.tune.seatOn` 1 (as shipped) leans a kubb standing plumb (set
+  down or raised: its pose a turn about the vertical alone) up to its surface's `seat`
+  degrees, in a direction of its own, seeded from where it stands (`world.seedFrom` of x,
+  y and its turn), so the same each time a world is built there (`world.seat`). It rests
+  on the edge it leans to; once anything wakes it, it is the ordinary physics' (a nudge
+  rocks it back plumb, the turf gave), and a kubb that has moved keeps the pose it came to
+  rest in. The king, batons and the grid's kubbs stand as before. Off (0) every piece
+  stands as in 0.18.0 (`tests/lua/test_seat.lua`).
+  - **Switched on (1.0.0), two things it needed.** The session draws the pose the throw's
+    world will build (`session/throw`'s items take `world.seat` with the world's surface):
+    as built, a kubb with no kept pose was drawn plumb while nothing played and leaned at
+    the throw's first frame, up to 2.96 degrees (146 of 1297 standing kubbs at a throw's
+    start in three seeded matches). And `match.settleStanding` leaves a kubb tilted within
+    its surface's seat alone (`settleDeg` plus `seat`): as built it woke every seated kubb
+    with a kept pose at each change of phase, which rocked it back plumb (within 0.4 s,
+    moving 25 of 40 by over 1 mm on grass) and lost its seat (182 kubbs woken in three
+    seeded games, none with the seat off; none now). Six tests that pin a contact against a
+    plumb kubb (MuJoCo's column and lone-kubb cases, the rounded edge's normal, a baton
+    planted on a level top, a report's launches, two touching sleepers) run with the seat
+    off, each saying why; two neighbours tests follow the matches the seat plays (a turn
+    handed over with no kubbs to throw; the crowded raise is now seed 5's).
   - **The range.** A lawn's dips under a 7 cm foot are 1 to 3 mm, a lean of 1 to 2.5
     degrees: grass `seat` 2. A foot pressed into loose sand sits deeper and less even:
     sand 3. Packed snow takes a footprint and holds it: snow 1.5. The Techno grid is a hard
@@ -1223,8 +1238,8 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     -> 6.8, 17.1, 23.9, 9.2, 11.2, 16.2; three or more 0.7, 3.4, 10.0, 1.0, 1.6, 2.6% ->
     0.7, 3.7, 10.4, 1.1, 1.7, 2.9 (cpu beginner, club, pro, human beginner, club, pro);
     base kubbs toppled 20.9, 31.0, 37.0, 41.2, 35.0, 33.8% -> 20.7, 31.5, 37.3, 40.9, 34.0,
-    32.7. A small seat moves the soft touches, not the level of play. It ships only on the
-    owner's word, with the ranges his to set.
+    32.7. A small seat moves the soft touches, not the level of play. The ranges are
+    estimates, the owner's to set.
 - Tried and rejected (2026-11-13): `dt` 1/120 halves the steps but fails three behaviour
   tests and the bigger contact margin gives ghost hits; 3 solver iterations instead of 4
   would save about 8% of a collision step but changes the feel, so it was not applied.

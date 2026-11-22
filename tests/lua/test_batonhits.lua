@@ -5,6 +5,20 @@ import "core/collide"
 import "core/throwplan"
 import "core/quat"
 local world, collide, plan, quat = tw.world, tw.collide, tw.plan, tw.quat
+
+-- A kubb's seat (world.seat, on from 1.0.0) leans a kubb set down plumb by up to its
+-- surface's seat. The rounded-edge test reads a contact normal off a kubb's top face,
+-- which it takes as level ("square: straight up"), so it runs with the seat off (seatOn
+-- 0, as before 1.0); the seat itself is tests/lua/test_seat.lua's.
+local function plumb(fn)
+	return function()
+		local saved = tw.world.tune.seatOn
+		tw.world.tune.seatOn = 0
+		local ok, err = pcall(fn)
+		tw.world.tune.seatOn = saved
+		if not ok then error(err, 0) end
+	end
+end
 local sqrt, abs, deg, acos = math.sqrt, math.abs, math.deg, math.acos
 
 -- a baton at a kubb 8 m out, planned for the carry `d` at `loft` (the probe's
@@ -36,7 +50,7 @@ local function shot(loft, d, seed)
 	return w, b, k, maxTilt, air, touchV
 end
 
-test("baton hits: a baton meets a kubb's edges rounded (collide.tune.batonRound)", function()
+test("baton hits: a baton meets a kubb's edges rounded (collide.tune.batonRound)", plumb(function()
 	-- a baton lying across, its axis 3 mm inside the kubb's front face and
 	-- just over the top: a square box gives the top face's normal, straight
 	-- up; rounded, the normal leans out toward the baton
@@ -61,7 +75,7 @@ test("baton hits: a baton meets a kubb's edges rounded (collide.tune.batonRound)
 	collide.tune.batonRound = keep
 	expect.near(ny0, 0, 1e-9, "square: no lean")
 	expect.near(nz0, 1, 1e-9, "square: straight up")
-end)
+end))
 
 -- Codex on PR #139: for a baton nearly parallel to the king's rounded edge
 -- the projection that finds the closest point creeps, and stopped 5.9 mm

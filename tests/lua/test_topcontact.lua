@@ -6,6 +6,21 @@
 -- over its planted end. The same baton 6 cm lower meets the face and fells it.
 import "core/world"
 local world = tw.world
+
+-- A kubb's seat (world.seat, on from 1.0.0) leans a kubb set down plumb by up to its
+-- surface's seat. This test pins a baton planted on a level top (a play-test throw, the
+-- kubb plumb); on a top tipped by the seat the baton vaulted 0.09 m, under the test's
+-- line, so it runs with the seat off (seatOn 0, as before 1.0); the seat itself is
+-- tests/lua/test_seat.lua's.
+local function plumb(fn)
+	return function()
+		local saved = tw.world.tune.seatOn
+		tw.world.tune.seatOn = 0
+		local ok, err = pcall(fn)
+		tw.world.tune.seatOn = saved
+		if not ok then error(err, 0) end
+	end
+end
 local HL = tw.body.kinds.baton.hl
 
 -- an upright baton tumbling forward at 34 rad/s and 6.6 m/s, its lower end
@@ -28,7 +43,7 @@ local function throw(low, inset, vz)
 	return k, z0 and top - z0
 end
 
-test("a baton planted on a kubb's top vaults over it; lower, it fells it", function()
+test("a baton planted on a kubb's top vaults over it; lower, it fells it", plumb(function()
 	local k, rise = throw(0, 0.02, -1.0)
 	expect.truthy(rise, "the baton touched the kubb")
 	expect.truthy(not k.toppled, "planted on the top: the kubb stands")
@@ -37,4 +52,4 @@ test("a baton planted on a kubb's top vaults over it; lower, it fells it", funct
 		local k2 = throw(0.06, c[1], c[2])
 		expect.truthy(k2.toppled, string.format("6 cm lower (inset %.2f, vz %.1f): down", c[1], c[2]))
 	end
-end)
+end))
