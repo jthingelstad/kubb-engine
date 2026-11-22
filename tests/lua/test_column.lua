@@ -82,3 +82,29 @@ test("column: piles a throw-in leaves, at or over MuJoCo's band", function()
 	d, of = toppled("wedge5", "pile")
 	within("wedge5", d, of, 54, 60, "58 to 60")
 end)
+
+-- 0.18 (docs/notes/physics.md "The baton's blow"): an upright baton driven level at 9
+-- m/s into a lone kubb's back face, the lower end of its segment 4.5 cm up. MuJoCo's
+-- four variants send the kubb off at 2.76 to 2.80 m/s turning at 36.7 rad/s, one step
+-- (1/240 s) after the touch; 0.17 and before 2.48 and 32.4, the blow held at the
+-- closest point between the two ends of the line contact.
+test("column: an upright baton's blow on a lone kubb's face, beside MuJoCo's", function()
+	local c
+	for _, x in ipairs(LIST) do if x.id == "col-col1-b0.045-9-0" then c = x end end
+	expect.truthy(c, "the lone kubb case")
+	local w = world.new { surface = flat(), stakes = false, groundSeed = 1 }
+	local k
+	for _, d in ipairs(c.bodies) do
+		local p, q, v, a = d.pos, d.quat, d.vel, d.angvel
+		if d.projectile then
+			world.launch(w, d.kind, d.id, p[1], p[2], p[3], q[1], q[2], q[3], q[4], v[1], v[2], v[3], a[1], a[2], a[3])
+		else
+			k = world.addPiece(w, { id = d.id, kind = d.kind, x = p[1], y = p[2], z = p[3],
+				qw = q[1], qx = q[2], qy = q[3], qz = q[4] })
+		end
+	end
+	world.step(w)
+	world.step(w)
+	expect.near(k.vy, 2.78, 0.15, "the kubb's speed along the throw")
+	expect.near(k.wx, -36.7, 1.8, "its turn")
+end)
