@@ -243,3 +243,51 @@ test("who acts for a mixed team", function()
 		"by its engine, not by hand")
 	expect.eq(pitch("playingSide", { ctx = c, me = "cpu:1" }), nil, "a computer is no member")
 end)
+
+-- 1.0: a computer seat carries whatever engine the pitch runs on (the host's client throws
+-- for it). In 0.17 and 0.18 engineFor counted each seat as a player with no engine, so a
+-- pitch with any seat found no engine and START was blocked; clients took the seats out
+-- before asking (the web's roomEngineFor, the iPhone's PitchController.withoutSeats).
+test("engineFor: computer seats carry the pitch's engine, never missing or unknown", function()
+	local MM = tw.shared.lobby.ENGINE
+	local d = twoByTwo()
+	local mm = members { "jamie001", "tyler001" }
+	local e = pitch("engineFor", { doc = d, members = mm, host = "jamie001" })
+	expect.eq(e.engine, MM, "the pitch's engine with a seat on each side")
+	expect.eq(#e.missing, 0)
+	expect.eq(#e.unknown, 0)
+	-- the same as asking with the seats taken out, as the clients' workaround did
+	local bare = pitch("joinTeam", { doc = pitch("joinTeam", { doc = NULL, id = "jamie001", side = "A" }), id = "tyler001", side = "B" })
+	local e2 = pitch("engineFor", { doc = bare, members = mm, host = "jamie001" })
+	expect.eq(json.encode(e), json.encode(e2))
+	-- `me` given: a member asking before it takes a seat, the seats still left out
+	local e3 = pitch("engineFor", { doc = d, members = mm, host = "jamie001", me = "tyler001", carries = { MM } })
+	expect.eq(e3.engine, MM)
+	-- a team of computers against three friends
+	local t = NULL
+	for _, id in ipairs { "ann00001", "bob00001", "cat00001" } do t = pitch("joinTeam", { doc = t, id = id, side = "A" }) end
+	for k = 1, 3 do t = pitch("addComputer", { doc = t, side = "B", level = k == 3 and "pro" or "club", seed = k }) end
+	local three = members { "ann00001", "bob00001", "cat00001" }
+	expect.eq(pitch("engineFor", { doc = t, members = three, host = "ann00001" }).engine, MM)
+	-- a person who carries another engine is still missing; the seats are never named
+	local odd = members { "jamie001", "tyler001" }
+	odd[2].me.engine = "0.7.4"
+	local e4 = pitch("engineFor", { doc = d, members = odd, host = "jamie001" })
+	expect.eq(e4.engine, NULL)
+	expect.eq(#e4.missing, 1)
+	expect.eq(e4.missing[1], "tyler001")
+	for _, id in ipairs(e4.unknown) do expect.truthy(not tw.shared.lobby.isSeat(id), "a seat is never unknown") end
+	-- and START passes on what engineFor found
+	local lu = pitch("lineup", { doc = d, members = mm })
+	local check = pitch("startCheck", { players = lu.players, members = pitch("speakAs", { members = mm, engine = e.engine }),
+		host = "jamie001" })
+	expect.eq(check.ok, true)
+end)
+
+test("startCheck: a seat id is a computer even when its entry lost `cpu`", function()
+	local m = members { "jamie001" }
+	local c = pitch("startCheck", { players = { A = { { id = "jamie001", name = "A" } },
+		B = { { id = "cpu:1", name = "Proud Plum", level = "pro" } } }, members = m, host = "jamie001" })
+	expect.eq(#c.unknown, 0, "a seat names no engine and is not asked for one")
+	expect.eq(#c.differ, 0)
+end)

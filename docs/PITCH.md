@@ -145,6 +145,12 @@ computers: { "cpu:1": { level: "pro", name: "Brisk Birch" },
   anywhere makes a Kid match; every seat carries its own level.
 - `pruneTeams` keeps seats; `joinTeam` refuses a seat id; `openListing`'s `seats` is the
   twelve places less the seats.
+- A seat carries whatever engine the pitch runs on: the host's client throws for it.
+  `engineFor` leaves seats out of the players it asks (since 1.0; in 0.17 and 0.18 it
+  counted each seat as a player with no engine, so a pitch with any seat found none and
+  START was blocked, and clients took the seats out of the document before asking: that
+  workaround can go), and `startCheck` asks no engine of a lineup entry with `cpu` or a
+  seat id.
 
 ### The full match
 
@@ -331,7 +337,9 @@ newest major.minor that the host and every player in the lineup carry
 (`engineFor(doc, members, host)`). It is a function of the pitch's presence and its
 teams and nothing else, so every client works out the same one from the same pitch.
 Watchers do not count, so a watcher on an older engine never pulls a match down; they
-count once they take a seat. When no engine is carried by all, `engine` is null and
+count once they take a seat. Computer seats do not count either (since 1.0): a seat is
+played by the host's client and so carries the pitch's engine; it is never `missing` or
+`unknown`. When no engine is carried by all, `engine` is null and
 `missing` names the players to tell (those without the engine most of them share).
 
 What a member carries is read from its presence (`carried`):
