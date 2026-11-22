@@ -242,14 +242,21 @@ function startDoc(r, o)
 			for i, p in ipairs(opts.teams[side].players) do
 				if p.cpu then
 					-- a computer player in a team (0.17.0): a computer seat, by the host's
-					-- addComputer (a Kid match's seat is written at club; every computer of a Kid match plays as Kid)
+					-- addComputer. The seat keeps the level the host gave it (the setup's entry),
+					-- the level it throws at is the match's: in a Kid match every computer is the
+					-- Kid computer (opts says "kid"), never a seat's level. A setup that no
+					-- longer has it (a start's own options, already the Kid level) sits at club
+					local given = type(setup.teams) == "table" and type(setup.teams[side]) == "table"
+						and type(setup.teams[side].players) == "table" and setup.teams[side].players[i] or nil
 					local level = "club"
-					for _, lv in ipairs(lobby.SEAT_LEVELS) do if lv == p.level then level = lv end end
+					for _, lv in ipairs(lobby.SEAT_LEVELS) do
+						if lv == p.level or (type(given) == "table" and lv == given.level) then level = lv end
+					end
 					local d2 = lobby.addComputer(doc, side, level, i, p.name)
 					if not d2 then return nil, "a computer player cannot sit on side " .. side end
 					doc = d2
 					local seat = doc.teams[side][#doc.teams[side]]
-					players[side][i] = { id = seat, name = p.name, cpu = true, level = p.level }
+					players[side][i] = { id = seat, name = p.name, cpu = true, level = level }
 				else
 					local id = (ids[side] and ids[side][i]) or p.key or (side .. i)
 					if type(id) ~= "string" then return nil, "a member id is a string" end

@@ -388,7 +388,11 @@ local function play(gi, each)
 			local sp = teamOf(side)
 			if sp.levels then
 				local ps = {}
-				for j, lv in ipairs(sp.levels) do ps[j] = { name = NAMES[side][j], level = lv, cpu = true } end
+				-- (--rules kid: every computer is the Kid computer, as the engine's Kid match
+				-- has it, whatever the seat's level)
+				for j, lv in ipairs(sp.levels) do
+					ps[j] = { name = NAMES[side][j], level = opt.rules == "kid" and "kid" or lv, cpu = true }
+				end
 				if side == "A" then tA = { name = "Team A", players = ps } else tB = { name = "Team B", players = ps } end
 			end
 		end

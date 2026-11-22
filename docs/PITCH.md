@@ -125,7 +125,11 @@ computers: { "cpu:1": { level: "pro", name: "Brisk Birch" },
 - `level` is `beginner`, `club` or `pro`. Kid is not a seat's: it is the match's, the
   Computer setting (`settings.computer: "kid"`), and with it chosen a match with any
   computer in it is a Kid match in which every computer plays as the Kid computer,
-  whatever its seat says. A client shows its seats as Kid then.
+  whatever its seat says. A client shows its seats as Kid then. A seat's level and the
+  level it throws at are two things: the document, `lineup`, `matchOptions`' setup, the
+  match header's `players` and a replay's document keep the level the host gave the seat,
+  so a rematch with the Computer set back to Club plays it at that level; the match itself
+  (its snapshot, the game file's `[Throw Levels]`) records the level thrown, `kid`.
 - `name` is a generated player name, absent when none is kept (shown as `"Computer"`).
   The host's `addComputer` rolls it from the host's own seed, so it is in the document
   for the lobby to show and stays with the seat from match to match.
