@@ -9,6 +9,7 @@ ours.jsonl (tools/mjref/ours.lua), once per solver variant:
   dt2    dt 1/19200 s, timeconst 0.002 s (half the step)
   stiff  dt 1/9600 s, timeconst 0.001 s (stiffer contact)
   soft   dt 1/9600 s, timeconst 0.004 s (softer contact)
+  hard   dt 1/38400 s, timeconst 0.0005 s (only with --variants: toward the rigid limit)
 
 Restitution: MuJoCo has no coefficient of restitution. A soft contact is a
 damped spring (solref = timeconst, dampratio), and the bounce it gives falls
@@ -16,7 +17,7 @@ with the damping ratio. For each variant and each target e (the surfaces' e
 and pairE) the damping ratio is found by bisection on a drop test, a kubb
 lying flat landing at 2 m/s (calibrate below), and written to calib.json.
 
-  python3 tools/mjref/mjsim.py build/mjref [--only prefix] [--jobs n]
+  python3 tools/mjref/mjsim.py build/mjref [--only prefix] [--jobs n] [--variants ref,dt2,...]
 """
 import json
 import math
@@ -34,6 +35,10 @@ VARIANTS = {
     "stiff": {"dt": 1 / 9600, "tc": 0.001},
     "soft": {"dt": 1 / 9600, "tc": 0.004},
 }
+# Not in the default run (--variants ref,dt2,stiff,soft,hard): a contact four times
+# stiffer than stiff, at a quarter of its step (MuJoCo wants timeconst at least twice
+# the step), toward the rigid limit our impulses model (0.18, kubb on kubb).
+EXTRA = {"hard": {"dt": 1 / 38400, "tc": 0.0005}}
 SOLIMP = "0.99 0.999 0.001 0.5 2"
 SAMPLE_HZ = 120  # ours.lua writes every second 240 Hz step
 
@@ -290,9 +295,12 @@ def calibrate_one(args):
     return var, key, dr, drop_bounce(var, dr, key, on_box=pair)
 
 
-def init(params):
+def init(params, variants=None):
     global P
     P = params
+    if variants:
+        VARIANTS.clear()
+        VARIANTS.update(variants)
 
 
 def run_one(args):
@@ -315,6 +323,12 @@ def main():
         elif a[0] == "--jobs":
             jobs = int(a[1])
             a = a[2:]
+        elif a[0] == "--variants":
+            names = a[1].split(",")
+            allv = dict(VARIANTS, **EXTRA)
+            VARIANTS.clear()
+            VARIANTS.update({n: allv[n] for n in names})
+            a = a[2:]
         else:
             raise SystemExit("unknown option " + a[0])
     params = json.load(open(os.path.join(out, "params.json")))
@@ -327,7 +341,7 @@ def main():
     jobs_c = [(v, e, False) for v in VARIANTS for e in targets] + [(v, params["world"]["pairE"], True) for v in VARIANTS]
     calib = {v: {} for v in VARIANTS}
     check = {v: {} for v in VARIANTS}
-    with mp.Pool(jobs, initializer=init, initargs=(params,)) as pool:
+    with mp.Pool(jobs, initializer=init, initargs=(params, dict(VARIANTS))) as pool:
         for var, key, dr, e in pool.map(calibrate_one, jobs_c):
             calib[var][key] = dr
             check[var][key] = e

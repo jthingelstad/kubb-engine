@@ -33,7 +33,8 @@ function M.surface(name, mode)
 end
 
 -- The case list a run uses: cases.all(), or with `--cases drive` (anywhere in arg) the
--- drive cases alone (cases.drive, 0.16.0), `--per n` throws a setting.
+-- drive cases alone (cases.drive, 0.16.0), `--per n` throws a setting; `--cases column` the
+-- columns and piles of kubb on kubb (cases.column, 0.18).
 function M.list()
 	local which, per = "all", nil
 	for i = 1, #arg do
@@ -41,6 +42,7 @@ function M.list()
 		if arg[i] == "--per" then per = tonumber(arg[i + 1]) end
 	end
 	if which == "drive" then return M.cases.drive(per) end
+	if which == "column" then return M.cases.column() end
 	return M.cases.all()
 end
 
