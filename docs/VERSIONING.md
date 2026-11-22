@@ -39,21 +39,27 @@ that carries one agrees. Records of a match name the engine it was played on
 
 ## Carrying several engines
 
-A client need not carry only one engine. The web carries every minor that kept matches
-still need, each at that minor's last tag, byte for byte, and loads only the one a page
-needs; the iPhone app carries what its build shipped with, and may bundle the previous
-one or two so phones on different builds can play together. How a room picks between
-them is the room's (docs/ROOM.md "The room's engine" and "Speaking down").
+A client carries an engine only while we have decided it is supported, never because it
+was once released (the owner, 2026-11-21: "We should only support engines that we decide
+are worth supporting not just ones that have published so that we can push players to
+the new engines"). **The supported set today is the newest minor alone.** The machinery
+below lets a client carry more than one, each at that minor's last tag, byte for byte,
+and load only the one a page needs; it is there for a day we decide an older minor is
+worth keeping, and it is not a promise to keep any. How a pitch picks between engines
+is the pitch's (docs/PITCH.md).
 
 - **The principle.** A match runs, replays, renders and is checked on its own
   `match.engine`. A client that carries it uses it; one that does not says so, as
-  `mayPlay` does. A kept match from an engine no client carries any more falls back to
-  the newest engine, with the hash that disagrees noted, as replays always have.
-- **The support window.** An engine stays in the set while a kept match may need it:
-  rooms and replays are kept a year from the end of their match, so a minor stays until
-  a year after the last match started on it ended, and while clients that carry only it
-  are still about (an iPhone build in testers' or players' hands). Dropping a minor is a
-  client's release, never the engine's.
+  `mayPlay` does. A kept match from an engine a client no longer carries is not
+  replayed on another: the client says it was made on an older version.
+- **The supported set is a decision.** An engine is in it because we said so, and leaves
+  when we say so: not when the last kept match on it has aged out, and not while some
+  older build is still in someone's hands. A player on a client with no supported engine
+  in common is told to update (`engineFor`'s `missing`), and a kept match or replay from
+  an engine no longer carried says it was made on an older version and cannot be
+  replayed. Dropping a minor is a client's release, never the engine's. (Until
+  2026-11-21 the rule was a window: a minor stayed a year after its last match. That is
+  gone.)
 - **What clients call only grows.** Within the window one client code base drives every
   engine it carries, so from one minor to the next the session's and the room's calls,
   their arguments and their results only gain: no call, field or value a client relies
