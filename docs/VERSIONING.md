@@ -114,9 +114,10 @@ Every client shows its own version with the engine's beside it, in one form:
     line the hand can make and whose speed is at most `plan.speedFor(driveBackMaxDeg)` (140).
   - **The turn**: under the knee the planned tumble eases to none by a release loft of
     `driveTurnToDeg` (-4); the tilt and the helicopter rule are as before.
-  - **The default**: a baton whose circle is on a standing field kubb plans
-    `plan.arcFor("field", d)` (`plan.tune.fieldArc`: the drive at 1.5 m, the shared line at
-    8 m); base kubbs, the king and empty spots as before (Q18).
+  - **The default**: one line by distance for every target, lowered (`plan.tune.arcLine`:
+    the drive at 1.5 m, as before at 8 m and out); the line before is
+    `plan.sharedArcFor`, the computer's until its drive is on. The king and a Kid match's
+    base kubbs hold on it (Q18, closed).
   - **The thrown kubb's bars** on the standard meter are a baton's (`kubbPower`,
     `kubbRelease` 1, from 1.35). The Kid meter is unchanged.
   - **The computer**: `field.drive` (`cpu.tune.drive`) built switched off; nothing it does
@@ -124,16 +125,30 @@ Every client shows its own version with the engine's beside it, in one form:
   - **The session**: `aim.controls.arc.min` is the throw's floor and `arc.knee` the knee;
     `session/check` admits the drive (releases from 0, the plan the action names first) and
     refuses a launch the plan at its floor could not give.
-  - **Golden hashes**: none moves (19 matches, 729 actions): the corpus's person throws
-    replay their recorded launches, and every computer throw is planned from the knee up.
-    It is a minor because a person can make throws a 0.15 `check.throw` refuses and plans
-    other defaults: 0.16 shares matches with no 0.15. `tools/physdump.lua` is unchanged.
+  - **Golden hashes** (`make golden`: 19 matches, 724 actions): the four with a person's
+    side move, each at the first throw the person makes on the default arc at something the
+    0.15 default and the lowered line plan differently (the corpus's batons at field kubbs
+    carry their own release; the computer's throws are bit for bit as before):
+    `m13-grass-off-A-near` at action 16, the king shot from the baseline (4 m: release 13.6
+    where it was 30); `m14-grass-off-B-auto-pro` at action 22 and
+    `m17-neon-grid-off-B-near-pro` at action 6, a circle kept beside a field kubb rather
+    than on it (5.7 m: 33.4 where it was 42.5; 4.8 m: 23.2 where it was 36.1), which the
+    first build's field-only line missed; `m18-grass-off-A-near-kid` at its first action, a
+    base kubb from the Kid line (6 m: 37.5 where it was 45). The winners are the same; m14
+    has one hit fewer and m17 ends a turn sooner. 0.16 shares matches with no 0.15.
+    `tools/physdump.lua` is unchanged.
+  - **Output only** (no snapshot or hash moves): the throw need's `setup.settled` lists
+    what the engine raised and placed before the throw (it was declared and never filled:
+    `core/match` kept a count on the match), in the raiser's view frame, turned to the
+    world frame in the wide view; each neighbour `throw` recording carries `hits` and
+    `landing` (the pinned neighbours hash moves: `tests/node/neighbours.test.mjs`).
   - **Measuring tools**: `tools/driveprobe.lua` (the two group positions), `tools/mjref`
     `--cases drive` and `drive.py` (the drive and a struck column against MuJoCo),
-    `tools/meterprobe.lua --arc` and the drill part's rms, within a kubb's length and out.
+    `tools/meterprobe.lua --arc` and `--king` and the drill part's rms, within a kubb's length
+    and out; the Gym passes `--rules kid` to its matches (read and dropped before).
   - **For clients**: docs/CLIENTS.md "0.16 on top": ARC's range from `aim.controls.arc`, a
     side view that draws a falling arc, and on the Playdate the projectile passed to
-    `plan.clampRelease` and `"field"` to `plan.arcFor`.
+    `plan.clampRelease`.
 - **0.15.1** (patch). The Tournament's neighbouring pitches (docs/notes/tournament.md):
   computer-against-computer matches on the pitches around the player's, as live scenery,
   behind `neighbours.open`, `neighbours.advance`, `neighbours.view` and
