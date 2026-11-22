@@ -4,6 +4,21 @@ import "core/world"
 import "core/playback"
 import "core/quat"
 local world, body, quat, playback = tw.world, tw.body, tw.quat, tw.playback
+
+-- A kubb's seat (world.seat, on from 1.0.0) leans a kubb set down plumb by up to its
+-- surface's seat. This test counts the contact points between kubbs set touching face to
+-- face, which a lean changes (two kubbs leaning into each other touch on an edge), so it
+-- runs with the seat off (seatOn 0, as before 1.0); the seat itself is
+-- tests/lua/test_seat.lua's.
+local function plumb(fn)
+	return function()
+		local saved = tw.world.tune.seatOn
+		tw.world.tune.seatOn = 0
+		local ok, err = pcall(fn)
+		tw.world.tune.seatOn = saved
+		if not ok then error(err, 0) end
+	end
+end
 local collide = tw.collide
 
 local G = 9.81
@@ -411,7 +426,7 @@ end)
 -- Codex on the web game's sync of the group wake: two sleepers that touch each
 -- other, both woken in one step by a third body, are a pair the loop passed
 -- while both slept; their contact must still be made in that step, once.
-test("two touching sleepers woken in one step get their own contact in that step", function()
+test("two touching sleepers woken in one step get their own contact in that step", plumb(function()
 	local collide = tw.collide
 	local function between(order)
 		local at = { s = { 0, 3.93 }, a = { -0.035, 4 }, b = { 0.035, 4 }, c = { -0.035, 4.07 }, d = { 0.035, 4.07 } }
@@ -444,7 +459,7 @@ test("two touching sleepers woken in one step get their own contact in that step
 		end
 		for key in pairs(n) do expect.truthy(ref[key], "no extra pair " .. key) end
 	end
-end)
+end))
 
 -- The tests' launch speeds were written for a flight with no drag (before
 -- 2026-11-16, audit 8): the speed that carries a baton as far at this loft

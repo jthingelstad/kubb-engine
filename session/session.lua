@@ -950,7 +950,7 @@ function Session:pitchItems()
 			end
 		end
 	end
-	return throw.itemsOf(pieces, debris.pieces(m.debris, side))
+	return throw.itemsOf(pieces, debris.pieces(m.debris, side), cmatch.surfaceName(m.game))
 end
 
 -- Everything the screen needs when nothing is playing back.

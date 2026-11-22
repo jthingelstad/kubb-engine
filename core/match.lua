@@ -499,10 +499,18 @@ function match.settleStanding(m, s)
 	local d, g, side = m.debris, m.game, s.side
 	d.settle = nil
 	local cosTol, gapTol = math.cos(math.rad(match.tune.settleDeg)), match.tune.settleGap
+	-- a kubb's seat (world.seat, 1.0) is a lean on its own edge, not a tilt something
+	-- props: within the surface's seat a standing kubb is left as it is (woken, it rocks
+	-- back plumb and its seat is lost at every settle)
+	local wt = tw.world and tw.world.tune
+	local surf = tw.world and tw.world.surfaces[s.surface or "grass"]
+	local seatDeg = (wt and wt.seatOn > 0 and surf and surf.seat or 0)
+	local cosKubb = math.cos(math.rad(match.tune.settleDeg + seatDeg))
 	local wake = nil
 	for _, p in ipairs(s.pieces) do
 		local e, k = d.exact[p.id], body.kinds[p.kind]
 		if e and e.standing and not p.toppled and p.z and k then
+			local cosTol = p.kind == "kubb" and cosKubb or cosTol
 			-- the long axis (column 3 of the rotation) and the lowest corner
 			local qw, qx, qy, qz = p.qw, p.qx, p.qy, p.qz
 			local r31, r32, r33 = 2 * (qx * qz - qw * qy), 2 * (qy * qz + qw * qx), 1 - 2 * (qx * qx + qy * qy)

@@ -7,6 +7,21 @@ import "core/world"
 import "core/throwplan"
 
 local flight, world, plan = tw.flight, tw.world, tw.plan
+
+-- A kubb's seat (world.seat, on from 1.0.0) leans a kubb set down plumb by up to its
+-- surface's seat. This test replays a player's report (2026-11-20) against the kubb as
+-- it stood then, plumb; with the seat the second launch lands on a top tipped toward it
+-- and fells it, so it runs with the seat off (seatOn 0, as before 1.0); the seat itself
+-- is tests/lua/test_seat.lua's.
+local function plumb(fn)
+	return function()
+		local saved = tw.world.tune.seatOn
+		tw.world.tune.seatOn = 0
+		local ok, err = pcall(fn)
+		tw.world.tune.seatOn = saved
+		if not ok then error(err, 0) end
+	end
+end
 local D = 0.353
 local YAW = -1.34
 
@@ -110,13 +125,13 @@ test("batonLaunchState: no hand given is the feet at handHeight, bit for bit", f
 	for i = 1, 13 do expect.eq(b[i], a[i], "value " .. i) end
 end)
 
-test("the report's launches from the feet come down on the kubb's top and leave it standing", function()
+test("the report's launches from the feet come down on the kubb's top and leave it standing", plumb(function()
 	-- the hit model is unchanged: these are the two launches as the engine made them
 	-- before the hand at a short throw (0.7.4), from the feet at handHeight
 	local h = flight.tune.handHeight
 	expect.eq(fell({ speed = 0.975, loft = 21.7, swivel = 0, tilt = -2.0, tumble = 2.33 }, nil, YAW, h, 0), false, "first")
 	expect.eq(fell({ speed = 1.449, loft = 20.9, swivel = 0, tilt = -3.6, tumble = 2.33 }, nil, YAW, h, 0), false, "second")
-end)
+end))
 
 test("the report's two swings at a kubb 0.353 m away now topple it", function()
 	-- (the firm bowl plans a harder throw, so the gauge now calls both short)

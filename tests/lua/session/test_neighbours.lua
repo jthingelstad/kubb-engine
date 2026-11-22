@@ -174,8 +174,10 @@ test("neighbours.advance: the first throws arrive as recordings, paced, with the
 				expect.eq(#b.poses, b.frames * 7)
 				expect.truthy(b.start + b.frames - 1 <= rec.frames)
 			end
-			-- a throw every 8 to 15 s on a pitch (batons; the walk and the raise are longer)
-			if last[e.id] and last[e.id].kind == "baton" and e.kind == "baton" then
+			-- a throw every 8 to 15 s on a pitch (batons of one turn; the walk and the raise
+			-- are longer, and so is a turn that hands over with no kubbs to throw: since the
+			-- seat, 1.0, seed 7 has one, a baton to the other side's after a walk)
+			if last[e.id] and last[e.id].kind == "baton" and e.kind == "baton" and last[e.id].side == e.side then
 				local gap = e.at - last[e.id].at
 				expect.truthy(gap >= 8 - 1e-9 and gap <= 15 + 1e-9, "baton to baton " .. gap)
 			end
@@ -299,12 +301,13 @@ test("deterministic: two runs agree, and slices of any size give the same events
 end)
 
 test("a crowded corner's raise, searched in slices, comes out as searched whole", function()
-	-- seed 4's fourth minute has a kubb raised in a crowded corner (core/raising's search,
-	-- which yields at raising.probe): cut into slices of a few steps it must give the same
+	-- seed 5 has a kubb raised in a crowded corner (core/raising's search, which yields at
+	-- raising.probe): cut into slices of a few steps it must give the same (seed 4 until
+	-- 1.0: the seat's leans and pairRoll from the first step play its matches otherwise)
 	local nc, searched = tw.raising.nearestClear, 0
 	tw.raising.nearestClear = function(...) searched = searched + 1; return nc(...) end
 	local function byPitch(budget)
-		call("neighbours.open", { seed = 4, count = 4 })
+		call("neighbours.open", { seed = 5, count = 4 })
 		local ev = run(0, 500, 1 / 60, budget)
 		call("neighbours.close")
 		local out = {}
