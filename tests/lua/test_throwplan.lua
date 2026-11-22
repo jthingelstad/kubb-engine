@@ -63,17 +63,30 @@ test("plan: the loft scale is the line through 5 and 3 o'clock, and inverts", fu
 	expect.near(plan.tune.refLoftDeg, plan.loftFor(90), 1e-9, "the reference arc is 3 o'clock")
 	for rel = 15, 165, 15 do expect.near(plan.releaseFor(plan.loftFor(rel)), rel, 1e-9) end
 	expect.eq(plan.loftFor(-100), plan.tune.loftMinDeg)
+	-- the drive (0.16): under the knee a steeper line to loftAt0 at 6 o'clock
+	expect.near(plan.loftFor(15), 7, 1e-9)
+	expect.near(plan.loftFor(0), plan.tune.loftAt0, 1e-9)
+	for rel = 0, 15, 2.5 do expect.near(plan.releaseFor(plan.loftFor(rel)), rel, 1e-9) end
+	expect.eq(plan.loftFor(-100, true), plan.tune.lineMinDeg, "the one line keeps its floor")
 	expect.eq(plan.loftFor(400), plan.tune.loftMaxDeg)
-	expect.eq(plan.clampRelease(0), 15)
+	expect.eq(plan.clampRelease(-5), 0, "a baton's from 6 o'clock (0.16: the drive)")
+	expect.eq(plan.clampRelease(0, "kubb"), 15, "a thrown kubb's from half past 5, as before")
 	expect.eq(plan.clampRelease(200), 165)
 	expect.eq(plan.arcFor("drill"), 135)
-	-- a baton's default release goes by the distance, never by the target's kind
+	-- a baton's default release goes by the distance (Jamie, 2026-11-20); from 0.16 a
+	-- field kubb's is its own, firmer and lower close in (the drive, owner-2026-11-22#s2),
+	-- the same as the others' from 6 m out
 	expect.near(plan.arcFor("baton", 8), 60, 1e-9)
 	expect.near(plan.arcFor("baton", 5), 37.5, 1e-9)
 	expect.near(plan.arcFor("baton", 2), 15, 1e-9)
 	expect.eq(plan.arcFor("baton", 0.5), 15, "never under the release range")
 	expect.eq(plan.arcFor("baton", 30), 165, "never over it")
-	expect.eq(plan.arcFor("king", 4), plan.arcFor("field", 4), "the kind of target does not count")
+	expect.eq(plan.arcFor("king", 4), plan.arcFor("base", 4), "a base kubb's and the king's are one line")
+	expect.near(plan.arcFor("field", 1.5), 6, 1e-9, "a field kubb at 1.5 m: the drive")
+	expect.near(plan.arcFor("field", 4), 13.6, 1e-9)
+	expect.eq(plan.arcFor("field", 0.5), 15, "point blank: the short bowl, as before")
+	expect.near(plan.arcFor("field", 6), plan.arcFor("base", 5), 1e-9, "at 6 m a field kubb's is 5 m's line")
+	expect.near(plan.arcFor("field", 8), plan.arcFor("base", 8), 1e-9, "at 8 m every target's is the same")
 	expect.eq(plan.arcFor("base"), plan.arcFor("baton", 8), "no distance: a baseline throw")
 end)
 

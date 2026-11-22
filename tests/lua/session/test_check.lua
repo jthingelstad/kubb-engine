@@ -40,7 +40,7 @@ end
 -- continuous value), a tilt or spin (stepSide), a stance (STAND) and a target.
 local function aimAround(s, r)
 	if r.next() < 0.35 then s:setLevel(LEVELS[1 + floor(r.next() * 3)]) end
-	if r.next() < 0.3 then s:setArc(15 + r.next() * 150) end
+	if r.next() < 0.3 then s:setArc(r.next() * 165) end -- 0.16: from 6 o'clock, the drive
 	if r.next() < 0.3 then s:stepArc(r.next() < 0.5 and -1 or 1) end
 	if r.next() < 0.4 then for _ = 1, floor(r.next() * 6) do s:stepSide(r.next() < 0.5 and -1 or 1) end end
 	if r.next() < 0.3 then s:setStance(r.next() * 6 - 3, s.ts.lineY - r.next() * 4 + 0.5) end
@@ -286,7 +286,11 @@ test("checkThrow refuses a throw at 30 m/s and other throws the dial cannot make
 	local m = match(1)
 	local bat, kub
 	for _, t in ipairs(m.throws) do
-		if t.action.how == "baton" and t.action.launch.legal and t.action.swing.back < 110 and not bat then bat = t end
+		-- (not a sky ball: its loft is at loftMaxDeg whatever the plan, so it pins no planned
+		-- release and its release pull bounds its swivel only loosely; 0.16's wider ARC
+		-- in aimAround made match 1's first such baton a sky ball)
+		if t.action.how == "baton" and t.action.launch.legal and t.action.swing.back < 110
+			and t.action.swing.stop < tw.swing.tune.skyDeg and not bat then bat = t end
 		-- (a drill released at the sky end or very early fits other releases with its
 		-- nose moved, so the nose pins nothing there: from 0.9 match 1's first drill
 		-- stops at 29 degrees and takes any nose; docs/notes, the owner's to decide)
@@ -924,4 +928,58 @@ test("check: a person's short baton fits, on the band, long, at any arc and leve
 	a.launch.loft = a.launch.loft - 10
 	a.launch.speed = a.launch.speed * 1.3
 	expect.eq(check.throw(at(0.35), a).ok, false, "a speed 30% over")
+end)
+
+-- The drive (0.16): a person's baton planned under the knee, at its floor or on it, is
+-- one the dial makes; a launch under the throw's floor is not.
+test("check: a person's drive fits at any release down to the floor, and under it is refused", function()
+	local function at(d, arc)
+		local s = session.new { mode = "match", seed = 7, cpu = "B", start = START, maxTurns = 4,
+			teams = { A = { name = "Ada", players = { { name = "Ada", level = "club", key = "m1" } } },
+				B = { name = "Computer", players = { { name = "Computer" } } } } }
+		s.setup.forwardY, s.ts.forwardY = 3, 3
+		s:setStance(0, 3)
+		s:setTarget(0, 3 + d, false)
+		if arc then s:setArc(arc) end
+		return s
+	end
+	local function swingTo(s, back, stop)
+		local arm, o = 0, nil
+		while arm > -back do
+			arm = math.max(-back, arm - 400 / 60)
+			o = s:frame { dt = 1 / 60, arm = arm }
+			if o.action then return o.action end
+		end
+		for _ = 1, 200 do
+			arm = math.min(stop, arm + 2400 / 60)
+			o = s:frame { dt = 1 / 60, arm = arm }
+			if o.action then return o.action end
+		end
+		return s:frame({ dt = 1 / 60 }).action
+	end
+	for _, d in ipairs { 1.5, 2.5, 4 } do
+		for _, arc in ipairs { 0, 5, 10, 14 } do
+			local s1 = at(d, arc)
+			local view = s1:aimView()
+			local p, c = view.plan, view.controls.arc
+			expect.truthy(c.min >= 0 and c.min <= plan.tune.driveKneeDeg and c.value >= c.min, "the slider's floor")
+			expect.eq(c.knee, plan.tune.driveKneeDeg)
+			for _, off in ipairs { 0, 0.6 } do
+				local back = (p.powerLo + p.powerHi) / 2 + off * (p.powerHi - p.powerLo)
+				local a = swingTo(s1, back, math.max(5, p.release + 3))
+				expect.truthy(a, "the swing threw")
+				local res = check.throw(at(d, arc), json.decode(json.encode(a)))
+				expect.truthy(res.ok, string.format("%.1f m at %g: %s", d, arc, tostring(res.why)))
+				s1 = at(d, arc)
+			end
+		end
+	end
+	-- 4 m: the floor is about 12; a launch with the loft a plan at 0 would give is refused
+	local s1 = at(4, 0)
+	local p = s1:aimView().plan
+	local a = json.decode(json.encode(swingTo(s1, (p.powerLo + p.powerHi) / 2, p.release + 3)))
+	local res0 = check.throw(at(4, 0), a)
+	expect.truthy(res0.ok, "on the floor it fits: " .. tostring(res0.why))
+	a.launch.loft = plan.loftFor(0)
+	expect.eq(check.throw(at(4, 0), a).ok, false, "a loft under the floor")
 end)
