@@ -87,7 +87,7 @@ function fnv(text) {
 }
 
 // seed 9, six pitches, 3 minutes of clock in 1/20 s steps: every event, hashed
-const NEIGHBOURS_HASH = 'e427782a'; // 0.18.0: the club and pro computers drive, and the baton's blow on a face moves the physics (0.16.0 f3f06bfd: hits and landing; bafb735b before)
+const NEIGHBOURS_HASH = '33173648'; // 1.0.0: kubbs stand in their seats, a baton resting on pieces feels their rolling resistance from the first step, and propped contacts are fixed (0.18.0 e427782a: the club and pro computers drive, and the baton's blow on a face moves the physics; 0.16.0 f3f06bfd: hits and landing; bafb735b before)
 
 test('neighbours.open under wasmoon: the field, generated teams, any scene', async () => {
   const e = await engine();

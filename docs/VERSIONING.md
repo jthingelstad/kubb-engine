@@ -10,7 +10,11 @@ It names the whole engine: `core/`, `pitch/` (`room/` before 0.13), `session/`, 
   shape, or a document format a client stores or sends (the recording, the game file
   the session writes, the room's document in a way an older client cannot read) changes, so an old client cannot read what a new one writes.
   A format change an older client cannot read is a major; fields that only add, inside
-  a match pinned to its major.minor, go with the minor.
+  a match pinned to its major.minor, go with the minor. A major may also be declared:
+  the owner names a release the next major with no format change (1.0.0, 2026-11-22: the
+  released engine, the one the App Store build ships). A declared major is a minor in all
+  else: it may move hashes, it shares no match with the minor before it (a match is
+  shared on the same major.minor), and what clients call only grows across it.
 - **Minor**: anything that can change a hash. Any physics, rules, tune or session change
   that alters what a seeded match does: a constant, an order of operations, a rounding,
   a new random draw. If it is not proven hash-neutral, it is a minor change.
@@ -101,6 +105,63 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **1.0.0** (major, declared). The owner (2026-11-22): "lets move all four projects to
+  version 1.0.0 and tag those releases. We will use that version to submit to the App
+  Store as well." No format changes: the snapshot, actions, the recording, the game file
+  and the pitch's document read and write as on 0.18, and every call 0.18 answers answers
+  the same way or gains a field. The number is the declaration that this is the released
+  engine; under "Playing together" 1.0 shares matches with no 0.18 (the physics differs).
+  Six changes:
+  - **`pitch.engineFor` and computer seats** (docs/PITCH.md "Computer seats"): a seat
+    (`cpu:<n>`) carries the pitch's engine, so `engineFor` leaves seats out of the players
+    it asks and `startCheck` asks no engine of a seat id. In 0.17 and 0.18 a pitch with any
+    seat found no engine and START was blocked. No hash moves by it (the pitch is not
+    hashed; the vectors are untouched).
+  - **The drive's floor, cheap for a new geometry** (`core/throwplan`, docs/notes/throw.md
+    "The floor"): a line whose drag-free speed is already past the swing's top speed is
+    unfit with no carry, the top speed is kept for its tune, and a line that fits keeps its
+    carry. A kept drive raised to a new floor costs 0.025 to 0.09 ms in desktop Lua (worst
+    0.16; it was 0.47 at 2 to 5 m), a default plan under the knee 0.005 to 0.008 ms (0.017
+    to 0.019). Floors over 1 to 8 m move by under 1e-7 degrees but at one geometry where the
+    carry speed steps (a kubb 2.21 m away, 7e-4 degrees). Hash-neutral on its own: `make
+    golden-check` passed on that commit, and `tests/fixtures/cpu/choose.txt` holds.
+  - **pairRoll from the first step** (docs/notes/physics.md "A baton rocking in a groove"):
+    `pairRollAfter` is gone and the push the lever works on is capped at the baton's weight
+    in the step. The Gym against 0.18.0 moved nothing past its noise (6 of 612 figures past
+    99%).
+  - **The seat** (docs/notes/physics.md "The seat"; the owner, 2026-11-22: "yes turn on the
+    kubbs too stable"): a kubb standing plumb leans up to its surface's `seat` (grass 2,
+    sand 3, snow 1.5 degrees, the grid 0; estimates), seeded from where it stands, the same
+    in either side's view. The session draws the pose the throw's world builds, a settle
+    leaves a seated kubb alone, and each `setup.settled` entry carries the `seat` it will
+    stand at. Off against on (300 matches a configuration): a touch at 3 m/s or more that
+    left the kubb unmoved, the computer at beginner 7.4 to 4.8%, at club 2.4 to 1.5; took
+    two and three or more barely move.
+  - **A piece propped on another comes to rest** (docs/notes/physics.md): three contact
+    faults (`cornersInto`'s corner beside a box read as inside it; `capsuleBox` dropping a
+    pair when its projection stopped just over the margin, and dropping a deeper stretch
+    end near the projected point) held seven throws open to the 12 s limit in seeds 1 to 8
+    of the Gym's quick gate with the seat on; none now.
+  - **Golden hashes** (`make golden`: 21 matches, 880 actions, from 854). Every match moves.
+    pairRoll alone moves all 21 (first at actions 1 to 10) with no winner, turn count or
+    action count changed; on top of it the seat moves every match with kubbs on grass, sand
+    or snow at its first action (a kubb stands leaning from the first throw), and m16
+    (the grid, no seat) moves at action 4 as pairRoll and the contacts have it. Against
+    0.18.0: three winners change (m10 B to A, seven turns where it was five; m18, Kid, A to
+    B, four turns where it was three; m19, Kid, A to B, seven where it was eight), and
+    eleven matches change their action count (m10 33 to 47, m18 16 to 26, m19 61 to 50, m21
+    60 to 69, the others by one to four). The start hashes are as they were (the version
+    is not in a snapshot). The pinned neighbours hash moves (`33173648`).
+  - **The Gym against 0.18.0** (`gym compare v0.18.0 HEAD --full`, 300 matches a
+    configuration): 49 figures past 99%, most of them the touches the seat was for (a
+    touch at 3 m/s or more that left the kubb unmoved: the computer at beginner 7.4 to
+    4.0%, club 2.4 to 1.2, pro 2.5 to 1.4, the person 2.5, 4.5, 2.6 to 1.1, 1.0, 1.2; the
+    kubb did not move, beginner 2.8 to 1.3). Took two or more at club 13.4 to 14.4%, three
+    or more 2.3 to 2.7; the person at club's illegal batons 1.0 to 0.2% (most likely
+    own-half touches the propped contacts no longer make) and their throws that gained
+    energy 5.0 to 2.0%.
+  - **For clients**: sync `v1.0.0`; drop the `engineFor` workaround; nothing else must
+    change. docs/CLIENTS.md "1.0 on top".
 - **0.18.0** (minor). The computer's drive (`field.drive`, docs/reference/plays/field.md),
   switched on at club and pro as "How a play gets in" asks, the computer's king shot by
   level, the baton's blow, a match's length, and a cheap drive floor.
