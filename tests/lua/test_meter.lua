@@ -226,11 +226,8 @@ test("meter: the recorded hand fells a lone kubb about as the reference's club r
 	local model = human.load(here .. "/../../tools/gym/human-model.json")
 	local p = human.part(model, "club", "baton")
 	-- tools/meterprobe.lua's TARGETS for the recorded hand (x1), at 200 throws a range:
-	-- within 8 points (twice the 4 the meter is tuned to, for the smaller sample). 4 m is
-	-- 62 from 0.17.0: the default there is a 10.3 m/s drive, which holds a full swing's
-	-- power bar (plan.meters powerSpeed); in matches the field batons' misses stay inside
-	-- club's row (docs/notes/gym.md "The computer's drive")
-	for _, c in ipairs { { 4, 62 }, { 6, 48 }, { 8, 27 } } do
+	-- within 8 points (twice the 4 the meter is tuned to, for the smaller sample)
+	for _, c in ipairs { { 4, 72 }, { 6, 48 }, { 8, 27 } } do
 		local d = c[1]
 		local sol = personSol(d)
 		local r, nr, yr = plan.rng(500 + d * 13), plan.rng(900 + d * 7), plan.rng(77 + d)

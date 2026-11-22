@@ -263,12 +263,10 @@ plan.meters = {
 		-- 74% of the time against the club computer's 56%; on these, 62% (docs/notes/throw.md
 		-- "The person's meter", the thrown kubb)
 		kubbPower = 1, kubbRelease = 1,
-		-- (0.17.0) the power bar of a hard throw: a baton's planned speed and the distance
-		-- (m) a throw on the line before needs it at, pairs of (speed m/s, distance m): a
-		-- drive at 3 m on 10 m/s holds about 7 m's bar, as a full swing does. The recorded
-		-- swings (gym fit, 273 batons on 0.2 to 0.7) missed a plan of 125 degrees or more
-		-- by a median 7.6 degrees of backswing against 4.2 to 4.4 under it
-		powerSpeed = { 5.49, 2, 7.07, 3, 8.14, 4, 8.90, 5, 9.47, 6, 10.33, 8 },
+		-- (built in 0.17.0, not shipped) powerSpeed = { speed m/s, distance m, ... }: a baton's
+		-- power bar held to the bar of the distance a throw on the line before needs its
+		-- planned speed at, when that is farther (plan.meterLevel). Measured and left off:
+		-- docs/notes/throw.md "A hard throw's power bar"
 		inGain = 0.1, pullPerDeg = 0.15, shakeIn = 0.1, shakeGain = 0.75, overGain = 0.75,
 		nervesDeg = 0.12, nervesLen = 0.008, tumbleTurns = 0.50, tumbleSd = 0.015,
 		drillScatter = 0.35, scatterGain = 3, roughGain = 6, roughMax = 2,
