@@ -84,7 +84,7 @@ own draw.
 | `namegen.step(kind, parts, i, d)` | The next word in slot `i` (d = 1 or -1) that fits: a slot picker, a crank.                                          |
 | `namegen.parse(kind, text)`       | The parts, or nil when the text is not a name of that kind. Exact: one space, the words' own capitals.              |
 | `namegen.valid(kind, text)`       | `parse(...) ~= nil`: the check.                                                                                    |
-| `namegen.make(kind, parts)`       | The text for parts, or nil and why (`kind`, `shape`, `word`, `long`).                                              |
+| `namegen.make(kind, parts)`       | The text for parts, or nil and why (`kind`, `shape`, `word`, `long`, `never`, `repeat`).                                             |
 | `namegen.all(kind)`               | Every name, sorted: for tools and tests, not for a Playdate at play.                                               |
 
 The web and the iPhone reach these through the session's door (docs/SESSION.md "Names"):
