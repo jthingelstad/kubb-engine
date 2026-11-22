@@ -30,6 +30,7 @@ frame is the throwing side's (the defending side's for raising and punishment).
 | `session/check.lua`   | `tw.web.check`: a shared match's throws checked: the computer's made again, a person's held to the dial.           |
 | `session/wide.lua`    | `tw.web.wide`: the wide view, one camera for the whole pitch.                                                      |
 | `session/names.lua`   | `tw.web.names`: generated names, `kubbCall("names.<name>")` (below, "Names"; docs/NAMES.md).                       |
+| `session/neighbours.lua` | `tw.web.neighbours`: the Tournament's neighbouring pitches, `kubbCall("neighbours.<name>")` (below, "Neighbours"; since 0.15.1). |
 | `session/json.lua`    | `tw.web.json`: deterministic JSON (sorted keys, shortest round-trip floats, integers kept apart from floats).      |
 | `pitch/`              | The pitch's calls, `kubbCall("pitch.<name>")` (`room.` before 0.13): a shared pitch's document, who acts (docs/PITCH.md). |
 | `tune/pointer.lua`    | `tw.tune.pointer`: a pointer's values for the core's tune tables, and the session's dial and throw tables.         |
@@ -583,6 +584,132 @@ restore {"snap": "<that snapshot>", "names": "check"}
   -> {"error":"restore: names not allowed: save.game.teams.A.name, save.game.teams.A.players[0].name, ..."}
 ```
 
+### Neighbours
+
+Since 0.15.1: computer-against-computer matches on the pitches around the player's, as
+live scenery for the Tournament scene (docs/notes/tournament.md),
+`kubbCall("neighbours.<name>", argsJson)`, dispatched like `names.<name>`. They need no
+`useTune`, `new` or match, and they never touch the session: run them in a Lua state of
+their own (a worker running a second engine on the web, a second `lua_State` on the
+iPhone), loaded from the same bundle. One set of neighbours per Lua state. A wrong argument
+is `{"error": "neighbours.<call>: ..."}` as for every call.
+
+Each pitch plays whole matches as `tools/physmatch.lua` does: core/match, the computer on
+both sides (core/autothrow at each team's level), every throw simulated to rest. The work
+runs in slices, so `advance` keeps to the budget it is given. What a pitch shows, and when,
+comes from the seed and the clock passed to `advance`, never from the slicing: two hosts
+that open the same seed and advance on the same clock get the same events, byte for byte
+(on the reference platform; docs/DETERMINISM.md).
+
+**The pitch frame.** Everything a neighbour gives is in its own pitch's frame, Team A's
+(core/frame's world frame): Team A's baseline at y = 0, Team B's at y = 8, x across,
+metres. `offset` places that frame's origin in the player's pitch's world frame; neighbours
+stand parallel to the player's pitch, facing the same way. The session's own items are in
+the thrower's view frame, so while the player's pitch is drawn in Team B's frame turn the
+whole neighbour field with it: a point `(ox + x, oy + y)` is drawn at
+`(-(ox + x), 8 - (oy + y))` and an orientation is half turned about z
+(`frame.quat("B", ...)`); one parent node turned 180 degrees about the player's pitch
+centre (0, 4) does it for everything.
+
+| Call | Arguments | Returns |
+| --- | --- | --- |
+| `neighbours.open` | `{ seed, count, scene, surface, set, level \| levels, layout, spacing, thin, now }`, all optional | `{ pitches: [pitch], seed, count, scene, surface, set, frameDt, poseScale, stakes: [{ x, y }], stakeHeight, now }` |
+| `neighbours.advance` | `{ now, budgetMs }` or `{ now, steps }` | `{ now, events: [event], used: { ms } \| { steps }, late }` |
+| `neighbours.view` | `{ id }`, or `{}` for every pitch | a pitch as it stands now (below), or `{ now, pitches: [...] }` |
+| `neighbours.close` | `{}` | `{}` |
+
+`open`:
+
+- `seed`: a whole number (default 1). Every draw (teams, levels, sizes, who throws first,
+  the computer's throws, the pace) comes from it, each pitch and match its own stream
+  (the session's seed mix, "Determinism" below). The match's own seed is a good
+  one when two phones in a shared Tournament match should show the same tournament.
+- `count`: 1 to 24 pitches (default 8). `layout`: `"grid"` (default: the ring of 8 round
+  the player's pitch in a 3 x 3 grid, then the ring of 16 in a 5 x 5; beside first, then
+  ahead and behind, then the corners) or `"row"` (a row either side, for a phone held
+  sideways: -1, +1, -2, +2, ... pitches across). `spacing`: `{ x, y }` between pitch
+  origins, default `{ x: 8, y: 12 }` (5 m pitches 3 m apart; 8 m pitches 4 m apart);
+  at least 5.5 and 8.5.
+- `scene`, `surface`, `set`: as for `new` since 0.14: the scene (default `"tournament"`)
+  decides, holding the surface and the set to those it allows (Tournament: grass and
+  `usa`). Any scene works. A pitch's surface is the scene's; the set is for drawing only.
+- `level`: `"beginner"`, `"club"` or `"pro"` for every team; or `levels`: weights to draw
+  each team's level from, default `{ beginner: 3, club: 5, pro: 2 }`. Kid is refused: a
+  neighbour plays the standard rules.
+- `thin`: 1, 2 or 3 (default 2): a recording's poses every `thin / 50` s (`frameDt`).
+- `now`: the host's clock at opening, seconds (default 0). Each pitch's first throw comes
+  1 to 20 s after it, so the pitches do not start together.
+
+A **pitch** (from `open`, `view`): `{ id, offset: { x, y }, teams, phase, at, items }`,
+and while a throw plays `recording`, `side`, `kind`, `from` as in its event. `id` is 1 to
+`count`. `teams`: `{ A: { name, level, players }, B: ... }`, `name` a generated team name
+(core/namegen, the engine's content policy), `players` 3 to 6. `items`: the pitch at rest,
+`[{ id, kind, team, x, y, z, qw, qx, qy, qz, toppled }]` as the session's items, rounded to
+the millimetre, without the stakes (`open` gives the six once: the same on every pitch,
+`stakeHeight` tall). `phase` and `at`: the last beat shown (below), or `"rest"` once a
+throw's recording has played out.
+
+`advance { now, budgetMs | steps }` runs the neighbours forward, once a frame:
+
+- `now`: the host's clock, seconds, never going back. It paces everything: pass the match
+  clock that stops when the game pauses, and the neighbours pause with it. A jump of more
+  than 30 s between two calls (the app was asleep) moves every pitch's schedule on by the
+  jump, so they pick up where they were instead of racing through what they missed.
+- `budgetMs`: the most the call may spend, by the host's clock: the host defines a global
+  function `__kubbClock()` in the Lua state, returning milliseconds (`performance.now` on
+  the web, a monotonic clock on the iPhone), as it defines `__kubbSource`. Without it
+  `budgetMs` is refused. The work is cut before every physics step, every decision of the
+  computer's (its choice, each raise, each spot of a crowded raise's search), every body
+  of a recording and its encoding; a unit starts only if 1.5 times its recent cost is left,
+  and the time the answer takes to encode is held back from the budget. The first unit of
+  a call always runs, so any budget makes progress.
+- `steps`: a count of work in physics steps instead (a choice counts 6, a set-up 5, a
+  raise 6, a recording's body 3): never passed, but not a time (a step costs 0.003 to
+  0.5 ms). For tests and hosts that count work.
+- `used`: what the call spent (`ms` by the host's clock, or `steps`). `late`: how many
+  pitches have a throw due that is not yet computed (0 unless the budget is far too small;
+  a late throw comes when it is ready, with the time it was due).
+
+An **event** is a beat on one pitch, in time order, each `{ id, phase, at }` (`at`: when
+it happens on the host's clock, at or before `now`) with:
+
+| phase | when | carries |
+| --- | --- | --- |
+| `throw` | a throw leaves the hand at `at` | `side` (`"A"` \| `"B"`), `kind` (`"baton"` \| `"kubb"`), `from: { x, y }` (where the thrower stands), `recording`, `down` (pieces toppled), `king` (true when it felled the king) |
+| `aim` | the next thrower steps up (2 s after the last throw came to rest) | `items` only when the pitch changed between throws (a throw put back, a piece settled) |
+| `walk` | the turn is over: batons and felled kubbs picked up, the teams change ends | `items`: the pitch for the next turn |
+| `raise` | the kubbs thrown in are raised (and a punishment kubb placed) | `items` |
+| `over` | the king is down (1 s after the throw came to rest) | `winner`, `how` |
+| `setup` | the next match sets out, 40 to 60 s later | `items` (a fresh pitch), `teams` (new teams) |
+
+A neighbour's **recording** is the session's recording cut to what a far pitch needs:
+
+```
+{ frameDt, frames, duration, poseScale,
+  projectile { id, kind },
+  bodies [{ id, kind, team, start, frames, poses, toppleT }] }
+```
+
+`bodies` holds only the bodies that moved; `poses` 7 integers a frame (`x y z qw qx qy qz`
+times `poseScale`, 1000), pose j at time `(start + j) * frameDt`, as in the session's
+recording. A body's track ends at its last pose that differs from the one before; after
+it the body stays there, before `start` it is where the pitch's items have it, and the
+thrown piece (not among the items) starts at frame 0. `frames` is the last frame anything
+moves and `duration = frames * frameDt`. `toppleT`: when a piece toppled (seconds from
+the release). There are no items, cameras, bursts, slow motion or ruling: the pitch's
+items are the last beat's, or the previous recording played to its end. Measured (club
+mostly, `thin` 2): 1.7 KB of JSON a throw on average, 4.6 KB at most; `thin` 1 3.1 KB,
+`thin` 3 1.2 KB. An `items` list is about 1.3 KB.
+
+What a client keeps for each pitch: its `items`; on an event with `items`, replace them;
+on a `throw`, play the recording from `items` (the moved bodies interpolated between their
+two poses around `t = now - at`, the quaternion's sign matched, as the iPhone's
+`Playback.pieces(at:)` and `playRecording` in `tests/node/neighbours.test.mjs` do) and at
+its end keep its last poses as the new `items`. That model equals `view`'s `items` after
+every call (the tests prove it). Draw between throws what the phase says: a thrower at
+`from` before the next throw, the teams walking on `walk`, kubbs being stood up on `raise`,
+a cheer on `over`, teams setting out on `setup`.
+
 ### Actions (a match among browsers)
 
 | Call                | Returns                                                 |
@@ -936,6 +1063,13 @@ the sequential random generators.
 - Names: `tests/lua/session/test_names.lua` (desktop) and `tests/node/names.test.mjs`
   (wasmoon) check the `names.*` calls, the same fingerprint of 300 seeds' names on both,
   and a JavaScript check built from `names.words` alone against `names.valid`.
+- Neighbours: `tests/lua/session/test_neighbours.lua` (desktop) and
+  `tests/node/neighbours.test.mjs` (wasmoon): opening, the first recordings and their
+  pace, a client's model from the events alone equal to `view` after every call, a match
+  ending and the next setting out, the budget, the same events from slices of any size
+  (a crowded raise searched in slices among them), and the player's session's snapshots
+  and recordings unchanged by neighbours run in the same Lua state. The wasmoon test pins
+  one seed's events by their hash.
 - `make golden-check`: the golden hashes, the gate for hash-neutral changes
   (docs/DETERMINISM.md).
 

@@ -148,7 +148,7 @@ iPhone app (the bundle: core, pitch, session and tune).
 
 `docs/notes/` holds the subsystem notes (rules engine, physics, physics fuzz, the
 reference engine, real games, headless games, the throw, the Kubb Gym, the computer
-player, scenes, Kid mode, and the Tournament's neighbouring pitches, a design). Read the note before changing
+player, scenes, Kid mode, and the Tournament's neighbouring pitches, built in 0.15.1). Read the note before changing
 the part it covers. `docs/SESSION.md` is the session's API, `docs/PITCH.md` the pitch's,
 `docs/VERSIONING.md` and `docs/DETERMINISM.md` the version rules and the reference
 platform, and `docs/CLIENTS.md` what each client (web, iPhone, Playdate) changes to move
