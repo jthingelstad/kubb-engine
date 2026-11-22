@@ -1103,6 +1103,44 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     (`tools/physdump.lua --games 2`): any step where a baton rests on another piece. The
     golden corpus moves from the first match's first action (a baton resting on a kubb
     after its throw), so `make golden`.
+- **A piece propped on another comes to rest** (1.0.0, 2026-11-22; the Gym gate with the seat
+  on, `unsettled: field: 1` at 15:101, human pro, seed 1). Three contact faults, each of
+  which kept a propped or edge-borne piece awake to `maxTime` (12 s) once some history
+  set it up; none is a creep under gravity (a real pair is held by friction, and here it
+  was: the bodies moved under 1 mm/s between the kicks):
+  - **A corner beside a box read as inside it** (`cornersInto`). A corner whose own
+    normal leans off the reference face takes the reference normal and its distance to
+    that face's plane; past the face's edge, beside the box, that distance is negative
+    while the corner is clear. b2, toppled and propped on a4, crept until one corner read
+    3.1 mm deep while it was 2.4 mm clear, and the push for it (`pushRate`) kicked the pair
+    to 0.4 rad/s, over `sleepAng`, every few tenths of a second. A corner outside the box
+    is now at most touching. From its state 10 s into the throw the pair rests in 0.26 s
+    (it ran to 12 s), b2 moving 0.3 mm (`tests/lua/test_proppedpair.lua`).
+  - **A projection that stops just over the margin** (`capsuleBox`, 20:332 of seed 1, human
+    club). The closest pair the segment-box projection finds is only that: a kubb lying
+    on a long edge against a sleeping baton read 2.19 mm at that point against a 2.18 mm
+    margin, while the stretch's end at the face's edge was 0.56 mm in. The miss returned
+    no contact at all, one step in four, and on that step the kubb was held by the ground
+    alone on an edge, which may not sleep (`boxFlat`): its timer reset. The stretch's ends
+    are now tried either way.
+  - **A stretch end within `CLIP_GAP` of the projected point** (22:400 of seed 5, human
+    pro): the end, 1.7 mm deeper than the projected point and carrying the kubb, was
+    dropped on the steps it fell inside `t - CLIP_GAP` and kept on the others. The two
+    are one contact, so the deeper is kept.
+  - **Measured.** The quick gate over seeds 1 to 8 (seat on): 7 unsettled throws without
+    these (15:101 of 1; two at cpu beginner of 2, the first 7:46; 19:185 of 5; 13:110 and 11:71 of 6; a drill at
+    4:171 of 7), none with them (the groove's 20:108 and 20:171 of seed 1 rest at 2.3
+    and 1.7 s). The Gym, these alone against the seat without them (300 matches a configuration, seed
+    1, grass): 21 figures past 99%, more than chance: the person at beginner's illegal
+    batons 0.9 -> 0.0% (0.18.0's 0.0: with the seat, a base kubb's phantom corner met the
+    thrower's own baton as an own-half hit), and the pro computer's first contact moves
+    (met with its lower end 71.4 -> 68.6%, with its middle 27.3 -> 30.0, a half turn
+    within 30 degrees 80.1 -> 78.2), the other rows within a few standard errors (a
+    group's spread at cpu beginner, the person's bottom contacts 4.1 to 4.5 -> 3.4 to
+    3.5%). Took two and three or more do not move. `make physfuzz N=2000 SEED=1`: energy
+    156 -> 153, penetration 127 -> 126, rest 1 both, finite 4 both, dt 36 -> 35, mirror
+    11 -> 10. `tools/physdump.lua --games 2`: the bench and match-case throws are
+    unchanged; game 1 moves from throw 9.
 - **A glance at a top corner** (2026-11-22, the owner's report of a kubb that stood after
   a fast hit; known, unfixed). The report's last throw replayed (`tools/reportprobe.lua`):
   the front kubb was struck on its top corner by a baton at 8.6 m/s coming down at 3.2 m/s,
