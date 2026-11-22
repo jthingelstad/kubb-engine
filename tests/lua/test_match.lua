@@ -14,6 +14,21 @@ import "core/gamefile"
 local frame, outcome, match, autothrow, world, notation =
 	tw.frame, tw.outcome, tw.match, tw.autothrow, tw.world, tw.notation
 
+-- A kubb's seat (world.seat, on from 1.0.0) leans a kubb set down plumb by up to its
+-- surface's seat. This test lobs from the baseline at x = 0, where base kubb a3 stands;
+-- a lean of a few degrees brings the base kubb into the launch and the rule calls an
+-- own-half hit, which is not what the test is about, so it runs with the seat off
+-- (seatOn 0, as before 1.0); the seat itself is tests/lua/test_seat.lua's.
+local function plumb(fn)
+	return function()
+		local saved = tw.world.tune.seatOn
+		tw.world.tune.seatOn = 0
+		local ok, err = pcall(fn)
+		tw.world.tune.seatOn = saved
+		if not ok then error(err, 0) end
+	end
+end
+
 local pi = math.pi
 
 -- A result where nothing moved: every piece's body where it started.
@@ -476,7 +491,7 @@ local function simulate(s, a)
 	return world.result(w)
 end
 
-test("physics: a lobbed kubb comes to rest in the far half", function()
+test("physics: a lobbed kubb comes to rest in the far half", plumb(function()
 	local m = match.new {}
 	local s = setup(m, "baton")
 	local r = still(s.pieces)
@@ -491,7 +506,7 @@ test("physics: a lobbed kubb comes to rest in the far half", function()
 	match.resolve(m, res, false)
 	expect.eq(m.text, "kubb in")
 	expect.eq(m.game.kubbs.b1.half, "A")
-end)
+end))
 
 test("physics: a scripted match runs to a winner and renders a game file", function()
 	local m = match.new { start = { year = 2026, month = 11, day = 20, hour = 9, min = 0 } }

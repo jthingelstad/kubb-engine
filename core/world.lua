@@ -330,7 +330,7 @@ end
 -- A kubb's seat (tune.seatOn, 1.0): the turf under a kubb is never quite level, so a
 -- kubb standing plumb (set down or raised: its pose a turn about the vertical alone)
 -- leans up to its surface's `seat` degrees in a direction of its own, seeded from where
--- it stands and its turn, the same each time a world is built there. It rests on the
+-- it stands, the same each time a world is built there, in either side's view. It rests on the
 -- edge it leans to; struck, it is the ordinary physics' (a nudge rocks it back plumb: the
 -- turf gave), and once it has moved it keeps the pose it came to rest in. The king, a
 -- baton and a kubb that is not plumb are as given. surface: a world.surfaces entry or
@@ -343,9 +343,15 @@ function world.seat(surface, kind, x, y, qw, qx, qy, qz)
 	if kind ~= "kubb" or qx ~= 0 or qy ~= 0 or world.tune.seatOn <= 0 or deg <= 0 then
 		return qw, qx, qy, qz, false
 	end
-	local h = world.seedFrom(x, y, qz)
+	-- the same kubb whichever side's view the world is built in (core/frame: side B's is
+	-- the half turn about the pitch's centre, -x, 8 - y): seeded from the point as side A
+	-- sees it, and the lean's direction turned with the frame
+	local len, flip = world.tune.pitchLength, false
+	if y < len / 2 or (y == len / 2 and x < 0) then x, y, flip = -x, len - y, true end
+	local h = world.seedFrom(x, y)
 	local lean = rad(deg) * ((h & 1023) / 1023)
 	local dir = 2 * math.pi * (((h >> 10) & 1023) / 1024)
+	if flip then dir = dir + math.pi end
 	local lw, lx, ly, lz = quat.fromAxisAngle(-sin(dir), cos(dir), 0, lean)
 	qw, qx, qy, qz = quat.mul(lw, lx, ly, lz, qw, qx, qy, qz)
 	return qw, qx, qy, qz, true

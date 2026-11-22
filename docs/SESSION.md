@@ -148,7 +148,11 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
   each entry says `frame: "world"`. A session restored from a snapshot after the raise
   hands out none (the kubbs already stand raised in its items); nothing of it is in a
   snapshot, an action or a hash. A raise the engine makes is shown from `setup.settled`:
-  never compare pieces before and after, or convert frames. Since 0.17.0 each entry also
+  never compare pieces before and after, or convert frames. Since 1.0 each entry also has
+  `seat` `{ qw, qx, qy, qz }`, the orientation the kubb stands at in the next throw's world
+  (its seat in the turf, up to 3 degrees off plumb; absent when it stands plumb, as on the
+  grid), in the same frame as its poses: end a watched raise there and the kubb does not
+  step when the throw begins. Since 0.17.0 each entry also
   carries its surroundings as they stood while it was done, what a raise or punishment
   kubb by hand is shown with: `others` `[{ id, pose }]` (every other piece on the pitch,
   as `raiseInfo`'s `others`; for a punishment kubb only those near its half, as
