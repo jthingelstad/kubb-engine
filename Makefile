@@ -146,11 +146,21 @@ mjref:
 	"$(MJPY)" tools/mjref/mjsim.py $(MJREF)
 	"$(MJPY)" tools/mjref/compare.py $(MJREF)
 
-# Refresh the vendored notation parser and scorer from a pk-kubb-score checkout,
-# then show what changed. Review, run `make test` and `make games`, commit.
+# Refresh the vendored notation parser, canonical writer and reader from a release
+# of pk-kubb-score: the files as they are at tag PKTAG (default: the checkout's latest
+# tag), whatever its working tree holds, and SOURCE records the tag and its commit.
+# Then show what changed. Review, run `make test` and `make games`, commit.
+PKTAG ?= $(shell git -C "$(PKSCORE)" describe --tags --abbrev=0 2>/dev/null)
+PKVENDOR := tests/vendor/pk-kubb-score
+
 sync-notation:
-	cp "$(PKSCORE)/site/assets/notation-parser.js" "$(PKSCORE)/site/assets/kubb.js" tests/vendor/pk-kubb-score/
-	git --no-pager diff --stat -- tests/vendor/pk-kubb-score
+	@test -n "$(PKTAG)" || { echo "sync-notation: no release tag in $(PKSCORE) (set PKTAG)"; exit 1; }
+	git -C "$(PKSCORE)" show "$(PKTAG):site/assets/notation-parser.js" > $(PKVENDOR)/notation-parser.js
+	git -C "$(PKSCORE)" show "$(PKTAG):site/assets/canonical.js" > $(PKVENDOR)/canonical.js
+	git -C "$(PKSCORE)" show "$(PKTAG):site/assets/kubb.js" > $(PKVENDOR)/kubb.js
+	echo "$(PKTAG)" > $(PKVENDOR)/SOURCE
+	git -C "$(PKSCORE)" rev-parse "$(PKTAG)^{commit}" >> $(PKVENDOR)/SOURCE
+	git --no-pager diff --stat -- $(PKVENDOR)
 
 clean:
 	rm -rf build

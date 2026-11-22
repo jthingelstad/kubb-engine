@@ -16,7 +16,15 @@ another player (`changeThrower`, `changeInkaster`, from a generator of their own
 throws are the same without them), and every sheet is checked with `order.checkSheet`.
 `tests/fixtures/games/` holds thirteen generated games (a six-a-side and a two against
 four among them), the two hand-written ones and one physics match with positions
-(`tools/physmatch.lua --n 40 --seed 2`, six against two); `make test` gates them. The thrower sometimes aims at a kubb
+(`tools/physmatch.lua --n 40 --seed 2`, six against two); `make test` gates them. They were
+written in notation 1 and rewritten once in Notation 2's canonical form when the writer
+moved to it, their `(@ x,y)` positions turned into position lines by the same rules the
+writer uses (`notation.positionLines`); `tests/fixtures/legacy/` keeps the physics match
+as it was written, for `core/gamefile`'s reading of files older clients wrote.
+`tools/games.lua` and `tools/physmatch.lua` write each game's `<name>.places.json` beside
+it (`tools/sheetplaces.lua`: the places the score sheet kept, in the engine's frame), and
+the gate reads the file's position lines back against them ("The round trip" in
+`tests/node/notation-gate.mjs`). The thrower sometimes aims at a kubb
 of this turn lying out near the target half and knocks it toward the middle (`chaseOut`),
 so games have kubbs knocked in before the round is judged; `make games` prints
 `knockedIn`/`knockedOut` and the sheets' `R`, `P`, `Q`, `N` counts.

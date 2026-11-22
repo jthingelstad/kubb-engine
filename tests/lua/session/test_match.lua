@@ -206,7 +206,7 @@ test("the computer against itself runs to a winner with nobody acting", function
 	expect.truthy(n.file.text:find("North") and n.file.text:find("South"), "the game file")
 end)
 
-test("the score sheet so far: header and turns, each line also without positions", function()
+test("the score sheet so far: header and turns, and shown without the position lines", function()
 	local s = session.new { mode = "match", cpu = "both", seed = 7, teams = teams(1, 1), start = START,
 		maxTurns = 40 }
 	expect.truthy(s:sheet().text:find('%[Team A "North"%]'), "before a throw: the header")
@@ -216,16 +216,16 @@ test("the score sheet so far: header and turns, each line also without positions
 		cpuThrow(s)
 		local sh = s:sheet()
 		expect.eq(sh.done, false)
+		-- shown is the text's lines without its position lines, in order
 		local lines = {}
-		for line in sh.text:gmatch("([^\n]*)\n") do lines[#lines + 1] = line end
-		expect.eq(#sh.shown, #lines)
-		for i, line in ipairs(lines) do
-			expect.truthy(not sh.shown[i]:find("(@", 1, true), "shown without positions")
-			if line:find("(@", 1, true) then positions = true end
+		for line in sh.text:gmatch("([^\n]*)\n") do
+			if line:match("^[@~%^*][ab] ") then positions = true else lines[#lines + 1] = line end
 		end
+		expect.eq(#sh.shown, #lines)
+		for i, line in ipairs(lines) do expect.eq(sh.shown[i], line) end
 		if positions then break end
 	end
-	expect.truthy(positions, "a kubb fell, so the file has positions")
+	expect.truthy(positions, "a kubb fell, so the file has position lines")
 	expect.eq(s:sheet().name, "2026-11-15-1000-north-v-south.txt")
 	local practice = session.new { mode = "practice" }
 	expect.eq(practice:sheet(), nil)

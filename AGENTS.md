@@ -87,11 +87,20 @@ iPhone app (the bundle: core, pitch, session and tune).
 - `tests/node/session.test.mjs` runs the session under wasmoon (pinned to 1.16.0, the
   version the web ships) from the bundle; `tests/golden/` holds the golden driver and
   corpus.
-- Notation gate: every game file the engine writes must pass the pk-kubb-score grammar
-  with zero warnings, and `kubb.js` must find the same winner (`make games`).
-- `tests/vendor/pk-kubb-score/` holds copies of pk-kubb-score's parser and scorer. Never
-  edit them; `make sync-notation` refreshes them from a pk-kubb-score checkout, which is
-  read only.
+- The game file is Planet Kubb Notation 2 in its canonical form (pk-kubb-score's
+  `docs/notation-2.md`); pk-kubb-score owns the notation and its grammar, the engine its
+  writer (`core/notation`), the rules and its statistics. Positions are converted to the
+  notation's frame in one place, `notation.toPitch` (docs/notes/rules-engine.md
+  "Positions").
+- Notation gate: every game file the engine writes must pass the pk-kubb-score grammar's
+  canonical form, be unchanged by its canonical writer, give zero `kubb.js` warnings and
+  the same winner, and its position lines must read back as the places the score sheet
+  kept (`make games`; tools write those beside each game as `<name>.places.json`).
+- `tests/vendor/pk-kubb-score/` holds copies of a tagged pk-kubb-score release's parser,
+  canonical writer and reader (`SOURCE` names the tag and commit). Never edit them; `make
+  sync-notation` refreshes them from a pk-kubb-score checkout (read only) at its latest
+  tag, or `PKTAG=`. Something the engine needs that the notation lacks is raised there,
+  never worked around here.
 - Generated names (docs/NAMES.md): `core/namewords` is the content policy for every
   player and team name. A change to a word list needs `make names`, and a person reads
   the new names in the diff before it merges; a near miss goes into
