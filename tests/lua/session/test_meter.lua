@@ -54,7 +54,11 @@ test("the bars narrow as the aim moves out, and the view carries them", function
 		local w = p.powerHi - p.powerLo
 		expect.eq(p.powerLo, s.ts.sol.powerLo); expect.eq(p.releaseHi, s.ts.sol.releaseHi)
 		if last then
-			expect.truthy(w < last.w and p.releaseHi - p.releaseLo < last.r, "narrower at " .. y .. " m")
+			-- (0.17.0: the power bar is also held by the throw's speed, plan.meters powerSpeed,
+			-- so only the release bar narrows with the distance alone; the power bar is never
+			-- wider than the distance's)
+			expect.truthy(p.releaseHi - p.releaseLo < last.r, "narrower at " .. y .. " m")
+			expect.truthy(w <= 2 * plan.meterLevel(plan.meter(), s.ts.sol.dist, "baton").powerHalf + 1e-12, "power within the distance's")
 		end
 		last = { w = w, r = p.releaseHi - p.releaseLo }
 	end

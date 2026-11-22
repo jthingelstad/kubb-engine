@@ -208,6 +208,10 @@ export function printFit({ model, report }) {
   l.push(`  nerves draws (a standard normal if the engine's nerves are what people show): side mean ${f2(n.side.mean)} sd ${n.side.sd.toFixed(2)};`
     + ` length mean ${f2(n.length.mean)} sd ${n.length.sd.toFixed(2)}; tumble mean ${f2(n.tumble.mean)} sd ${n.tumble.sd.toFixed(2)}`);
   l.push(`  correlations of the parts (the model draws each on its own): ${Object.entries(report.correlations).map(([k, v]) => `${k} ${v}`).join(', ')}`);
+  if (report.byBack) {
+    l.push(`  a baton's misses by the backswing its plan asked for (median absolute; correlation of |back miss| with the plan's backswing ${report.backMissByBack}): `
+      + Object.entries(report.byBack).map(([k, v]) => `${k}: n ${v.n}, back ${v.backMiss}, release ${v.releaseMiss}, shake ${v.shake}`).join('; '));
+  }
   for (const [lv, p] of Object.entries(model.levels)) {
     for (const proj of ['baton', 'drill']) {
       const q = p[proj];
