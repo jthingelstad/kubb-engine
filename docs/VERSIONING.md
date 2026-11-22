@@ -101,10 +101,10 @@ Every client shows its own version with the engine's beside it, in one form:
   should be playing based on their capabilities."; docs/notes/throw.md "The person's
   meter"). On 0.12 a person's perfect swing at a lone kubb 8 m away felled it 13%, 38% or
   63% of the time by the level picked, because the level's nerves were drawn on the
-  person's throw and the level set the person's bars. The meter is calibrated to the
-  reference's rows (docs/reference/PLAY.md): the recorded people throw like club players
-  (about 27% from 8 m), a newcomer like beginners, a master like pros. The beginner
-  computer misses more, toward beginner's rows; club and pro throw exactly as in 0.12.0.
+  person's throw and the level set the person's bars. The meter is set to the reference's
+  rows (docs/reference/PLAY.md): the recorded people throw like club players (about 27%
+  from 8 m), a newcomer like beginners, a master like pros. The beginner and club
+  computers move toward their rows; pro throws exactly as in 0.12.0.
 
   What a player sees:
   - **One meter for everyone.** The level a player, a thrower or `setLevel` names no
@@ -114,38 +114,47 @@ Every client shows its own version with the engine's beside it, in one form:
   - **A degree is a degree.** Past the power bar the backswing counts one for one at every
     range, so the same backswing carries the same distance whatever the target.
   - **The release sets the line.** A release past its bar pulls a baton off the line,
-    0.15 degrees a degree: late (HIGH) to the left, early (LOW) to the right. Inside the
-    bar, none. The verdict says so: HIGH or LOW with PULLED LEFT or RIGHT.
+    0.15 degrees a degree: a late release (HIGH) pulls left, an early one (LOW) pulls
+    right; inside the bar, none. The verdict says so: HIGH with PULLED LEFT, LOW with
+    PULLED RIGHT.
   - **An honest meter.** A steady swing inside both bars goes where it was aimed (a
     perfect swing fells a lone kubb at 4, 6 and 8 m every time; steady swings anywhere
-    inside both bars 99 to 100%) and never comes back PULLED; outside a bar a miss reads
-    SHORT, LONG, LOW, HIGH or SHAKY.
+    inside both bars 99 to 100%) and never comes back PULLED; every miss reads SHORT,
+    LONG, LOW, HIGH, SHAKY or PULLED.
   - **A person's kubb** keeps a clean hand (pro's) inside both bars and steady, and
     scatters with the shake and with how far past a bar the swing went.
-  - **The beginner computer** misses about 43% of its field batons and clears about half
-    its fields (it was 33% and 88%, better than beginner play): a newcomer wins about 52
-    games in 100 against it (was 3). A typical player wins about 60 against club.
+  - **The beginner computer** (swing scale 1.6 to 2.2) misses 43% of its field batons and
+    clears about half its fields (it missed 33% and cleared 88%, better than beginner
+    play); a newcomer wins about 52 games in 100 against it (was 3).
+  - **The club computer** (`nervesDeg` 0.8 to 0.5) fells 25% of base kubbs from 8 m (was
+    19.5%, the bottom of club's 19 to 27); a typical player wins about 49 in 100 against it
+    (about 60 at 0.8). Its field game is as before.
 
   How: `plan.meters`, `plan.meter`, `plan.meterLevel`; `plan.solve` takes `q.meter` and
   keeps the meter's table for the distance as the solution's `level`;
   `plan.releasePull`, `plan.shakeCounts`, `plan.unshake` and `plan.scatterFor`. The
   session plans a person's throw on `throw.meterFor(s)`, and `checkThrow` holds a person's
-  throw to the meter. `autothrow.tune.swingScale.beginner` 1.6 to 2.2. The Gym's human
-  thrower plans on the meter and takes a hand scale (`hand=` in a versus spec);
-  `tools/meterprobe.lua` measures the meter against the reference rows.
+  throw to the meter (and refuses any speed, of either sign, from a swing that counts as
+  no power). `autothrow.tune.swingScale.beginner` 2.2, `plan.levels.club.nervesDeg` 0.5.
+  The Gym's human thrower plans on the meter and takes a hand scale (`hand=` in a versus
+  spec); `tools/meterprobe.lua` measures the meter against the reference rows.
 
-  Golden corpus: m13 and m14 (a person's throws) move from 0.12.0 (m13 from its first
-  action, m14 from action 3) and m15 (the beginner computer both sides) from its first
-  action; the twelve club matches keep every hash. 15 matches, 582 action hashes.
-  `tests/fixtures/cpu/choose.txt` is rewritten: 62 of its 480 setups, every one thrown at
-  beginner; `choose-0.11.txt` still matches with the plays off and 0.12's beginner.
+  Golden corpus: every match moves (the club computer plays all of them): 15 matches,
+  579 action hashes. `tests/fixtures/cpu/choose.txt` is rewritten: 288 of its 480 setups
+  (every one thrown at beginner or club); `choose-0.11.txt` still matches with the plays
+  off and 0.12's beginner and club.
 
-  For clients: sync the tag. A person's level picker has no effect on their throw any more
-  and can go (the fields are still taken and kept, so nothing breaks if it stays). The
-  computer's level picker stays and means what it did; its beginner is weaker. The bands
-  are the aim view's `plan.powerLo..powerHi` and `releaseLo..releaseHi` as before; they now
-  change with the throw's distance, so draw them from every view, not once a throw. Web
-  and iPhone must both be on 0.13 to share a match.
+  For clients: sync the tag.
+  - A person's level picker has no effect on their throw and can go (the fields are still
+    taken and kept, so nothing breaks if it stays). The computer's level picker stays.
+  - The bars change with the throw's distance: the aim view's `plan.powerLo..powerHi` and
+    `releaseLo..releaseHi` are the bars for the plan as it is, so redraw them whenever the
+    plan changes (the circle or the stance moved), not once a throw.
+  - A release past its bar now comes back PULLED LEFT or RIGHT as well as HIGH or LOW
+    (the verdicts' side cell); show it as you show the others.
+  - `checkThrow` on a person's throw checks it against the meter: a throw that fits lists
+    every level and `atLevel` is true.
+  - Web and iPhone must both be on 0.13 to share a match.
 
 - **0.12.0** (minor). The defender's raising goes by who defends (raise.par, Q7;
   Jamie's decision of 2026-11-21), and the pro computer attacks with two new plays, so

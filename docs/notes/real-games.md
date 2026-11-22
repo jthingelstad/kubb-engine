@@ -321,10 +321,11 @@ range. Now one model in `core/throwplan` serves both throwers.
   | Level | nervesDeg | nervesLen |
   |---|---|---|
   | beginner | 1.6 | 6% |
-  | club | 0.8 | 3% |
+  | club | 0.8 (0.5 from 0.13.0) | 3% |
   | pro | 0.5 | 2% |
 
-  Each is 1 sd for a baton reaching 8 m.
+  Each is 1 sd for a baton reaching 8 m. From 0.13.0 these are the computer's only; a
+  person throws on the person's meter (docs/notes/throw.md "The person's meter").
 - **Where the draws come from.** `opts.nerves` can be:
   - nil or false: none. This is the default, so every caller and test that does not ask
     gets the plan's clean throw.
