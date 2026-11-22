@@ -443,6 +443,8 @@ test("names.check: a replay (setup or start, snap, players, log) and replayLoad'
 	local bad = copy(r.setup)
 	bad.teams.A.name = "Big Fan"
 	expect.truthy(refused("replayLoad", { setup = bad, h0 = r.h0, log = r.log, names = "check" }))
+	-- and the refusal left the replay already loaded where it was: it still steps
+	expect.truthy(call("replayStep").replay, "the honest replay is still loaded after a refused one")
 	expect.truthy(call("replayLoad", { setup = bad, log = r.log }).replay, "without it, loaded")
 	call("replayEnd")
 end)
