@@ -28,7 +28,7 @@ rates differ, never why. The real games are pro play; `tools/physmatch.lua --lev
   club and beginner out-threw pro (150 matches seed 2, beginner / club / pro: the king
   97 / 97 / 83%, field kubbs missed 31 / 18 / 25%). Now `autothrow.cpuLevel(name)` throws
   on pro's gauge at every level with that level's nerves and `tumbleSd`, and the swing's
-  mistakes are multiplied by `autothrow.tune.swingScale` (beginner 1.6, club 1.3, pro 1; beginner 2.15 from 0.13.0).
+  mistakes are multiplied by `autothrow.tune.swingScale` (beginner 1.6, club 1.3, pro 1; beginner 2.2 from 0.13.0).
   Pro's throws are unchanged. `make realgames` per level (150 matches seed 2; real / beginner
   / club / pro): turns a game 8.9 / 25.2 / 20.5 / 17.8; a baton at field kubbs missed 24.7
   / 53.4 / 39.4 / 24.8%, took two 16.0 / 2.3 / 3.7 / 5.7%, three or more 10.0 / 0.1 / 0.1

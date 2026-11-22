@@ -574,56 +574,66 @@ raising; its case is now that it never loses, not that it wins by three games in
 
 ### The person's meter (2026-11-21)
 
-Engine 0.13.0: every person throws on one meter, the bars by distance and nothing by level
-(docs/notes/throw.md "The person's meter"), calibrated so the three hands fell a lone kubb
-as the reference's three rows say. The human thrower at club (the model's club parts, most
-of the recorded swings) with its misses times `hand` (`human.scale`, `hand=` in a versus
-spec): 2 a newcomer, 1 the recorded people, 0.5 a master. Grass, 300 seeds each way round
-(600 games), turn limit 40; A's score is the paired interval.
+Engine 0.13.0: every person throws on one meter, the bars by distance and nothing by level,
+a degree past the power bar a degree at every range, and the release past its bar pulling
+the line (docs/notes/throw.md "The person's meter"), calibrated so the three hands fell a
+lone kubb as the reference's three rows say. The human thrower at club (the model's club
+parts, most of the recorded swings) with its misses times `hand` (`human.scale`, `hand=` in
+a versus spec): 2 a newcomer, 1 the recorded people, 0.5 a master. Grass, 300 seeds each
+way round (600 games), turn limit 40; A's score is the paired interval.
 
 | A (a person) | B (computer) | seed 1: won A / B / limit, A's score | seed 2 | target |
 |---|---|---|---|---|
-| newcomer | beginner | 274 / 241 / 85, 52.8 (48.9 to 56.6) | 312 / 214 / 74, 58.2 (54.6 to 61.7) | 50 to 60 |
-| recorded | beginner | 545 / 55 / 0, 90.8 (88.4 to 93.3) | 543 / 57 / 0, 90.5 (88.2 to 92.8) | |
-| recorded | club | 290 / 300 / 10, 49.2 (45.4 to 53.0) | 292 / 299 / 9, 49.4 (45.3 to 53.6) | 40 to 50 |
-| recorded | pro | 15 / 585 / 0, 2.5 (1.2 to 3.8) | 11 / 589 / 0, 1.8 (0.8 to 2.9) | hard |
-| master | club | 583 / 17 / 0, 97.2 (95.8 to 98.6) | 582 / 18 / 0, 97.0 (95.6 to 98.4) | |
-| master | pro | 291 / 308 / 1, 48.6 (44.6 to 52.6) | 285 / 314 / 1, 47.6 (43.7 to 51.5) | |
-
-On the first calibration of the meter (the recorded hand at about 40% from 8 m, pro's row)
-the recorded hand won 82 to 83 against club and 98 against beginner; on 0.12.0 (the person
-on club's gauge and nerves) 15.7 against club.
+| newcomer | beginner | 262 / 244 / 94, 51.5 (47.8 to 55.2) | 274 / 231 / 95, 53.6 (50.0 to 57.1) | 50 to 60 |
+| recorded | beginner | 598 / 2 / 0, 99.7 (99.2 to 100) | 597 / 3 / 0, 99.5 (98.9 to 100) | |
+| recorded | club | 339 / 253 / 8, 57.2 (53.2 to 61.2) | 369 / 220 / 11, 62.4 (58.5 to 66.3) | 40 to 50 |
+| recorded | pro | 18 / 582 / 0, 3.0 (1.7 to 4.3) | 19 / 581 / 0, 3.2 (1.8 to 4.5) | hard |
+| master | club | 600 / 0 / 0, 100 | 598 / 2 / 0, 99.7 (99.2 to 100) | |
+| master | pro | 308 / 290 / 2, 51.5 (47.5 to 55.5) | 331 / 269 / 0, 55.2 (51.2 to 59.1) | |
 
 Each hand's own rows (seed 1 and seed 2, against the computers it played) beside the
 reference row it should sit in:
 
 | hand | base kubb from 8 m | field batons that missed | turns cleared | kubbs rethrown | reference row |
 |---|---|---|---|---|---|
-| newcomer (vs beginner) | 10.7 to 10.8 | 61 to 62 | 44 to 47 | 24 to 25 | beginner: 7 to 13, 45 to 60, 35 to 55, 15 to 30 |
-| recorded (vs beginner, club, pro) | 25 to 26 | 30 to 36 | 61 to 66 (club, pro), 93 (beginner) | 7 to 9 | club: 19 to 27, 30 to 40, 68 to 80, 11 to 18 |
-| master (vs club, pro) | 53 to 54 | 12 to 13 | 68 to 70 (pro), 94 (club) | 0.4 to 0.5 | pro: 39 to 48, 12 to 19, 87 to 94, 8 to 17 |
+| newcomer (vs beginner) | 7.8 to 8.2 | 64 to 65 | 42 to 44 | 23 to 24 | beginner: 7 to 13, 45 to 60, 35 to 55, 15 to 30 |
+| recorded (vs beginner, club, pro) | 28.5 to 29.5 | 30 to 35 | 60 to 64 (club, pro), 94 (beginner) | 7 to 8 | club: 19 to 27, 30 to 40, 68 to 80, 11 to 18 |
+| master (vs club, pro) | 63 | 12 to 13 | 66 (pro), 95 to 96 (club) | 0.2 to 0.4 | pro: 39 to 48, 12 to 19, 87 to 94, 8 to 17 |
 
-- The newcomer sits in beginner's rows (field misses a point or two over), the recorded
-  people in club's 8 m and field rows, the master in pro's field row. The master throws
-  better than pro's row from 8 m (the meter puts the hand at 52% on a lone kubb against
-  about 45), and neither the recorded people nor the master rethrow as many kubbs as real
-  players do: the human thrower drills at the computer's spot with the computer's spin and
-  takes no risks, and pro's real rethrow rate is the reference's open question.
+- **The recorded people win more than the target against club** (57 and 62 in 100,
+  against 40 to 50). On a lone kubb they fell 27% from 8 m, on the club row, but in games
+  their base kubbs from 8 m fall 29%, two points over the row, while the club computer's
+  fall 19.5%, at its bottom. The field rows are close (31% missed against club's 27%).
+  The club computer was not changed in this work. Measured, not shipped:
+  `plan.levels.club.nervesDeg` 0.55 (from 0.8) puts the club computer at 24% from 8 m,
+  inside its row, and the recorded people at 52.6 (48.6 to 56.5), seed 1.
+- **The master throws far better than pro's row from 8 m** (63% against 39 to 48): most
+  of a master's releases stay inside the 8 m bar, so the pull rarely reaches it. Its field
+  row is pro's. The newcomer misses a few more field batons than beginner's row.
+- Neither the recorded people nor the master rethrow as many kubbs as real players do:
+  the human thrower drills at the computer's spot with the computer's spin and takes no
+  risks, and pro's real rethrow rate is the reference's open question.
 - Turns cleared depend on the field the other side leaves: against the beginner computer
-  the recorded people clear 93%, against club and pro 61 to 66, under club's 68 to 80.
-- Newcomer against beginner runs to the turn limit in 12 to 14% of games (both sides miss
-  most of their field), counted as halves.
+  the recorded people clear 94%, against club and pro 60 to 64, under club's 68 to 80.
+- Newcomer against beginner runs to the turn limit in 16% of games (both sides miss most
+  of their field), counted as halves.
+
+On a first calibration that counted a degree past the power bar up to 3.5 times at 8 m
+(taken out: the same backswing then carried different distances by target) the recorded
+people won 49 in 100 against club; on the meter's first version (the recorded hand at
+about 40% from 8 m, pro's row) 82 to 83; on 0.12.0 (the person on club's gauge and
+nerves) 15.7.
 
 **The computer, moved toward its rows.** At 0.12's beginner (swing scale 1.6) the newcomer
 won 3.0 (1.6 to 4.4) against it: the beginner computer missed 33% of its field batons
 (beginner's row 45 to 60) and cleared 88% of its fields (35 to 55), better than beginner
-play. `autothrow.tune.swingScale.beginner` 2.15 puts it at 42 to 47% missed and 50 to 53%
-cleared, its 8 m rate 8.8 to 9.3 (7 to 13); the win rate is steep in it (2.05: 44.8, 2.2:
-61.1, seed 1). Its rethrows stay at 4 to 5% (15 to 30): the swing scale is not applied to
-a drill, and the inkast was left alone. Club needed nothing (the recorded hand wins 49 in
-100) and pro is as it was. The club computer sits a little better than its field row (27%
-missed against 30 to 40) and well under its rethrows (1.1 against 11 to 18), as before.
-Club beats the new beginner 600 games of 600 (was 93.5 in 100).
+play. `autothrow.tune.swingScale.beginner` 2.2 puts it at 43% missed and 52% cleared, its
+8 m rate 7.9 to 9.0 (7 to 13). The win rate is steep in it (newcomer, seed 1: 2.15 44.4,
+2.2 51.5, 2.25 59.3, 2.35 69.5). Its rethrows stay at 4% (15 to 30): the swing scale is
+not applied to a drill, and the inkast was left alone. Pro is as it was. The club computer
+sits a little better than its field row (27% missed against 30 to 40) and well under its
+rethrows (1.3 against 11 to 18), as before. Club beat the 2.15 beginner 600 games of 600
+(was 93.5 in 100).
 
 ## Speed
 
