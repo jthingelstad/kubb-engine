@@ -152,14 +152,15 @@ Every `Levels` line is a proposal of ours, not a source's.
   medium power because he cannot throw hard and still hit, and a miss is the worst result
   (`field.sure`). ko-2017-blasting#p1.3: his damage comes from the baton whipping round
   after contact, not from one kubb driven into another. `field.corner` and `field.power`
-  are the finesse half of the same choice. Q18 asks whether a target's kind may set the
-  default arc at all.
+  are the finesse half of the same choice. Q18 (closed: one line for every target,
+  lowered).
 - **Levels:** Proposed: club and pro for the computer (`cpu.tune.drive`), not beginner or
-  kid. A person gets it as the default at a field kubb from 0.16.0, at every level.
+  kid. A person gets it as the default close in from 0.16.0 (one line for every target),
+  at every level.
 - **Engine:** the person's throw from 0.16.0 (docs/notes/throw.md "The drive": ARC under
-  half past 5, the floor, no flip, a field kubb's default arc). The computer's built
+  half past 5, the floor, no flip, the lowered default line). The computer's built
   switched off in 0.16.0 (`core/cpu` decideBaton: at a group within `maxM` it plans
-  `plan.arcFor("field", d)` instead of the shared line; named in `why.facts.drive`,
+  `plan.arcFor("baton", d)` instead of `plan.sharedArcFor(d)`; named in `why.facts.drive`,
   `why.play` and `core/plays` take it when it is switched on). On two hand-written
   positions after the owner's reports (`tools/driveprobe.lua`, 300 jittered throws) the
   drive fells 1.93 and 1.95 kubbs a baton against 1.60 and 1.67 on the old default, and

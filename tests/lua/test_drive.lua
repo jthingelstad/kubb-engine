@@ -1,5 +1,5 @@
 -- The drive (0.16, docs/notes/throw.md "The drive"): ARC under half past 5 throws a
--- baton flat or down and hard, a field kubb's default arc is firm close in, a drive
+-- baton flat or down and hard, the default arc is firm close in, a drive
 -- does not flip, and the two group positions a player reported (written out by hand in
 -- tests/fixtures/drive/positions.lua) fall more to the new default than to the old.
 import "core/world"
@@ -38,15 +38,15 @@ test("drive: under the knee the loft falls to loftAt0; above it the one line, as
 	expect.eq(k.release, t.driveKneeDeg, "a kubb's plan starts at the knee")
 end)
 
-test("drive: a field kubb's default is firm close in and the shared line at 8 m", function()
-	expect.eq(plan.arcFor("field", 8), plan.arcFor("base", 8))
-	expect.eq(plan.arcFor("field", 0.6), plan.arcFor("base", 0.6), "point blank: as before")
-	local near = solve(1.5, plan.arcFor("field", 1.5))
-	local old = solve(1.5, plan.arcFor("base", 1.5))
+test("drive: the default is firm close in and as before at 8 m", function()
+	expect.eq(plan.arcFor("baton", 8), plan.sharedArcFor(8))
+	expect.eq(plan.arcFor("baton", 0.6), plan.sharedArcFor(0.6), "point blank: as before")
+	local near = solve(1.5, plan.arcFor("baton", 1.5))
+	local old = solve(1.5, plan.sharedArcFor(1.5))
 	expect.truthy(near.loft < 0, "a drive at 1.5 m: down, loft " .. near.loft)
 	expect.truthy(near.speed > old.speed + 1.5, "and harder: " .. near.speed .. " against " .. old.speed)
 	expect.near(near.tumble, 0, 1e-12, "and it does not flip")
-	local four = solve(4, plan.arcFor("field", 4))
+	local four = solve(4, plan.arcFor("baton", 4))
 	expect.truthy(four.loft < 6 and four.back <= plan.tune.driveBackMaxDeg, "4 m: low and makeable")
 	expect.truthy(four.tumble > 0, "4 m: still a turn, eased")
 end)
@@ -70,8 +70,7 @@ test("drive: the floor is the lowest release the swing can make, never above the
 	expect.eq(a.speed, b.speed)
 end)
 
--- The two positions: the old default (the line every target shared) against the field
--- kubb's (0.16), each thrown n times with the same seeded jitter of aim, loft, speed,
+-- The two positions: the old default (plan.sharedArcFor) against 0.16's, each thrown n times with the same seeded jitter of aim, loft, speed,
 -- tilt and turn as tools/driveprobe.lua. Measured there with 300 throws (docs/notes/
 -- throw.md "The drive"); pinned here at n = 60 with a margin of 0.15 kubbs a baton.
 local function felled(pos, release, n)
@@ -98,8 +97,8 @@ end
 
 for _, name in ipairs { "group1", "group2" } do
 	test("drive: the reported " .. name .. " falls more to the drive than to the old default", function()
-		local old = felled(POS[name], function(d) return plan.arcFor("base", d) end, 60)
-		local new = felled(POS[name], function(d) return plan.arcFor("field", d) end, 60)
+		local old = felled(POS[name], function(d) return plan.sharedArcFor(d) end, 60)
+		local new = felled(POS[name], function(d) return plan.arcFor("baton", d) end, 60)
 		print(string.format("      %s: %.2f a baton against %.2f", name, new, old))
 		expect.truthy(new >= old + 0.15, string.format("%s: %.2f a baton against %.2f", name, new, old))
 	end)

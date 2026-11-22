@@ -354,7 +354,7 @@ local function drawThrow(i)
 		T.layoutKind = fmt("aim %.2f m", T.d)
 		T.pieces = { { id = "k", kind = "kubb", x = 0, y = T.d } }
 		T.stakes = false
-		local st = physcheck.planState({ px = 0, py = 0, tx = 0, ty = T.d, release = plan.arcFor("baton", T.d),
+		local st = physcheck.planState({ px = 0, py = 0, tx = 0, ty = T.d, release = plan.sharedArcFor(T.d),
 			level = "club", aimZ = plan.aimZFor("kubb") }, T.tumble)
 		st.groundSeed = T.groundSeed
 		T.state = st

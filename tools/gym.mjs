@@ -117,6 +117,7 @@ function workerArgs(o, c, from, to, out) {
   if (c.thrower === 'human') a.push('--model', o.model);
   for (const s of o.sets) a.push('--set', s);
   if (o.engine) a.push('--engine', o.engine);
+  if (o.rules) a.push('--rules', o.rules); // (until 0.16.0 --rules was read and never passed on)
   return a;
 }
 
@@ -129,6 +130,7 @@ export function reproOf(o, c, t) {
   if (c.thrower === 'human') parts.push(`--model ${rel(o.model)}`);
   for (const s of o.sets) parts.push(`--set ${s}`);
   if (o.engine) parts.push(`--engine ${rel(o.engine)}`);
+  if (o.rules) parts.push(`--rules ${o.rules}`);
   parts.push(`--repro ${t.m}:${t.t}`);
   return parts.join(' ');
 }

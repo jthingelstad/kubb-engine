@@ -278,7 +278,7 @@ function cases.drive(per)
 			local clean, hand
 			if set == "plan" then
 				local sol = plan.solve({ projectile = "baton", px = st.x, py = st.y, tx = tg.x, ty = tg.y,
-					release = plan.arcFor("baton", d), meter = plan.meter(), aimZ = plan.aimZFor("kubb") }, {})
+					release = plan.sharedArcFor(d), meter = plan.meter(), aimZ = plan.aimZFor("kubb") }, {})
 				clean = { speed = sol.speed, loft = sol.loft, swivel = sol.swivel, tumble = sol.tumble, T = sol.flightT }
 				hand = { sol.handZ, sol.handFwd, sol.handTip }
 			else

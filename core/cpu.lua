@@ -49,8 +49,8 @@ cpu.tune = {
 		                 -- (read.lineLane's w); 0: the lane's count less one
 	},
 	-- field.drive (0.16, built switched off): at a group of field kubbs close enough, the
-	-- low hard throw a field kubb's default arc makes (plan.arcFor "field", the drive)
-	-- instead of the arc every target shares. A group: another standing field kubb within
+	-- low hard throw a person's default arc makes (plan.arcFor, the drive) instead of the
+	-- line it threw before (plan.sharedArcFor). A group: another standing field kubb within
 	-- `near` m of the front kubb, centre to centre; close enough: the front kubb within
 	-- `maxM` m of the stance. Club and pro would know it; beginner and kid do not
 	drive = {
@@ -463,11 +463,12 @@ local function decideBaton(s, t, lname)
 	else
 		st = plan.stance(tx, ty, s.lineY, py, t.halfWidth, {})
 	end
-	-- the default arc for the distance (plan.arcFor), as a player's is
+	-- the default arc for the distance: the line a person's followed until 0.16 (plan.sharedArcFor)
 	local dx, dy = tx - st.x, ty - st.y
 	local dist = math.sqrt(dx * dx + dy * dy)
-	local arc = plan.arcFor("baton", dist)
-	-- field.drive, at a level that knows it: a field kubb's own arc at a close group
+	local arc = plan.sharedArcFor(dist)
+	-- field.drive, at a level that knows it: the person's default line (the drive close
+	-- in) at a close group
 	local drive = nil
 	if target.role == "field" and not king and knows("drive", lname) and dist <= cpu.tune.drive.maxM then
 		local near2, n = cpu.tune.drive.near ^ 2, 0
@@ -479,7 +480,7 @@ local function decideBaton(s, t, lname)
 		end
 		if n > 0 then
 			-- (named in why.facts only: why.play and core/plays take it when it is switched on)
-			arc, drive = plan.arcFor("field", dist), n + 1
+			arc, drive = plan.arcFor("baton", dist), n + 1
 		end
 	end
 	local intent = { on = target.id, tx = tx, ty = ty, aimZ = aimZ, standY = py, stance = st, arc = arc }
