@@ -31,7 +31,8 @@
 --   shake        that over shakeGain x the overpower multiplier, unforgiven (the
 --                meter forgives a steady shake: plan.unshake): 0..1, and under
 --                steadyBelow exactly when the verdict says steady
---   swivel       the plan's, plus the pull's lateralDeg x the shake, plus a nerves draw
+--   swivel       the plan's, plus the pull's lateralDeg x the shake, plus (a baton, 0.13)
+--                the release's pull past its bar (plan.releasePull of the stop), plus a nerves draw
 --                of at most ZMAX sds (plan.rng's normal: its u1 never under 1e-12)
 --   sideV        the side cell of that angle at the plan's distance (straightM)
 --   speed        speedFor(the backswing as forgiven) x a flick of minFlickFrac..1 x
@@ -179,7 +180,7 @@ local function tryTilt(ctx, sol, ptilt, taps)
 	local back = ctx.back
 	local loft = L.loft
 	-- the power as it counts and the overpower
-	local effBack = sol.back + plan.shrink(back - sol.back, lv.powerHalf, lv.inGain, lv.outGain, lv.outCap)
+	local effBack = sol.back + plan.shrink(back - sol.back, lv.powerHalf, lv.inGain)
 	local past = back - sol.powerHi
 	local m = 1 + lv.overGain * (past > 0 and past or 0) / t.overPerDeg
 	-- the shake from the tilt
@@ -196,7 +197,9 @@ local function tryTilt(ctx, sol, ptilt, taps)
 	-- sideways
 	local sdSide, sdLen = plan.nervesSd(lv, plan.nervesBack(sol, effBack, kubb), shake, m, kubb)
 	local sideDeg = deg(L.swivel - sol.swivel)
-	local zs = (sideDeg - pull * t.lateralDeg * se) / sdSide
+	-- a person's baton: the release's pull (plan.releasePull, 0.13), from the stop
+	local rp = kubb and 0 or plan.releasePull(lv, ctx.relA - sol.release)
+	local zs = (sideDeg - pull * t.lateralDeg * se - rp) / sdSide
 	if abs(zs) > check.ZMAX + EPS then return false, 4, "the swivel is off the line by more than the nerves give" end
 	local sideM = tan(rad(sideDeg)) * (sol.dist or 0)
 	if not sideFits(v.sideV, sideM, -t.straightM, t.straightM) then

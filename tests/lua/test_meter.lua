@@ -159,36 +159,59 @@ test("meter: a person's kubb keeps the clean hand inside the bars and scatters o
 	end
 end)
 
-test("meter: a degree past the power bar costs more on a long throw, one for one up to outFromM", function()
+test("meter: a degree is a degree: past the power bar the backswing counts the same at every range", function()
 	local m = plan.meter()
-	-- what one more degree past the edge does to the backswing as it counts
-	local function past(d)
+	for _, d in ipairs { 3, 4, 5, 6, 7, 8, 9 } do
 		local sol = personSol(d)
 		local h = sol.level.powerHalf
-		local function eff(e)
-			local sw = { back = sol.back + e, releaseAngle = sol.release, flickFrac = 1, smoothness = 1, shake = 0,
-				pull = 1, how = "stopped" }
-			return plan.launch(sol, sw, nil, {}).back
+		for _, x in ipairs { 1, 5, 10, 20 } do
+			for _, sgn in ipairs { -1, 1 } do
+				local back = sol.back + sgn * (h + x)
+				local sw = { back = back, releaseAngle = sol.release, flickFrac = 1, smoothness = 1, shake = 0, pull = 1,
+					how = "stopped" }
+				local L = plan.launch(sol, sw, nil, {})
+				-- what counts is the swing less the bar's own forgiveness, h (1 - inGain), at any range
+				expect.near(L.back, back - sgn * h * (1 - m.inGain), 1e-9, string.format("%d m, %d past", d, sgn * x))
+				expect.near(L.speed, plan.speedFor(L.back), 1e-12)
+				expect.eq(L.sideV, 0, "power alone pulls nothing")
+			end
 		end
-		return eff(h + 2) - eff(h + 1), eff(h + m.outCapDeg + 2) - eff(h + m.outCapDeg + 1), eff(h * 0.5) - sol.back
 	end
-	local a4, b4, in4 = past(4)
-	local a8, b8, in8 = past(8)
-	expect.near(a4, 1, 1e-9, "4 m: one for one")
-	expect.near(a8, m.outGain8, 1e-9, "8 m: outGain8")
-	expect.near(b8, 1, 1e-9, "past outCapDeg: one for one again")
-	expect.near(b4, 1, 1e-9)
-	-- inside the bar nothing changes: inGain at every range
-	expect.near(in4, plan.meterLevel(m, 4, "baton").powerHalf * 0.5 * m.inGain, 1e-9)
-	expect.near(in8, m.powerHalf8 * 0.5 * m.inGain, 1e-9)
-	-- the release past its bar counts one for one at every range (the loft stays pinned by
-	-- the stop, so checkThrow can hold it)
-	local sol = personSol(8)
-	expect.eq(sol.level.outGain > 1, true)
-	local sw = { back = sol.back, releaseAngle = sol.releaseHi + 5, flickFrac = 1, smoothness = 1, shake = 0, pull = 1,
+end)
+
+test("meter: the release past its bar pulls the baton, late left and early right, pullPerDeg a degree", function()
+	local m = plan.meter()
+	for _, d in ipairs { 4, 6, 8 } do
+		local sol = personSol(d)
+		local h = sol.level.releaseHalf
+		local function side(dRel)
+			local sw = { back = sol.back, releaseAngle = sol.release + dRel, flickFrac = 1, smoothness = 1, shake = 0,
+				pull = 1, how = "stopped" }
+			return plan.launch(sol, sw, nil, {})
+		end
+		expect.eq(side(h * 0.99).sideDeg, 0, "inside the bar: no pull")
+		expect.eq(side(-h * 0.99).sideDeg, 0)
+		for _, x in ipairs { 2, 5, 10 } do
+			local late, early = side(h + x), side(-h - x)
+			expect.near(late.sideDeg, -m.pullPerDeg * x, 1e-9, "late pulls left")
+			-- (a stop is never under 0: the pull counts from the stop as it is)
+			local ex = math.min(x, sol.release - h)
+			expect.near(early.sideDeg, m.pullPerDeg * ex, 1e-9, "early pulls right")
+			expect.eq(late.releaseV, 1); expect.eq(early.releaseV, -1)
+		end
+		-- an angle: the miss in metres grows with the range by itself
+		local L = side(h + 10)
+		expect.near(L.sideM, math.tan(math.rad(-m.pullPerDeg * 10)) * sol.dist, 1e-9)
+	end
+	-- a kubb is not pulled by its release (its scatter does that job), nor the computer
+	local k = personSol(4.75, "kubb")
+	local sw = { back = k.back, releaseAngle = k.releaseHi + 10, flickFrac = 1, smoothness = 1, shake = 0, pull = 1,
 		how = "stopped" }
-	local L = plan.launch(sol, sw, nil, {})
-	expect.near(L.release, sol.release + sol.level.releaseHalf * m.inGain + 5, 1e-9)
+	expect.eq(plan.launch(k, sw, { projectile = "kubb", spin = 1 }, {}).sideDeg, 0)
+	local lvc = autothrow.cpuLevel("club")
+	local c = plan.solve({ projectile = "baton", px = 0, py = PY, tx = 0, ty = PY + 8, release = 60, level = lvc }, {})
+	sw = { back = c.back, releaseAngle = c.releaseHi + 10, flickFrac = 1, smoothness = 1, shake = 0, pull = 1, how = "stopped" }
+	expect.eq(plan.launch(c, sw, { level = lvc }, {}).sideDeg, 0)
 end)
 
 test("meter: the recorded hand fells a lone kubb about as the reference's club rows say", function()

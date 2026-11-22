@@ -261,9 +261,7 @@ test("checkThrow refuses a throw at 30 m/s and other throws the dial cannot make
 	local m = match(1)
 	local bat, kub
 	for _, t in ipairs(m.throws) do
-		-- (with some speed: a swing far short of a long throw's bar leaves at none, 0.13)
-		if t.action.how == "baton" and t.action.launch.legal and t.action.swing.back < 110
-			and t.action.launch.speed > 1 and not bat then bat = t end
+		if t.action.how == "baton" and t.action.launch.legal and t.action.swing.back < 110 and not bat then bat = t end
 		-- (a drill released at the sky end or very early fits other releases with its
 		-- nose moved, so the nose pins nothing there: from 0.9 match 1's first drill
 		-- stops at 29 degrees and takes any nose; docs/notes, the owner's to decide)
