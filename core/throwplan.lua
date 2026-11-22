@@ -263,6 +263,12 @@ plan.meters = {
 		-- 74% of the time against the club computer's 56%; on these, 62% (docs/notes/throw.md
 		-- "The person's meter", the thrown kubb)
 		kubbPower = 1, kubbRelease = 1,
+		-- (0.17.0) the power bar of a hard throw: a baton's planned speed and the distance
+		-- (m) a throw on the line before needs it at, pairs of (speed m/s, distance m): a
+		-- drive at 3 m on 10 m/s holds about 7 m's bar, as a full swing does. The recorded
+		-- swings (gym fit, 273 batons on 0.2 to 0.7) missed a plan of 125 degrees or more
+		-- by a median 7.6 degrees of backswing against 4.2 to 4.4 under it
+		powerSpeed = { 5.49, 2, 7.07, 3, 8.14, 4, 8.90, 5, 9.47, 6, 10.33, 8 },
 		inGain = 0.1, pullPerDeg = 0.15, shakeIn = 0.1, shakeGain = 0.75, overGain = 0.75,
 		nervesDeg = 0.12, nervesLen = 0.008, tumbleTurns = 0.50, tumbleSd = 0.015,
 		drillScatter = 0.35, scatterGain = 3, roughGain = 6, roughMax = 2,
@@ -293,15 +299,35 @@ end
 -- returns out (a new table when nil): powerHalf, releaseHalf, inGain, shakeIn,
 -- pullPerDeg, flickIn (the Kid meter's: a soft flick's shortfall counts this share), shakeGain, overGain, nervesDeg, nervesLen, tumbleTurns, tumbleSd, drillScatter,
 -- scatterGain, roughGain, roughMax, and meter = m.
-function plan.meterLevel(m, d, projectile, out)
+function plan.meterLevel(m, d, projectile, out, speed)
 	out = out or {}
 	d = d or 8
 	if d < m.nearM then d = m.nearM elseif d > m.farM then d = m.farM end
 	local k = 1 + m.widen * (8 - d)
 	if k < m.narrowMin then k = m.narrowMin end
+	-- the power bar goes by how hard the throw is (0.17.0): a baton's planned speed counts
+	-- as the distance a throw on the line before needs it at (powerSpeed), when that is
+	-- farther than the target, so a drive's full swing holds a full swing's bar
+	local kpow = k
+	local ps = m.powerSpeed
+	if ps and speed and projectile ~= "kubb" and speed > ps[1] then
+		local dp = ps[#ps]
+		for i = 3, #ps - 1, 2 do
+			if speed <= ps[i] then
+				dp = ps[i - 1] + (speed - ps[i - 2]) * (ps[i + 1] - ps[i - 1]) / (ps[i] - ps[i - 2])
+				break
+			end
+		end
+		if speed > ps[#ps - 1] then dp = ps[#ps] end
+		if dp > d then
+			if dp > m.farM then dp = m.farM end
+			kpow = 1 + m.widen * (8 - dp)
+			if kpow < m.narrowMin then kpow = m.narrowMin end
+		end
+	end
 	local kp, kr = 1, 1
 	if projectile == "kubb" then kp, kr = m.kubbPower or 1, m.kubbRelease or 1 end
-	out.powerHalf, out.releaseHalf = m.powerHalf8 * k * kp, m.releaseHalf8 * k * kr
+	out.powerHalf, out.releaseHalf = m.powerHalf8 * kpow * kp, m.releaseHalf8 * k * kr
 	out.inGain, out.shakeIn, out.shakeGain, out.overGain = m.inGain, m.shakeIn, m.shakeGain, m.overGain
 	out.pullPerDeg = m.pullPerDeg
 	out.flickIn = m.flickIn
@@ -723,7 +749,7 @@ function plan.solve(q, out)
 		-- a person's throw: the meter's bars for this distance (plan.meterLevel)
 		local ml = out.level
 		if type(ml) ~= "table" or ml.meter ~= q.meter then ml = nil end
-		lv = plan.meterLevel(q.meter, out.dist, q.projectile, ml)
+		lv = plan.meterLevel(q.meter, out.dist, q.projectile, ml, out.speed)
 	end
 	local back = plan.backForSpeed(out.speed)
 	out.back, out.powerLo, out.powerHi = back, back - lv.powerHalf, back + lv.powerHalf

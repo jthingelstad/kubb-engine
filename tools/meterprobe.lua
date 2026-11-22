@@ -189,6 +189,8 @@ local scaled = function(sw, sol, k) return human.scale(sw, sol, k) end
 -- PLAY.md, play-levels.json g.baseLine and g.fieldMiss), a newcomer on beginner's, the
 -- recorded people on club's, a master on pro's; the recorded hand within about 4 points,
 -- the other two as guides (docs/notes/throw.md "The person's meter").
+-- (0.17.0: at 4 m the default is a drive on a full swing's power bar, so the recorded hand's
+-- lone kubb there is 62, the master's 90; the targets at 4 m stay the rows' for reference)
 local TARGETS = { [2] = { 45, 22, 10 }, [1] = { 72, 48, 27 }, [0.5] = { 88, 70, 45 } }
 local NAMES = { [3] = "a child x3", [2] = "newcomer x2", [1] = "recorded x1", [0.5] = "master x0.5" }
 
