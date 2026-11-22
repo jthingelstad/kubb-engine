@@ -156,10 +156,10 @@ local function replayed(name, seed, maxTurns, scale)
 end
 
 test("natural matches: the measure is 0.7.2's at every action", function()
-	-- (seed 12 from 0.18.0, 223 actions: the beginner computer's harder king shot made seed
-	-- 8's match, and the baton's blow seed 21's, long enough to cross LOG_BUDGET, which the
-	-- test below covers)
-	for _, seed in ipairs { 12, 11 } do
+	-- (seed 13 from 1.0.0, 406 actions: the propped corner's fix made seed 12's match long
+	-- enough to cross LOG_BUDGET, as the beginner computer's harder king shot made seed 8's
+	-- and the baton's blow seed 21's in 0.18.0; the test below covers the crossing)
+	for _, seed in ipairs { 13, 11 } do
 		local s, doc, n = replayed("natural " .. seed, seed, 200)
 		expect.eq(s.measured, n, "every action measured")
 		expect.eq(#s.drops, 0)
