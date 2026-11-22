@@ -119,6 +119,11 @@ end
 -- rule); and a line no rule knows is cut at a word, never inside one.
 local SHORT = {
 	{ "^.+ resigned: ", "RESIGNED" },
+	-- the Kid rules (0.15.0): the king is stood back up, and a kubb out twice is placed by
+	-- the engine, so neither may read as the standard game's ending or punishment
+	{ "^king down[^;:]*: stood back up", "KING BACK UP" },
+	{ "^out twice: stood at the fair spot", "OUT TWICE: PLACED" },
+	{ "^(%d+) out twice: stood at the fair spot", "%1 OUT TWICE: PLACED" },
 	{ "^king down early", "KING TOO EARLY: GAME OVER" }, { "^king down", "KING DOWN" }, { "^resigned", "RESIGNED" },
 	{ "^missed the king", "KING STANDS" }, { "^missed", "MISS" }, { "^helicopter", "HELICOPTER: DOESN'T COUNT" },
 	{ "^own%-half kubb hit", "OWN HALF HIT: PUT BACK" }, { "^own half hit", "OWN HALF HIT: KUBB OUT" },
@@ -130,6 +135,8 @@ local SHORT = {
 function session.short(s)
 	if not s then return nil end
 	local first = s:match("^[^;]*")
+	-- a Kid baton that only knocked the king down: the king going back up is the news
+	if first == "missed" and s:find("; king down early: stood back up", 1, true) then return "KING BACK UP" end
 	for _, r in ipairs(SHORT) do
 		if first:find(r[1]) then return (first:gsub("^.*$", function(m) return (m:gsub(r[1] .. ".*$", r[2])) end)) end
 	end
