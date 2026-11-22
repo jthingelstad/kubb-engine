@@ -173,6 +173,37 @@ steps 2 and 3): roll one on first run and keep its text, build the name row from
 `step` and `choices`, and check every name that arrives from outside with `valid`,
 accepting `ok` or `default`.
 
+## 0.13.4 on top
+
+0.13.4 is 0.13.3 with `names.check` and a strict `restore` and `replayLoad`
+(docs/SESSION.md "Names"). No hash moves, so 0.13.0 to 0.13.4 share matches. Sync
+`v0.13.4` in place of `v0.13.3`, and replace each field check of a match from outside
+with the engine's:
+
+- **Web**:
+  - `src/net/pitch.js` `enterMatch(m)`: in place of
+    `badNames(this.names, setupOfSnapshot(m.snap)).length`, refuse when
+    `!engine.call("names.check", { snap: m.snap }).allowed` (the match's own engine). Then
+    adopt the snapshot through the strict door: `src/engine/index.js` gains a
+    `restoreChecked(snap)` that sends `JSON.stringify({ snap, names: "check" })` to
+    `restore` and throws on its error, and `game.adopt` uses it for every snapshot the
+    pitch hands it (entering, `resync`, joining part way). A local resume keeps
+    `restore`.
+  - `src/replay/player.js` `replayProblem(r)`: in place of
+    `badNames(namesOf(e), r.setup)`, `"names"` when
+    `!e.call("names.check", { replay: r }).allowed`, with the whole kept replay (its
+    `start` or `setup`, `snap`, `players`, `log`). `src/engine/index.js` `replayLoad`
+    passes `names: "check"`, so a replay that skips `replayProblem` is refused too.
+  - The lobby: `names.check({ document: doc, members })` where it now checks
+    `teamNames` and `teamsLine`'s players one by one; show a refused name's default.
+  - `badNames` and `setupOfSnapshot` go; `names.valid` stays for the name row and the
+    share's single names (`src/net/share.js`).
+- **iPhone**: the same three: a pitch's snapshot through `restore` with
+  `{ snap, names: "check" }`, a replay or kept match through `names.check({ replay })` and
+  `replayLoad` with `names: "check"`, a lobby through `names.check({ document, members })`.
+  The device's own kept matches resume with the plain `restore`.
+- **Playdate**: nothing but the sync.
+
 ## What the engine now offers that no surface shows yet
 
 - **The computer's reason** (`tw.cpu.last`, since 0.11.1): the play and situation behind
