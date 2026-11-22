@@ -156,7 +156,7 @@ local function replayed(name, seed, maxTurns, scale)
 end
 
 test("natural matches: the measure is 0.7.2's at every action", function()
-	-- (seed 21 from 0.17.0: the beginner computer's harder king shot made seed 8's match
+	-- (seed 21 from 0.18.0: the beginner computer's harder king shot made seed 8's match
 	-- long enough to cross LOG_BUDGET, which the test below covers)
 	for _, seed in ipairs { 21, 11 } do
 		local s, doc, n = replayed("natural " .. seed, seed, 200)

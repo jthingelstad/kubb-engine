@@ -788,7 +788,7 @@ up.
 planned speed at most `plan.speedFor(driveBackMaxDeg)` (140 degrees, about 10.9 m/s, 9
 past a baseline baton's 131) and the line one the hand can make (a hand 0.6 m up cannot
 throw down onto a kubb 4 m away). `plan.solve` raises a plan under the floor to it (only when the plan is under the knee and
-its line does not fit; from 0.17.0 by Illinois steps from the line's geometric limit,
+its line does not fit; from 0.18.0 by Illinois steps from the line's geometric limit,
 kept for the last geometry, about what a default plan costs: 0.02 ms in desktop Lua at 2
 to 6 m where 0.16's 24 bisection steps, each line no speed reaches running 3000 carry
 steps, cost 0.58 to 0.71 ms), and never past the knee, so from the knee up nothing changes: at 8 m the floor is the knee.
@@ -948,7 +948,7 @@ perfect swing lands where it was aimed. Narrower still (0.8, 0.6) took the recor
 under half within 0.3 m, below the club computer on every column. The Kid meter is its own
 entry and keeps 1.35. The Gym's groups by thrower are in docs/notes/gym.md "The drive".
 
-### A hard throw's power bar (0.17.0, not shipped)
+### A hard throw's power bar (0.18.0, not shipped)
 
 The person's power bar went by the distance alone, so a drive at 3 m on a full swing
 (10 m/s, a backswing of 128) held a 3 m bar, 6.5 degrees either side, where the same swing
@@ -959,7 +959,7 @@ by a median 7.6 degrees of backswing (17 throws) against 4.2 and 4.4 under 110 a
 110 to 125 (183 and 73), its release by 13.1 against 8.9 and 9.5. (Those hard plans were
 mostly baselines; the sample cannot tell the distance from the power.)
 
-Built in 0.17.0 and not shipped: a baton's power bar on the standard meter could also go by
+Built in 0.18.0 and not shipped: a baton's power bar on the standard meter could also go by
 its planned speed (a meter's `powerSpeed`, read by `plan.meterLevel`; the standard meter
 has none): the speed counts as the distance a throw on the line before needs it at (5.5
 m/s 2 m, 7.1 3 m, 8.1 4 m, 8.9 5 m, 9.5 6 m, 10.3 8 m, straight between), and the bar is
@@ -985,7 +985,7 @@ it took back the throw the owner had just asked for. The person ahead of the clu
 computer (57.5% for the recorded hand) is open, to be measured again when the human model
 is refitted from matches played on 0.16 and later.
 
-### Coming down on top (0.17.0)
+### Coming down on top (0.18.0)
 
 From 0.16.0 the Gym's human club thrower's batons "came down on top" of a kubb (the
 contact within 1 cm of its top, its normal near vertical) on 6.2% of throws where they did

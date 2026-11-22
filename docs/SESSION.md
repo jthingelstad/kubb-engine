@@ -874,16 +874,16 @@ The actions:
 `at` (optional) is the finish time stamp the game file uses: `{ year, month, day, hour,
 min }`, whole numbers, on the start's clock. The match's finish is the last stamp an
 applied action carried (a throw, a raise, a punishment kubb, a resignation); with none the
-finished file has no End or Duration line and the winner card no `minutes` (until 0.17.0
+finished file has no End or Duration line and the winner card no `minutes` (until 0.18.0
 the finish fell back to the start, so every match lasted 0 minutes).
 
-Stamping (0.17.0). A person's and the computer's throw actions are made inside the engine,
+Stamping (0.18.0). A person's and the computer's throw actions are made inside the engine,
 so a host stamps them by passing `at` to the call that makes them: `frame({ ..., at })` puts
 it on the action that frame makes (and `Session:cpuAction(at)`, the check's own, likewise);
 a raise, punish or resign action is the client's, so it carries `at` itself. Every client
 applying the action takes the stamp from it, never from its own clock, so all of them
 write the same End and Duration, and a snapshot carries the finish. The clock is the
-start's: `opts.start` is the starting host's local wall time, and its `utcOffset` (0.17.0,
+start's: `opts.start` is the starting host's local wall time, and its `utcOffset` (0.18.0,
 optional: minutes east of UTC, whole, -900 to 900, the starting host's) says which clock
 that is. Any member stamps the time on that clock: its own UTC time plus the start's
 `utcOffset`. The field is kept on the start through the snapshot, a restore, a replay

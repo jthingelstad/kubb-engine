@@ -116,7 +116,7 @@ test("choose returns the launch fields; the arc follows the distance", function(
 		expect.eq(a.legal, true)
 		expect.eq(a.drill, nil)
 		local d = math.sqrt((c[2] - a.x) ^ 2 + (c[3] - a.y) ^ 2)
-		-- (club, the default level, knows field.drive from 0.17.0: a person's line, but the
+		-- (club, the default level, knows field.drive from 0.18.0: a person's line, but the
 		-- king shot on the line before)
 		local rel = c[1] == "king" and plan.sharedArcFor(d) or plan.arcFor("baton", d)
 		expect.near(a.loftDeg, plan.launchLoft(rel, rel) * (a.plan.loftShare or 1), 1e-9, c[1] .. " arc")
@@ -335,4 +335,37 @@ test("computer spins a drill by its level's inkast and uses its thrower level fo
 		a = autothrow.choose(s, autothrow.rng(3), 0)
 		expect.near(a.tumbleRate * a.plan.flightT / (2 * math.pi), plan.levels[level].tumbleTurns, 0.01)
 	end
+end)
+
+-- 0.18.0: computer players on one team throw at their own levels (match.thrower's level
+-- reaches autothrow.choose as s.thrower.level), so each takes its own king scale and its
+-- own line (field.drive at club and pro, the line before at beginner)
+test("a mixed team: each computer player's king scale and line are its own level's", function()
+	local t = autothrow.tune
+	local saved = {}
+	for k, v in pairs(t.kingScale) do saved[k] = v end
+	local function kingAt(level)
+		local s = baton("king", 0, 4, 0, true)
+		s.thrower = { id = "c1", name = "C", level = level }
+		return autothrow.choose(s, autothrow.rng(9), 1)
+	end
+	local club1, pro1 = kingAt("club"), kingAt("pro")
+	t.kingScale.pro = t.kingScale.pro + 0.5
+	local club2, pro2 = kingAt("club"), kingAt("pro")
+	expect.eq(club2.speed, club1.speed, "a pro's scale leaves the club player's king shot alone")
+	expect.truthy(pro2.speed ~= pro1.speed or pro2.swivel ~= pro1.swivel, "and moves the pro's")
+	t.kingScale.club = t.kingScale.club + 0.5
+	local club3 = kingAt("club")
+	expect.truthy(club3.speed ~= club2.speed or club3.swivel ~= club2.swivel, "the club player's own scale moves it")
+	for k, v in pairs(saved) do t.kingScale[k] = v end
+	-- the line: a field kubb 3 m out, club and pro on a person's line, beginner on the line before
+	local function fieldAt(level)
+		local s = baton("field", 0, 3, 0)
+		s.thrower = { id = "c1", name = "C", level = level }
+		return autothrow.choose(s, autothrow.rng(9), 0)
+	end
+	local d = 3
+	expect.near(fieldAt("club").plan.release, plan.arcFor("baton", d), 1e-9)
+	expect.near(fieldAt("pro").plan.release, plan.arcFor("baton", d), 1e-9)
+	expect.near(fieldAt("beginner").plan.release, plan.sharedArcFor(d), 1e-9)
 end)

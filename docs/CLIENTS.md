@@ -1,4 +1,4 @@
-# Moving a client from 0.9.0 to 0.17.0
+# Moving a client from 0.9.0 to 0.18.0
 
 The web game, the iPhone app and the Playdate game all vendor engine 0.9.0. This page is
 what each changes to move to 0.13.0, built from the "For clients" parts of
@@ -496,13 +496,14 @@ it takes to offer computer players.
     (`match.hasPerson`); and the save to keep the lineup's `cpu` (it keeps `m.lineup`
     already).
 
-## 0.17 on top
+## 0.18 on top
 
-0.17.0 is a minor: the computer drives at club and pro (it plans every baton but the king
+0.18.0 is a minor: the computer drives at club and pro (it plans every baton but the king
 shot on the person's default line), its king shot is calibrated by level, and the drive's
 floor is cheap. Sync
-`v0.17.0` in place of `v0.16.0`; nothing must change. It shares matches with no 0.16: web
-and iPhone move together. Worth showing: the computer's reason `field.drive` ("Driven low
+`v0.18.0` in place of `v0.17.0`; nothing must change to play, and every client should
+pass `at` (below) so a match has a real length. It shares matches with no 0.17: web and
+iPhone move together. Worth showing: the computer's reason `field.drive` ("Driven low
 and hard into the field kubb, the way the line throws close in.") from `tw.cpu.last`.
 
 - **The Playdate's floor**: `plan.solve` and `plan.arcFloor` no longer bisect for the

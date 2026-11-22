@@ -42,7 +42,7 @@ autothrow.tune = {
 	                         -- 0.10: beginner 0, club 1, pro 2). One tap is the least that holds
 	                         -- the nose to the touch; the levels differ by their swings' mistakes
 	swingScale = { kid = 1.5, beginner = 2.2, club = 1.3, pro = 1 },
-	-- the king shot (0.17.0): one throw from the baseline that ends the game, or loses it
+	-- the king shot (0.18.0): one throw from the baseline that ends the game, or loses it
 	-- when it fells a kubb with it (II.B), under the most pressure of any. Its swing's
 	-- mistakes and its nerves are the level's times kingScale, set in the Gym so each
 	-- level's king shots sit in its row (docs/reference/play-levels.json g.kingHit;

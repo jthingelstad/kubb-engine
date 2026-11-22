@@ -832,7 +832,7 @@ ten once the computer drives too. The owner's target for a typical online player
 club is about four in ten (owner-2026-11-21#s6), so club wants retuning with the drive on
 (the order of work's step 4, docs/notes/computer-player.md); that is Jamie's call.
 
-## The computer's drive (0.17.0)
+## The computer's drive (0.18.0)
 
 `field.drive` switched on at club and pro (docs/reference/plays/field.md). Built in 0.16.0
 for a close group only (another standing field kubb within 45 cm of the front one, the
@@ -840,7 +840,7 @@ front one within 5 m); the person's whole default line for every baton beat that
 against side with both teams driving, 56.0% (52.7 to 59.3) at club and 55.0% (51.9 to 58.1)
 at pro, so the computer plans every baton but its king shot on a person's line.
 
-## The king shot (0.17.0)
+## The king shot (0.18.0)
 
 The computer's king shots fell far more often than real ones: on 0.16.0 69.5% / 86.5% /
 96.8% for beginner / club / pro, against rows of 40 to 60 (an estimate), 62 to 75
@@ -855,11 +855,11 @@ matches a level, the computer both sides): beginner 1 / 1.5 / 2 / 3 gives 69.5 /
 35.7 / 21.7%, club 1 / 1.5 / 2 / 3 gives 90.4 / 74.9 / 61.2 / 41.4%, pro 1 / 1.3 / 1.6 / 2
 gives 97.7 / 91.5 / 83.8 / 75.1%. Set to 1.4 / 1.6 / 1.3, each near the middle of its row.
 
-## Where 0.17.0 stands
+## Where 0.18.0 stands
 
 `gym --full`, 300 matches a configuration, grass. Field batons missed, took two, took three
 or more, base kubbs from 8 m, king shots, turns a game, turns cleared, kubbs rethrown;
-before is 0.16.0 (the computer on the line before), after 0.17.0; the target is
+before is 0.16.0 (the computer on the line before), after 0.18.0; the target is
 `docs/reference/play-levels.json`:
 
 | | missed | two | three+ | 8 m | king | turns | cleared | rethrown |
@@ -895,7 +895,7 @@ The ladder, `gym versus`, 300 seeds both ways round, grass: A's paired score. Th
 hand is the Gym's human thrower (club part) at x2 (a newcomer), x1 and x0.5 (a master),
 against each computer level.
 
-| A | B | 0.15.1 | 0.16.0 | 0.17.0 |
+| A | B | 0.15.1 | 0.16.0 | 0.18.0 |
 |---|---|---|---|---|
 | club | beginner | 100.0 | 100.0 | 100.0 |
 | pro | club | 94.5 | 94.5 | 96.0 |
@@ -907,6 +907,13 @@ against each computer level.
 | hand x1 | pro | 3.0 | 6.3 | 4.2 |
 | hand x0.5 | club | 99.3 | 99.5 | 99.0 |
 | hand x0.5 | pro | 51.5 (47.5 to 55.5) | 67.4 (63.6 to 71.2) | 53.0 (49.0 to 57.0) |
+
+Computer players in teams (0.17.0) on the new line, `gym versus --a "team=..."`, 300 seeds
+both ways round: club+club+pro against club+club+club 82.0% (79.1 to 84.9; 79.0% on
+0.17.0), pro+pro+pro against club+club+club 96.0% (94.5 to 97.5; 93.3%). Each computer
+player throws at its own level (`autothrow.choose` reads the thrower's level), so a mixed
+team's pro drives and takes pro's king scale while its club players take club's
+(`tests/lua/test_autothrow.lua`).
 
 Open: the recorded hand is ahead of the club computer, 61.3% (57.5% with the computer
 driving and its old king shot; the harder king shot takes the rest of the drive's gain

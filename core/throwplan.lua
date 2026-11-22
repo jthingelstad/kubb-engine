@@ -263,7 +263,7 @@ plan.meters = {
 		-- 74% of the time against the club computer's 56%; on these, 62% (docs/notes/throw.md
 		-- "The person's meter", the thrown kubb)
 		kubbPower = 1, kubbRelease = 1,
-		-- (built in 0.17.0, not shipped) powerSpeed = { speed m/s, distance m, ... }: a baton's
+		-- (built in 0.18.0, not shipped) powerSpeed = { speed m/s, distance m, ... }: a baton's
 		-- power bar held to the bar of the distance a throw on the line before needs its
 		-- planned speed at, when that is farther (plan.meterLevel). Measured and left off:
 		-- docs/notes/throw.md "A hard throw's power bar"
@@ -303,7 +303,7 @@ function plan.meterLevel(m, d, projectile, out, speed)
 	if d < m.nearM then d = m.nearM elseif d > m.farM then d = m.farM end
 	local k = 1 + m.widen * (8 - d)
 	if k < m.narrowMin then k = m.narrowMin end
-	-- the power bar goes by how hard the throw is (0.17.0): a baton's planned speed counts
+	-- the power bar goes by how hard the throw is (0.18.0): a baton's planned speed counts
 	-- as the distance a throw on the line before needs it at (powerSpeed), when that is
 	-- farther than the target, so a drive's full swing holds a full swing's bar
 	local kpow = k
@@ -626,7 +626,7 @@ function plan.snap(tx, ty, targets, n, radius)
 	return best, bi
 end
 
--- The drive's floor (0.16; made cheap in 0.17.0): the lowest release under the knee
+-- The drive's floor (0.16; made cheap in 0.18.0): the lowest release under the knee
 -- whose line a hand hz (m) over the aim makes over R (m) at loft share flat, at no more
 -- than plan.speedFor(driveBackMaxDeg); the knee when none under it does. The carry speed
 -- falls as the release rises, so the floor is the root of speed(release) = vmax: from the
