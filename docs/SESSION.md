@@ -128,7 +128,11 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 
 - `{ kind: "throw", side, setup, cpu, local, candidates?, wind, ... }`. `setup` is the
   throw (`kind`, `projectile` "baton" or "kubb", `n` of `of`, `label`, `kingShot`,
-  `rethrow`, `lineY`, `forwardY`, `advY`, `targets`, `thrower { id, name, level, key, cpu? }`,
+  `rethrow`, `lineY`, `forwardY`, `advY`, `targets`, `thrower { id, name, level, key, cpu? }`;
+  for a kubb, `n` of `of` is its place in its round (since 0.17.0): the kubbs thrown in
+  first ("kubb 2 of 2"), or with `rethrow` true the kubbs rethrown ("rethrow 1 of 1": two
+  in and one out, the out one again; before, "kubb 3 of 3"); the label and the aim's
+  `rail` (`n`, `of`, `rethrow`) say the same. A kubb out twice is not thrown a third time;
   and in a Kid match `kid: true` and `kidY`, the Kid line in the view frame;
   `key` is the lineup's key for that player, on a shared pitch the pitch member it
   belongs to).
@@ -997,6 +1001,14 @@ What a throw did, for the renderer and for a replay:
   marker { x, y, r }                       // a drill's circle
 }
 ```
+
+`result.flag` is the throw's words for a baton: `"HELICOPTER"` (an illegal baton by the
+standard rules), `"<n> DOWN"`, `"MISS"`; none for a kubb thrown in (its `restText` is its
+line). `down` is the pieces it toppled. In a Kid match, a king knocked down early and stood
+back up (the ruling's `kingUp`) is no kubb down: since 0.17.0 `down` then counts the kubbs
+only and `flag` is theirs (`"1 DOWN"`), or `"KING BACK UP"` when the king was all it
+felled, as `ruling.short` says (before, such a baton read `"1 DOWN"` beside a ruling of
+`miss` and `kingUp`). `toppled` still lists the king.
 
 `bodies` holds every body that moved, from its first moving frame. `poses` is a flat
 array of integers, 7 a frame (`x y z qw qx qy qz` times `poseScale`, 1e5): pose j is

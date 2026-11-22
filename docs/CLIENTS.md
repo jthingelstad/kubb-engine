@@ -458,6 +458,10 @@ it takes to offer computer players.
     seat rows drawn from `computers`, `startCheck`'s `text`, Kid shown on seats in a Kid
     pitch, and the thrower's computer and level on the rail and the hand-off. Its
     `ctx.players` and `controlFor` handling need no change.
+- **Web and iPhone, the two QA fixes**: read `result.flag` as it comes (a Kid match's early
+  king now reads `"KING BACK UP"` or the kubbs alone, so nothing need rebuild it from the
+  ruling), and say a rethrow from `need.setup.rethrow` with its own count, "rethrow 1 of 1",
+  never adding it to the first round's.
 - **Pitch server** (`backend/pitch-server`)
   - Must: check the names of computer seats. `core.mjs`'s check of a document's names
     (`teamNames`, `match.players`, and a start's `meta`) gains `doc.computers[id].name`

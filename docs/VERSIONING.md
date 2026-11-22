@@ -140,6 +140,14 @@ Every client shows its own version with the engine's beside it, in one form:
     a player in throwing order) and reports each level's share of the batons, its hit
     rate and its inkasts. `make games` gates game files with computer players in teams
     (`tools/games.lua` one game in five, `tools/physmatch.lua --mixed`).
+  - **Two fixes from the web's QA pass, output only** (in no snapshot or hash): a Kid
+    match's king knocked down early and stood back up is no kubb down in the recording's
+    `result` (`down` counts the kubbs, `flag` is theirs or `"KING BACK UP"`, as
+    `ruling.short`; it read `"1 DOWN"` for a baton that felled only the king); and a
+    rethrown kubb is counted in its own round (`need.setup.n` and `of`, the label and the
+    aim's `rail`: two in and one out reads "rethrow 1 of 1", not "kubb 3 of 3"). The
+    setup's own `n` and `of` (the turn's count, which the computer's inkast reads) are
+    unchanged, so no throw and no golden hash moves.
   - **For clients**: docs/CLIENTS.md "0.17 on top". Shares matches with no 0.16.
 
 - **0.16.0** (minor). The drive: a baton thrown flat or down and hard into a group, and
