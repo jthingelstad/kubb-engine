@@ -129,6 +129,10 @@ census of 2026-11-21.
   (Jamie, 2026-11-21): the column made the club computer stronger and moved it away from
   real play (turns a game 15.5 to 17.8, took two 13.1% to 15.6%, both above the range),
   and club is to be retuned as a whole against its new target (owner-2026-11-21#s6).
+  One clip since (2026-11-21) shows a baton meeting a row of ten kubbs standing side by
+  side across its path, touching or nearly, and neighbours falling with the struck kubb
+  (yt-KcvzNzU7ZS8#1:30). It is one throw with a kubb already tilting, so it is carried
+  in Q16, not here; it does not touch the answer for the inkast shape.
 - **Recommendation:** The players were right, and so was the first Gym run: both results
   are the same fact seen against two defenders. Depth beats a fence once the defender
   defends. Done in 0.12.0 for pro (`inkast.depth`); club, which wins with it too, takes
@@ -197,6 +201,13 @@ census of 2026-11-21.
   adds a fourth place: on the centre line, far from the group, when the attacker will
   need all six batons for the group anyway (pk-strategy#p1.13). Josh Feathers says most teams put it on their
   baseline, and plans his own inkast around that (kn-drill-2012#p3.9).
+- **So far:** The rule texts, read 2026-11-21, agree on the U.S. engine's freedom only
+  in the U.S.: anywhere in the defenders' half, a baton length from the king and every
+  stake (web-us-rules-v4#p8.4, web-us-rules-v2#p9.3). The 2003 World Championship
+  booklet says anywhere on the pitch, as printed (web-vm-rules-2003#p3.3). The Belgian
+  rules keep it a baton length from the back line, so the baseline is not allowed
+  (web-kf-rules-2026#p18.2). The German rules do not place it at all: a defender throws
+  it into his own half from the attacker's baseline (web-dkb-rules-2025#p3.3).
 - **Recommendation:** The engine's default is what most teams do; leave it. Placement by
   the score is a pro refinement worth little: punishment kubbs are about one kubb in a
   hundred at tournament level.
@@ -234,8 +245,18 @@ census of 2026-11-21.
   glossary repeats the corner, the rethrow and deep as the safe choice (pk-drilling#p1.7,
   pk-deep#p1.3), and Kyle Weakland in 2018 has the sideline forcing kubbs together
   (ko-2018-practice#p1.4). So the written evidence runs to 2018.
-- **Settle by:** the current rule texts, and video: recent finals with commentary, once
-  something can watch them.
+  The current rule texts, read 2026-11-21: the U.S. rules still give a kubb a second
+  throw and call a kubb half in, in (web-us-rules-v4#p7.2), and still make a kubb that
+  can be raised in bounds be raised in bounds (web-us-rules-v4#p7.5), so the corner and
+  the chase keep their reasons in the game the engine plays. The German and Belgian
+  rules keep the second throw but ask for a kubb wholly inside once stood
+  (web-dkb-rules-2025#p4.1, web-kf-rules-2026#p20.2), which shrinks what a line forces in;
+  the German rules have punishment kubbs thrown, not placed (web-dkb-rules-2025#p3.3),
+  and both have a kubb lying on others placed by the throwing team
+  (web-dkb-rules-2025#p6.1, web-kf-rules-2026#p7.1). None of the predicted changes (one
+  try per kubb, a longer pitch) is in any of them.
+- **Settle by:** done for the U.S. rule text; video of recent finals with commentary for
+  how the best play under it, once something can watch them.
 - **Touches:** every inkast play
 
 ## Q11: A Kid level
@@ -275,7 +296,8 @@ census of 2026-11-21.
 - **Recommendation:** Read it as a thrown kubb lying short of the centre line. The next
   kubb is thrown into it so both end in the half. The engine allows this already: a kubb
   is judged where it lies once every kubb is thrown, not when it stops
-  (docs/notes/rules-engine.md). The computer never tries it.
+  (docs/notes/rules-engine.md; the rule, web-us-rules-v4#p6.5). The computer never
+  tries it.
 - **Settle by:** a second source that describes the same throw. Then a play, at pro.
 - **Touches:** a play not yet written
 
@@ -301,20 +323,36 @@ census of 2026-11-21.
   harder throw: `plan.tune.arcFarDeg` at 15 lifted pro's three-or-more from 4.9% to 6.8%
   and its base kubbs from 8 m from 34.7% to 42.0%, into the target. Nothing swept comes
   near real top teams' 12 to 18% for three or more.
+  A lesson observed since (2026-11-21), on the 8 m baton rather than the group: top
+  players throw half a turn or a whole one, a little over-rotated still lands on the
+  kubb, and a little under-rotated sticks or pops over it with a much lower hit rate
+  (yt-Rl8PNnjDidQ#0:32, yt-Rl8PNnjDidQ#2:18, yt-Rl8PNnjDidQ#2:33, yt-Rl8PNnjDidQ#2:41;
+  `baseline.rotation`). That allows both the half turn and Dickinson's full turn, and
+  his under-rotated baton may be Weakland's baton that stops dead. Nothing is thrown in
+  it, so it is the coach's word.
 - **Recommendation:** Do not build `field.corner` as written. Two things follow instead.
   The arc is a lever worth playing side against side, level by level. And the gap that
   remains is too large for any aim to close, so the next question is the physics: whether
   a baton going through a standing group loses too much, or the engine's groups stand
   too loose, compared with wood. The Gym measures the engine, not the pitch, and one
   player's account against one simulator settles neither.
+  Before any of that, one cheap check: whether the engine's baton, like the coach's,
+  forgives over-rotation more than under-rotation at 8 m. If it does not, the half-turn
+  plan with an even spread is aiming at the wrong side of its own error.
 - **Settle by:** `gym versus` on the arc; the reference engine (docs/notes/reference-engine.md)
-  on a baton through a standing group; and video of top blasters, once something can
-  watch it.
-- **Touches:** field.corner, field.sure
+  on a baton through a standing group; the Gym's base-kubb hits from 8 m by turns at first
+  touch, under against over; and video of top blasters, once something can watch it.
+- **Touches:** field.corner, field.sure, baseline.rotation
 
 ## Q15: May the defender turn a kubb when standing it up?
 
-- **Status:** open
+- **Status:** answered (2026-11-21) by the rule text: no. The U.S. rules v4.0 raise a kubb
+  exact: "upon one end while keeping two corners on the ground" (II.D.1,
+  web-us-rules-v4#p7.3), and exact: "Twisting a kubb is never allowed" (II.D.9.a,
+  web-us-rules-v4#p8.2; a penalty under III.C.5, web-us-rules-v4#p11.1). The 2011 rules
+  these pieces were written under have the same raising sentence (II.D.1,
+  web-us-rules-v2#p7.3) and allow a twist only where uneven ground requires it (II.D.7,
+  web-us-rules-v2#p9.2).
 - **Asks:** Josh Feathers and Chris Hodges both treat a kubb's facing as something the
   defender sets: a corner toward the attacker on the front kubb of a double, a flat face
   when nothing else differs (ko-2012-doubles#p1.16, ko-2013-fence#p1.15). The engine
@@ -324,9 +362,21 @@ census of 2026-11-21.
 - **Recommendation:** Go by the rule text the engine plays. If it fixes the facing, then
   facing is something the inkastare and the bounce decide, and the defender only reads
   it. The physics already makes it matter.
-- **Settle by:** the current U.S. rules and the 2012 rules these pieces were written
-  under, read side by side.
-- **Touches:** raise.facing, raise.square
+- **So far:** Read side by side on 2026-11-21. The other rule sets agree: the German
+  rules tip a kubb over a short edge without turning or shifting it
+  (web-dkb-rules-2025#p5.1), and the Belgian forbid turning or rotating it so as to
+  change the way it would stand (web-kf-rules-2026#p19.1). The 2003 World Championship
+  booklet says only that a kubb is raised where it lies in the direction of the
+  defenders' choice (web-vm-rules-2003#p4.1), which reads as the choice of end in the
+  light of the detailed rules adapted from it, but does not say so. The Belgian rules
+  also set base kubbs flat face to the opponent, never a corner
+  (web-kf-rules-2026#p10.1): facing matters enough to be ruled on. So Feathers and Hodges
+  were reading facings they could not set, or writing loosely; the engine's raising
+  (tip about the bottom edge of the chosen end) is the rule.
+- **Settle by:** done: the current U.S. rules and the 2011 rules, read side by side
+  (above).
+- **Touches:** raise.facing, raise.square (both now say so); inkast.single and
+  field.angle, where facing is the inkast's and the attacker's, not the defender's
 
 ## Q16: Why does the pro computer take three kubbs so rarely?
 
@@ -368,6 +418,14 @@ census of 2026-11-21.
   and 3 are untouched (docs/notes/gym.md, "The attacker's plays"). The plays are the pro
   computer's only: the club computer throws as on 0.11.2 (1.9% three or more, against 3
   to 7) until it is retuned.
+  A clip observed since (2026-11-21) bears on cause 3 from the side: a baton meets a row
+  of ten kubbs standing side by side across the throw, touching or nearly, and the
+  struck kubb's neighbours fall with it (yt-KcvzNzU7ZS8#1:04, yt-KcvzNzU7ZS8#1:30).
+  Against it, Chris Hodges reasons that kubbs side by side do not fall together
+  (ko-2013-fence#p1.11), the reason behind `raise.across` and `par`. One throw, its
+  release cut, a kubb already tilting before impact, and a touching row where a raised
+  fence stands 10 cm apart: it settles nothing, but it says the sideways transfer
+  through touching kubbs is worth a case of its own.
 - **Recommendation:** Take them in the order the plays allow. The raising comes first and
   will change how groups stand, so measure again after `raise.par` (done, with the plays
   that answer it: 6.8%). The flatter throw is now the cheapest real gain and has an owner's word behind it (a baton at 5 m is thrown
@@ -376,6 +434,33 @@ census of 2026-11-21.
   change that moves every golden hash: do it last, and only with a measurement of real
   wood to aim at.
 - **Settle by:** `gym versus` after each; for the physics, a filmed baton into a touching
-  column or pile.
-- **Touches:** field.sure, field.power, inkast.depth, the physics
+  column or pile, and into a touching row across the throw; the reference engine on the
+  same row (docs/notes/reference-engine.md), which costs no hash.
+- **Touches:** field.sure, field.power, inkast.depth, raise.across, the physics
 
+## Q17: Where does the inkastare stand?
+
+- **Status:** open
+- **Asks:** One coach in two lessons. In the earlier one a right-hander inkasts from the
+  right side, near the sideline, so the kubbs land where they can be forced in
+  (yt-Io-rxbSB3Ns#0:35, yt-Io-rxbSB3Ns#0:43). In the later one, staying there is the
+  habit to break: as the group reaches into the field the left-to-right cut from the
+  sideline gets harder, so move along the baseline, a metre or as far as level with the
+  king, and let the natural cut run into the group (yt-993xiTqXtYw#0:16,
+  yt-993xiTqXtYw#0:28, yt-993xiTqXtYw#1:02, yt-993xiTqXtYw#1:27). It is about where the
+  thrower stands, not where the group goes: `inkast.corner` is untouched.
+- **So far:** The rules fix only that the inkastare throws from behind the baseline with
+  both feet between the sidelines (web-us-rules-v4#p6.4). The computer stands straight
+  behind each spot it aims at, so its stance follows the group in and it never throws
+  across the body; it never stands further in to throw across at the group, and its cut
+  is always toward the sideline (`inkast.stance`, `inkast.steer`).
+- **Recommendation:** Read them as one coach's teaching in two steps, not a contradiction:
+  start by the sideline for the first kubbs, and move in as the group grows. The later
+  video is his account of what he changed, so where they differ it wins. It needs no
+  new cut: thrown from further in, the computer's one tap toward the sideline is the
+  natural cut he describes running into the group.
+- **Settle by:** the Gym: the pro computer standing in, by the group's reach from the
+  sideline, against straight behind each spot, on how far later kubbs rest from their
+  marks and on the attacker's take at the group; and a match video of a top inkastare
+  showing where they stand.
+- **Touches:** inkast.stance, inkast.corner, inkast.steer
