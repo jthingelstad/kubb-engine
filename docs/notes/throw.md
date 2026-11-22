@@ -567,6 +567,25 @@ to kubbs touching. By spinning they land and then roll into each other."
   aim, for the Gym to compare.
 - **The Gym's human thrower** spins as the computer at its level does.
 
+## The recorded hand beats club on the current meter (2026-11-22)
+
+On the current meter the people recorded so far throw better than a club player: the
+recorded hand (fit 2) fells an 8 m base kubb 43% of the time against a real club row of 19
+to 27% (real games, all teams: 32.7%), lands a thrown kubb dead 78% of the time (the club
+computer 56%), and beats the club computer in 86 games of 100 (`gym versus`, 300 seeds both
+ways round).
+
+The basis is thin: 212 recorded throws (133 batons, 79 thrown kubbs) from 6 matches and 4
+players, one match 35% of them, all on engine 0.13.1 and its wider kubb bars (0.16 narrowed
+a thrown kubb's bars to a baton's). The person's bars have not been narrowed on this
+evidence: that waits for the owner's word (Q19 in docs/reference/QUESTIONS.md) and for more
+recorded matches, about 200 throws a cell from 10 or more matches and 5 or more players.
+Gym runs use fit 2 by default (`tools/gym/human-model.json`); `test_meter` and the meter's
+tuning still judge against fit 1 (`tools/gym/human-model-0.7.json`), the hand the bars were
+tuned with.
+
+The refit and what it moves are in docs/notes/gym.md "Fitting the human thrower".
+
 ## The person's meter (0.13)
 
 The owner, 2026-11-21 (`docs/reference/observations/owner-2026-11-21.md` `s8`): "player
