@@ -223,7 +223,11 @@ end)
 test("meter: the recorded hand fells a lone kubb about as the reference's club rows say", function()
 	local here = debug.getinfo(1, "S").source:match("^@(.*)/[^/]*$") or "."
 	local human = dofile(here .. "/../../tools/gym/human.lua")
-	local model = human.load(here .. "/../../tools/gym/human-model.json")
+	-- fit 1, the hand the meter's bars were tuned with (0.13). Fit 2 (2026-11-22, the
+	-- default model) is people at the meter itself and fells 76 / 60 / 44%: whether the
+	-- bars narrow to bring it back to the reference rows is a decision for the game, not
+	-- this test (docs/notes/gym.md "Fitting the human thrower")
+	local model = human.load(here .. "/../../tools/gym/human-model-0.7.json")
 	local p = human.part(model, "club", "baton")
 	-- tools/meterprobe.lua's TARGETS for the recorded hand (x1), at 200 throws a range:
 	-- within 8 points (twice the 4 the meter is tuned to, for the smaller sample)
