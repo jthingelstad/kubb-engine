@@ -157,6 +157,18 @@ reads). pk-kubb-score owns the notation; the engine owns its writer, the rules a
 statistics, and depends on pk-kubb-score one way. Times are `{ year, month, day, hour, min }` tables passed in (no `os.time` in core);
 `tw.notation.filename(start, teamA, teamB)` gives `YYYY-MM-DD-HHMM-<a>-v-<b>.txt`.
 
+- **`[Throw Levels]`** (since 0.13.2) names the computer's players only, each with the
+  level it throws at: `[Throw Levels "computer pro"]` against a person, every player
+  computer against computer (`"k pro, m club, playdate beginner"`), and no header when no
+  computer plays (pass and play, online with people only) or the match does not say
+  which side is the computer (no `cpu` and not "Vs Playdate"). `match.fileLevels` builds
+  it from `match.cpuSides` and `cpu.levelName`; `notation.render` writes whatever
+  `meta.levels` it is given and leaves the header out when that is empty. A level is the
+  computer's standard; a person's changes nothing in their throw (0.13.0,
+  docs/notes/throw.md "The person's meter"), so a person is not listed. Files from 0.13.1
+  and before list every player. Nothing reads the header back: `gamefile.parse` keeps it
+  in `headers`, and the canonical form puts it after `Mode` by code point when present.
+
 - Player ids: lowercased name, spaces and hyphens to `_`, everything else but letters
   dropped; a taken id gets `_b`, `_c`, ... Names in headers lose quotes and brackets; player
   names also lose commas and parentheses (kubb.js splits on them).

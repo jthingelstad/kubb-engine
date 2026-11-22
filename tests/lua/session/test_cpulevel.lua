@@ -147,18 +147,33 @@ test("checkStart, renameStart, restore and replay keep the computer's level", fu
 	expect.eq(doc.settings.computer, "pro")
 end)
 
-test("the game file's [Throw Levels] names the computer's level", function()
+test("the game file's [Throw Levels] names the computer's level, and only the computer's", function()
 	local s = vsComputer { computer = "pro" }
-	playOut(s)
+	-- a restored session (m.cpu set again from its options) writes the same header
+	expect.eq(session.restore(s:snapshot()):sheet().text:match('%[Throw Levels "([^"]*)"%]'), "computer pro")
+	local start = s:snapshot()
+	local log = playOut(s)
 	local text = s:sheet().text
+	-- and a replay of the match ends on the same file
+	local r = replay.new { start = start, log = log }
+	expect.eq(r:finish().differs, false)
+	expect.eq(r.s:sheet().text:match('%[Throw Levels "([^"]*)"%]'), "computer pro")
 	local line = text:match('%[Throw Levels "([^"]*)"%]')
-	expect.truthy(line and line:find("pro", 1, true), "the computer's level: " .. tostring(line))
-	expect.truthy(line:find("beginner", 1, true), "and the person's")
+	expect.eq(line, "computer pro", "the computer's level alone (0.13.2)")
+	expect.truthy(not text:find("beginner", 1, true), "not the person's")
 	local plain = vsComputer()
 	playOut(plain)
 	local l2 = plain:sheet().text:match('%[Throw Levels "([^"]*)"%]')
-	expect.truthy(l2 and not l2:find("club", 1, true) and not l2:find("pro", 1, true),
-		"without the option only the person's, as before: " .. tostring(l2))
+	expect.eq(l2, "computer " .. autothrow.tune.level, "without the option: the level it throws at")
+	-- pass and play: no computer, no header, the people's levels notwithstanding
+	local pp = session.new { mode = "match", seed = 11, start = START, raising = "auto", maxTurns = 2,
+		teams = { A = { name = "Ada", players = { { name = "Ada", level = "beginner" } } },
+			B = { name = "Bo", players = { { name = "Bo", level = "pro" } } } } }
+	expect.eq(pp:sheet().text:match('%[Throw Levels'), nil)
+	-- computer against computer: both
+	local cc = session.new { mode = "match", seed = 11, cpu = "both", computer = "pro", start = START,
+		raising = "auto", maxTurns = 2 }
+	expect.eq(cc:sheet().text:match('%[Throw Levels "([^"]*)"%]'), "team_a pro, team_b pro")
 end)
 
 test("the pitch: the host picks the computer's level; a pitch without it is as before", function()

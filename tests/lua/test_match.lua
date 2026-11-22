@@ -573,14 +573,87 @@ test("match: the lineup's keys and levels, the turn's order, handing a throw to 
 	expect.eq(back.order.A.ids[3], "ray")
 end)
 
-test("match: the game file names each player's throw level", function()
-	local m = match.new { teams = {
+local FIN = { year = 2026, month = 11, day = 15, hour = 10, min = 0 }
+local function levelsLine(text) return text:match('%[Throw Levels "([^"]*)"%]') end
+local function kimMax(b, extra)
+	local o = { teams = {
 		A = { name = "Snow Kubbs", players = { { name = "Kim", key = "p1", level = "pro" }, { name = "Max", key = "p2", level = "club" } } },
-		B = { name = "Playdate", players = { { name = "Playdate" } } } } }
+		B = b or { name = "Playdate", players = { { name = "Playdate", level = "beginner" } } } } }
+	for k, v in pairs(extra or {}) do o[k] = v end
+	return match.new(o)
+end
+
+-- 0.13.2: [Throw Levels] names the computer's players only (a person's level changes
+-- nothing in their throw since 0.13.0); no computer, no header.
+test("match: the game file names only the computer's players' levels", function()
+	-- pass and play (no cpu, the default mode): people only, no header
+	local m = kimMax()
 	match.resign(m)
-	local text = match.file(m, { year = 2026, month = 11, day = 15, hour = 10, min = 0 }, "0.0.1")
-	expect.truthy(text:find('[Throw Levels "k pro, m club"]', 1, true), text)
+	local text = match.file(m, FIN, "0.0.1")
+	expect.eq(levelsLine(text), nil, text)
 	expect.truthy(text:find('[Team A Players "Kim (k), Max (m)"]', 1, true), text)
 	local g = tw.gamefile.parse(text)
 	expect.eq(g.players.A .. "v" .. g.players.B, "2v1")
+	expect.eq(g.headers["Throw Levels"], nil)
+	-- cpu = {}: a match that says no side is the computer (online, people only)
+	m = kimMax(nil, { cpu = {} })
+	expect.eq(levelsLine(match.file(m, FIN, "0.0.1")), nil)
+	-- a person against the computer: the computer's player alone
+	m = kimMax(nil, { cpu = { "B" }, mode = "Vs Computer" })
+	expect.eq(levelsLine(match.file(m, FIN, "0.0.1")), "playdate beginner")
+	-- the set form of cpu says the same
+	m = kimMax(nil, { cpu = { B = true } })
+	expect.eq(levelsLine(match.file(m, FIN, "0.0.1")), "playdate beginner")
+	-- the Playdate's VS PLAYDATE (no cpu given; the mode says Team B is the computer)
+	m = kimMax(nil, { mode = "Vs Playdate" })
+	expect.eq(levelsLine(match.file(m, FIN, "0.0.1")), "playdate beginner")
+	-- a computer player with no level of its own: the level it throws at (autothrow.tune.level)
+	m = kimMax({ name = "Computer", players = { { name = "Computer" } } }, { cpu = { "B" } })
+	expect.eq(levelsLine(match.file(m, FIN, "0.0.1")), "computer " .. tw.autothrow.tune.level)
+	-- computer against computer: every player, Team A's then Team B's, by the header's ids
+	m = kimMax(nil, { cpu = { "A", "B" }, mode = "Computer vs Computer" })
+	expect.eq(levelsLine(match.file(m, FIN, "0.0.1")), "k pro, m club, playdate beginner")
+	-- a match saved without a lineup (older saves): the computer's players still listed
+	m = kimMax(nil, { cpu = { "B" } })
+	m.lineup = nil
+	expect.eq(levelsLine(match.file(m, FIN, "0.0.1")), "playdate " .. tw.autothrow.tune.level)
+	-- the canonical position: after [Mode], by code point
+	m = kimMax(nil, { cpu = { "B" }, mode = "Vs Computer" })
+	text = match.file(m, FIN, "0.0.1")
+	expect.truthy(text:find('[Mode "Vs Computer"]\n[Throw Levels "playdate beginner"]\n', 1, true), text)
+end)
+
+test("match: the computer's raising and throws do not read the file's levels", function()
+	-- fileLevels only reports: the side level the computer raises at is the lineup's
+	local m = kimMax(nil, { cpu = { "B" } })
+	expect.eq(match.sideLevel(m, "B"), "beginner")
+	expect.eq(match.sideLevel(m, "A"), "pro", "a person's lineup level is kept, as before")
+	local ls = match.fileLevels(m)
+	expect.eq(#ls, 1)
+	expect.eq(ls[1], "playdate beginner")
+end)
+
+-- Reading: files from 0.13.1 and before list every player; files from 0.13.2 the
+-- computer's only, or no header. Every reader takes all three.
+test("gamefile: reads [Throw Levels] old (every player), new (computer only) and absent", function()
+	local m = kimMax(nil, { cpu = { "B" }, mode = "Vs Computer" })
+	match.resign(m)
+	local g = m.game
+	local old = notation.render(g, { start = FIN, finish = FIN, version = "0.13.1", mode = m.mode,
+		levels = { "kim pro", "max club", "playdate beginner" } })
+	expect.truthy(old:find('[Throw Levels "k pro, m club, playdate beginner"]', 1, true), old)
+	local new = match.file(m, FIN, "0.13.2")
+	local none = notation.render(g, { start = FIN, finish = FIN, version = "0.13.2", mode = "Pass and Play" })
+	expect.eq(levelsLine(none), nil)
+	local want
+	for _, text in ipairs { old, new, none } do
+		local s = assert(tw.gamefile.parse(text))
+		local sum = s.a .. "|" .. s.b .. "|" .. tostring(s.winner) .. "|" .. s.turns .. "|" .. s.players.A .. "v" .. s.players.B
+		want = want or sum
+		expect.eq(sum, want, "the summary does not depend on the header")
+		expect.eq(#s.roster.A, 2)
+	end
+	expect.eq(tw.gamefile.parse(old).headers["Throw Levels"], "k pro, m club, playdate beginner")
+	expect.eq(tw.gamefile.parse(new).headers["Throw Levels"], "playdate beginner")
+	expect.eq(tw.gamefile.parse(none).headers["Throw Levels"], nil)
 end)
