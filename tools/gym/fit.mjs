@@ -166,12 +166,25 @@ export async function fit(dir, { jobs = 4 } = {}) {
     const correlations = {};
     for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++)
       correlations[`${names[i]}~${names[j]}`] = +corr(parts[names[i]], parts[names[j]]).toFixed(3);
+    // (0.17.0) do a baton's misses grow with the backswing its plan asked for? The
+    // backswing and release misses by the plan's backswing, in three bands: n, the median
+    // absolute miss and the share past the 0.16 meter's power bar at that range would be
+    // unknowable here (the meter came later), so the spread alone
+    const byBack = {};
+    const bats = ok.filter(t => t.how === 'baton');
+    for (const [name, lo, hi] of [['under 110', -1e9, 110], ['110 to 125', 110, 125], ['125 and over', 125, 1e9]]) {
+      const ts = bats.filter(t => t.solBack >= lo && t.solBack < hi);
+      const med = xs => { const a = xs.map(Math.abs).sort((x, y) => x - y); return a.length ? +a[a.length >> 1].toFixed(2) : null; };
+      byBack[name] = { n: ts.length, backMiss: med(ts.map(t => t.back - t.solBack)),
+        releaseMiss: med(ts.map(t => t.stop - t.solRelease)), shake: med(ts.map(t => t.shake)) };
+    }
     const engs = {};
     for (const t of ok) engs[t.eng] = (engs[t.eng] || 0) + 1;
     const report = {
       recorded: rec.info.throwsRecorded, attempted: rec.throws.length, recovered: ok.length,
       unrecovered: rec.throws.filter(t => !(t.err != null && t.err < ACCEPT)).map(t => t.error ? 'error' : t.err == null ? 'no plan' : `err ${t.err.toExponential(1)}`),
-      engines: engs, inverts: rec.inverts,
+      engines: engs, inverts: rec.inverts, byBack,
+      backMissByBack: +corr(bats.map(t => t.solBack), bats.map(t => Math.abs(t.back - t.solBack))).toFixed(3),
       nerves: { side: { mean: mean(z[0]), sd: sd(z[0]) }, length: { mean: mean(z[1]), sd: sd(z[1]) }, tumble: { mean: mean(zt), sd: sd(zt) } },
       correlations, arcSet: ok.filter(t => t.arcSet).length, tiltSet: ok.filter(t => t.how === 'baton' && t.tiltPlan !== 0).length,
     };
