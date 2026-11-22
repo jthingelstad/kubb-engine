@@ -25,6 +25,10 @@ for _, n in ipairs { 3, 6 } do
 		C.layouts[string.format("col%d-%g", n, gap)] = column(n, gap)
 	end
 end
+-- a lone kubb, struck the same ways and by slower batons too, near where it stops
+-- falling (`C.lone`; 0.18: where a baton's blow lands on the face)
+C.layouts["col1"] = column(1, 0)
+C.lone = { v = { 0.5, 0.7, 0.9, 1.1, 1.4 }, turn = { 0, 6 }, low = { 0.03, 0.045, 0.08 } }
 -- piles (each kubb 2 mm or so from its neighbours, as kubbs thrown in and raised
 -- toward each other stand)
 C.layouts["block2x3"] = { { -0.072, 0 }, { 0, 0 }, { 0.072, 0 }, { -0.072, 0.072 }, { 0, 0.072 }, { 0.072, 0.072 } }

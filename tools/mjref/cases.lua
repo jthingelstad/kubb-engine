@@ -396,9 +396,19 @@ function cases.columnFrom(C)
 		local lay = C.layouts[name]
 		local col = name:match("^col")
 		if col then
+			local vs = {}
+			for _, v in ipairs(C.baton.v) do vs[#vs + 1] = v end
+			if name == "col1" and C.lone then
+				for _, v in ipairs(C.lone.v) do vs[#vs + 1] = v end
+			end
+			local turns = {}
+			for _, t in ipairs(C.baton.turn) do turns[#turns + 1] = t end
+			if name == "col1" and C.lone then
+				for _, t in ipairs(C.lone.turn) do if t ~= 0 then turns[#turns + 1] = t end end
+			end
 			for _, low in ipairs(C.baton.low) do
-				for _, v in ipairs(C.baton.v) do
-					for _, turn in ipairs(C.baton.turn) do
+				for _, v in ipairs(vs) do
+					for _, turn in ipairs(turns) do
 						local bodies, field = kubbs(lay)
 						bodies[#bodies + 1] = baton(0, low, v, turn)
 						add(list, { id = string.format("col-%s-b%g-%g-%g", name, low, v, turn), scen = "column",
