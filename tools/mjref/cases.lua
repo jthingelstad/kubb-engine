@@ -361,4 +361,79 @@ function cases.drive(per)
 	return list
 end
 
+-- Kubb on kubb (0.18, docs/notes/physics.md "A blow passed down a column"): the columns
+-- and piles of tests/fixtures/contact/columns.lua, struck by a level upright baton or by
+-- the front kubb itself set moving (no baton). Not part of cases.all(): export.lua
+-- --cases column. Each case's extra.field lists its kubbs; extra.kind is "baton",
+-- "push" or "pile".
+function cases.column()
+	local here = arg and arg[0] and arg[0]:match("^(.*)/[^/]*$") or "."
+	local C = dofile(here .. "/../../tests/fixtures/contact/columns.lua")
+	return cases.columnFrom(C)
+end
+
+function cases.columnFrom(C)
+	local list = {}
+	local kk, bk = body.kinds.kubb, body.kinds.baton
+	local Y0 = 1
+	local function kubbs(lay)
+		local bodies, field = {}, {}
+		for i, p in ipairs(lay) do
+			local qw, qx, qy, qz = quat.fromAxisAngle(0, 0, 1, rad(p[3] or 0))
+			bodies[i] = resting("k" .. i, "kubb", p[1], Y0 + p[2], qw, qx, qy, qz)
+			field[i] = "k" .. i
+		end
+		return bodies, field
+	end
+	local function baton(x, low, v, turn)
+		return { id = "baton", kind = "baton", pos = v3(x, Y0 - kk.hy - bk.r - 0.05, low + bk.hl),
+			quat = { 1, 0, 0, 0 }, vel = v3(0, v, 0), angvel = v3(-turn, 0, 0), projectile = true }
+	end
+	local names = {}
+	for name in pairs(C.layouts) do names[#names + 1] = name end
+	table.sort(names)
+	for _, name in ipairs(names) do
+		local lay = C.layouts[name]
+		local col = name:match("^col")
+		if col then
+			for _, low in ipairs(C.baton.low) do
+				for _, v in ipairs(C.baton.v) do
+					for _, turn in ipairs(C.baton.turn) do
+						local bodies, field = kubbs(lay)
+						bodies[#bodies + 1] = baton(0, low, v, turn)
+						add(list, { id = string.format("col-%s-b%g-%g-%g", name, low, v, turn), scen = "column",
+							group = string.format("%s baton low %g", name, low),
+							params = { layout = name, low = low, v = v, turn = turn }, surface = "grass", duration = 3,
+							extra = { field = field, kind = "baton", layout = name }, bodies = bodies })
+					end
+				end
+			end
+			for _, h in ipairs(C.push.h) do
+				for _, J in ipairs(C.push.J) do
+					local bodies, field = kubbs(lay)
+					local s = struck("k1", "kubb", lay[1][1], Y0 + lay[1][2], J, h)
+					bodies[1] = s
+					add(list, { id = string.format("col-%s-p%g-%g", name, h, J), scen = "column",
+						group = string.format("%s push h %g", name, h),
+						params = { layout = name, h = h, J = J }, surface = "grass", duration = 3,
+						extra = { field = field, kind = "push", layout = name }, bodies = bodies })
+				end
+			end
+		else
+			for _, dx in ipairs(C.pile.dx) do
+				for _, v in ipairs(C.pile.v) do
+					for _, turn in ipairs(C.pile.turn) do
+						local bodies, field = kubbs(lay)
+						bodies[#bodies + 1] = baton(dx, 0.045, v, turn)
+						add(list, { id = string.format("col-%s-x%g-%g-%g", name, dx, v, turn), scen = "column",
+							group = name, params = { layout = name, dx = dx, v = v, turn = turn }, surface = "grass",
+							duration = 3, extra = { field = field, kind = "pile", layout = name }, bodies = bodies })
+					end
+				end
+			end
+		end
+	end
+	return list
+end
+
 return cases

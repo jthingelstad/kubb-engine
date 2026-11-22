@@ -121,6 +121,11 @@ iPhone app (the bundle: core, pitch, session and tune).
   swept from the default arc down to a drive into the two hand-written group positions
   (`tests/fixtures/drive/positions.lua`), with a seeded jitter: kubbs felled, two or more,
   where the baton rests (docs/notes/throw.md "The drive").
+- `lua5.4 tools/columnprobe.lua [--only layout] [--kind baton|push|pile] [--game] [--set
+  ...] [--trace <case id> [--z]]`: kubb on kubb, the columns and piles of
+  `tests/fixtures/contact/columns.lua` struck by a baton or by their front kubb, kubbs
+  toppled per layout and strike; the same cases go through MuJoCo with `tools/mjref`
+  `--cases column` and `column.py` (docs/notes/physics.md "A blow down a column").
 - `node tools/batonvalue.mjs <games dir> [--json] [--tiers]` (`make batonvalue`): the batons a
   position costs, from scored games or the Gym's, beside Hodges' 2014 table, with bootstrap
   intervals and by tier (docs/notes/real-games.md "Baton value").
