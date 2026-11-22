@@ -22,9 +22,15 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   Pettersson); kn-drill-2012#p3.20 (Scott Forster); yt-Io-rxbSB3Ns#0:35,
   yt-Io-rxbSB3Ns#1:04, yt-Io-rxbSB3Ns#1:30 (Eric Anderson); pk-drilling#p1.5,
   pk-drilling#p1.6, pk-drilling#p1.7, pk-drilling#p1.8 (Garrick van Buren);
-  ko-2018-practice#p1.4 (Kyle Weakland)
+  ko-2018-practice#p1.4 (Kyle Weakland). The rule behind the first reason: a kubb that
+  can be raised in bounds must be, and half in is in (web-us-rules-v4#p7.5,
+  web-us-rules-v4#p7.2). The German and Belgian rules ask for a kubb wholly inside
+  once raised (web-dkb-rules-2025#p4.1, web-kf-rules-2026#p20.2), which narrows the
+  margin on a line (Q10).
 - **Basis:** player, coach
-- **Against:** nothing found for two or more kubbs. For one kubb see `inkast.single`.
+- **Against:** nothing found for two or more kubbs on where the group goes. Where the
+  inkastare stands to build it is another choice (`inkast.stance`, Q17). For one kubb see
+  `inkast.single`.
 - **Levels:** Proposed: pro and club always. Beginner and kid do not aim for a corner.
 - **Engine:** modelled in part (`cpu.basket`; `autothrow.basket` until 0.11.1). It picks the
   corner that already holds more field kubbs and flips a coin on a tie. It does not know
@@ -32,17 +38,60 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   line (`basketX`, `basketY`), so its kubbs do not lie on a line.
 - **Gym:** needs a row: thrown kubbs resting on a line.
 
+## inkast.stance: Work along the baseline as the group grows
+
+- **When:** inkast, a group already lies in the basket and has grown in from the
+  sideline, so a kubb thrown from by the sideline must be cut back across the body.
+- **Play:** Move along the baseline toward the middle, a metre or so, and as far as level
+  with the king, then throw at the open side of the group and let the natural cut (left
+  to right for a right-hander) bring the kubb in.
+- **Why:** From by the sideline the easy cut runs toward the sideline, and gets harder
+  the further the group reaches into the field; a kubb thrown across the body and cut is
+  hard to bring back, and sticks out from the group or goes out. From further along the
+  line the same cut runs into the group. The coach has worked on standing as far in as
+  the king for a couple of years. No two groups are alike: look, weigh the risk, then go.
+- **Says who:** yt-993xiTqXtYw#0:08, yt-993xiTqXtYw#0:16, yt-993xiTqXtYw#0:28,
+  yt-993xiTqXtYw#0:47, yt-993xiTqXtYw#1:02, yt-993xiTqXtYw#1:27, yt-993xiTqXtYw#2:02
+  (Eric Anderson). The rules fix only that the inkastare's feet stay behind the baseline
+  and between the sidelines (web-us-rules-v4#p6.4). Nothing is thrown in the video:
+  every cut is his word and a kubb rolled by hand (yt-993xiTqXtYw#1:30), and his feet
+  are never shown.
+- **Basis:** coach
+- **Against:** Q17. The same coach's earlier lesson has a right-hander inkast from near
+  the right sideline (yt-Io-rxbSB3Ns#0:35, yt-Io-rxbSB3Ns#0:43).
+- **Levels:** Proposed: pro. Club inkasts from where it started.
+- **Engine:** modelled in part, by accident (0.13.0). The computer's inkastare stands
+  straight behind each spot it aims at (`plan.stance` from `autothrow`), so as the spot
+  moves in from the sideline the stance moves with it, and it never throws across the
+  body. It never stands further in than the spot to throw across at it, and its cut is
+  always one tap toward the sideline (`inkast.steer`).
+- **Gym:** needs a row: how far the later kubbs of a group rest from their marks, by how
+  far the group reaches in from the sideline.
+
 ## inkast.single: One kubb does not go to the corner
 
 - **When:** inkast, one kubb in hand (two, by the situation).
-- **Play:** Aim midway between the king and the centre line's pin.
-- **Why:** There is a small chance it settles behind the pin, which then shields it from
-  a baton. With two or more the corner is worth its risk.
-- **Says who:** kn-drill-2012#p3.11 (Josh Feathers)
-- **Basis:** player
-- **Against:** nothing found. One player only.
-- **Levels:** Proposed: pro only, and not before a second source agrees.
-- **Engine:** not modelled (0.11.0). One kubb goes to the basket like any other.
+- **Play:** Aim midway between the king and the centre line's pin: about a metre in
+  from the sideline, not on it.
+- **Why:** Two sources, two reasons. The player: there is a small chance it settles
+  behind the pin, which then shields it from a baton; with two or more the corner is
+  worth its risk. The coach: a kubb thrown right down the sideline leaves a straight
+  shot, and one about a metre in has "both sides to play with", which we read as batons
+  having to come at it from an angle either way (the reading is ours, his gesture
+  only). He teaches it to kids and new players, especially for a single kubb.
+- **Says who:** kn-drill-2012#p3.11 (Josh Feathers); yt-KnLTnKVVPMg#0:33,
+  yt-KnLTnKVVPMg#0:48, yt-KnLTnKVVPMg#1:29, yt-KnLTnKVVPMg#2:27, yt-KnLTnKVVPMg#2:37 (an
+  unnamed coach in a Team Kubboom vest) That the two places agree is our arithmetic:
+  midway between the king and the pin on a 5 m pitch is 1.25 m in, against his round
+  metre. Neither source measured it.
+- **Basis:** player, coach, estimate
+- **Against:** nothing found. The coach's own demonstration kubb came to rest by a stake
+  touching nothing (yt-KnLTnKVVPMg#0:57), and the reasons the two give are different.
+- **Levels:** Proposed: club and pro. The coach teaches it to beginners, so a beginner
+  may aim there too, though not reliably.
+- **Engine:** not modelled (0.13.0). One kubb goes to the basket like any other, which
+  sits 0.6 m inside the sideline and 0.75 m past the centre line (`basketX`, `basketY`):
+  already off the line, but nearer it than either source.
 - **Gym:** needs a row: first-baton hits on a lone field kubb, by where it stands.
 
 ## inkast.first: The first kubb is the marker
@@ -58,7 +107,9 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   kn-drill-2012#p2.3 (Niklas Ahlgren); yt-Io-rxbSB3Ns#8:04 (Eric Anderson)
 - **Basis:** player, coach
 - **Against:** on the spin only. Görlitz gives the first kubb very little; Phil Dickinson
-  spins the first few harder and the later ones less (ko-2017-dickinson#p1.8).
+  spins the first few harder and the later ones less (ko-2017-dickinson#p1.8). And the
+  coach's own lone first kubb, thrown with his lean, ran on about half a kubb-length
+  after landing (yt-Io-rxbSB3Ns#8:32): no dead stop in the one throw shown.
 - **Levels:** Proposed: pro. Club tries and lands it less often.
 - **Engine:** modelled in part (0.11.0). Later kubbs are aimed off the innermost kubb
   already lying by the basket (`cpu.spot`, `read.innermostLying`). The first kubb is
@@ -68,14 +119,20 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
 ## inkast.roll: Later kubbs roll into the ones already down
 
 - **When:** inkast, a kubb already lies in the basket.
-- **Play:** Land beside the group and let the kubb kick or roll into it, so each kubb is
-  stopped by the last. Most of the time a light cut, not a big one.
+- **Play:** Land just short of or beside the group and let the kubb kick or roll into
+  it, so each kubb is stopped by the last. Most of the time a light cut, not a big one.
 - **Why:** Each kubb is stopped by the ones before it, so the group ends close together
-  and the kubbs do not run out of bounds.
+  and the kubbs do not run out of bounds. In the coach's thrown demonstrations a kubb
+  spinning nose down lands just short of the group on the thrower's side and hops on
+  half to one kubb-length into it, mostly along its line and a little to one side,
+  ending beside or nearly against a kubb already down; no throw shown kicks far
+  sideways.
 - **Says who:** kn-drill-2012#p2.10 (Josef Björklund); kn-drill-2012#p3.21 (Scott
   Forster); kn-drill-2012#p4.9 (Björn Görlitz); kn-drill-2012#p5.1, kn-drill-2012#p5.2
   (Marcus Hansson); kn-drill-2012#p5.15 (Samuel Hufschmid); yt-Io-rxbSB3Ns#1:13,
-  yt-Io-rxbSB3Ns#5:07, yt-Io-rxbSB3Ns#7:09 (Eric Anderson)
+  yt-Io-rxbSB3Ns#5:07, yt-Io-rxbSB3Ns#7:09, yt-Io-rxbSB3Ns#7:10, yt-Io-rxbSB3Ns#8:35
+  (Eric Anderson); the run on after landing also yt-Io-rxbSB3Ns#4:59. That a thrown kubb
+  knocking another leaves both where they rest is the rule (web-us-rules-v4#p6.5).
 - **Basis:** player, coach
 - **Against:** Q12. Two players prefer a kubb that lands and stays: kn-drill-2012#p3.1
   (Terry Ekelöf), kn-drill-2012#p4.2 (Eric Goplin).
@@ -182,7 +239,8 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   still does. Held
   to 4.35 m because the baskets face each other: two columns grown to the centre line
   stand a hand apart, and a baton at one touches the other team's column in the
-  thrower's own half (II.B.11). A column grown to 4.05 m wins 55.4% against one held
+  thrower's own half (II.B.11, web-us-rules-v4#p6.3). A column grown to 4.05 m wins
+  55.4% against one held
   back, but with both teams doing it 3.6% of pro batons are forfeit, against none in real
   games. A wall along the sideline (the column 0.3 m nearer the
   sideline, `depth.x = 2.2`) did no better than at the basket (49.8%, before the hold).
@@ -242,7 +300,8 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   than before. Punishment kubbs on the baseline are the usual ones rescued.
 - **Says who:** ko-2012-rescue#p1.4, ko-2012-rescue#p1.8, ko-2012-rescue#p1.9,
   ko-2012-rescue#p1.11, ko-2012-rescue#p1.18 (Josh Feathers); pk-strategy#p1.16,
-  pk-strategy#p1.19, pk-strategy#p1.20 (Planet Kubb wiki)
+  pk-strategy#p1.19, pk-strategy#p1.20 (Planet Kubb wiki). The rule:
+  web-us-rules-v4#p7.1.
 - **Basis:** player
 - **Against:** it is rare. He had never seen one tried in a tournament
   (ko-2012-rescue#p1.21), and PLAY.md counts 3 in 5,270 kubbs.

@@ -15,9 +15,14 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Why:** It is the safe placement and the most common one. It is as far from the
   attacker as a kubb can be, and left standing it gives no advantage line.
 - **Says who:** ko-2011-punishment#p1.5, ko-2011-punishment#p1.6 (Chris Hodges);
-  kn-drill-2012#p3.9 (Josh Feathers)
+  kn-drill-2012#p3.9 (Josh Feathers). The U.S. rules allow it: anywhere in the half, a
+  baton length from the king and every stake (web-us-rules-v4#p8.4).
 - **Basis:** player
-- **Against:** nothing found.
+- **Against:** the rules elsewhere. The Belgian rules keep a punishment kubb a baton
+  length from the back line, so not on it (web-kf-rules-2026#p18.2), and the German
+  rules have it thrown into the half by the defender, not placed
+  (web-dkb-rules-2025#p3.3). Under the U.S. rules the engine plays, nothing against
+  (Q8).
 - **Levels:** Proposed: every level, as the default.
 - **Engine:** modelled (0.11.0): `raising.autoPunishment` places it deep in the half and
   away from other kubbs, whatever the score.
@@ -50,7 +55,9 @@ Every `Levels` line is a proposal of ours, not a source's.
   thrower's own legs in the way, since both feet must stay inside the sidelines.
 - **Says who:** ko-2011-punishment#p1.9, ko-2011-punishment#p1.10,
   ko-2011-punishment#p1.11, ko-2011-punishment#p1.13, ko-2011-punishment#p1.14,
-  ko-2011-punishment#p1.15, ko-2011-punishment#p1.16 (Chris Hodges)
+  ko-2011-punishment#p1.15, ko-2011-punishment#p1.16 (Chris Hodges). The rules: a
+  baton length from the king (web-us-rules-v4#p8.4), and the thrower's feet between the
+  sidelines (web-us-rules-v4#p5.3).
 - **Basis:** player
 - **Against:** nothing found. His angle figures are his own estimate
   (ko-2011-punishment#p1.17).

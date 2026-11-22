@@ -16,7 +16,11 @@ Every `Levels` line is a proposal of ours, not a source's.
   further. A throw off by the same amount glances the king from the corner where it would
   miss altogether from the middle.
 - **Says who:** ko-2012-king#p1.7, ko-2012-king#p1.9, ko-2012-king#p1.10,
-  ko-2012-king#p1.13, ko-2012-king#p1.15, ko-2012-king#p1.19 (Josh Feathers)
+  ko-2012-king#p1.13, ko-2012-king#p1.15, ko-2012-king#p1.19 (Josh Feathers). The rules
+  behind his point: the king is thrown at from behind the baseline, and only the
+  thrower's feet (supporting areas) must stay behind it and between the sidelines
+  (web-us-rules-v4#p12.1, web-us-rules-v4#p5.3; in the 2011 rules the sidelines run on
+  to the horizon, web-us-rules-v2#p5.2).
 - **Basis:** player
 - **Against:** his own practice. Every tournament king shot he has seen was head-on,
   his included; he has seen corner shots glance the king and spin it without toppling it;

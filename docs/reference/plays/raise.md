@@ -42,7 +42,9 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Why:** A kubb once stood is committed. Giving away one kubb by poor placement is too
   many.
 - **Says who:** ko-2013-fence#p1.2, ko-2013-fence#p1.3, ko-2013-fence#p1.16,
-  ko-2013-fence#p1.17 (Chris Hodges)
+  ko-2013-fence#p1.17 (Chris Hodges). The rule makes the commitment literal: once a kubb
+  has begun to rise on one end it may not be laid down and raised on the other
+  (web-us-rules-v4#p8.1).
 - **Basis:** player
 - **Against:** nothing found.
 - **Levels:** Proposed: pro and club.
@@ -68,7 +70,12 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Against:** Q7. PLAY.md has the defender standing each kubb furthest from its
   neighbours in any direction (owner, coach). In the Gym the engine's `apart` policy
   turned a row lying across the pitch into kubbs staggered in depth, which helped the
-  attacker (Q6).
+  attacker (Q6). And one clip leans the other way: a baton meets a row of ten kubbs
+  standing side by side across its path, touching or nearly, and the struck kubb's
+  neighbours fall with it (yt-KcvzNzU7ZS8#1:04, yt-KcvzNzU7ZS8#1:30). It is weak: one
+  throw, the release cut, one kubb already tilting as the clip starts, and a row
+  touching where a raised fence stands apart. It is entered in Q16, not taken as a
+  finding.
 - **Levels:** Proposed: pro and club.
 - **Engine:** modelled at pro (0.12.0), through `par`, which counts a pair side by side
   across the pitch as no double and a pair one behind another as one; so does a person's
@@ -97,13 +104,16 @@ Every `Levels` line is a proposal of ours, not a source's.
 
 - **When:** raise, a choice between a firm footing and a better place.
 - **Play:** Take the better place. Only when the baton count is the same either way,
-  turn the kubb so the attacker has to hit it squarely.
+  choose the end that stands firmer, so the attacker has to hit it squarely.
 - **Why:** Costing the attacker a whole baton is worth more than a kubb that stands
   firm but leaves a double. A leaning kubb falls to a touch a firm one would survive, so
   footing still counts when nothing else does.
 - **Says who:** ko-2013-fence#p1.14, ko-2013-fence#p1.15 (Chris Hodges)
 - **Basis:** player
-- **Against:** nothing found.
+- **Against:** Q15, answered: the rules forbid turning a kubb while raising it
+  (web-us-rules-v4#p8.2, web-us-rules-v4#p11.1), so of his tie-break only the choice of
+  end, and the footing that comes with it, is the defender's. The Play line above is
+  restated that way.
 - **Levels:** Proposed: pro.
 - **Engine:** not modelled (0.11.0). A raised kubb faces the way it lay; nothing chooses
   its facing.
@@ -117,15 +127,25 @@ Every `Levels` line is a proposal of ours, not a source's.
 - **Why:** A front kubb struck square on a flat face is driven straight back through the
   one behind: an easy double. Struck on a corner, the baton glances one way and the kubb
   goes the other, and the kubb behind stays up. The cost: a corner-facing kubb shows more
-  surface and falls to a throw a few centimetres off.
+  surface and falls to a throw a few centimetres off. A coach makes the same cost the
+  attacker's opportunity: seen corner-on a kubb is a wider target, about 9 cm against 7
+  by his example, and an attacker can step along the line to see a square kubb that way
+  (`field.angle`).
 - **Says who:** ko-2012-doubles#p1.5, ko-2012-doubles#p1.8, ko-2012-doubles#p1.10,
   ko-2012-doubles#p1.11, ko-2012-doubles#p1.16 (Josh Feathers); ko-2013-fence#p1.5,
-  ko-2013-fence#p1.15 (Chris Hodges); pk-strategy#p1.9 (Planet Kubb wiki)
-- **Basis:** player
-- **Against:** Q15. Under the rule the engine follows, a kubb is tipped up on one end
-  with that end's bottom edge on the ground, so its facing is set by how it lay and the
-  defender chooses only the end.
-- **Levels:** Proposed: pro, if the rules allow the choice at all.
+  ko-2013-fence#p1.15 (Chris Hodges); pk-strategy#p1.9 (Planet Kubb wiki); the wider
+  target yt-KnLTnKVVPMg#0:18, yt-KnLTnKVVPMg#0:21 (an unnamed coach in a Team Kubboom
+  vest)
+- **Basis:** player, coach
+- **Against:** Q15, answered by the rule text: a kubb is raised on one end keeping two
+  corners on the ground, and twisting it is never allowed (web-us-rules-v4#p7.3,
+  web-us-rules-v4#p8.2; the 2011 rules the same, web-us-rules-v2#p7.3,
+  web-us-rules-v2#p9.2). The defender cannot choose a facing, only an end; the facing is
+  what the inkast's bounce left, and from an angle the attacker sees it differently
+  anyway (`field.angle`).
+- **Levels:** none as a defender's choice: the rules do not allow it. What is left of it
+  is for the inkastare, whose kubb's resting angle sets the facing, and for reading a
+  group, which the computer's aim does not yet do.
 - **Engine:** the physics has it: kubbs are boxes, so a corner and a face meet a baton
   differently. Nothing chooses or reads a facing (0.11.0).
 - **Gym:** needs a row: kubbs taken per baton by the front kubb's facing.

@@ -36,9 +36,11 @@ Every `Levels` line is a proposal of ours, not a source's.
   baton thrower throws down.
 - **Says who:** ko-2017-blasting#p1.17, ko-2017-blasting#p1.18, ko-2017-blasting#p1.20
   (Kyle Weakland); yt-Io-rxbSB3Ns#1:30 (Eric Anderson); kn-drill-2012#p4.13 (Björn
-  Görlitz)
+  Görlitz). The rules let a thrower stand anywhere along the throwing line between the
+  sidelines (web-us-rules-v4#p5.3, web-us-rules-v2#p11.1, web-vm-rules-2003#p5.1).
 - **Basis:** player, coach
-- **Against:** nothing found.
+- **Against:** nothing found. At a lone kubb the engine's default stance, straight
+  behind it, is what `field.angle` argues against.
 - **Levels:** Proposed: club and pro. It is the difference between a group and a double.
   Since 0.12.0 the pro computer knows it; club does not (the Gym found no gain there,
   and club plays as in 0.11.2 until it is retuned as a whole: owner-2026-11-21#s6).
@@ -50,7 +52,8 @@ Every `Levels` line is a proposal of ours, not a source's.
   behind the front one as `raise.par` weighs a pair, and scores the stance by that times
   the chance of hitting the front kubb from there (the nerves and the swing's pull at that
   range), never a line through the king, past a kubb in front, or within 0.3 m of a field
-  kubb in its own half (II.B.11: touching one forfeits the baton); when straight behind
+  kubb in its own half (II.B.11, web-us-rules-v4#p6.3: touching one forfeits the baton);
+  when straight behind
   is no good it steps along the line. At ten field kubbs a decision makes at most 55 lane
   tests, and four more for each kubb whose straight stance is no good. In the Gym (300
   seeds, seeds 1 and 2) it wins 54.8% and 56.9% alone at pro and 59.5% and 61.4% on top
@@ -58,6 +61,39 @@ Every `Levels` line is a proposal of ours, not a source's.
   53.1% and 50.6% alone), so club does not know it. The second half of the play (hit
   the front kubb on the side that sends the baton on) is not modelled.
 - **Gym:** `g.field2`, `g.field3`, first-baton take by field size.
+
+## field.angle: Step aside to see a lone kubb corner-on
+
+- **When:** field, a single kubb with no other in line behind it, standing square to the
+  pitch or at a slight angle.
+- **Play:** Step along the throwing line, about a metre at a field kubb 4 m out, until the
+  kubb is seen across a corner rather than face-on, and throw from there.
+- **Why:** A kubb seen corner-on is a wider target than one seen face-on (his example: 9 cm
+  against 7 cm, about 30% more), and the step adds little length: a metre aside at
+  4.25 m makes the throw 4.36 m, 11 cm longer. Kids want to throw straight at what they
+  see; he tells them to come over and find the wider view, above all at a single kubb.
+- **Says who:** yt-KnLTnKVVPMg#0:18, yt-KnLTnKVVPMg#0:21, yt-KnLTnKVVPMg#1:06,
+  yt-KnLTnKVVPMg#1:29 (an unnamed coach in a Team Kubboom vest). The rules allow any
+  stance along the line between the sidelines (web-us-rules-v4#p5.3). Every number is
+  his arithmetic, worked aloud; none is measured on the pitch, and no throw from either
+  place is shown. Our own check: a square kubb seen from a metre aside at 4.25 m is
+  turned about 13 degrees and shows about 8.4 cm, some 20% more than face-on (his 9 cm
+  needs about 20 degrees); at 8 m, 2 m aside gives about 14 degrees and 21%, close to
+  his 15 to 20% (yt-KnLTnKVVPMg#1:50, yt-KnLTnKVVPMg#2:09). A wider target is not by
+  itself a surer topple.
+- **Basis:** coach, estimate
+- **Against:** nothing found. The engine's straight-behind stance (`field.line`'s Engine
+  line, `field.roles`) is the default this argues against. Raised kubbs keep the facing
+  they lay with (Q15, answered), so how square a lone kubb stands is set by the inkast's
+  bounce, not by the defender.
+- **Levels:** Proposed: club and pro; the coach teaches it to beginners. The same step
+  at a base kubb from 8 m is `baseline.angle`.
+- **Engine:** not modelled (0.13.0). At a single kubb the computer stands straight behind
+  it (`plan.stance`); `field.line` moves the stance only to line two kubbs up. The
+  physics has the kubb as a box, so a corner and a face already meet a baton
+  differently.
+- **Gym:** needs a row: first-baton hits on a lone field kubb, by the angle the kubb is
+  seen at from the stance (the same row `inkast.single` needs).
 
 ## field.corner: Meet the kubb high, with the baton half turned
 
