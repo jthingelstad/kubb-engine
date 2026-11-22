@@ -469,7 +469,7 @@ local function decideBaton(s, t, lname)
 	-- field.drive, at a level that knows it: a person's default line. It names itself at a
 	-- field kubb when the arc is a drive (under the knee), unless field.line moved the stance
 	local drive = false
-	if knows("drive", lname) then
+	if knows("drive", lname) and not king then
 		arc = plan.arcFor("baton", dist)
 		drive = target.role == "field" and not king and arc < plan.tune.driveKneeDeg
 		if drive and play ~= "field.line" then play = "field.drive" end

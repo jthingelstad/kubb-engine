@@ -116,8 +116,10 @@ test("choose returns the launch fields; the arc follows the distance", function(
 		expect.eq(a.legal, true)
 		expect.eq(a.drill, nil)
 		local d = math.sqrt((c[2] - a.x) ^ 2 + (c[3] - a.y) ^ 2)
-		-- (club, the default level, knows field.drive from 0.17.0: a person's line)
-		expect.near(a.loftDeg, plan.launchLoft(plan.arcFor("baton", d), plan.arcFor("baton", d)) * (a.plan.loftShare or 1), 1e-9, c[1] .. " arc")
+		-- (club, the default level, knows field.drive from 0.17.0: a person's line, but the
+		-- king shot on the line before)
+		local rel = c[1] == "king" and plan.sharedArcFor(d) or plan.arcFor("baton", d)
+		expect.near(a.loftDeg, plan.launchLoft(rel, rel) * (a.plan.loftShare or 1), 1e-9, c[1] .. " arc")
 		-- the plan and the swing for the gauge: the arm goes back to swing.back
 		-- and forward to swing.releaseAngle
 		expect.near(a.plan.tx, c[2], 1e-9)
