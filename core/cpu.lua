@@ -48,7 +48,7 @@ cpu.tune = {
 		weigh = 1,       -- 1: count the kubbs behind the front one as raise.par weighs a pair
 		                 -- (read.lineLane's w); 0: the lane's count less one
 	},
-	-- field.drive (built switched off in 0.16.0, on at club and pro in 0.17.0): every baton
+	-- field.drive (built switched off in 0.16.0, on at club and pro in 0.18.0): every baton
 	-- on a person's default line (plan.arcFor: the drive close in, as before at 8 m)
 	-- instead of the line before (plan.sharedArcFor). Built first for a close group only
 	-- (another standing field kubb within 45 cm, the front one within 5 m); the line for

@@ -109,7 +109,7 @@ local HONEST = {
 	-- the engine's defaults: no names at all, to a king (or the turn limit)
 	{ seed = 5, cpu = "both", maxTurns = 30, surface = "snow" },
 	-- two people by hand, through punishment kubbs (the punish queue, the settle state),
-	-- and a resignation waiting for its side's turn (seed 12 from 0.17.0, where the scripted
+	-- and a resignation waiting for its side's turn (seed 12 from 0.18.0, where the scripted
 	-- throws are the club computer's, which drives: seed 11 no longer threw a kubb out twice)
 	{ seed = 12, cpu = {}, raising = "hand", maxTurns = 14, resignAt = 60,
 		teams = { A = team("Mighty Maple", { "Mighty Maple" }), B = team("Lucky Larch", { "Lucky Larch" }) } },

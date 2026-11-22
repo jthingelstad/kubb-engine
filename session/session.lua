@@ -288,7 +288,7 @@ local function matchOptions(o)
 	out.maxTurns = o.maxTurns and I(o.maxTurns) or nil
 	out.start = o.start or { year = 2026, month = 1, day = 1, hour = 12, min = 0 }
 	for _, k in ipairs { "year", "month", "day", "hour", "min" } do out.start[k] = I(out.start[k] or 0) end
-	-- the starting host's UTC offset (0.17.0; minutes east of UTC, whole, -900..900): the
+	-- the starting host's UTC offset (0.18.0; minutes east of UTC, whole, -900..900): the
 	-- clock every action's `at` is on. Kept when given (it is in the snapshot, so a new
 	-- match that gives it has other hashes); anything else is dropped
 	local off = out.start.utcOffset
@@ -650,7 +650,7 @@ function Session:over()
 	-- the frame the pitch is shown in: the last throw's (a restored session has none yet)
 	self.frameSide = self.frameSide or self.side or "A"
 	-- the last stamp an action carried; none (no host stamped), no finish: the file has no
-	-- End or Duration line and the winner card no minutes (0.17.0; before, the start, so
+	-- End or Duration line and the winner card no minutes (0.18.0; before, the start, so
 	-- every match lasted 0 minutes)
 	local finish = self.finish
 	-- a stamp before the start (a host's clock wrong, or a stamp on another clock) is no
@@ -1217,10 +1217,7 @@ end
 
 -- ---------- the frame ----------
 
--- One frame while aiming (docs/SESSION.md "The frame"). inp = { dt, arm,
--- plan, move = {dx, dy}, walk = {dx, dy} }. Returns { dial, camera, aim,
--- event, action, recording, need }.
--- A host's time stamp for an action it makes (0.17.0): { year, month, day, hour, min } on
+-- A host's time stamp for an action it makes (0.18.0): { year, month, day, hour, min } on
 -- the start's clock (docs/SESSION.md "Actions", `at`), whole numbers, or nil. Anything else
 -- is no stamp: the engine never invents one.
 local function stampOf(at)
@@ -1235,6 +1232,9 @@ local function stampOf(at)
 end
 session.stampOf = stampOf
 
+-- One frame while aiming (docs/SESSION.md "The frame"). inp = { dt, arm,
+-- plan, move = {dx, dy}, walk = {dx, dy}, at (a host's stamp for the action it makes) }.
+-- Returns { dial, camera, aim, event, action, recording, need }.
 function Session:frame(inp)
 	inp = inp or {}
 	local dt = F(inp.dt or 1 / 60)
@@ -1288,7 +1288,7 @@ function Session:frame(inp)
 	out.event = ev
 	if L then
 		local action = self:throwAction(L, how, info)
-		-- the host's stamp (0.17.0): on the action, so every client applying it gets the
+		-- the host's stamp (0.18.0): on the action, so every client applying it gets the
 		-- same finish
 		local at = stampOf(inp.at)
 		if at then action.at = at end
@@ -1364,7 +1364,7 @@ function Session:apply(a)
 	assert(self.kind == "match", "only a match takes " .. tostring(t))
 	local g = self.m.game
 	-- a raise or a punishment kubb placed by hand carries the host's stamp as a throw does
-	-- (0.17.0), so a match that ends on the next throw's resignation still has a finish
+	-- (0.18.0), so a match that ends on the next throw's resignation still has a finish
 	if (t == "raise" or t == "punish") and stampOf(a.at) then self.finish = stampOf(a.at) end
 	if t == "raise" then
 		assert(self.phase == "settle" and self.settle.mode == "raise", "no kubb to raise")
@@ -1424,10 +1424,8 @@ end
 -- so call it on a session restored for the purpose (session/replay does). The choice is
 -- seeded by the match seed and the throws so far (mix(seed, 1, throws)) and read from the
 -- set-up, so the snapshot before the throw is all it needs.
-function Session:cpuAction()
-	assert(self.kind == "match" and self.phase == "throw" and cpuThrow(self, self.setup),
 function Session:cpuAction(at)
-	assert(self.kind == "match" and self.phase == "throw" and isCpu(self, self.setup.side),
+	assert(self.kind == "match" and self.phase == "throw" and cpuThrow(self, self.setup),
 		"cpuAction: not the computer's throw")
 	local ts = self.ts
 	local a = autothrow.choose(self.setup, rngFor(self, 1, self.throws), tw.web.tune.throw.cpuScatter)

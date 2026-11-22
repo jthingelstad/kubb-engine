@@ -1,4 +1,4 @@
--- A match's length (0.17.0): no throw carried a time, so every match lasted 0 minutes. A
+-- A match's length (0.18.0): no throw carried a time, so every match lasted 0 minutes. A
 -- host now passes `at` to frame (and cpuAction) and on a raise or punish action; the
 -- engine puts it on the action it makes, every client applying the action gets the same
 -- finish, and a match no action stamped has no End or Duration line and no minutes.

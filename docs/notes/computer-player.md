@@ -268,11 +268,11 @@ Then plays, by what `gym versus` shows matters most. Its first results (2026-11-
    four games in ten against it (0.12.0: about 16 in 100). `inkast.deep` at club and
    `inkast.chase` at pro.
 5. `inkast.first` and `inkast.steer`.
-   `field.drive`, built switched off in 0.16.0 and on at club and pro in 0.17.0: every
+   `field.drive`, built switched off in 0.16.0 and on at club and pro in 0.18.0: every
    baton but the king shot on a person's default line; the king shot by level
    (`autothrow.tune.kingScale`, into every level's king row). The Gym's person at club
    wins 61.3% against the club computer (68.8% on 0.16.0, 48.5% on 0.15.1): open,
-   docs/notes/gym.md "Where 0.17.0 stands".
+   docs/notes/gym.md "Where 0.18.0 stands".
 6. The punishment plays, and `king.corner` as a Gym experiment.
 
 The levels are far apart: pro beats club 97 games in 100 and club beats beginner 94

@@ -101,6 +101,52 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.18.0** (minor). The computer's drive (`field.drive`, docs/reference/plays/field.md),
+  switched on at club and pro as "How a play gets in" asks, the computer's king shot by
+  level, a match's length, and a cheap drive floor.
+  - **The computer**: at club and pro (every computer player at its own level, 0.17.0's
+    teams included) every baton but the king shot is planned on a
+    person's default line (`plan.arcFor`, the drive close in) instead of the line before
+    (`plan.sharedArcFor`). Side against side it beat the group-only drive it was built as
+    (56.0% at club, 55.0% at pro) and the computer without it (docs/notes/gym.md "The
+    computer's drive"). Beginner and kid throw as before. `core/plays` names
+    `field.drive` when the arc at a field kubb is a drive.
+  - **The king shot** (`autothrow.tune.kingScale`: beginner 1.4, club 1.6, pro 1.3): the
+    computer's king shot is thrown on the line before, its swing's mistakes and its
+    nerves times the level's scale, set in the Gym so every level's king shots sit in its
+    row: 52.5% / 71.5% / 91.5% against 40 to 60 / 62 to 75 / 84 to 96 (docs/notes/gym.md
+    "The king shot").
+  - `tests/fixtures/cpu/choose.txt` is rewritten (`tools/cpufixture.lua`); the 0.11 fixture
+    still holds with every play off and every king scale 1.
+  - **Not shipped**: a hard throw's power bar for a person (`powerSpeed`, built and off:
+    docs/notes/throw.md "A hard throw's power bar").
+  - **The drive floor, cheap**: `plan.solve` finds a floor by Illinois steps from the line's
+    geometric limit instead of 24 bisection steps, never computes a carry for a line no
+    speed reaches (it ran 3000 carry steps to find out), and keeps the last floor, so a
+    plan whose release alone changed, and `plan.arcFloor` after it, reuse it; `arcFloor`
+    makes no table. A plan under its floor costs about what a default plan costs (0.02 ms
+    in desktop Lua where it cost 0.58 to 0.71 at 2 to 6 m). The floor moves by under 1e-6
+    degrees (the bisection's answer was up to 9e-7 over the root; this one is within 1e-7);
+    no golden plan sits under its floor.
+  - **A match's length**: `frame({ at })` and `Session:cpuAction(at)` put the host's time
+    stamp on the action they make, a raise or punish action's `at` counts as a throw's
+    does, a match no action stamped (or stamped before its start) has no End or Duration
+    line and no minutes (it was 0 minutes: the finish fell back to the start), and the
+    start keeps the starting host's `utcOffset` (minutes), the clock stamps are on. No hash
+    moves without a stamp or an offset; a new match that gives an offset has other hashes.
+  - **Golden hashes** (`make golden`: 21 matches, 854 actions): every match with a club or
+    pro computer moves at its first baton the line plans differently from the line before
+    (the openers from the baseline at 8 m are the same), m20 and m21 (0.17.0's computer
+    players) at their computers' first batons on the new line; m15 (beginner both sides),
+    m18 and m19 (Kid) keep every hash exactly as 0.17.0 has them. Two winners change (m09,
+    m10, ending two turns sooner). No golden match reaches a computer's king shot (the turn
+    limit ends them), so the king scale moves none. The corpus's winner records lose
+    `minutes: 0` (no stamps). The pinned neighbours hash moves too (`7e4b4e4e`: the
+    neighbours' club and pro computers drive; none of seed 9's pitches reaches a king shot
+    in its three minutes).
+  - **For clients**: nothing must change to play; stamp `frame` and put `utcOffset` on the
+    start to get a match's length; the Playdate can drop its floor cache. 0.18 shares
+    matches with no 0.17 (the computer's throws differ). docs/CLIENTS.md "0.18 on top".
 - **0.17.0** (minor). Computer players in teams. Jamie (2026-11-22): "In online play we
   should be able to add computer players to the match, with a specified level. I may have
   three friends and we want to play a team of three computers (two at club and one at
@@ -154,49 +200,6 @@ Every client shows its own version with the engine's beside it, in one form:
     client draws the engine's raise as it draws one by hand.
   - **For clients**: docs/CLIENTS.md "0.17 on top". Shares matches with no 0.16.
 
-- **0.17.0** (minor). The computer's drive (`field.drive`, docs/reference/plays/field.md),
-  switched on at club and pro as "How a play gets in" asks, the computer's king shot by
-  level, a match's length, and a cheap drive floor.
-  - **The computer**: at club and pro every baton but the king shot is planned on a
-    person's default line (`plan.arcFor`, the drive close in) instead of the line before
-    (`plan.sharedArcFor`). Side against side it beat the group-only drive it was built as
-    (56.0% at club, 55.0% at pro) and the computer without it (docs/notes/gym.md "The
-    computer's drive"). Beginner and kid throw as before. `core/plays` names
-    `field.drive` when the arc at a field kubb is a drive.
-  - **The king shot** (`autothrow.tune.kingScale`: beginner 1.4, club 1.6, pro 1.3): the
-    computer's king shot is thrown on the line before, its swing's mistakes and its
-    nerves times the level's scale, set in the Gym so every level's king shots sit in its
-    row: 52.5% / 71.5% / 91.5% against 40 to 60 / 62 to 75 / 84 to 96 (docs/notes/gym.md
-    "The king shot").
-  - `tests/fixtures/cpu/choose.txt` is rewritten (`tools/cpufixture.lua`); the 0.11 fixture
-    still holds with every play off and every king scale 1.
-  - **Not shipped**: a hard throw's power bar for a person (`powerSpeed`, built and off:
-    docs/notes/throw.md "A hard throw's power bar").
-  - **The drive floor, cheap**: `plan.solve` finds a floor by Illinois steps from the line's
-    geometric limit instead of 24 bisection steps, never computes a carry for a line no
-    speed reaches (it ran 3000 carry steps to find out), and keeps the last floor, so a
-    plan whose release alone changed, and `plan.arcFloor` after it, reuse it; `arcFloor`
-    makes no table. A plan under its floor costs about what a default plan costs (0.02 ms
-    in desktop Lua where it cost 0.58 to 0.71 at 2 to 6 m). The floor moves by under 1e-6
-    degrees (the bisection's answer was up to 9e-7 over the root; this one is within 1e-7);
-    no golden plan sits under its floor.
-  - **A match's length**: `frame({ at })` and `Session:cpuAction(at)` put the host's time
-    stamp on the action they make, a raise or punish action's `at` counts as a throw's
-    does, a match no action stamped (or stamped before its start) has no End or Duration
-    line and no minutes (it was 0 minutes: the finish fell back to the start), and the
-    start keeps the starting host's `utcOffset` (minutes), the clock stamps are on. No hash
-    moves without a stamp or an offset; a new match that gives an offset has other hashes.
-  - **Golden hashes** (`make golden`: 19 matches, 701 actions): every match with a club or
-    pro computer moves at its first baton the line plans differently from the line before
-    (the openers from the baseline at 8 m are the same); m15 (beginner both sides), m18 and
-    m19 (Kid) keep every hash. Two winners change (m09, m10, ending two turns sooner). No
-    golden match reaches a computer's king shot (the turn limit ends them), so the king
-    scale moves none. The corpus's winner records lose `minutes: 0` (no stamps). The
-    pinned neighbours hash moves too (`7e4b4e4e`: the neighbours' club and pro computers
-    drive; none of seed 9's pitches reaches a king shot in its three minutes).
-  - **For clients**: nothing must change to play; stamp `frame` and put `utcOffset` on the
-    start to get a match's length; the Playdate can drop its floor cache. 0.17 shares
-    matches with no 0.16. docs/CLIENTS.md "0.17 on top".
 - **0.16.0** (minor). The drive: a baton thrown flat or down and hard into a group, and
   a person's thrown kubb held to narrower bars (docs/notes/throw.md "The drive", "The
   thrown kubb on the person's meter"; the owner's reports,

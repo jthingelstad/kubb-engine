@@ -34,7 +34,7 @@ local plays = {
 		levels = { "pro" },
 		say = "Stood off to the side so {lane} kubbs line up behind the front one.",
 	},
-	-- core/cpu decideBaton (0.17.0): a person's default line, the drive close in; named
+	-- core/cpu decideBaton (0.18.0): a person's default line, the drive close in; named
 	-- when the arc is a drive at a field kubb; levels: cpu.tune.drive
 	["field.drive"] = {
 		phase = "field",

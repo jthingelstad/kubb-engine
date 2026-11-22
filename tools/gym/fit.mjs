@@ -166,7 +166,7 @@ export async function fit(dir, { jobs = 4 } = {}) {
     const correlations = {};
     for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++)
       correlations[`${names[i]}~${names[j]}`] = +corr(parts[names[i]], parts[names[j]]).toFixed(3);
-    // (0.17.0) do a baton's misses grow with the backswing its plan asked for? The
+    // (0.18.0) do a baton's misses grow with the backswing its plan asked for? The
     // backswing and release misses by the plan's backswing, in three bands: n, the median
     // absolute miss and the share past the 0.16 meter's power bar at that range would be
     // unknowable here (the meter came later), so the spread alone

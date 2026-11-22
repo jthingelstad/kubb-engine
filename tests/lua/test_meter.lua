@@ -59,7 +59,7 @@ test("meter: the bars are wide for a short throw and narrow for a long one", fun
 		for _, d in ipairs { 3, 4, 5, 6, 7, 8, 9 } do
 			local sol = personSol(d, projectile)
 			local wp, wr = sol.powerHi - sol.powerLo, sol.releaseHi - sol.releaseLo
-			-- (0.17.0: a baton's power bar is also held by its speed, plan.meters powerSpeed,
+			-- (0.18.0: a baton's power bar is also held by its speed, plan.meters powerSpeed,
 			-- so it is never wider than the distance's and may be narrower than a farther one's)
 			local byDist = 2 * plan.meterLevel(plan.meter(), d, projectile).powerHalf
 			expect.truthy(wp <= byDist + 1e-12, string.format("%s %d m: power bar within the distance's", projectile, d))
