@@ -372,3 +372,93 @@ test("setup.settled with mixed teams: a team of computers' raises are handed out
 	local pol = tw.match.raisePolicy(s.m, "B")
 	expect.eq(type(pol), "function")
 end)
+
+-- A seat's level and the level it throws at are two things: in a Kid match every computer
+-- is the Kid computer, but the seat keeps the level the host gave it.
+test("a Kid pitch with a club and a pro seat: START, play, the replay document strictly, a rematch at club", function()
+	local lobby = tw.shared.lobby
+	local function deep(v)
+		return json.decode(json.encode(v), true)
+	end
+	local members = {
+		{ id = "jamie001", connected = true, me = { name = "Mighty Maple", engine = tw.engine.version } },
+		{ id = "tyler001", connected = true, me = { name = "Quiet Juniper", engine = tw.engine.version } },
+	}
+	local doc = lobby.joinTeam(nil, "jamie001", "A")
+	doc = lobby.addComputer(doc, "A", "club", 11)
+	doc = lobby.addComputer(doc, "B", "pro", 12)
+	doc = lobby.joinTeam(doc, "tyler001", "B")
+	doc = lobby.setOptions(doc, { computer = "kid" })
+	expect.eq(doc.settings.computer, "kid")
+	local lu = lobby.lineup(doc, members)
+	expect.eq(lu.players.A[2].level, "club", "the lobby shows the seat's own level (a client shows Kid)")
+	expect.eq(lobby.startCheck(lu.players, members, "jamie001").ok, true)
+	local setup = deep(lobby.matchOptions(doc, lu, 21, START))
+	expect.eq(setup.teams.A[2] == nil and setup.teams.A.players[2].level, "club", "the setup keeps the seat's level")
+	local o = deep(setup)
+	o.mode = "match"
+	local s = session.new(o)
+	expect.eq(s.opts.rules, "kid", "a Kid match")
+	expect.eq(s.opts.teams.A.players[2].level, "kid", "the seat throws as the Kid computer")
+	expect.eq(s.opts.teams.B.players[1].level, "kid")
+	doc = lobby.startMatch(doc, { snap = s:snapshot(), hash = s:hash(), players = lu.players, cpu = lu.cpu,
+		host = "jamie001", setup = setup, members = members })
+	expect.truthy(doc, "START")
+	expect.eq(doc.match.players.A[2].level, "club", "the match header records the seat")
+	local seq = 0
+	local r = autothrow.rng(5)
+	while s:need().kind ~= "over" do
+		local n = s:need()
+		local a
+		if n.kind == "raise" then
+			a = { type = "raise" }; s:apply(a)
+		elseif n.kind == "punish" then
+			a = { type = "punish", x = n.cursor.x, y = n.cursor.y }; s:apply(a)
+		elseif n.cpu then
+			for _ = 1, 3000 do
+				local f = s:frame { dt = 1 / 30 }
+				if f.action then a = f.action break end
+			end
+		else
+			a = personThrow(s, r)
+		end
+		seq = seq + 1
+		doc = lobby.commitAction(doc, { n = doc.n, seq = seq, snap = s:snapshot(), hash = s:hash(),
+			action = deep(a), over = s:need().kind == "over" })
+		assert(doc, "committed")
+	end
+	doc = deep(doc)
+	-- the game file names the level thrown
+	expect.truthy(s:sheet().text:find('[Throw Levels "', 1, true))
+	local lv = s:sheet().text:match('%[Throw Levels "([^"]*)"%]')
+	for level in lv:gmatch("%w+ (%a+)") do expect.eq(level, "kid") end
+	-- the replay: its document built from the setup is the pitch's, byte for byte, and loads strictly
+	local m = doc.match
+	local function call(name, a)
+		local out = json.decode(kubbCall(name, json.encode(a)), true) -- (nulls kept, as a pitch holds them)
+		if type(out) == "table" and out.error then error(name .. ": " .. out.error, 2) end
+		return out
+	end
+	local rp = call("replayLoad", { setup = m.setup, h0 = m.h0, log = m.log, names = "check",
+		document = { host = "jamie001" } })
+	expect.eq(rp.replay.differs, false)
+	call("replayFinish")
+	local out = call("replayDocument")
+	call("replayEnd")
+	expect.truthy(out.document, "the replay's document is made (START is not refused)")
+	expect.eq(json.encode(out.document), json.encode(doc), "the same document as the pitch wrote")
+	local rep = call("names.check", { document = doc, members = members })
+	expect.eq(rep.allowed, true, json.encode(rep.refused))
+	expect.truthy(lobby.replayOf(deep(out.document).match), "the pitch keeps its replay")
+	-- a rematch with the Computer back at club: the seats throw at their own levels again
+	local again = lobby.backToLobby(doc, doc.n)
+	again = lobby.setOptions(again, { computer = "club" })
+	local lu2 = lobby.lineup(again, members)
+	local o2 = deep(lobby.matchOptions(again, lu2, 22, START))
+	o2.mode = "match"
+	local s2 = session.new(o2)
+	expect.eq(s2.opts.rules, nil, "the standard rules")
+	expect.eq(s2.opts.teams.A.players[2].level, "club")
+	expect.eq(s2.opts.teams.B.players[1].level, "pro")
+	expect.eq(s2.opts.teams.A.players[2].name, s.opts.teams.A.players[2].name, "the seat keeps its name")
+end)

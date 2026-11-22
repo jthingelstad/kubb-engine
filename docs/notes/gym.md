@@ -228,7 +228,9 @@ takes. Parts are split by `;` or `,`. Options: `--n` (seeds, default 300), `--se
 `team=club+club+pro` (0.17.0) makes the team a team of computers at mixed levels: one
 player a level, in throwing order, each throwing at its own (the engine's computer players
 in a team, docs/SESSION.md "Computer players"), the team raising at its strongest level
-unless `raise=` names another; it takes the place of `level=` and needs `thrower=cpu`. Such
+unless `raise=` names another; it takes the place of `level=` and needs `thrower=cpu`.
+With `--rules kid` every such player throws as the Kid computer, as in the engine's Kid
+match. Such
 a team has as many players as it names, every game; a plain team keeps the sizes that go
 round one to six. The page then reports, for each such team, each level's share of the
 players, of the batons thrown (and its hit rate) and of the inkasts (turns it threw the
