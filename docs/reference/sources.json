@@ -1162,6 +1162,20 @@
       ],
       "note": "His statements on the aim of the work and on how its questions are settled."
     },
+    "owner-2026-11-22": {
+      "title": "Jamie, 22 November 2026",
+      "kind": "owner",
+      "by": "Jamie Thingelstad",
+      "standing": "The game's owner; a club-level player",
+      "year": 2026,
+      "language": "en",
+      "status": "observed",
+      "covers": [
+        "field",
+        "inkast"
+      ],
+      "note": "His reports from play on 0.15.1: batons at tight groups (doubles, the low hard throw, the force a baton carries, no flip at a close kubb) and a person's thrown kubbs grouping too well."
+    },
     "web-us-rules-v4": {
       "title": "U.S. National Kubb Championship Rules V4.0",
       "url": "http://www.usakubb.org/",

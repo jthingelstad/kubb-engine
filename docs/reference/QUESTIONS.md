@@ -466,3 +466,29 @@ census of 2026-11-21.
   marks and on the attacker's take at the group; and a match video of a top inkastare
   showing where they stand.
 - **Touches:** inkast.stance, inkast.corner, inkast.steer
+
+## Q18: Does a field kubb's default arc go by the target, or only by the distance?
+
+- **Status:** open: recommendation built (0.16.0)
+- **Asks:** On 2026-11-20 Jamie set a baton's default release by the distance alone: "The
+  closer you are to the target the lower you throw", and "arc based on target is just
+  obviously wrong" (docs/notes/throw.md, plan.tune "A baton's default release"). On
+  2026-11-22, of a baton on that default from the advantage line 1.4 m from a group: "A
+  real player would throw hard at a tight group this close" (owner-2026-11-22#s2), and the
+  work asked for a default by distance and target, a field kubb against a base kubb or the
+  king. Kyle Weakland throws light to medium at a group so as not to miss
+  (ko-2017-blasting#p1.6, ko-2017-blasting#p1.23), and says a tight group needs power
+  (ko-2017-blasting#p1.5).
+- **So far:** 0.16.0 gives a baton whose circle is on a standing field kubb its own line,
+  the drive at 1.5 m and the shared line again at 8 m (docs/notes/throw.md "The drive"); a
+  base kubb, the king and an empty spot keep the shared line. Both lines fall with the
+  distance, so "the closer the lower" holds for each. A base kubb from an advantage line 3
+  to 5 m away is thrown as before.
+- **Recommendation:** Keep the field kubb's own line. Its gain is at groups (two reported
+  positions: +0.3 kubbs a baton), and at a lone field kubb it fells as often or more on
+  the person's meter; a base kubb is a lone target, where nothing says a harder throw
+  helps. If Jamie prefers one line for every target, the field kubb's is the one to keep:
+  it meets the shared line at 8 m, so a base kubb from the baseline would not change.
+- **Settle by:** Jamie's word on whether a target's kind may set the default; then the Gym's
+  base kubb from an advantage line with the field kubb's line against the shared one.
+- **Touches:** field.drive, field.power
