@@ -94,7 +94,7 @@ end
 
 local HONEST = {
 	-- several a side, the computer at pro, six batons, a scene and wind, by hand
-	{ seed = 3, cpu = "both", raising = "hand", opening = "six", wind = "strong", scene = "dusk", computer = "pro",
+	{ seed = 3, cpu = "both", raising = "hand", opening = "six", wind = "strong", scene = "night", computer = "pro",
 		maxTurns = 12, set = "sweden",
 		teams = { A = team("Wobbly Towers", { "Mighty Maple", "Lucky Larch", "Wonky Willow" }),
 			B = team("The Lumberjacks", { "Jolly Juniper", "Brave Birch" }) } },

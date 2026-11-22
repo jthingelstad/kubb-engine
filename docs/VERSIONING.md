@@ -101,6 +101,69 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.14.0** (minor). Scenes become the engine's, and the Techno scene gets a floor of its
+  own. Jamie (2026-11-21): "a Scene should have an allowed set of surfaces and pitch
+  types". `core/scenes` (new, so the Playdate has it too) is the catalogue: Park (`day`),
+  Beach, Camping (`night`), Techno (`neon`), Minnesota, Tournament and Black & White
+  (`bw`), each with its name, the surfaces and kubb sets it allows (one default each) and
+  flags a renderer reads (`dark`, `ring`, `mono`); docs/SESSION.md "Scenes",
+  docs/notes/scenes.md. A scene decides: where a client sets options with a scene named
+  (`new`, the pitch's `setOptions`, `optionsOf`, `matchOptions`) the surface is the one
+  given if the scene allows it, else its default, and the set likewise; an id the
+  catalogue does not have is Park. Options that name no scene stand as given, and
+  restore, replay, `checkStart` and `renameStart` make a match from its options as
+  recorded, so every match, save and document from before loads and plays as it was
+  (tested with a Camping match on sand with the wisconsin set). `MATCH_OPTIONS` gains a
+  Scene row (first) and `grid`; `pitch.optionRows(scene)` is the card a scene leaves to
+  the player; `setOptions` takes only a listed scene (a document keeps any well formed id,
+  read as Park). `names.check` holds `opts.scene` to the catalogue and `opts.set` to every
+  set the engine takes (sweden and wisconsin are in no scene but still valid). The
+  Playdate's `core/matchopts` is Black & White: its Surface row is that scene's and
+  `apply` sets `opts.scene = "bw"`.
+  - **`grid`, a fourth surface** (`world.surfaces.grid`; docs/notes/physics.md "The
+    grid"): no texture (the same throw does the same thing on any ground), a glide (mu
+    0.55, drag 0.6: a baton slides 1.9 m after touching down against grass's 1.0), a
+    magnetic stop (grip 60 a second below 0.7 m/s) and a mild hold on a standing kubb's
+    rocking (`texture.hold` 6, new). Still kubb: in the Gym's 200 matches a configuration
+    turns, kubbs a field baton and the 8 m base kubb are within a turn or a few points of
+    grass; batons that land short skip on farther and the club computer's uncaught drills
+    glide apart. Grass, sand and snow are bit-identical (`tools/physdump.lua`).
+    `drill.tune.slide.grid` and `roll.grid` are measured.
+  - **Ground impacts** (`setImpacts`, docs/SESSION.md "Ground impacts"): while on, each
+    recording's `timeline.impacts` lists where, when (the recording's clock), how hard and
+    with what each piece met the ground. Never in a snapshot, an action or a hash; off,
+    nothing is gathered (the world's `onGround` hook is one test when unset).
+  - Golden: the fifteen matches move no hash; two more (`m16`, `m17`) play on the grid,
+    chosen by the scene `neon`, the computer both sides and a person against the pro
+    computer. Kid mode is not in this release; the Tournament's live neighbouring pitches
+    are a design (docs/notes/tournament.md).
+
+  For clients: sync `v0.14.0` (it shares matches with no 0.13; both phones move
+  together). The options card is scene first:
+  - **Web**: build the solo card and the lobby's options from `pitch.optionRows({ scene
+    })` in place of `MATCH_OPTIONS` and `src/render/scenes.js`'s `SCENE_ROW`: the Scene row
+    first (the engine's names: Park, Beach, Camping, Techno, Minnesota, Tournament, Black &
+    White), a Surface row only when the rows carry one (Black & White), no Kubbs row.
+    `MATCH_OPTIONS` itself now has a Scene row and `grid`, so a card that walks it shows
+    the scene twice. Always send `scene` with `setOptions` and `newMatch`/`newPractice`,
+    and draw from `view().scene`, `surface` and `set`: the engine has already decided them.
+    `kubbCall("scenes")` gives the catalogue (names, `dark`, `ring`, `mono`, `choices`).
+    Draw the new scenes (Beach, Minnesota, Tournament with the USA set, Black & White) and
+    the grid floor under Techno; until one is drawn, draw it as Park, as for any id.
+    Techno's rings: `setImpacts({ on: true })` once, then ring at each
+    `recording.timeline.impacts` entry as playback reaches its `t`, scaled by `speed` or
+    `strength`.
+  - **iPhone**: the same: `SceneLook`'s own Scene row and the Surface and Kubbs rows give
+    way to `pitch.optionRows` (`SoloMatch.swift`, `SoloPitch.swift`, `OnlinePitch.swift`),
+    `SceneLook.drawn` grows with each scene drawn, `scene` goes with every `setOptions` and
+    `new`, and Techno rings from `timeline.impacts` beside the sounds `Recording.swift`
+    already takes from `contacts` and `batonLanding`.
+  - **Playdate**: sync the core; nothing must change. `core/matchopts` gives the same
+    Surface row (grass, sand, snow) and now names the scene `bw`; the grid is never
+    offered there.
+  - `grid` needs nothing from a client beyond drawing its scene; the game file's Surface
+    line reads `Grid`.
+
 - **0.13.4** (patch). The engine says which names a match from outside would show. A
   forged pitch start could keep generated names in `snap.opts.teams` while `save.game`
   held typed ones: `restore` builds the match from `save`, so the rail, the sheet and the

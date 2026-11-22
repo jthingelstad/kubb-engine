@@ -22,6 +22,7 @@
 --   lua5.4 tools/topprobe.lua [--n 200] [--ranges 1,2,3,4,5,6,7,8]
 --     [--levels clean,pro,club,beginner] [--seed 11]
 --     [--set plan.aimHeightShare=0.5] [--set world.pairE=0.35] (one tune a --set)
+--     [--surface grass|sand|snow|grid]
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local sourceDir = here .. "/.."
 local imported = {}
@@ -41,6 +42,7 @@ local world, plan, autothrow, flight = tw.world, tw.plan, tw.autothrow, tw.fligh
 local fmt, sqrt, abs = string.format, math.sqrt, math.abs
 
 local n, seed = 200, 11
+local SURFACE = "grass"
 local ranges = { 1, 2, 3, 4, 5, 6, 7, 8 }
 local levels = { "clean", "pro", "club", "beginner" }
 local i = 1
@@ -55,6 +57,7 @@ while i <= #arg do
 	elseif a == "--seed" then seed = tonumber(arg[i + 1]); i = i + 1
 	elseif a == "--ranges" then ranges = list(arg[i + 1], true); i = i + 1
 	elseif a == "--levels" then levels = list(arg[i + 1]); i = i + 1
+	elseif a == "--surface" then SURFACE = arg[i + 1]; i = i + 1
 	elseif a == "--set" then
 		local mod, key, v = arg[i + 1]:match("^(%w+)%.([%w_]+)=(.+)$")
 		local t = mod == "world" and world.tune or tw[mod].tune
@@ -71,7 +74,7 @@ local function speed(b) return sqrt(b.vx * b.vx + b.vy * b.vy + b.vz * b.vz) end
 
 -- One throw: what its first touch of the kubb was, and what followed.
 local function throwAt(d, yaw, L)
-	local w = world.new { surface = "grass", stakes = false,
+	local w = world.new { surface = SURFACE, stakes = false,
 		pieces = { { id = "k", kind = "kubb", x = 0, y = PY + d, yaw = yaw } } }
 	local h, fwd, _, _, tip = flight.handAt(d)
 	local b = world.launchBaton(w, 0, PY, L.swivel, L.loft, L.speed, L.tumble, L.tilt, "baton", h, fwd, tip)
@@ -119,8 +122,8 @@ end
 
 local function pct(a, b) return b > 0 and fmt("%3.0f%%", 100 * a / b) or "  - " end
 
-print(fmt("topprobe: a lone standing kubb, %d throws a cell (grass); aimHeightShare %.2f, baton on a piece: friction %.2f, bounce %.2f",
-	n, plan.tune.aimHeightShare, world.tune.batonMu or world.tune.pairMu, world.tune.batonE or world.tune.pairE))
+print(fmt("topprobe: a lone standing kubb, %d throws a cell (%s); aimHeightShare %.2f, baton on a piece: friction %.2f, bounce %.2f",
+	n, SURFACE, plan.tune.aimHeightShare, world.tune.batonMu or world.tune.pairMu, world.tune.batonE or world.tune.pairE))
 print(" level     range |  hit | top side | skip | fell | top fell | stood: kept | rose 5cm+ (mean)")
 local tot = {}
 for _, lname in ipairs(levels) do

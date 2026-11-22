@@ -71,7 +71,15 @@ throw.tune = {
 	arcPoints = 24,       -- points along the arc, release to landing
 	arcSkip = 2,          -- the first points (at the hand, under the camera) are left out
 	arcFitFrom = 6,       -- the plan view keeps the arc on screen from this point on
+	-- ground impacts (throw.impacts, since 0.14; docs/SESSION.md "Ground impacts")
+	impactSpeed = 0.8,    -- m/s: a piece meeting the ground at least this fast is an impact
+	impactGap = 0.12,     -- s: a piece's touches within this of its last impact are that impact
+	impactMax = 64,       -- impacts kept a throw, at most
 }
+
+-- Ground impacts (kubbCall "setImpacts"): while true, throw.fire gathers where each piece
+-- met the ground hard into the recording's timeline (`impacts`). Off, no listener is set.
+throw.impacts = false
 
 -- The level a thrower record names (s.level: a named player's; s.defaultLevel: the
 -- session's; throw.level otherwise). From 0.13 it changes nothing in a person's throw:
@@ -1153,9 +1161,38 @@ function throw.fire(s, L, how, info)
 			e.strength = max(e.strength, strength)
 		end
 	end
+	-- ground impacts, only when asked (throw.impacts): for a scene that rings, puffs or
+	-- sprays where something meets the ground. One per piece per strike: the touches
+	-- within impactGap of its first make one, at the strongest point. In the throw's
+	-- frame, on the recording's clock; never in a snapshot, an action or a hash
+	local impacts, lastImpact = nil, nil
+	if throw.impacts then
+		impacts, lastImpact = {}, {}
+		w.onGround = function(time, a, impulse, px, py, speed)
+			if speed < t.impactSpeed then return end
+			local e = lastImpact[a]
+			if e and time - e.t <= t.impactGap then
+				if impulse > e.impulse then e.x, e.y, e.impulse = px, py, impulse end
+				if speed > e.speed then e.speed = speed end
+				return
+			end
+			if #impacts >= t.impactMax then return end
+			e = { t = time, x = px, y = py, id = a.id, with = a.kind, thrown = a == b, speed = speed,
+				impulse = impulse }
+			lastImpact[a] = e
+			impacts[#impacts + 1] = e
+		end
+	end
 	local pb = playback.new(w, wt.frameDt)
 	playback.finish(pb)
 	w.onContact = nil
+	w.onGround = nil
+	if impacts then
+		for _, e in ipairs(impacts) do
+			e.strength = min(1, e.impulse / 2)
+			e.impulse = nil
+		end
+	end
 	s.throws = s.throws + 1
 	local legal = L.legal ~= false
 	-- landed (scenes/throw.lua): the result, the distance, the rest distance
@@ -1307,6 +1344,7 @@ function throw.fire(s, L, how, info)
 			firstContact = point(w.firstContact), firstHit = point(w.firstHit),
 			touches = touches, bursts = bursts, slow = slow,
 			contacts = contacts, batonLanding = batonLanding,
+			impacts = impacts,
 		},
 		marker = drilling and { x = s.markerX, y = s.markerY, r = t.markerRadius } or nil,
 	}

@@ -99,6 +99,10 @@ host's `meta` (what a replay needs besides the log), and sends them beside the d
   ones take `OPTION_DEFAULTS`. The engine's own options (`computer`, `scene`) are not in
   `options` but in `settings` (difference 9). Read every option, defaults filled in,
   with `optionsOf`.
+- Since 0.14 a scene decides (difference 10): in a document whose `settings` names a
+  scene, the surface and the set are held to the scene's (core/scenes) by `setOptions`,
+  `optionsOf` and `matchOptions`. A document that names none keeps its surface and set as
+  written.
 - The reducers keep `match` as they find it, so a header reads, writes and survives
   `lobbyOf`, `joinTeam` and the rest unchanged; `backToLobby` drops it.
 
@@ -165,16 +169,17 @@ Each is `pitch.<name>`; the fields are the argument object's. "nothing" is `valu
 | `lobbyOf`      | `doc`                                                          | The document as it stands, cleaned (teams to strings, options to known values, `n` to an integer, `match` to an object or null), or a fresh lobby. Unknown top-level keys are kept.                                             |
 | `sideOf`       | `doc, id`                                                      | `"A"`, `"B"` or null (watching).                                                                                                                                                                                                |
 | `joinTeam`     | `doc, id, side`                                                | Put `id` on `side` (`"A"`, `"B"`), or take them off both (`side: null`: sit out). Nothing while a match runs, for another side, when already there, or when the side holds six.                                                 |
-| `setOptions`   | `doc, options`                                                 | The host's options merged in (unknown values ignored); `computer` and `scene` go to `settings`. Nothing while a match runs or when nothing changes.                                                                             |
+| `setOptions`   | `doc, options`                                                 | The host's options merged in (unknown values ignored); `computer` and `scene` go to `settings`. Since 0.14 `scene` must be one the engine lists, and with a scene named the surface and the set are held to the scene's (difference 10). Nothing while a match runs or when nothing changes. |
 | `setAccess`    | `doc, open`                                                    | Open (listed) or invite only. Nothing when unchanged.                                                                                                                                                                           |
 | `openListing`  | `doc, members, over`                                           | What the host lists for an open pitch: `{ players, seats, state: "waiting" \| "playing" \| "over" }`, or null while invite only. The pitch server counts players itself; the web sends `seats` and `state`.                     |
 | `pruneTeams`   | `doc, present`                                                 | Forget members no longer on the pitch (`present`: their ids). Between matches only; nothing when nobody went.                                                                                                                   |
 | `lineup`       | `doc, members`                                                 | Who plays: the teams with each member's cleaned name (`Player n` when none) and level, the computer on an empty side. Null when nobody is on a team.                                                                            |
 | `cleanName`    | `name`                                                         | Whitespace collapsed, trimmed, at most 16 UTF-16 units. `""` for a non-string.                                                                                                                                                  |
 | `cleanOptions` | `options`                                                      | Known keys with known values; the rest the defaults.                                                                                                                                                                            |
-| `optionsOf`    | `doc`                                                          | Every match option the pitch holds, defaults filled in: `options`' five and `computer` and `scene` from `settings`. The one place a client reads them all. Since 0.9.                                                            |
+| `optionsOf`    | `doc`                                                          | Every match option the pitch holds, defaults filled in: `options`' five and `computer` and `scene` from `settings`. The one place a client reads them all. Since 0.9. Since 0.14, with a scene named, its surface and set as the scene allows (a kept id this engine does not list reads as `day`). |
 | `optionLabel`  | `key, value`                                                   | The label shown for an option's value, or the value as text.                                                                                                                                                                    |
-| `matchOptions` | `doc, lineup, seed, start`                                     | The engine's `newMatch` options for the lineup: each player's `key` is their member id, `cpu: []` when both sides are human. The host passes its own `seed` and `start` (`{ year, month, day, hour, min }`).                    |
+| `optionRows`   | `scene`                                                        | Since 0.14: the options card for a scene, `{ scene, rows, defaults: { surface, set } }`. `rows` in `MATCH_OPTIONS`' form, the Scene row first, then a Surface row only where the scene allows more than one surface (Black & White) and with only those, Opening, Raising, Wind, a Kubbs row only where it allows more than one set (none today), Computer. `scene` as the engine reads it (an unknown id is `day`); `defaults` its surface and set, for a card that changes scene. |
+| `matchOptions` | `doc, lineup, seed, start`                                     | The engine's `newMatch` options for the lineup: each player's `key` is their member id, `cpu: []` when both sides are human. The host passes its own `seed` and `start` (`{ year, month, day, hour, min }`). Since 0.14, with a scene named, its surface and set as the scene allows. |
 | `startCheck`   | `players, members, host, lenient`                              | May START go ahead? `{ ok, engine, differ: [ids], unknown: [ids] }` (below).                                                                                                                                                    |
 | `startMatch`   | `doc, snap, hash, players, cpu, host, setup, members, lenient` | START: the document with `started`, `n + 1` and the full match (above), stamped with `engine`. Nothing when a match runs or `startCheck` refuses. A live client writes the header only.                                        |
 | `backToLobby`  | `doc, n`                                                       | REMATCH: the same teams, the match dropped. Nothing unless a match runs (and is match `n`, when `n` is given).                                                                                                                  |
@@ -353,15 +358,29 @@ are where the Lua decides otherwise, each deliberate and tested
      "yes this should be a real per game setting"). It is in `MATCH_OPTIONS` (label
      "Computer") and `OPTION_DEFAULTS` (`club`). A person's own level stays theirs
      (`me.level`); the option is the computer's only.
-   - `scene`, the look the match is drawn in: in `OPTION_DEFAULTS` (`day`) but not in
-     `MATCH_OPTIONS`, since the engine does not list the scenes. Any id of lowercase
-     letters, digits and hyphens, 1 to 24 characters, is taken (`isScene`), so a client
-     adds a scene without an engine release and labels it itself. `set` stays a fixed
-     list, as the JavaScript had it (vector 017 refuses `"mars"`).
+   - `scene`, the scene the match is played in (`OPTION_DEFAULTS` `day`). From 0.9 to
+     0.13 a look only, any id of lowercase letters, digits and hyphens, 1 to 24
+     characters (`isScene`), labelled by the client. Since 0.14 the engine lists the
+     scenes (core/scenes, the Scene row of `MATCH_OPTIONS`, first) and `setOptions` takes
+     only those; a document still keeps any well formed id (a newer engine's), which
+     reads as `day`. `set` stays a fixed list, as the JavaScript had it (vector 017
+     refuses `"mars"`).
    - The host sets them with `setOptions`, in the same `options` object as the rest.
      `optionsOf` reads all seven with defaults filled in. `matchOptions` passes each on
      only when the pitch has it, so a pitch that never set one starts the match it always
      did. `cleanOptions` is the JavaScript's: it knows only the five.
+10. **A scene decides** (since 0.14; Jamie, 2026-11-21: "a Scene should have an allowed
+    set of surfaces and pitch types"). In a document whose `settings` names a scene,
+    `setOptions` holds the merged surface and set to the scene's (the one given if the
+    scene allows it, else the scene's default: choosing Beach brings sand, a surface
+    Beach does not allow changes nothing), and `optionsOf` and `matchOptions` read them
+    through the scene again, so a write that left them (a 0.13 client's `lobbyOf` cleans
+    `grid` to `grass`) is read right. A document that names no scene, every one the
+    JavaScript wrote and so every vector, keeps its surface and set as written: the rule
+    applies to options a client sets with a scene, never to a document or a match from
+    before. `MATCH_OPTIONS` gains the Scene row and `grid` on the Surface row; the set row
+    keeps all five (sweden and wisconsin are in no scene but still load). The card is
+    `optionRows(scene)`.
 
 Beyond these the calls decide exactly as the JavaScript did on the same JSON, odd input
 included: `===` (so `"3"` is not `3`), JavaScript truthiness (`0`, `""` and `null` are

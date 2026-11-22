@@ -74,6 +74,25 @@ function golden.matches()
 			surface = "sand", wind = "off", first = "A", start = START, maxTurns = 6,
 		},
 	}
+	-- Since 0.14.0, the grid (the Techno scene's floor, core/world): chosen as a client
+	-- chooses it, by the scene (scene "neon" decides the surface, core/scenes; the surface
+	-- is named too, for the person's plan below). The computer both sides in light wind ...
+	out[16] = {
+		name = "m16-neon-grid-light-A",
+		opts = {
+			mode = "match", cpu = "both", seed = 1016, scene = "neon", surface = "grid",
+			wind = "light", first = "A", start = START, maxTurns = 6,
+		},
+	}
+	-- ... and a person (throwing as m13's does) against the pro computer.
+	out[17] = {
+		name = "m17-neon-grid-off-B-near-pro",
+		opts = {
+			mode = "match", cpu = "B", computer = "pro", seed = 1017, scene = "neon", surface = "grid",
+			wind = "off", first = "B", start = START, maxTurns = 10,
+		},
+		near = { 0.35, 0.75, 1.25, 1.9, 2.0 },
+	}
 	return out
 end
 
