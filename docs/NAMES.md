@@ -347,7 +347,13 @@ The engine decides how names are made. What the game asks of players is Jamie's:
 2. **The Playdate.** Decided by Jamie, 2026-11-21: it switches too, for one game
    everywhere, though its names never leave the device. The Names board rolls a name
    and the crank steps a word (`namegen.step`). Saved players keep their typed names
-   until someone renames them. Its 10-letter limit (`core/names`) has to reach 16, so
+   until someone renames them. **Changed by Jamie, 2026-11-22:** "On the Playdate we
+   should allow players to both use the generated names as well as enter their own. On
+   the web we have to worry about people putting profanity in that others see. In the
+   playdate nobody else can see it so we can allow profiles to have user entered names."
+   So the Playdate offers both, a generated name or a typed one, wherever a name is
+   made or changed; the web and the iPhone stay generated only. The rule behind it: a
+   typed name is allowed where nobody else can see it. Its 10-letter limit (`core/names`) has to reach 16, so
    the Playdate client measures the widest name in its own font first; if the HUD
    cannot fit 16, the engine gets a shorter `namegen.max` for it rather than a second
    word list.
