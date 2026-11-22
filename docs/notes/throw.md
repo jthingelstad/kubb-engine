@@ -974,8 +974,9 @@ reference does support a change, needs the box-box contact itself reworked and m
 against `tools/physdump.lua`, the Gym's rows that must not move (base kubbs from 8 m, the
 king, the inkast's settling, the touched-and-stood rate) and this column: work of its own,
 with the column of six as its test (`tools/mjref` `--cases drive`). Changing `pairMu` or
-`pairE` instead would put the cause in the wrong place, and the owner's 23.5%
-touched-and-stood rate argues against lower friction. What the reference and the owner
+`pairE` instead would put the cause in the wrong place, and the 23.5% touched-and-stood
+rate argued against lower friction (that figure is the Gym's recorded-throw bank, people's online throws played on the engine they were made on (0.2 to 0.7), not a measurement of real wood; no real rate
+exists: docs/notes/gym.md "The recorded-throw bank"). What the reference and the owner
 agree on now is the throw: a harder, lower baton fells more, and that is what 0.16 gives
 the person. The doubles and triples the Gym gained (below) come from it.
 

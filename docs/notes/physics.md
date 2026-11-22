@@ -952,8 +952,10 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
       no more either way. (Until Codex on #49 the trace summed each contact's largest
       impulse in the step's passes, 1.52 here, which read a pass's overshoot as a harder
       push.) The coefficient is not wrong
-      (clean dry wood 0.25 to 0.5, and the owner's 23.5% of touched kubbs left standing
-      argues against less), so it was left.
+      (clean dry wood 0.25 to 0.5), so it was left. (The 23.5% of touched kubbs left
+      standing cited here before is the Gym's recorded-throw bank, people's online throws
+      played on the engine they were made on (0.2 to 0.7), not a measurement of real wood:
+      it argues nothing about wood.)
     - **The baton's blow lands a little low on the face.** Struck level at 9 m/s, the
       front kubb leaves at 2.48 m/s turning at 32 rad/s in ours, 2.80 and 37 in MuJoCo:
       the same normal impulse (1.49 and 1.48 N s) and the same friction (0.60 and 0.61),
@@ -1057,7 +1059,8 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     86.5, 96.8, 94.2, 83.6, 88.6% -> 68.6, 88.7, 95.8, 91.2, 85.8, 87.7% (with the drive
     91.7, 96.8 -> 93.1, 96.8); a miss that touched the kubb and left it standing 15.1,
     11.0, 12.4, 8.3, 8.0, 6.9% -> 15.3, 11.1, 12.5, 8.8, 7.8, 6.7% of misses (the recorded
-    bank's 23.5% is real throws on 0.7); the struck kubb toppled 84.2 to 95.6% both. Every
+    bank's 23.5% is people's throws played on the engines they were made on, 0.2 to 0.7, not
+    a real rate); the struck kubb toppled 84.2 to 95.6% both. Every
     level stays where it was against `docs/reference/play-levels.json`, so nothing needs
     recalibrating. Cost: nothing measurable (`core/bench` 0.0194 to 0.0197 ms a step
     before and after, the match case 0.006 to 0.009; the change makes one contact fewer
