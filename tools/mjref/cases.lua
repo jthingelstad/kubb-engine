@@ -443,6 +443,54 @@ function cases.columnFrom(C)
 			end
 		end
 	end
+	-- a standing kubb with lying kubbs behind it (C.brace), struck from above
+	if C.brace then
+		local B = C.brace
+		local lean, fall = rad(21), rad(20)
+		for _, gap in ipairs(B.gaps) do
+			for _, skew in ipairs(B.skews) do
+				for _, count in ipairs(B.counts) do
+					if count > 0 or (gap == B.gaps[1] and skew == B.skews[1]) then
+						local name = count == 0 and "brace-none" or string.format("brace-g%g-s%g-n%d", gap, skew, count)
+						for _, below in ipairs(B.below) do
+							for _, dx in ipairs(B.dx) do
+							for _, yaw in ipairs(B.yaw or { 0 }) do
+								for _, v in ipairs(B.v) do
+									for _, turn in ipairs(B.turn) do
+										local kw, kx, ky, kz = quat.fromAxisAngle(0, 0, 1, rad(yaw))
+										local bodies = { resting("k1", "kubb", 0, Y0, kw, kx, ky, kz) }
+										local yc = Y0 + kk.hy + gap + kk.hy
+										for j = 1, count do
+											local x = (count == 1) and 0 or (j == 1 and -0.06 or 0.09)
+											local q1 = { quat.fromAxisAngle(0, 1, 0, rad(90)) }
+											local q2 = { quat.fromAxisAngle(0, 0, 1, rad(skew)) }
+											local qw, qx, qy, qz = quat.mul(q2[1], q2[2], q2[3], q2[4], q1[1], q1[2], q1[3], q1[4])
+											bodies[#bodies + 1] = resting("l" .. j, "kubb", x, yc, qw, qx, qy, qz)
+										end
+										-- the baton's axis leans back by `lean` (its lower end ahead); its lowest
+										-- point 3 cm short of the face, as high as the line down at `fall` puts it
+										local bqw, bqx, bqy, bqz = quat.fromAxisAngle(1, 0, 0, lean)
+										local ly = Y0 - kk.hy - 0.03
+										local lz = 2 * kk.hz - below + 0.03 * math.tan(fall)
+										local cy = ly - bk.hl * sin(lean)
+										local cz = lz + bk.hl * cos(lean) + bk.r
+										bodies[#bodies + 1] = { id = "baton", kind = "baton", pos = v3(dx, cy, cz),
+											quat = { bqw, bqx, bqy, bqz }, vel = v3(0, v * cos(fall), -v * sin(fall)),
+											angvel = v3(-turn, 0, 0), projectile = true }
+										add(list, { id = string.format("col-%s-t%g-%g-%g-%g-%g", name, below, dx, yaw, v, turn), scen = "column",
+											group = string.format("%s below %g", name, below),
+											params = { layout = name, below = below, dx = dx, yaw = yaw, v = v, turn = turn }, surface = "grass",
+											duration = 3, extra = { field = { "k1" }, kind = "brace", layout = name }, bodies = bodies })
+									end
+								end
+							end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
 	return list
 end
 

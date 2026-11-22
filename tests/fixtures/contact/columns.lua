@@ -38,6 +38,19 @@ C.layouts["fence4"] = { { -0.108, 0 }, { -0.036, 0 }, { 0.036, 0 }, { 0.108, 0 }
 C.layouts["wedge5"] = { { 0, 0 }, { -0.045, 0.074 }, { 0.045, 0.074 }, { -0.02, 0.153, 12 }, { 0.07, 0.152, -8 } }
 C.layouts["line3-8cm"] = { { 0, 0 }, { 0, 0.15 }, { 0, 0.30 } }
 
+-- A standing kubb with a kubb lying behind it (0.18, the owner's report of 2026-11-22: a
+-- front kubb struck on its top edge tipped onto the kubb lying behind it and stood): the
+-- lying kubb `gap` m behind the standing one's back face, its long axis across the throw
+-- (square) or turned 30 degrees (skew), one of them or two (the second beside the first,
+-- across). With none behind it (count 0), the same blows on a lone kubb.
+-- The baton comes down at 20 degrees, leaning back 21 degrees and turning end over end
+-- at `turn` rad/s, as the report's did, its lowest point `below` m under the kubb's top
+-- edge as it reaches the face (a graze of the top edge, 2 to 12 mm), straight or `dx` m to
+-- the side of the kubb's middle, the struck kubb square to the throw or turned `yaw` degrees
+-- (a corner toward the baton, as the report's stood).
+C.brace = { gaps = { 0.04, 0.08, 0.12 }, skews = { 0, 30 }, counts = { 0, 1, 2 },
+	v = { 6, 8.6, 11 }, turn = { 0, 5 }, below = { 0.002, 0.006, 0.012 }, dx = { 0, 0.03, 0.045 }, yaw = { 0, 40 } }
+
 -- The strikes. A baton flies level along +y, upright, the lower end of its segment `low`
 -- m above the ground (0.045: plan.aimZFor's height, 0.3 of the way up a kubb; the
 -- baton's round end reaches 2.2 cm lower), 5 cm short of the
