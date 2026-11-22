@@ -94,20 +94,21 @@ plan.tune = {
 	-- the waist. Until 0.10 the release went by the target's kind (a base kubb 90, the
 	-- king 75, a field kubb 60 whatever the distance): a base kubb from 8 m peaked
 	-- head high and one from an advantage line 2 m away was lobbed at loft 32.
+	-- From 0.16 that line is plan.sharedArcFor, the computer's until its drive is on;
+	-- a person's default is arcLine below
 	arcNearM = 2, arcNearDeg = 15,
 	arcFarM = 8,  arcFarDeg = 60,
 	arc = { drill = 135 }, -- a drilled kubb's default release: half past 1
-	-- A baton's default release at a field kubb (0.16, plan.arcFor "field"): firm and low
-	-- at close range, the drive at 1.5 m, back on the line every target shares at 8 m
-	-- (the owner, of a throw on
-	-- the old default from the advantage line 1.4 m from a group, owner-2026-11-22#s2:
-	-- "A real player would throw hard at a tight group this close"). Knots of (distance
-	-- m, release degrees), straight between them; under the first and over the last as
+	-- A baton's default release (0.16, plan.arcFor): one line by distance for every
+	-- target, as Jamie ruled on 2026-11-20 (above), lowered: firm and low at close range,
+	-- the drive at 1.5 m, the line above again at 8 m (the owner, of a throw on the old
+	-- default from the advantage line 1.4 m from a group, owner-2026-11-22#s2: "A real
+	-- player would throw hard at a tight group this close"). Knots of (distance m,
+	-- release degrees), straight between them; under the first and over the last as
 	-- they are. Launch lofts (after a short throw's flattening, flight.handAt): 7 at 1 m
-	-- and under (the point-blank bowl, as before), -4.6 at 1.5 m (6.6 m/s), 1.5 at 3 m,
-	-- 5 at 4 m (10.6 m/s), 14.5 at 6 m and 22 at 8 m (as before). A base kubb's and the
-	-- king's stay on the line above at every distance
-	fieldArc = { 1.0, 15, 1.5, 6, 4, 13.6, 6, 37.5, 8, 60 },
+	-- and under (the point-blank bowl, as before), -4.6 at 1.5 m (6.5 m/s), 0.5 at 3 m,
+	-- 4.9 at 4 m (10.3 m/s), 14.5 at 6 m and 22 at 8 m; from 8 m out the line above
+	arcLine = { 1.0, 15, 1.5, 6, 4, 13.6, 6, 37.5, 8, 60 },
 	arcStepDeg = 15,       -- B + up/down moves the release target half an hour
 	releaseMinDeg = 0,     -- the planned release stays between 6 o'clock (15, half past 5, until 0.16) ...
 	releaseMaxDeg = 165,   -- ... and half past 12
@@ -520,23 +521,30 @@ function plan.clampSpin(taps)
 	return taps
 end
 
--- The default release (degrees): a drilled kubb's (kind "drill"), a baton's at a field
--- kubb d metres from the stance (kind "field", 0.16: plan.tune.fieldArc), or a baton's
--- at anything else, a base kubb, the king, an empty spot (plan.tune "A baton's default
--- release"; d nil: arcFarM, a baseline throw).
+-- The default release (degrees): a drilled kubb's (kind "drill"), or a baton's for a
+-- target d metres from the stance, whatever the target (plan.tune.arcLine, 0.16; any
+-- other kind, which does not count; d nil: arcFarM, a baseline throw).
 function plan.arcFor(kind, d)
 	local t = plan.tune
 	if kind == "drill" then return t.arc.drill end
-	if kind == "field" and d then
-		local k = t.fieldArc
-		if d <= k[1] then return plan.clampRelease(k[2]) end
-		for i = 3, #k - 1, 2 do
-			if d <= k[i] then
-				return plan.clampRelease(k[i - 1] + (d - k[i - 2]) * (k[i + 1] - k[i - 1]) / (k[i] - k[i - 2]))
-			end
+	local k = t.arcLine
+	d = d or t.arcFarM
+	-- from the last knot (8 m) out, the line before, as before
+	if d >= k[#k - 1] then return plan.sharedArcFor(d) end
+	if d <= k[1] then return plan.clampRelease(k[2]) end
+	for i = 3, #k - 1, 2 do
+		if d <= k[i] then
+			return plan.clampRelease(k[i - 1] + (d - k[i - 2]) * (k[i + 1] - k[i - 1]) / (k[i] - k[i - 2]))
 		end
-		return plan.clampRelease(k[#k])
 	end
+	return plan.clampRelease(k[#k])
+end
+
+-- The line every baton's default followed from 0.10 to 0.15 (arcNearDeg at arcNearM and
+-- under, arcFarDeg at arcFarM, straight between): the computer's arc until its drive is
+-- switched on (core/cpu, cpu.tune.drive), and the "before" of the measuring tools.
+function plan.sharedArcFor(d)
+	local t = plan.tune
 	d = d or t.arcFarM
 	if d < t.arcNearM then return t.arcNearDeg end
 	return plan.clampRelease(t.arcNearDeg + (d - t.arcNearM) * (t.arcFarDeg - t.arcNearDeg) / (t.arcFarM - t.arcNearM))

@@ -298,7 +298,7 @@ Every number that is a guess lives in one table per module, with a comment:
   `armR`, `wristShare`, `tumbleMin`: "The baton's tumble"), the height a clean baton's
   centre goes through a standing piece (`aimHeightShare` 0.3, 0.5 until 0.9: "Aimed through the piece");
   the drive (0.16: `driveKneeDeg`, `loftAt0`, `lineMinDeg`, `driveBackMaxDeg`,
-  `driveTurnToDeg`, `fieldArc`: "The drive");
+  `driveTurnToDeg`, `arcLine`: "The drive");
   `tw.plan.levels` (beginner, club, pro: the computer's standard, `autothrow.cpuLevel`;
   the targets' half widths, the error inside a target, the shake and overpower costs, the
   nerves and `tumbleSd`; `plan.LEVELS` in menu order); `tw.plan.meters` (the person's
@@ -802,14 +802,14 @@ rule (`legalTiltDeg`) is as before: a drive is legal exactly when another throw 
 same swing would be. The nerves' turn draw is added as before and the rate never goes
 under `tumbleMin` (no backspin), so `session/check`'s tumble bound already holds.
 
-**The default** (`plan.tune.fieldArc`, `plan.arcFor("field", d)`). A baton whose circle is on
-a standing field kubb (within `snapRadius`) defaults to a field kubb's arc; a base kubb,
-the king and an empty spot keep the line every target shared (`plan.arcFor("baton", d)`).
-Jamie on 2026-11-20 ("arc based on target is just obviously wrong") set one line for every
-target; this keeps it for every target but the field kubb, as the owner's report now asks
-(Q18 in `docs/reference/QUESTIONS.md`). The field kubb's line, knots of distance and
-release, straight between: 15 at 1 m and under (the point-blank bowl, unchanged), 6 at 1.5
-m, 13.6 at 4 m, 37.5 at 6 m, 60 at 8 m. What a newcomer who touches nothing throws:
+**The default** (`plan.tune.arcLine`, `plan.arcFor(kind, d)`). One line by distance for
+every target, as Jamie ruled on 2026-11-20 ("arc based on target is just obviously
+wrong"), lowered: knots of distance and release, straight between: 15 at 1 m and under
+(the point-blank bowl, unchanged), 6 at 1.5 m, 13.6 at 4 m, 37.5 at 6 m, 60 at 8 m, and from
+8 m out the line before (`plan.sharedArcFor`, which the computer keeps until its drive is
+switched on). A first version gave the lowered line to field kubbs only; measured (below),
+the king and a Kid match's base kubbs hold on it, so every target takes it (Q18, closed).
+What a newcomer who touches nothing throws:
 
 | distance | release | launch loft | m/s | backswing | turns | 0.15's loft and m/s |
 |---|---|---|---|---|---|---|
@@ -824,7 +824,28 @@ two or more) to the new default against 1.60 (57%), group 2 1.95 (90%) against 1
 (64%). `tests/lua/test_drive.lua` pins both at a margin of 0.15 kubbs a baton (at n = 60 it
 measures +0.31 and +0.33).
 
-**At a lone kubb** (`tools/meterprobe.lua --arc field|base`, 300 throws): the recorded hand
+**What else it reaches.** In play the line moves a throw at something other than a field
+kubb under 8 m in three places: the king from the baseline (4 m), a Kid match's base kubbs
+from the Kid line (6 m) and its king, and an empty spot. Measured, the lowered line against
+the two lines (field kubbs lowered, the rest on the line before):
+
+- the king at 4 m (`tools/meterprobe.lua --king --ranges 4 --n 600`, a lone king): a perfect
+  swing fells it 100% on both; the recorded hand 87% before and 89% on the one line, a
+  newcomer (x2) 54% and 62%, a master (x0.5) 97% and 97%
+- the king in the Gym's matches (human thrower, 300 matches a configuration): king shots
+  that toppled it 88.4% / 84.0% / 85.3% (beginner / club / pro hand) before, 94.2% / 83.6% /
+  88.6% after (n 308, 354 and 334; club's 0.4 point fall is well inside its interval of
+  about 4); games lost to a king knocked down early 3.0% / 0.3% / 0.3% before, 2.7% /
+  0.3% / 0.3% after; base kubbs from 8 m unchanged; base kubbs from an advantage line 58.2%
+  / 53.7% / 53.7% before, 59.0% / 55.7% / 57.8% after
+- a Kid match (the Kid meter, `--meter kid`): a lone base kubb at 6 m, a small child's hand
+  (x3) 54% before and 56% after, x2 76% and 76%, x1 91% and 91%; the king at 4 m 83% and 86%,
+  92% and 93%, 97% and 97%. In the Gym's Kid matches (`--rules kid`, human thrower) king
+  shots that toppled it 96.2% / 99.7% / 96.5% before and 96.2% / 98.7% / 96.8% after, base
+  kubbs from the Kid line and turns a game unchanged. (The Gym's `--rules kid` was read and
+  never passed to its matches until 0.16.0; it is now.)
+
+**At a lone kubb** (`tools/meterprobe.lua --arc line|shared`, 300 throws): the recorded hand
 fells a lone field kubb 85% / 85% / 69% at 1.5 / 2 / 4 m on 0.15's default and 89% / 93% /
 71% on the drive; a newcomer (x2) 50% / 49% / 35% against 67% / 77% / 38%. On the Kid meter
 a small child's hand (x3) 79% / 83% / 78% at 1.5 / 2 / 3 m against 85% / 88% / 85%: from the

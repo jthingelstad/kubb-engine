@@ -152,9 +152,9 @@ function human.choose(s, r, level, model, hand)
 		-- whose arc goes by the target alone ignores it)
 		local d = math.sqrt((P.tx - P.px) ^ 2 + (P.ty - P.py) ^ 2)
 		if s.kingShot or role == "king" then
-			q.release, q.aimZ = plan.arcFor("king", d), plan.aimZFor("king")
+			q.release, q.aimZ = plan.arcFor("baton", d), plan.aimZFor("king")
 		else
-			q.release, q.aimZ = plan.arcFor(role == "field" and "field" or "base", d), plan.aimZFor("kubb")
+			q.release, q.aimZ = plan.arcFor("baton", d), plan.aimZFor("kubb")
 		end
 	end
 	local sol = plan.solve(q, {})

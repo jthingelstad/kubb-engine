@@ -128,7 +128,7 @@ test("a field baton: field.roles, the front of the fullest lane, aimed across it
 	expect.near(it.stance.y, 1.5, 0)
 	expect.near(it.aimZ, plan.aimZFor("kubb"), 0)
 	local dx, dy = it.tx - it.stance.x, it.ty - it.stance.y
-	expect.near(it.arc, plan.arcFor("baton", math.sqrt(dx * dx + dy * dy)), 0)
+	expect.near(it.arc, plan.sharedArcFor(math.sqrt(dx * dx + dy * dy)), 0)
 	expect.eq(cpu.text(d.why), "At the lane with the most kubbs: 2 in line from the front one.")
 end))
 

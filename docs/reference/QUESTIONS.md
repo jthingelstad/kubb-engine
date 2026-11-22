@@ -469,26 +469,28 @@ census of 2026-11-21.
 
 ## Q18: Does a field kubb's default arc go by the target, or only by the distance?
 
-- **Status:** open: recommendation built (0.16.0)
+- **Status:** answered (0.16.0): one line by distance for every target, lowered
 - **Asks:** On 2026-11-20 Jamie set a baton's default release by the distance alone: "The
   closer you are to the target the lower you throw", and "arc based on target is just
   obviously wrong" (docs/notes/throw.md, plan.tune "A baton's default release"). On
   2026-11-22, of a baton on that default from the advantage line 1.4 m from a group: "A
-  real player would throw hard at a tight group this close" (owner-2026-11-22#s2), and the
-  work asked for a default by distance and target, a field kubb against a base kubb or the
-  king. Kyle Weakland throws light to medium at a group so as not to miss
-  (ko-2017-blasting#p1.6, ko-2017-blasting#p1.23), and says a tight group needs power
-  (ko-2017-blasting#p1.5).
-- **So far:** 0.16.0 gives a baton whose circle is on a standing field kubb its own line,
-  the drive at 1.5 m and the shared line again at 8 m (docs/notes/throw.md "The drive"); a
-  base kubb, the king and an empty spot keep the shared line. Both lines fall with the
-  distance, so "the closer the lower" holds for each. A base kubb from an advantage line 3
-  to 5 m away is thrown as before.
-- **Recommendation:** Keep the field kubb's own line. Its gain is at groups (two reported
-  positions: +0.3 kubbs a baton), and at a lone field kubb it fells as often or more on
-  the person's meter; a base kubb is a lone target, where nothing says a harder throw
-  helps. If Jamie prefers one line for every target, the field kubb's is the one to keep:
-  it meets the shared line at 8 m, so a base kubb from the baseline would not change.
-- **Settle by:** Jamie's word on whether a target's kind may set the default; then the Gym's
-  base kubb from an advantage line with the field kubb's line against the shared one.
+  real player would throw hard at a tight group this close" (owner-2026-11-22#s2). Kyle
+  Weakland throws light to medium at a group so as not to miss (ko-2017-blasting#p1.6,
+  ko-2017-blasting#p1.23), and says a tight group needs power (ko-2017-blasting#p1.5).
+- **So far:** A first build of 0.16.0 gave field kubbs a lowered line of their own and
+  kept the old one for base kubbs, the king and empty spots. The ruling of 2026-11-20
+  stands, so the simpler answer was measured first: the lowered line for every target.
+  Outside field kubbs under 8 m it reaches the king from the baseline (4 m), a Kid match's
+  base kubbs from the Kid line (6 m) and its king, and an empty spot. A lone king at 4 m:
+  a perfect swing 100% on both, the recorded hand 87% before and 89% after, a newcomer 54%
+  and 62%. The Gym's king shots 88.4 / 84.0 / 85.3% before and 94.2 / 83.6 / 88.6% after
+  (beginner, club, pro hands; n about 300 to 350 each); games lost to an early king 3.0 /
+  0.3 / 0.3% and 2.7 / 0.3 / 0.3%. On the Kid meter a lone base kubb at 6 m 54% and 56% for
+  a small child's hand, the king at 4 m 83% and 86%; in Kid matches the king 96.2 / 99.7 /
+  96.5% and 96.2 / 98.7 / 96.8%. Every row holds within its interval or rises
+  (docs/notes/throw.md "The drive", "What else it reaches").
+- **Recommendation:** Done: one line by distance, lowered (`plan.tune.arcLine`), for every
+  target; `plan.arcFor` takes no target. The line before is `plan.sharedArcFor`, the
+  computer's until its drive is switched on.
+- **Settle by:** done.
 - **Touches:** field.drive, field.power

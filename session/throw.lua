@@ -344,14 +344,12 @@ local function circleOn(s)
 end
 
 -- The default release for the throw as it is planned now: a drill's, or a baton's
--- for the distance from the stance to the circle and what the circle is on (plan.arcFor:
--- from 0.16 a field kubb's is firmer and lower close in; a base kubb's, the king's and
--- an empty spot's as before).
+-- for the distance from the stance to the circle (plan.arcFor; from 0.16 the lowered
+-- line, the drive close in).
 function throw.defaultArc(s)
 	if s.projectile == "kubb" then return plan.arcFor("drill") end
 	local dx, dy = s.markerX - s.playerX, s.markerY - s.playerY
-	local on = circleOn(s)
-	return plan.arcFor(on and kindOf(on) == "field" and "field" or "baton", math.sqrt(dx * dx + dy * dy))
+	return plan.arcFor("baton", math.sqrt(dx * dx + dy * dy))
 end
 
 local function replan(s)

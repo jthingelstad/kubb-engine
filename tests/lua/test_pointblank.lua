@@ -21,7 +21,7 @@ end
 
 local function solveAt(d, level)
 	return plan.solve({ projectile = "baton", px = 0, py = 0, tx = 0, ty = d,
-		release = plan.arcFor("baton", d), level = level or "club", aimZ = plan.aimZFor("field") }, {})
+		release = plan.sharedArcFor(d), level = level or "club", aimZ = plan.aimZFor("field") }, {})
 end
 
 local function swing(back, stop, flick)
@@ -100,7 +100,7 @@ test("solve: a throw of nearM or more is planned as before", function()
 		expect.eq(sol.handZ, flight.tune.handHeight, "hand at " .. d)
 		expect.eq(sol.handFwd, 0, "fwd at " .. d)
 		expect.eq(sol.aimZ, plan.aimZFor("field"), "aim height at " .. d)
-		expect.eq(sol.loft, plan.loftFor(plan.arcFor("baton", d)), "loft at " .. d)
+		expect.eq(sol.loft, plan.loftFor(plan.sharedArcFor(d)), "loft at " .. d)
 	end
 end)
 

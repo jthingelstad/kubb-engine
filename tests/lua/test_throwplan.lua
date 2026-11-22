@@ -73,20 +73,21 @@ test("plan: the loft scale is the line through 5 and 3 o'clock, and inverts", fu
 	expect.eq(plan.clampRelease(0, "kubb"), 15, "a thrown kubb's from half past 5, as before")
 	expect.eq(plan.clampRelease(200), 165)
 	expect.eq(plan.arcFor("drill"), 135)
-	-- a baton's default release goes by the distance (Jamie, 2026-11-20); from 0.16 a
-	-- field kubb's is its own, firmer and lower close in (the drive, owner-2026-11-22#s2),
-	-- the same as the others' from 6 m out
-	expect.near(plan.arcFor("baton", 8), 60, 1e-9)
-	expect.near(plan.arcFor("baton", 5), 37.5, 1e-9)
-	expect.near(plan.arcFor("baton", 2), 15, 1e-9)
-	expect.eq(plan.arcFor("baton", 0.5), 15, "never under the release range")
-	expect.eq(plan.arcFor("baton", 30), 165, "never over it")
-	expect.eq(plan.arcFor("king", 4), plan.arcFor("base", 4), "a base kubb's and the king's are one line")
-	expect.near(plan.arcFor("field", 1.5), 6, 1e-9, "a field kubb at 1.5 m: the drive")
-	expect.near(plan.arcFor("field", 4), 13.6, 1e-9)
-	expect.eq(plan.arcFor("field", 0.5), 15, "point blank: the short bowl, as before")
-	expect.near(plan.arcFor("field", 6), plan.arcFor("base", 5), 1e-9, "at 6 m a field kubb's is 5 m's line")
-	expect.near(plan.arcFor("field", 8), plan.arcFor("base", 8), 1e-9, "at 8 m every target's is the same")
+	-- a baton's default release goes by the distance, never by the target's kind (Jamie,
+	-- 2026-11-20); from 0.16 the line is lowered (the drive, owner-2026-11-22#s2) and the
+	-- line before is plan.sharedArcFor, the computer's
+	expect.near(plan.sharedArcFor(8), 60, 1e-9)
+	expect.near(plan.sharedArcFor(5), 37.5, 1e-9)
+	expect.near(plan.sharedArcFor(2), 15, 1e-9)
+	expect.eq(plan.sharedArcFor(0.5), 15, "never under its floor")
+	expect.eq(plan.sharedArcFor(30), 165, "never over the range")
+	expect.eq(plan.arcFor("king", 4), plan.arcFor("field", 4), "the kind of target does not count")
+	expect.near(plan.arcFor("baton", 1.5), 6, 1e-9, "1.5 m: the drive")
+	expect.near(plan.arcFor("baton", 4), 13.6, 1e-9)
+	expect.eq(plan.arcFor("baton", 0.5), 15, "point blank: the short bowl, as before")
+	expect.near(plan.arcFor("baton", 6), plan.sharedArcFor(5), 1e-9, "at 6 m the line before's 5 m")
+	expect.near(plan.arcFor("baton", 8), plan.sharedArcFor(8), 1e-9, "at 8 m as before")
+	expect.eq(plan.arcFor("baton", 30), plan.sharedArcFor(30), "past 8 m the line before")
 	expect.eq(plan.arcFor("base"), plan.arcFor("baton", 8), "no distance: a baseline throw")
 end)
 

@@ -3,7 +3,7 @@
 -- tests/fixtures/drive/positions.lua, the launch is swept from a plan (the default
 -- arc, as the session plans a person's throw on the standard meter) down through flat
 -- to downward lofts (rows "plan (0.15)": the default arc before 0.16, which every
--- target shared; "plan (field)": a field kubb's from 0.16, the drive close in), each
+-- target shared; "plan (0.16)": the default from 0.16, the drive close in), each
 -- at the speed that puts the baton's centre through the front
 -- kubb at mid-height (or at the plan's aim height for the plan rows), from the hand
 -- flight.handAt gives for the distance. Every setting is thrown --n times with a seeded
@@ -184,8 +184,8 @@ for _, name in ipairs(names) do
 			{ h = sol.handZ, fwd = sol.handFwd, tip = sol.handTip }, label)
 		return sol
 	end
-	planRow("plan (0.15)", plan.arcFor("baton", d))
-	planRow("plan (field)", plan.arcFor("field", d))
+	planRow("plan (0.15)", plan.sharedArcFor(d))
+	planRow("plan (0.16)", plan.arcFor("baton", d))
 	if not planOnly then
 		local hands = { { name = "hand", hand = { flight.handAt(d) } } }
 		if stand then hands[2] = { name = "stand", hand = { flight.tune.handHeight, 0, 1, 0, 0 } } end

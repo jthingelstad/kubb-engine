@@ -195,7 +195,7 @@ test("meter: the release past its bar pulls the baton, late left and early right
 			local late, early = side(h + x), side(-h - x)
 			expect.near(late.sideDeg, -m.pullPerDeg * x, 1e-9, "late pulls left")
 			-- (a stop is never under 0: the pull counts from the stop as it is)
-			local ex = math.min(x, sol.release - h)
+			local ex = math.max(0, math.min(x, sol.release - h)) -- (0.16: a drive's bar reaches under 6 o'clock)
 			expect.near(early.sideDeg, m.pullPerDeg * ex, 1e-9, "early pulls right")
 			expect.eq(late.releaseV, 1); expect.eq(early.releaseV, -1)
 		end

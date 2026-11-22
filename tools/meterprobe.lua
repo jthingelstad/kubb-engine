@@ -31,8 +31,9 @@
 --     as thrown, as the Kid rules do) [--hands 2,1,0.5] (the hand scales the hand part draws)
 --     [--set plan.meters.standard.powerHalf8=4] (one tune a --set; a surface's number as
 --     world.surfaces.grid.mu=0.5) [--surface grass|sand|snow|grid]
---     [--arc field|base] (the baton's default arc under 6 m: a field kubb's, from 0.16,
---     or the line every target shared before)
+--     [--king] (the perfect, honest and hand parts throw at a lone king, aimed as the
+--     king is, instead of a kubb) [--arc line|shared] (the baton's default arc: 0.16's line, or the line before,
+--     plan.sharedArcFor)
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local sourceDir = here .. "/.."
 local imported = {}
@@ -57,7 +58,7 @@ local model = human.load(sourceDir .. "/tools/gym/human-model.json")
 local n, seed, hand = 400, 1, "club"
 local meterName, hands = nil, { 2, 1, 0.5 }
 local SURFACE = "grass"
-ARC = "field"
+ARC = "line"
 local ranges = { 4, 6, 8 }
 local parts = { perfect = true, honest = true, hand = true, drill = true }
 local function list(s, num)
@@ -76,6 +77,7 @@ while i <= #arg do
 	elseif a == "--meter" then meterName = v; i = i + 1
 	elseif a == "--hands" then hands = list(v, true); i = i + 1
 	elseif a == "--arc" then ARC = v; i = i + 1
+	elseif a == "--king" then KING = true
 	elseif a == "--parts" then
 		parts = {}
 		for _, p in ipairs(list(v)) do parts[p] = true end
@@ -99,7 +101,7 @@ local STEADY = plan.tune.steadyBelow
 
 local function throwAt(d, yaw, L)
 	local w = world.new { surface = SURFACE, stakes = false,
-		pieces = { { id = "k", kind = "kubb", x = 0, y = PY + d, yaw = yaw } } }
+		pieces = { { id = "k", kind = KING and "king" or "kubb", x = 0, y = PY + d, yaw = yaw } } }
 	local h, fwd, _, _, tip = flight.handAt(d)
 	world.launchBaton(w, 0, PY, L.swivel, L.loft, L.speed, L.tumble, L.tilt, "baton", h, fwd, tip)
 	local k = w.byId.k
@@ -113,11 +115,12 @@ local function throwAt(d, yaw, L)
 end
 
 local function solveAt(d)
-	-- the default arc a person's circle on the kubb gets: from 0.16 a field kubb's under 6 m
-	-- (plan.arcFor "field", the drive close in); --arc base for the line every target shared
-	local kind = (d >= 6 or ARC == "base") and "base" or "field"
+	-- the default arc a person's circle on the kubb gets: from 0.16 the lowered line (the
+	-- drive close in); --arc shared for the line before
+	local kind = KING and "king" or (d >= 6 and "base" or "field")
+	local release = ARC == "shared" and plan.sharedArcFor(d) or plan.arcFor("baton", d)
 	return plan.solve({ projectile = "baton", px = 0, py = PY, tx = 0, ty = PY + d,
-		release = plan.arcFor(kind, d), meter = METER, aimZ = plan.aimZFor(kind) }, {})
+		release = release, meter = METER, aimZ = plan.aimZFor(kind) }, {})
 end
 
 local function pct(a, b) return b > 0 and 100 * a / b or 0 end
