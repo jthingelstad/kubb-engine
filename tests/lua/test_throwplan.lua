@@ -407,7 +407,11 @@ test("plan: nerves grow with effort, roughness, overpower and level; the verdict
 	expect.truthy(sf > sn, "a longer throw is less true")
 	expect.truthy(plan.nervesSd("club", far.back, 0.5, 1) > sf, "roughness")
 	expect.truthy(plan.nervesSd("club", far.back, 0, 2) > sf, "overpower")
-	expect.truthy(plan.nervesSd("beginner", far.back, 0, 1) > sf and plan.nervesSd("pro", far.back, 0, 1) < sf)
+	-- (from 0.13 club's angle is pro's, 0.5; pro is still truer in length and in its swing)
+	expect.truthy(plan.nervesSd("beginner", far.back, 0, 1) > sf and plan.nervesSd("pro", far.back, 0, 1) <= sf)
+	local _, lenClub = plan.nervesSd("club", far.back, 0, 1)
+	local _, lenPro = plan.nervesSd("pro", far.back, 0, 1)
+	expect.truthy(lenPro < lenClub)
 	expect.truthy(plan.nervesSd("club", near.back, 0, 1) >= lv.nervesDeg * plan.tune.effortMin - 1e-12)
 	-- the fan widens with range, in metres more than in proportion
 	local hn = plan.spread(near, 4)
