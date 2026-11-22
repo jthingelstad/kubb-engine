@@ -918,7 +918,9 @@ the person. The doubles and triples the Gym gained (below) come from it.
 That work was done on 2026-11-22 (docs/notes/physics.md "A blow down a column"): kubb on
 kubb alone and the piles of a throw-in agree with the reference or fell more; the column
 of six struck by a baton is still the one case outside its band, and no sound change to
-the contacts brought it in, so the physics is as it was.
+the contacts brought it in, so the physics is as it was. The front kubb's 15 to 30% less energy was
+found since: the blow was held low on its face, fixed in 0.18.0 (physics.md "The baton's
+blow"); the columns did not move with it.
 
 ### The thrown kubb on the person's meter (0.16)
 

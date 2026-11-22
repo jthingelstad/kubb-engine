@@ -103,7 +103,7 @@ Every client shows its own version with the engine's beside it, in one form:
 
 - **0.18.0** (minor). The computer's drive (`field.drive`, docs/reference/plays/field.md),
   switched on at club and pro as "How a play gets in" asks, the computer's king shot by
-  level, a match's length, and a cheap drive floor.
+  level, the baton's blow, a match's length, and a cheap drive floor.
   - **The computer**: at club and pro (every computer player at its own level, 0.17.0's
     teams included) every baton but the king shot is planned on a
     person's default line (`plan.arcFor`, the drive close in) instead of the line before
@@ -134,16 +134,25 @@ Every client shows its own version with the engine's beside it, in one form:
     line and no minutes (it was 0 minutes: the finish fell back to the start), and the
     start keeps the starting host's `utcOffset` (minutes), the clock stamps are on. No hash
     moves without a stamp or an offset; a new match that gives an offset has other hashes.
-  - **Golden hashes** (`make golden`: 21 matches, 854 actions): every match with a club or
-    pro computer moves at its first baton the line plans differently from the line before
-    (the openers from the baseline at 8 m are the same), m20 and m21 (0.17.0's computer
-    players) at their computers' first batons on the new line; m15 (beginner both sides),
-    m18 and m19 (Kid) keep every hash exactly as 0.17.0 has them. Two winners change (m09,
-    m10, ending two turns sooner). No golden match reaches a computer's king shot (the turn
+  - **The baton's blow** (docs/notes/physics.md "The baton's blow"): a baton meeting a kubb
+    or the king along a face or an edge is held by the two ends of that line only, not also
+    by the closest point between them, which held the blow low on the face. An upright
+    baton driven level into a lone kubb now sends it off at about 0.96 of MuJoCo's speed
+    when struck low, from 0.94 (0.91 on average over the cases measured, from 0.87).
+    Nothing in the Gym moves past its noise.
+  - **Golden hashes** (`make golden`: 21 matches, 854 actions). By the computer's line:
+    every match with a club or pro computer moves at its first baton the line plans
+    differently from the line before (the openers from the baseline at 8 m are the same),
+    m20 and m21 (0.17.0's computer players) at their computers' first batons on the new
+    line; two winners change (m09, m10, ending two turns sooner). By the baton's blow, on
+    top of that: sixteen matches move again at their first baton that meets a face along a
+    line (m04 and m07 to m10 have none), among them m15 (beginner both sides), m18 and m19
+    (Kid), which the computer's line left exactly as 0.17.0 has them; no winner, turn count
+    or action count changes by it. No golden match reaches a computer's king shot (the turn
     limit ends them), so the king scale moves none. The corpus's winner records lose
-    `minutes: 0` (no stamps). The pinned neighbours hash moves too (`7e4b4e4e`: the
-    neighbours' club and pro computers drive; none of seed 9's pitches reaches a king shot
-    in its three minutes).
+    `minutes: 0` (no stamps). The pinned neighbours hash moves too (`e427782a`: the
+    neighbours' club and pro computers drive and their batons' blows move; none of seed 9's
+    pitches reaches a king shot in its three minutes).
   - **For clients**: nothing must change to play; stamp `frame` and put `utcOffset` on the
     start to get a match's length; the Playdate can drop its floor cache. 0.18 shares
     matches with no 0.17 (the computer's throws differ). docs/CLIENTS.md "0.18 on top".

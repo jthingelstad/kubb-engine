@@ -521,6 +521,13 @@ and hard into the field kubb, the way the line throws close in.") from `tw.cpu.l
   stamp every action as UTC plus that offset, so a joiner in another zone stamps on the
   start's clock.
 
+- **The baton's blow** (docs/notes/physics.md "The baton's blow"): a change to how a
+  baton meets a kubb's face, so every throw that meets one moves and every golden hash
+  with it. Nothing for a client to change. What a player notices: a baton that hits a kubb
+  square on its face knocks it a little harder (about 4% faster, 6% more turn on average);
+  the rates a match shows (doubles, triples, base kubbs from 8 m, the king) are the same
+  within the Gym's noise. The Playdate's step costs the same.
+
 ## What the engine now offers that no surface shows yet
 
 - **The computer's reason** (`tw.cpu.last`, since 0.11.1): the play and situation behind

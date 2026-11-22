@@ -63,6 +63,9 @@ goes to `build/mjref/report.md`, with every number in `report.json`.
     `world.onContact`'s fifth argument; `--max` the largest any of the step's passes
     reached, which reads a pass's overshoot as a harder push). About 10 minutes with
     `hard` on a loaded 10-core Mac. Results: docs/notes/physics.md "A blow down a column".
+    From 0.18 the case set has a lone kubb too (`col1`), struck as the columns are and by
+    slower batons near where it stops falling (`C.lone`: 0.5 to 1.4 m/s); the baton's
+    blow on its face is docs/notes/physics.md "The baton's blow".
 - `--variants` (mjsim.py, 2026-11-22) picks the variants to run, among them `hard`, which
   the default run leaves out: dt 1/38400 s, timeconst 0.0005 s (MuJoCo wants the
   timeconst at least twice the step), toward the rigid contact our impulses model. Its
