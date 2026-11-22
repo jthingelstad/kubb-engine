@@ -148,7 +148,9 @@ crowded }`; `ends[i] = { which, pose, inBounds, obstructedBy, ok, why }` (`why`:
   `"KING TOO EARLY: GAME OVER"`, and `"RESIGNED"` for a resignation, whose `text`
   begins with the team's name (`"Riverside resigned: Oak wins"`; before 0.7.4 its
   `short` was the first 12 characters, `"RIVERSIDE RE"`). Words no rule knows are cut
-  at a word, never inside one. Output only: not in the snapshot or any hash.
+  at a word, never inside one. In a Kid match (0.15.0) a king stood back up reads
+  `"KING BACK UP"` and a kubb the engine placed `"OUT TWICE: PLACED"`, never the
+  standard game's ending or punishment. Output only: not in the snapshot or any hash.
 
 Every match need also carries `card` (informational: `{ kind: "settle" | "handoff" |
 "pass", ... }`, the Playdate's cards; nothing waits on them), `turn`, `throws`, `teams`,
