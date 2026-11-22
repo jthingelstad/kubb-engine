@@ -68,7 +68,7 @@
     "pitch/lobby.lua": "ec156ff4515f5d9a1c867c4ff39a4093db92057134dac6b8ea50e7facf64325b",
     "pitch/seats.lua": "6c12eec6c699d43d29c297fc680038cd0220041dd3f31e8813526c6f7c68fb92",
     "pitch/sync.lua": "fcdda8e612f296267603e47b268ded6ed8fecf7ed4d46a7c50cd25ba4ad2b60b",
-    "session/api.lua": "3a4e1c18ddab2b8d4a8a7768e66c947d958d394e504d8c174189f673e1704fc8",
+    "session/api.lua": "b94fe26196ea00bdeeadeffc5bb06c77c1984e2ac72c876f3a9c9f216a4ad170",
     "session/check.lua": "0c4ffeee866f944cfbbad6c9964528df5fcf70de6e00a36952a2707a6004fb56",
     "session/json.lua": "8d0668bd82f2b3537fff0d76e986d813fc94104560ebcf2ae66416bf2f79185c",
     "session/namecheck.lua": "52ecda096159fcde0f74944ca7616f1455ce9b7aa32dce0cbe429e4045b02ab7",
@@ -83,6 +83,6 @@
     "version.lua": "0252af65b97a4afa907cd6ca23bef5cf3261549e7d21522c25a132be8d33c464"
   },
   "bundle": {
-    "sha256": "4177b0bb493c5469a549e8d11838f43efd7dff72ed6b64b9130b3dfc12d19473"
+    "sha256": "ac8a5c69bdd48995259e92b9bbb584a524834173fcb4172aa1b05e0a1cba83b2"
   }
 }

@@ -141,8 +141,10 @@ local function withInfo(r)
 	return r
 end
 function M.replayLoad(a)
-	R = nil
-	R = replay.new(a)
+	-- made before it replaces anything: a replay that is refused (names = "check", or one
+	-- that is not a replay) leaves the session and a replay already loaded as they were
+	local r = replay.new(a)
+	R = r
 	S = R.s
 	return withInfo(S:view())
 end
