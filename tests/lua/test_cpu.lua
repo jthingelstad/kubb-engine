@@ -51,7 +51,7 @@ test("every play is a phase's play with levels and a sentence", function()
 		expect.eq(id:match("^([a-z]+)%."), p.phase, id .. "'s phase")
 		expect.truthy(#p.levels > 0 and type(p.say) == "string" and #p.say > 0, id)
 	end
-	expect.eq(n, 6, "0.12.0 carries out six plays (raise.par, field.line, inkast.depth)")
+	expect.eq(n, 7, "0.17.0 carries out seven plays (field.drive since 0.17.0)")
 end)
 
 test("a toss beside a kubb already down: inkast.roll, with the basket and the kubb", plain(function()

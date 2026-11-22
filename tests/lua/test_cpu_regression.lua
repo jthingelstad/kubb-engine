@@ -2,7 +2,8 @@
 -- the random stream, over tests/lua/cpucases.lua's setups, line for line against a
 -- fixture. tests/fixtures/cpu/choose.txt is the engine as shipped (tools/cpufixture.lua
 -- rewrote it in 0.12.0 when field.line and inkast.depth were switched on, and in 0.13.0
--- when the beginner's swing scale went from 1.6 to 2.2 and club's nervesDeg from 0.8 to 0.5);
+-- when the beginner's swing scale went from 1.6 to 2.2 and club's nervesDeg from 0.8 to 0.5,
+-- and in 0.17.0 when field.drive was switched on at club and pro: a person's default line);
 -- tests/fixtures/cpu/choose-0.11.txt is 0.11.0's, which the engine must still match with
 -- those plays switched off (docs/notes/computer-player.md, "How a play gets in"). Integers
 -- and strings must match exactly. Floats must agree to one part in 10^9: the fixture
@@ -51,7 +52,7 @@ end
 
 -- 0.12.0's plays as shipped (field.line and inkast.depth, both at pro only) and 0.13.0's
 -- beginner: tests/fixtures/cpu/choose.txt, rewritten by tools/cpufixture.lua each time.
-test("autothrow.choose matches the 0.13.0 fixture in every field", function()
+test("autothrow.choose matches the 0.17.0 fixture in every field", function()
 	against("choose.txt")
 end)
 
