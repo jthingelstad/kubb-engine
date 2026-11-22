@@ -1236,7 +1236,7 @@
     },
     "web-dkb-rules-2025": {
       "title": "Offizielles Regelwerk des Deutschen Kubb-Bund e.V., Fassung ab MV 2025",
-      "url": "not recorded: see note",
+      "url": "https://www.dkubbb.de/wp-content/uploads/regelwerk_ab_mitgliederversammlung_2025.pdf",
       "kind": "rules",
       "by": "Deutscher Kubb-Bund e.V.",
       "standing": "The German federation's official rules, in force from its 2025 members' meeting",
@@ -1256,11 +1256,11 @@
         "sha256": "35072865f0eaf7d78170801e3cb9ec9e94b6abb1046e47b79f73b5e7a4b7912d",
         "bytes": 490080
       },
-      "note": "Where the private file was fetched from was not recorded, and the file names no web address; a search on 2026-11-21 found no federation page for it."
+      "note": "The federation's own file, linked from its rules page (dkubbb.de, Regelwerk)."
     },
     "web-kf-rules-2026": {
       "title": "Tornooi- en wedstrijdregels, Kovera Kubb League (2026-1)",
-      "url": "not recorded: see note",
+      "url": "https://kubbfederatie.be/spelregels/",
       "kind": "rules",
       "by": "Kubbfederatie",
       "standing": "The Belgian federation's tournament and league rules, a revision of its 2025 rules",
@@ -1281,7 +1281,7 @@
         "sha256": "7c29e58ea11b563611a0a07829923a21ab5371b3e06f93fd1a578b28e7652c94",
         "bytes": 1039644
       },
-      "note": "Where the private file was fetched from was not recorded, and the file names no address of its own; a search on 2026-11-21 found no federation page for it."
+      "note": "The url is the federation's rules page (Spelregels), which links the file; the file's own link was not recorded."
     }
   }
 }
