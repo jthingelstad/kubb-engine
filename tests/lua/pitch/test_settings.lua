@@ -6,21 +6,21 @@
 import "session/api"
 import "session/json"
 local json, NULL = tw.web.json, tw.web.json.null
-local lobby = tw.pitch.lobby
+local lobby = tw.shared.lobby
 
 -- 0.8.2's lobby, loaded beside this engine's. It imports "room/js", which is pitch/js now
--- (loaded already), and stores itself on tw.room.lobby, which is tw.pitch.lobby (the old
+-- (loaded already), and stores itself on tw.room.lobby, which is tw.shared.lobby (the old
 -- name is the same table), so the current one is put back after.
 local function oldLobby()
-	local now = tw.pitch.lobby
+	local now = tw.shared.lobby
 	local chunk = assert(loadfile("tests/fixtures/room-0.8.2/lobby.lua"))
 	local plain = import
 	import = function(name) return plain((name:gsub("^room/", "pitch/"))) end
 	local ok, err = pcall(chunk)
 	import = plain
 	assert(ok, err)
-	local old = tw.pitch.lobby
-	tw.pitch.lobby = now
+	local old = tw.shared.lobby
+	tw.shared.lobby = now
 	assert(old ~= now)
 	return old
 end

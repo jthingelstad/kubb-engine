@@ -15,7 +15,7 @@ import "core/frame"
 import "pitch/lobby"
 tw.web.session.useTune("pointer") -- the web's tune
 local session, json, check, replay = tw.web.session, tw.web.json, tw.web.check, tw.web.replay
-local autothrow, lobby, frame, plan = tw.autothrow, tw.pitch.lobby, tw.frame, tw.plan
+local autothrow, lobby, frame, plan = tw.autothrow, tw.shared.lobby, tw.frame, tw.plan
 local floor = math.floor
 
 local START = { year = 2026, month = 11, day = 19, hour = 9, min = 0 }

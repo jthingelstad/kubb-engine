@@ -4,9 +4,9 @@
 import "session/api"
 import "session/json"
 import "pitch/js"
-local json, js, NULL, object = tw.web.json, tw.pitch.js, tw.web.json.null, tw.web.json.object
+local json, js, NULL, object = tw.web.json, tw.shared.js, tw.web.json.null, tw.web.json.object
 local ENGINE = tw.engine.version
-local MM = tw.pitch.lobby.ENGINE
+local MM = tw.shared.lobby.ENGINE
 
 -- One call through the door: args a Lua table (or JSON text); returns the value.
 local function pitch(name, args)
@@ -200,7 +200,7 @@ end)
 
 test("a log that would outgrow the document is dropped: no replay for that match", function()
 	local big = { type = "throw", pad = ("x"):rep(4000) }
-	local n = math.ceil(tw.pitch.lobby.LOG_BUDGET / 4000) + 2
+	local n = math.ceil(tw.shared.lobby.LOG_BUDGET / 4000) + 2
 	local list = {}
 	for i = 1, n do list[i] = big end
 	local d = played(list)
@@ -438,7 +438,7 @@ test("room. is the old spelling of pitch.: the same calls, errors named as calle
 	expect.truthy(out.error and out.error:find("unknown call room.nope", 1, true), "unknown call, old spelling")
 	out = json.decode(kubbCall("room.lobbyOf", "[1]"))
 	expect.truthy(out.error and out.error:find("room.lobbyOf: ", 1, true) == 1, "named as called")
-	expect.truthy(rawequal(tw.room, tw.pitch), "tw.room is tw.pitch")
+	expect.truthy(rawequal(tw.room, tw.shared), "tw.room is tw.shared")
 end)
 
 test("the plain decoder is unchanged: nulls are dropped, {} and [] both read as a table", function()
@@ -447,4 +447,13 @@ test("the plain decoder is unchanged: nulls are dropped, {} and [] both read as 
 	expect.eq(json.encode(t), '{"b":[],"c":[]}')
 	local k = json.decode('{"a":null,"b":{},"c":[]}', true)
 	expect.eq(json.encode(k), '{"a":null,"b":{},"c":[]}')
+end)
+
+-- tw.pitch is the playing field's geometry (core/pitch). The shared pitch's modules live
+-- in a table of their own, tw.shared, so neither load order lets one replace the other.
+test("the shared pitch's tables are not the field's geometry", function()
+	expect.truthy(tw.pitch and tw.pitch.halfWidth, "core/pitch's geometry is tw.pitch")
+	expect.truthy(not rawequal(tw.pitch, tw.shared), "tw.shared is its own table")
+	expect.eq(tw.pitch.lobby, nil)
+	expect.truthy(tw.shared.lobby and tw.shared.api and tw.shared.js, "the modules are on tw.shared")
 end)

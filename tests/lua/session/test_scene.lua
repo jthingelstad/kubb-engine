@@ -8,7 +8,7 @@ import "session/replay"
 import "session/api"
 import "pitch/lobby"
 tw.web.session.useTune("pointer")
-local session, json, replay, lobby, NULL = tw.web.session, tw.web.json, tw.web.replay, tw.pitch.lobby,
+local session, json, replay, lobby, NULL = tw.web.session, tw.web.json, tw.web.replay, tw.shared.lobby,
 	tw.web.json.null
 
 local START = { year = 2026, month = 11, day = 20, hour = 12, min = 0 }

@@ -21,7 +21,7 @@ import "version"
 import "session/json"
 import "pitch/js"
 
-local json, js = tw.web.json, tw.pitch.js
+local json, js = tw.web.json, tw.shared.js
 local NULL, object = json.null, json.object
 local truthy, same, get, includes = js.truthy, js.same, js.get, js.includes
 
@@ -579,5 +579,5 @@ function lobby.backToLobby(doc, n)
 	return l
 end
 
-tw.pitch = tw.pitch or {}
-tw.pitch.lobby = lobby
+tw.shared = tw.shared or {}
+tw.shared.lobby = lobby

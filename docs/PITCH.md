@@ -20,12 +20,12 @@ spelling still works (below, "The old spelling").
 
 | Path                | What                                                                                          |
 | ------------------- | --------------------------------------------------------------------------------------------- |
-| `pitch/lobby.lua`   | `tw.pitch.lobby`: the document's reducers, and the engine check for START.                    |
-| `pitch/seats.lua`   | `tw.pitch.seats`: who may act for what the match needs now.                                   |
-| `pitch/engines.lua` | `tw.pitch.engines`: the pitch's engine when clients carry several (since 0.8.1).              |
-| `pitch/sync.lua`    | `tw.pitch.sync`: how a client stayed in step through the shared document (no longer used live). |
-| `pitch/js.lua`      | `tw.pitch.js`: the JavaScript rules these follow (truthiness, `===`, `JSON.stringify`, sizes). |
-| `pitch/api.lua`     | `tw.pitch.api`: the calls behind `kubbCall("pitch.<name>")`.                                  |
+| `pitch/lobby.lua`   | `tw.shared.lobby`: the document's reducers, and the engine check for START.                    |
+| `pitch/seats.lua`   | `tw.shared.seats`: who may act for what the match needs now.                                   |
+| `pitch/engines.lua` | `tw.shared.engines`: the pitch's engine when clients carry several (since 0.8.1).              |
+| `pitch/sync.lua`    | `tw.shared.sync`: how a client stayed in step through the shared document (no longer used live). |
+| `pitch/js.lua`      | `tw.shared.js`: the JavaScript rules these follow (truthiness, `===`, `JSON.stringify`, sizes). |
+| `pitch/api.lua`     | `tw.shared.api`: the calls behind `kubbCall("pitch.<name>")`.                                  |
 
 `session/api.lua` imports `pitch/api`, so loading the session as usual (docs/SESSION.md
 "Loading") loads the pitch too. The pitch's calls need no `useTune`, `new` or match: a
@@ -61,7 +61,7 @@ let out = kubbCall("pitch.joinTeam", #"{"doc":\#(docText),"id":"\#(me)","side":"
 ### The old spelling
 
 `room.<name>` reaches the same call as `pitch.<name>`, with the same bytes back, and
-`tw.room` is the same table as `tw.pitch`. A client that carries older engines (0.7 to
+The tables are `tw.shared.*`, not `tw.pitch.*`: `tw.pitch` is the playing field's geometry (`core/pitch`), and the two must not share a table. `tw.room` is the same table as `tw.shared`. A client that carries older engines (0.7 to
 0.9 know only `room.`) can keep one bridge that says `room.` for all of them, and move to
 `pitch.` when it stops carrying them. New code says `pitch.`.
 

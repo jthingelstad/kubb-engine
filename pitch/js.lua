@@ -206,6 +206,6 @@ function js.asciiSize(v)
 	return n
 end
 
-tw.pitch = tw.pitch or {}
-tw.room = tw.pitch -- the old name (before 0.13), the same table: every pitch module imports this one first
-tw.pitch.js = js
+tw.shared = tw.shared or {}
+tw.room = tw.shared -- the old name (before 0.13), the same table: every pitch module imports this one first
+tw.shared.js = js

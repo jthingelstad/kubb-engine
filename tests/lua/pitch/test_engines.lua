@@ -5,8 +5,8 @@
 import "session/api"
 import "session/json"
 import "pitch/js"
-local json, js, NULL, object = tw.web.json, tw.pitch.js, tw.web.json.null, tw.web.json.object
-local lobby = tw.pitch.lobby
+local json, js, NULL, object = tw.web.json, tw.shared.js, tw.web.json.null, tw.web.json.object
+local lobby = tw.shared.lobby
 local MM = lobby.ENGINE
 
 local function pitch(name, args)
