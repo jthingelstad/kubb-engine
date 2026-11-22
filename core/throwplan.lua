@@ -534,11 +534,12 @@ end
 -- knee where nothing under it can be made), a thrown kubb's the knee. q is not changed.
 -- A client that steps ARC itself (the Playdate's B + up/down) steps from
 -- max(release, floor) and never under the floor, so a step always moves the throw.
+local floorSol = {}
 function plan.arcFloor(q)
 	if q.projectile == "kubb" then return plan.tune.driveKneeDeg end
 	local r = q.release
 	q.release = plan.tune.releaseMinDeg
-	local f = plan.solve(q, {}).release
+	local f = plan.solve(q, floorSol).release
 	q.release = r
 	return f
 end
@@ -625,6 +626,78 @@ function plan.snap(tx, ty, targets, n, radius)
 	return best, bi
 end
 
+-- The drive's floor (0.16; made cheap in 0.17.0): the lowest release under the knee
+-- whose line a hand hz (m) over the aim makes over R (m) at loft share flat, at no more
+-- than plan.speedFor(driveBackMaxDeg); the knee when none under it does. The carry speed
+-- falls as the release rises, so the floor is the root of speed(release) = vmax: from the
+-- line's geometric limit (the loft straight at the aim, under which no speed reaches it)
+-- Illinois steps on [unfit, fit] to 1e-7 degrees, the fitting end returned, about 6 to 10
+-- carry speeds where 0.16's bisection spent 24. Kept for the last (R, flat, hz, vmax), so a
+-- plan whose release alone changed, and plan.arcFloor after it, reuse it. No tables.
+local floorR, floorFlat, floorHz, floorV, floorRel = nil, nil, nil, nil, nil
+local huge = math.huge
+local function driveFloor(R, flat, hz)
+	local pt = plan.tune
+	local vmax = plan.speedFor(pt.driveBackMaxDeg)
+	if R == floorR and flat == floorFlat and hz == floorHz and vmax == floorV then return floorRel end
+	local knee = pt.driveKneeDeg
+	local function g(r)
+		local e = rad(plan.loftFor(r) * flat)
+		-- at or under the line straight at the aim no speed reaches it (and the carry
+		-- speed of such a line is not a number, 3000 carry steps to find out)
+		if R * tan(e) + hz <= 0 then return huge end
+		local sp = carrySpeed(R, e, hz)
+		if sp ~= sp or sp <= 0 then return huge end
+		return sp - vmax
+	end
+	local res
+	local gb = g(knee)
+	if gb > 0 then
+		res = knee
+	else
+		local a = pt.releaseMinDeg
+		local ga = g(a)
+		if ga <= 0 then
+			res = a
+		else
+			-- under the line straight at the aim no speed reaches it: start just over it
+			if ga == huge and flat > 0 then
+				local eMin = deg(atan(-hz, R)) / flat
+				local r0 = plan.releaseFor(eMin)
+				if r0 > a and r0 < knee then
+					local r1 = r0 + 1e-6 * (knee - r0)
+					local g1 = g(r1)
+					if g1 > 0 then a, ga = r1, g1 end
+				end
+			end
+			local b = knee
+			local side = 0
+			for _ = 1, 60 do
+				if b - a <= 1e-7 then break end
+				local m
+				if ga == huge then m = 0.5 * (a + b)
+				else
+					m = b - gb * (b - a) / (gb - ga)
+					if not (m > a and m < b) then m = 0.5 * (a + b) end
+				end
+				local gm = g(m)
+				if gm <= 0 then
+					b, gb = m, gm
+					if side == 1 and ga ~= huge then ga = 0.5 * ga end
+					side = 1
+				else
+					a, ga = m, gm
+					if side == -1 then gb = 0.5 * gb end
+					side = -1
+				end
+			end
+			res = b
+		end
+	end
+	floorR, floorFlat, floorHz, floorV, floorRel = R, flat, hz, vmax, res
+	return res
+end
+
 -- Solve the plan. q = { projectile = "baton" | "kubb", px, py (the stance),
 -- tx, ty (the target), release (planned degrees, clamped to the plan's
 -- range), level (name or table: the computer's standard, plan.levels) or meter (a
@@ -676,21 +749,12 @@ function plan.solve(q, out)
 		if rel < pt.driveKneeDeg then
 			-- the drive's floor (plan.tune.driveBackMaxDeg): a release whose line the hand
 			-- cannot make or whose speed is past the swing's is raised to the lowest that
-			-- can, never past the knee (above it every release is as before 0.16)
-			local vmax = plan.speedFor(pt.driveBackMaxDeg)
-			local function fits(r)
-				local sp = carrySpeed(R, rad(plan.loftFor(r) * flat), h - z)
-				return sp == sp and sp > 0 and sp <= vmax
-			end
-			if not fits(rel) then
-				local lo, hi = rel, pt.driveKneeDeg
-				if fits(hi) then
-					for _ = 1, 24 do
-						local m = 0.5 * (lo + hi)
-						if fits(m) then hi = m else lo = m end
-					end
-				end
-				rel = hi
+			-- can (driveFloor), never past the knee (above it every release is as before
+			-- 0.16). A release that fits costs one carry speed and no floor
+			local e = rad(loft)
+			local sp = (R * tan(e) + h - z > 0) and carrySpeed(R, e, h - z) or 0
+			if not (sp == sp and sp > 0 and sp <= plan.speedFor(pt.driveBackMaxDeg)) then
+				rel = driveFloor(R, flat, h - z)
 				loft = plan.loftFor(rel) * flat
 			end
 		end
