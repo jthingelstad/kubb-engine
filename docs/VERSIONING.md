@@ -95,6 +95,36 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.13.2** (patch). The game file's `[Throw Levels]` names the computer's players only.
+  Since 0.13.0 a level is the computer's standard and a person's changes nothing in their
+  throw, so a file that wrote `[Throw Levels "you club, computer club"]` presented the
+  person's level as if it counted. `match.fileLevels` (new; `match.file` and the session's
+  `sheet` both use it) lists each player of a side the computer plays, as the header's id
+  and the level it throws at (its lineup's, else `autothrow.tune.level`), Team A's then
+  Team B's. The computer's sides are `match.cpuSides`: `match.new`'s `cpu` (the session's
+  `cpu` option), or the Playdate's "Vs Playdate" mode, Team B. With no computer (pass and
+  play, online with people only) the file has no `[Throw Levels]`; so does a match from a
+  caller that gives neither `cpu` nor that mode, since nothing says which side is the
+  computer. A person against the computer: `[Throw Levels "computer club"]` (before, the
+  person's entry alone when the computer took the default club). Computer against
+  computer: every player. Nothing reads the header back into a throw: `core/gamefile`
+  keeps it in `headers` like any other and its summary does not use it, the history and
+  the cards take levels from the match, and resume and replay from the save and the log,
+  so files from 0.13.1 and before (every player listed) read as they did. The gate's
+  rules-only games now write all three shapes (`tools/games.lua`). Every golden hash and
+  `tests/fixtures/cpu/choose.txt` are as recorded. Also: docs/SESSION.md's arc default
+  says what `plan.arcFor` has done since 0.10 (by distance, not by target).
+
+  For clients: sync the tag. 0.13.0, 0.13.1 and 0.13.2 share matches (no hash moves).
+  - **Web**: nothing but the sync; no code or test reads `[Throw Levels]`.
+  - **iPhone**: nothing but the sync.
+  - **Playdate**: `source/selftest/match-teams.lua` (around line 83) expects
+    `[Throw Levels "k pro, l beginner"]` from a pass-and-play match; on 0.13.2 that file
+    has no `[Throw Levels]`, so the selftest checks for its absence instead.
+    `selftest/match-vs.lua` (`[^"]*pro"`) still passes. `docs/notes/saved-players.md`
+    ("The game file") and the comment over `cpuLevel` in `scenes/match.lua` say the
+    header names the computer's players.
+
 - **0.13.1** (patch). The game file is Planet Kubb Notation 2, as pk-kubb-score released
   it (`v2-2026.11`), in its canonical form: `[Notation "2"]` first, the `Base kubbs`,
   `Batons` and `Opening` headers, the turn lines as before (the advantage line a bare

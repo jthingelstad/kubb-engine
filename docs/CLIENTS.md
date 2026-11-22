@@ -140,6 +140,18 @@ it shares matches with 0.13.0. Sync `v0.13.1` in place of `v0.13.0` above, and:
 - **iPhone**: nothing in Swift. Run `SoloTests` and the sheet's snapshot again.
 - **Playdate**: `scenes/sheet.lua` skips lines where `gamefile.isPosition(line)` is true.
 
+## 0.13.2 on top
+
+0.13.2 is 0.13.1 with `[Throw Levels]` naming the computer's players only, and none at
+all when no computer plays (`match.fileLevels`). No hash moves, so 0.13.0, 0.13.1 and
+0.13.2 share matches. Sync `v0.13.2` in place of `v0.13.1`, and:
+
+- **Web**: nothing but the sync.
+- **iPhone**: nothing but the sync.
+- **Playdate**: `source/selftest/match-teams.lua` checks that its pass-and-play file has
+  no `[Throw Levels]` (it looked for the people's levels); `docs/notes/saved-players.md`
+  says the header names the Playdate's player only.
+
 ## What the engine now offers that no surface shows yet
 
 - **The computer's reason** (`tw.cpu.last`, since 0.11.1): the play and situation behind
