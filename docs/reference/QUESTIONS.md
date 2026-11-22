@@ -546,3 +546,25 @@ census of 2026-11-21.
   distance (plan.tune.arcLine).
 - **Settle by:** a timed clip, then the owner's word on the line.
 - **Touches:** none
+
+## Q21: What does a real baton do when it clips the top of a standing kubb?
+
+- **Status:** open: for the owner (a filmed test)
+- **Asks:** A baton at throwing speed that clips only the top centimetre of a standing
+  kubb, its lowest point a few millimetres under the top edge: does the kubb fall, and how
+  often? The engine fells 94 to 100% of such grazes, MuJoCo 40 to 65%, and in the engine a
+  fast glance at a top corner falls or stands by where the 240 Hz step falls
+  (docs/notes/physics.md, "A glance at a top corner").
+- **So far:** No source in `docs/reference/observations/` shows a graze close enough to
+  count. MuJoCo is no referee here: its friction creeps near the cone's edge.
+- **Recommendation:** Film it. A kubb standing on grass, a baton thrown or swung at 8 to
+  10 m/s so that it clips the top 1 cm of the kubb (its lowest point under the top edge,
+  coming down about 20 degrees), at least 20 tries, filmed from the side at 120 fps or
+  more; count the tries that touched only the top centimetre and how many of those fell.
+- **What each answer decides:** most fall (above 80%): the engine is right to fell them;
+  the built fix (`at-touch`, the touch met at its moment) ships with the baton's rounding
+  cut from 1 cm to 2 or 3 mm, which keeps them falling and makes the outcome the same in
+  every step phase. About half or fewer fall: the engine over-fells grazes; the fix is
+  left out, and a compliant edge contact is the work, not the phase.
+- **Settle by:** the filmed count.
+- **Touches:** `core/world.lua` (`atTouch`), `core/collide.lua` (`batonRound`)

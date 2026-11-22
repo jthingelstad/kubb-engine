@@ -1090,6 +1090,61 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     settled: no golden hash moves by it, and it ends exactly the throws that would
     otherwise be held open. The term belongs from the first step and waits for a minor
     with its Gym rows measured.
+- **A glance at a top corner** (2026-11-22, the owner's report of a kubb that stood after
+  a fast hit; known, unfixed). The report's last throw replayed (`tools/reportprobe.lua`):
+  the front kubb was struck on its top corner by a baton at 8.6 m/s coming down at 3.2 m/s,
+  and stood at 24.7 degrees, braced by a lying kubb behind it. Without that kubb it falls;
+  MuJoCo (`ref`, `stiff`, `hard`) topples it with its neighbours either way. The cause is
+  not the brace. The contacts are made at the step's start, a step's travel ahead of the
+  touch (speculative, `tmargin`), with the point and normal of the closest features while
+  the baton is still centimetres away. Met square on a face that is the touch's own; at a
+  top edge or a corner, met glancing, it is not: the normal is tens of degrees too far
+  over, the kubb is pushed aside instead of down, and the outcome depends on where in the
+  240 Hz step the touch falls.
+  - **The step's phase.** The same throw started 0 to 7 eighths of a step later (the
+    kubb's tilt at rest, degrees; `x` fell):
+
+    | phase (eighths of a step) | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+    | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+    | `batonRound` 1 cm (the engine) | 25 | 31 x | 34 x | 31 x | 25 | 7 | 4 | 25 |
+
+    The report's kubb falls in 3 of 8 phases. At 960 and 3840 Hz with sharp edges it falls.
+  - **The rounding.** Falls in 8 phases, as built and with the touch found again at its
+    moment (below):
+
+    | edge | as built | touch at its moment |
+    | --- | --- | --- |
+    | `batonRound` 1 cm | 3 of 8 | 0 of 8 (1 to 3 degrees) |
+    | 0.5 cm | not measured | 0 of 8 (7 to 22 degrees) |
+    | sharp (0) | 5 of 8 | 8 of 8 |
+
+    The 1 cm rounding lets a baton slip over a corner it would catch; with the touch met
+    at its moment the slip is the same every phase, so it stands every time.
+  - **The graze family against MuJoCo** (`tests/fixtures/contact/columns.lua` `brace`, 324
+    cases of a baton coming down 20 degrees onto a lone or braced kubb's top edge, its
+    lowest point 2 to 12 mm under the edge; `tools/mjref --cases column`): the share
+    felled, ours as built 94 to 100% by layout, with the touch at its moment 83 to 94% (1 cm
+    rounding) and 86 to 97% (3 mm), MuJoCo 40 to 65%. The 2 mm graze of a lone kubb: ours
+    30 to 36 of 36, MuJoCo 8 of 17. A rigid edge contact fells a graze that MuJoCo's
+    compliant contact skims. Part of MuJoCo's lower share is its own: its friction creeps
+    near the cone's edge (a kubb leaning 21 degrees on a kubb at mu 0.4 slides 9 to 13 cm in
+    2.5 s, 1 to 1.7 cm at 20), so it is a bound, not a target.
+  - **The Gym** (300 matches a configuration, seed 1, grass; the computer and the person,
+    fit 1, at club and pro; as built -> touch at its moment, 1 cm): base kubbs from 8 m cpu
+    club 25.4 -> 22.9%, pro 34.3 -> 30.5, human club 29.2 -> 25.9, pro 28.4 -> 26.3; a
+    landing on a kubb's top that fells it, cpu club 69.7 -> 52.0%, human 90.0 and 90.5 ->
+    77.5 and 77.8; a miss that touched the kubb and left it standing, human 7.8 and 6.7 ->
+    12.5 and 12.6%; took two and three or more unchanged. The fix makes the game harder
+    where the report asked for the opposite, because fewer grazes fall.
+  - **Where it stands.** A fast glance at a top corner falls or stands by where the step
+    falls: a known defect, unfixed. The fix is built (`atTouch` in `world.step`: when the
+    nearest contact is open by more than the margin and the pair closes on it within the
+    step, the pair is met again at the touch and its contacts carried back to the step's
+    start; with it, a footing driven into the ground inside the step bounces as a landing
+    does), on a local branch, `at-touch`, not merged. It waits on a measurement: what a
+    real baton does to a kubb's top edge (docs/reference/QUESTIONS.md Q21). If real
+    grazes fall, the fix ships with a sharper rounding (2 to 3 mm); if they skim, the
+    engine already over-fells them and the phase is the smaller error.
 - Tried and rejected (2026-11-13): `dt` 1/120 halves the steps but fails three behaviour
   tests and the bigger contact margin gives ghost hits; 3 solver iterations instead of 4
   would save about 8% of a collision step but changes the feel, so it was not applied.
