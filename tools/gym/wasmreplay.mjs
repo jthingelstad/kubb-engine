@@ -7,7 +7,9 @@
 //
 // browserToRoom(lines) turns each browser line into one `room` line a throw (the
 // snapshot before it, the action, the recorded hash after it), checking every action's
-// hash; a match whose hash parts from the record is cut there. What comes back is as
+// hash; a match whose hash parts from the record is cut there. A match that names no
+// engine, or one with no tag here, is passed on unchanged for the inverter's fallback.
+// What comes back is as
 // private as what went in: it stays in memory and in the caller's temporary folder.
 import { LuaFactory } from 'wasmoon';
 import { mkdtempSync, rmSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -63,13 +65,17 @@ async function engineFor(sources) {
 // { lines (room lines), stats: { matches, throws, cut, agreed } }
 export async function browserToRoom(lines) {
   const out = [];
-  const stats = { matches: 0, throws: 0, throwsSeen: 0, cut: 0, actions: 0, agreed: 0 };
+  const stats = { matches: 0, throws: 0, throwsSeen: 0, cut: 0, actions: 0, agreed: 0, passed: 0 };
   const cache = new Map();
   for (const l of lines) {
     if (l.kind !== 'browser') { out.push(l); continue; }
     stats.matches++;
     const tag = l.e ? `v${l.e}` : null;
-    if (!tag || git(['rev-parse', '-q', '--verify', `${tag}^{commit}`]) === null) { stats.cut++; continue; }
+    // a record that names no engine (they predate the field), or one this checkout has no
+    // tag for, cannot be replayed on its own engine here: it goes on as it came, to the
+    // inverter's fallback (it tries the engines it has and judges the match from its start
+    // while the hashes agree, tools/gym/invert.lua)
+    if (!tag || git(['rev-parse', '-q', '--verify', `${tag}^{commit}`]) === null) { stats.passed++; out.push(l); continue; }
     if (!cache.has(tag)) cache.set(tag, sourcesOf(tag));
     const e = await engineFor(cache.get(tag));
     try {
