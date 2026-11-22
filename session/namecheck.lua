@@ -335,6 +335,17 @@ local function walk(rep, v, from, norm, ctx, depth)
 		return
 	end
 	local t = type(v)
+	-- a place the engine writes a name or a sentence holds a text: a number, a boolean or
+	-- a table there is refused before anything can skip it (a number as a team's name
+	-- would otherwise pass, agree with its other copy, and reach need.teams and the sheet)
+	local held = RULES[norm]
+	if t ~= "string" and held ~= nil and not rawequal(v, NULL)
+		and ((type(held) == "table" and (held.name or held.line)) or (type(held) == "function" and t ~= "table")) then
+		-- (a place with a rule of its own, an id or a level, is a text too: a number there
+		-- would be written into the sheet as it is)
+		refuse(rep, from, v, "text", "not a text where the engine writes one")
+		return
+	end
 	if t == "string" then
 		local rule = RULES[norm]
 		if type(rule) == "table" and rule.name then
