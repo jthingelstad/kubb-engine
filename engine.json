@@ -37,7 +37,7 @@
     "core/howto.lua": "06dea483b7090ac9701a092ff6c07289ff285e029583ac48dddc972f5001af88",
     "core/howtoplay.lua": "55bdc5519a010fe79ac94d9ce41f4a998f69bb2741154bd253f20a2a17d39feb",
     "core/lineup.lua": "c7c96c0c228d0e584a05dfa72508f998d8492a83af3770ca5db4cab178d11a48",
-    "core/match.lua": "c4d2a6b7469af2757cf0a753e994ce03547ad7b95ac3da67dd2dbe464a1a8637",
+    "core/match.lua": "a8606297fe68b728fcf3567de8353ddb7439211a079948411c2f8027df9abe73",
     "core/matchopts.lua": "72234d062752f2c8885d564e7f9520de96708dfd22caffd941ac274682045825",
     "core/namegen.lua": "222565636da5f2cdd9ca51ad3f7367744d47b445acb4467888c1f00bf839b64b",
     "core/names.lua": "faec8d960119704c95bd9a72f6462bc2b62daa30e19ff9cedc657a80e452848d",
@@ -76,15 +76,15 @@
     "session/names.lua": "24ad83176ac83dc39d97c75e7fb52cead05c93302fd3d4e55d64b94caa5cab01",
     "session/neighbours.lua": "4738b5caf24092ab08bfeed17d0d6c4b4accefe3defda7fc68440df8568e6e5b",
     "session/replay.lua": "25575574766f680f9c595520744d4398415a362f7114088f1a94794c9c78b3b0",
-    "session/session.lua": "46a41ca94040ce82d95ceae688714b41dbca7992c59a547ab5b5c0176a0a94ac",
+    "session/session.lua": "61b143f57d16d143755831e6a7b5062173e4bd12f1c52fdab5130bd38d3cb73a",
     "session/throw.lua": "0f6d78a1e125c35b09a11be9174a137064954b0729f83a84a1bb1654e4b2d5ac",
     "session/touch.lua": "1785c2057390574d94f42fde5945558e42ae20186a74d5bd8bc6d523231d4371",
-    "session/wide.lua": "e1da66d8553ac7d385d716b6b9ae8ef70a257528c19ec9ac8dc62ef1f6cc3f17",
+    "session/wide.lua": "28a1015175dab0fcc08d844ad4a71fac46c8a55a76ffc7a9ac0336c127f27e85",
     "tune/pointer.lua": "7b30c67adf47fb8387e5b0dd7f73af3c92c99116d05781885e7fc0157fcc9397",
     "tune/touch.lua": "b7c3f2851c4c386cc39a76d891cf273d703ac231fe51c235db5d1bc404915221",
     "version.lua": "95db037f285a77ff2ad83b27709b06d9c57bd759bdb8a2c3cad67e798e42a852"
   },
   "bundle": {
-    "sha256": "3bcc1228818ae576524603ce71a251ec44fd2a6c8d8058a15cee3bd3af989946"
+    "sha256": "f4f7608a1fa6899da8577f5202e1dc1bbe27094e1ad6ccfc0314ffbaa7c3a47f"
   }
 }

@@ -148,6 +148,10 @@ Every client shows its own version with the engine's beside it, in one form:
     aim's `rail`: two in and one out reads "rethrow 1 of 1", not "kubb 3 of 3"). The
     setup's own `n` and `of` (the turn's count, which the computer's inkast reads) are
     unchanged, so no throw and no golden hash moves.
+  - **The engine's raises, with their surroundings, output only**: each `setup.settled`
+    entry carries `others` and `king` as they stood while it was done, in the raiser's
+    view frame (what `raiseInfo` and `punishInfo` give for the same kubb by hand), so a
+    client draws the engine's raise as it draws one by hand.
   - **For clients**: docs/CLIENTS.md "0.17 on top". Shares matches with no 0.16.
 
 - **0.16.0** (minor). The drive: a baton thrown flat or down and hard into a group, and
