@@ -140,6 +140,14 @@ Every client shows its own version with the engine's beside it, in one form:
     baton driven level into a lone kubb now sends it off at about 0.96 of MuJoCo's speed
     when struck low, from 0.94 (0.91 on average over the cases measured, from 0.87).
     Nothing in the Gym moves past its noise.
+  - **A baton rocking in a groove** (docs/notes/physics.md, "A baton rocking in a groove"):
+    a baton resting on other pieces feels their rolling resistance (`world.tune.pairRoll`,
+    a 2 mm lever, wood on wood) from 4 s into a throw (`pairRollAfter`). A baton lying in
+    the groove of two lying batons rocked at the sleep threshold and held the throw open
+    to the 12 s limit (the Gym gate's one hard defect on the refitted person, about one
+    throw in some thousands); it now rests at 4.3 s. No golden hash moves by it: every
+    golden throw settles before 4 s. The term from the first step moves throws that settle
+    normally and waits for a minor with its Gym rows.
   - **Golden hashes** (`make golden`: 21 matches, 854 actions). By the computer's line:
     every match with a club or pro computer moves at its first baton the line plans
     differently from the line before (the openers from the baseline at 8 m are the same),

@@ -1063,6 +1063,30 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     before and after, the match case 0.006 to 0.009; the change makes one contact fewer
     and a few comparisons). Not bit-identical: every throw where a baton meets a kubb or
     the king along a face or an edge.
+- **A baton rocking in a groove** (0.18.0, 2026-11-22; the Gym gate on the refitted person,
+  `unsettled: field: 1`). Traced on desktop Lua at match 20 of seed 1, throw 171 (human at
+  club, Grass; CI on Linux names 20:108, the same gate on another libm, not reproducible
+  here): the third baton came to lie across two lying, sleeping batons, in the groove
+  between them (two capsule contacts, normals about 45 degrees off vertical, each held at
+  -0.5 mm), its far end hovering 0.5 to 1.4 mm over the grass. Balanced on the two
+  contacts, it rolled to and fro in the groove with a period near a second, `v` about
+  3 mm/s and the spin peaking just over `sleepAng` (0.3 rad/s), so its sleep timer reset
+  every swing and the throw ran to `maxTime` (12 s). Nothing held the roll: rolling
+  resistance came only from the ground's impulse (`surf.roll`), and the end on the grass
+  barely pressed. The motion is chaotic, not a fixed cycle: any small change ends it
+  (iterations 12: rest at 1.2 s, `warm` 0: 1.0 s, `pairMu` 0.5: 1.3 s, `dt` 1/500: 1.2 s,
+  `sleepAng` 0.35: 8.0 s), which is why it shows once in some thousands of throws.
+  - **The fix.** A baton pressed on by other pieces (a sleeping or static one, or an awake
+    one) gets rolling resistance from that push, as it does from the ground's:
+    `rollResist` with `pairRoll` (2 mm, a guess: wood on wood, a fifth of short grass)
+    times the sum of those contacts' normal impulses. The throw above rests at 4.3 s;
+    every earlier throw of that match is unchanged.
+  - **Late only.** From the first step it is not hash-neutral (with the sleeping-piece
+    contacts alone it moved 26 of 881 golden actions, first m04-grass-light-B, action 28),
+    so 0.18.0 applies it only after `pairRollAfter` (4 s), when every golden throw has
+    settled: no golden hash moves by it, and it ends exactly the throws that would
+    otherwise be held open. The term belongs from the first step and waits for a minor
+    with its Gym rows measured.
 - Tried and rejected (2026-11-13): `dt` 1/120 halves the steps but fails three behaviour
   tests and the bigger contact margin gives ghost hits; 3 solver iterations instead of 4
   would save about 8% of a collision step but changes the feel, so it was not applied.
