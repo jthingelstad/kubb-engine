@@ -242,6 +242,29 @@ test("two sides with one name: an honest resignation is allowed (Player 1 resign
 	expect.truthy(call("restore", { snap = last, names = "check" }), "and the strict restore takes it")
 end)
 
+test("a name that is not a text is refused, even when both copies agree", function()
+	for _, bad in ipairs { 12345, true, { "x" } } do
+		local d = base()
+		d.opts.teams.A.name = bad
+		d.save.game.teams.A.name = copy(bad)
+		local rep = call("names.check", { snap = d })
+		expect.eq(rep.allowed, false)
+		expect.truthy(refusedAt(rep, "save.game.teams.A.name"), "the save's, as " .. type(bad))
+		expect.truthy(refusedAt(rep, "opts.teams.A.name"), "the options', as " .. type(bad))
+		expect.truthy(refused("restore", { snap = d, names = "check" }), "and the strict restore refuses it")
+	end
+	local e = base()
+	e.save.game.teams.A.players[1].name = 7
+	expect.truthy(refusedAt(call("names.check", { snap = e }), "save.game.teams.A.players[0].name"), "a player's")
+	local f = base()
+	f.save.text = 99
+	expect.eq(call("names.check", { snap = f }).allowed, false)
+	-- and an id: the sheet writes it as it is
+	local g = base()
+	g.save.game.teams.A.players[1].id = 4242
+	expect.eq(call("names.check", { snap = g }).allowed, false)
+end)
+
 test("a place is safe to show: a forged key never reaches the report's place or the strict error", function()
 	local d = base()
 	d["Anything Typed"] = "x"
