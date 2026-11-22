@@ -46,6 +46,11 @@ function matchesOfRoom(records) {
   return matches;
 }
 
+// Pitches that are test play, not people's: a QA pass's four of 2026-11-22, recorded before
+// the web kept its dev Worker's pushes apart (its tools/games.mjs TEST_PITCHES). Their
+// "people" are scripts. Everything under dev/ is test play too (the dev Worker's pushes).
+export const TEST_PITCHES = new Set(['qatrnmtgx', 'qawn6mk9tp', 'qawnbszxah', 'qawnyk9xtg']);
+
 // Every recorded person's throw, as lines for tools/gym/invert.lua, and what they are:
 // { lines, matches, clients, engines, rooms, browser }. Throws by the computer
 // (scripted) are left out by the worker.
@@ -57,6 +62,7 @@ export function readRecords(dir) {
   for (const name of readdirSync(dir).sort()) {
     const sub = join(dir, name);
     if (!statSync(sub).isDirectory()) continue;
+    if (name === 'dev') { info.skipped = (info.skipped || 0) + 1; continue; }
     if (name === 'pitch') {
       // The pitch server's records (since 0.13; the web's backend/api/API.md "Pushes"):
       // pitch/<code>/<made>/<n>-<seq>.json.gz, the signed push byte for byte. A `start`
@@ -67,6 +73,7 @@ export function readRecords(dir) {
       for (const code of readdirSync(sub).sort()) {
         const cd = join(sub, code);
         if (!statSync(cd).isDirectory()) continue;
+        if (TEST_PITCHES.has(code)) { info.skipped = (info.skipped || 0) + 1; continue; }
         let codeHas = false;
         for (const made of readdirSync(cd).sort()) {
           const md = join(cd, made);
