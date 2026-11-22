@@ -105,11 +105,11 @@ end
 local function pct(a, b) return b > 0 and 100 * a / b or 0 end
 
 print(fmt("meterprobe: the person's meter, %d throws a cell, seed %d", n, seed))
-print("bars by range (half widths, degrees): power / release, and past the power bar")
+print("bars by range (half widths, degrees): power / release, and the release's pull past its bar (deg/deg)")
 for _, d in ipairs(ranges) do
 	local sol = solveAt(d)
-	print(fmt("  %4.1f m  %5.1f / %5.1f  x%.2f   (power target %.1f..%.1f, release %.1f..%.1f)", d,
-		sol.level.powerHalf, sol.level.releaseHalf, sol.level.outGain or 1, sol.powerLo, sol.powerHi,
+	print(fmt("  %4.1f m  %5.1f / %5.1f  %.3f   (power target %.1f..%.1f, release %.1f..%.1f)", d,
+		sol.level.powerHalf, sol.level.releaseHalf, sol.level.pullPerDeg or 0, sol.powerLo, sol.powerHi,
 		sol.releaseLo, sol.releaseHi))
 end
 
