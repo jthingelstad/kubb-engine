@@ -160,7 +160,7 @@ normal, as the engine's nerves model them (side mean -0.05, sd 1.03; length 0.07
 tumble 0.06, 0.94), which says the inversion and the choice are right. Choosing the oldest
 for every throw gave the length and tumble draws a mean of 1.5 and -2.8.
 
-Fit 1 (2026-11-20): 418 of 420 recorded throws by people (273 batons, 145 drills) from 6
+Fit 1 (2026-11-20, `tools/gym/human-model-0.7.json` since fit 2): 418 of 420 recorded throws by people (273 batons, 145 drills) from 6
 matches, club 327 and beginner 91, web and iPhone. There is no pro play recorded; pro uses
 club's swings (on pro's tighter gauge). The model keeps, per level and projectile, 21
 quantiles of: the backswing past the power target's centre, the stop past the release
@@ -168,6 +168,86 @@ target's centre, the flick's share of the power when it was not full (with the s
 full flicks), the shake, and the share pulled right. Each part is drawn on its own; the fit
 prints their correlations, which are small (backswing and release -0.16, the rest under
 0.07).
+
+Fit 2 (2026-11-22, model 2, the default; fit 1 is kept as `tools/gym/human-model-0.7.json`,
+selected with `--model` on any run, `versus` and `tools/meterprobe.lua`). Fit 1 rested on
+throws made before the person's meter (0.13), so it said nothing about how people swing at
+it. The newer records were unreadable or uninvertible, and three things were fixed:
+- **The pitch server's records** (`pitch/<code>/<made>/<n>-<seq>.json.gz`, the signed push
+  byte for byte; the web's backend/api/API.md "Pushes"): a `start` carries the first
+  snapshot and an `act` its action and the snapshot after it (backend/pitch-server/
+  PROTOCOL.md), so `records.mjs` pairs each throw with the snapshot of the push one seq
+  before it.
+- **The browser's records** are replayed under wasmoon on the engine they name
+  (`tools/gym/wasmreplay.mjs`, the tag's sources loaded as a client loads the bundle):
+  344 of 344 actions give the recorded hash. Under stock Lua a match was judged only until
+  its first last-bit difference, which left 14 of 153 throws.
+- **The inversion** found the shake by proportion to the tilt it makes. From 0.13 the tilt
+  grows with the shake as it counts (`plan.shakeCounts`: a person's steady shake is
+  forgiven), so every meter-era throw came back 1e-3 to 1e-1 off and none was recovered. It
+  now bisects on the tilt. `lua5.4 tools/gym/invert.lua --selftest N [--engine DIR]` throws
+  N known swings from the engine's own session, records them as the session does and
+  inverts them: 200 of 200 on this checkout and on 0.13.1, 100 of 100 on 0.9.0, the shake
+  and pull exact; the flick within 0.05 to 0.1 (it and the length draw make one product,
+  and the inversion takes the smallest draws, as before).
+
+What fit 2 rests on: 212 of 212 recorded throws by people (133 batons, 79 thrown kubbs), from
+6 matches (4 in one browser, 2 on the pitch server; 75, 57, 53, 19, 6 and 2 throws), 4
+players named, every one on engine 0.13.1, web, pointer. By kind: batons at base kubbs from 8
+m 48 (closer 3), at field kubbs under 2.5 m 10, 2.5 to 4.5 m 27, 4.5 to 6.5 m 30, 6.5 m and
+out 11, at the king 4, no drives (0.13.1 had none); thrown kubbs under 5 m 58, 5 to 6.5 m 19,
+over 6.5 m 2. A person's throw has no level since 0.13, so there is one cell per projectile
+(`levels.club`, `use` beginner and pro -> club): what the levels' hands differ by is the
+Gym's hand scale (x2, x1, x0.5), not a fit. The recovered nerve draws are a standard normal
+(side 0.01 sd 0.98, length 0.19 sd 0.83, tumble 0.13 sd 1.02). Against fit 1's club cell
+(5% / median / 95%): baton backswing past the power target -15.9 / -1.7 / +4.6 degrees (fit
+1 -13.2 / -1.1 / +10.8), stop past the release target -15.2 / +2.1 / +25.9 (-27.7 / +3.4 /
++25.3), shake 0.01 / 0.03 / 0.09 (0.01 / 0.03 / 0.24), full flick 44% (42%), pulled right
+14% (7%); a thrown kubb's backswing -8.4 / -1.8 / +6.1 (-9.2 / +1.0 / +16.4), stop -26.4 /
+-6.8 / +13.9 (-24.7 / -2.1 / +19.0), shake 0.01 / 0.04 / 0.11 (0.01 / 0.03 / 0.19), full flick
+95% (80%). People at the meter swing steadier and seldom over-power: the long right tail of
+fit 1's backswing is gone.
+
+How thin it is: one cell of 133 batons and one of 79 thrown kubbs, most from one or two
+players and one match holding 35% of the throws. A median is good to a few degrees; the 5% and
+95% tails rest on 6 to 7 throws a side for batons and 4 for thrown kubbs. To trust a cell's
+tails, about 200 throws a cell from 10 or more matches and 5 or more players (no match over a
+fifth of a cell); for thrown kubbs, at about 13 a match, some 15 matches. Nothing of fit 1
+is mixed in: it is a different input (before the meter), kept beside it, not under it. The
+thrown kubbs were thrown on 0.13's wider kubb bars (0.16 narrowed them to a baton's), and the
+errors are kept in degrees, so on main they cost what 0.16's bars charge.
+
+What fit 2 changes (main at 285e9d6, engine 0.16.0; 300 matches, seed 1, grass). The human
+thrower at club, fit 1 against fit 2 (`gym compare`, every row here past 99%): field batons
+that missed 29.6 -> 24.7%, took two 11.3 -> 13.7%, three or more 1.6 -> 2.5%, four or more
+0.1 -> 0.2%; turns a game 14.0 -> 12.3; base kubbs from 8 m 29.1 -> 43.4% (real games 32.7),
+from an advantage line 55.7 -> 67.9%; the king 83.6 -> 86.3% (inside its interval); the
+meter all good 30.1 -> 45.6% of batons; illegal throws 0.1 -> 1.0% of batons (a helicopter:
+fit 2's pull and over-swings tilt more often past the limit); a drill rests 0.59 -> 0.31 m
+from its mark, over 0.3 m 43 -> 30%, past the mark along the throw 0.37 -> 0.05 m; the field
+group 0.67 -> 0.51 m from its centre on average and 1.96 -> 1.55 m between its farthest two,
+25% of its kubbs touching another (17%), 5.1% of groups of three or more one baton could take
+(3.5%); kubbs lying after the inkast touching another 30 -> 42%, three or more in a chain 14
+-> 25%; kubbs rethrown 8.4 -> 8.7% (real 14.1). `tools/meterprobe.lua --parts hand,drill`:
+the recorded hand fells a lone kubb at 4 / 6 / 8 m 74 / 53 / 27% -> 76 / 60 / 44% (x2 39 /
+19 / 10 -> 52 / 32 / 22%, x0.5 94 / 81 / 63 -> 88 / 79 / 67%); its one-tap drill onto the
+basket's spot rests at a median 16 -> 6 cm, within 0.3 m 62 -> 79%, dead 62 -> 78%.
+
+`gym versus --a "level=club;thrower=human;hand=<k>" --b "level=<level>"` (300 seeds both
+ways round; the person's score):
+
+| hand | vs beginner | vs club | vs pro |
+| --- | --- | --- | --- |
+| x2, fit 1 / fit 2 | 70.3 / 92.8% | 0.2 / 4.8% | 0.0 / 0.2% |
+| x1, fit 1 / fit 2 | 99.7 / 98.5% | 68.8 / 86.4% | 6.3 / 19.7% |
+| x0.5, fit 1 / fit 2 | 100.0 / 99.8% | 99.5 / 99.3% | 67.4 / 67.3% |
+
+So the people recorded since the meter win about 86 games in 100 against the club computer
+(fit 1 said 69) and 20 against pro (6), and drill about as well as the computer at club:
+their thrown kubbs group and touch as the owner reported (people now drill too well). The
+groups are still looser than real play's (25% touching against the owner's 60 to 90), and the
+rethrows half the real rate: a person on the meter does not drill short into a group and pay
+for it. Read every number of fit 2 with its basis above: two players' worth of throws.
 
 Validation is the bank's columns (below): what recorded throws did, beside the human
 thrower's own throws at the same level.

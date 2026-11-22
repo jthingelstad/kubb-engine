@@ -33,7 +33,8 @@
 --     world.surfaces.grid.mu=0.5) [--surface grass|sand|snow|grid]
 --     [--king] (the perfect, honest and hand parts throw at a lone king, aimed as the
 --     king is, instead of a kubb) [--arc line|shared] (the baton's default arc: 0.16's line, or the line before,
---     plan.sharedArcFor)
+--     plan.sharedArcFor) [--model tools/gym/human-model-0.7.json] (the fitted model the hand and
+--     drill parts draw from; the one before the 2026-11-22 refit, for comparison)
 local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local sourceDir = here .. "/.."
 local imported = {}
@@ -53,7 +54,9 @@ import "core/drill"
 local world, plan, autothrow, flight, drill = tw.world, tw.plan, tw.autothrow, tw.flight, tw.drill
 local fmt, sqrt, abs, min, max = string.format, math.sqrt, math.abs, math.min, math.max
 local human = dofile(sourceDir .. "/tools/gym/human.lua")
-local model = human.load(sourceDir .. "/tools/gym/human-model.json")
+local modelPath = sourceDir .. "/tools/gym/human-model.json"
+for k = 1, #arg - 1 do if arg[k] == "--model" then modelPath = arg[k + 1] end end
+local model = human.load(modelPath)
 
 local n, seed, hand = 400, 1, "club"
 local meterName, hands = nil, { 2, 1, 0.5 }
@@ -77,6 +80,7 @@ while i <= #arg do
 	elseif a == "--meter" then meterName = v; i = i + 1
 	elseif a == "--hands" then hands = list(v, true); i = i + 1
 	elseif a == "--arc" then ARC = v; i = i + 1
+	elseif a == "--model" then i = i + 1
 	elseif a == "--king" then KING = true
 	elseif a == "--parts" then
 		parts = {}
