@@ -1,4 +1,4 @@
-# Moving a client from 0.9.0 to 0.15
+# Moving a client from 0.9.0 to 0.15.1
 
 The web game, the iPhone app and the Playdate game all vendor engine 0.9.0. This page is
 what each changes to move to 0.13.0, built from the "For clients" parts of
@@ -274,6 +274,62 @@ the rest (docs/SESSION.md "Kid matches", docs/PITCH.md difference 9).
     throw scene plans a person's throw on `plan.meter("kid")` in a Kid match, and draws the
     Kid line from the setup's `kidY`. Until then KID is the Kid computer under the standard
     rules and meter.
+
+## 0.15.1 on top
+
+0.15.1 is 0.15.0 with the Tournament's neighbouring pitches (docs/SESSION.md
+"Neighbours", docs/notes/tournament.md). No hash moves, so it shares matches with 0.15.0.
+Sync `v0.15.1` in place of `v0.15.0`; nothing must change. The neighbours are worth
+showing in the Tournament scene (and any scene that wants a field around it), and this is
+the whole of what it takes. The numbers below are measured (docs/notes/tournament.md
+"What it costs").
+
+- **Web** (a worker running a second engine)
+  - Start a Web Worker that loads wasmoon and the same bundle the page loads, through the
+    same import shim as `src/engine/index.js` (no `useTune`, no `setClient`: the
+    neighbours need neither), and sets `lua.global.set("__kubbClock", () =>
+    performance.now())`. On entering a Tournament match it calls `neighbours.open({ seed:
+    <the match's seed>, scene: "tournament", count: 8 })` (`layout: "row"` for a phone held
+    sideways) and posts the pitches back; on leaving, `neighbours.close({})`.
+  - Once a frame the page posts `{ now }`, the match clock in seconds (stopped while the
+    game is paused); the worker answers with `neighbours.advance({ now, budgetMs: 2 })`'s
+    `events`. The worker's slices never stall the page; 2 ms keeps its work, and a phone's
+    battery, to about 0.5% of a core for eight pitches (the mean call is 0.08 ms).
+  - Lay pitch `i` out with its origin at `offset` in the player's pitch's world frame,
+    parallel to it; while the view is in Team B's frame, turn the whole field 180 degrees
+    about (0, 4) as the session's items are turned. Draw its `items` and the six `stakes`
+    from `open` with `src/render/world.js`'s pieces, at a far pitch's detail (no shadows,
+    the `set` colours).
+  - Play a `throw`'s recording yourself: the web plays its own throws through `showAt`,
+    which belongs to the other engine, so copy `playRecording(items, recording, t)` from
+    `tests/node/neighbours.test.mjs` (the same as the iPhone's `Playback.pieces(at:)`) and
+    call it each frame with `t = now - event.at`, at real speed, no slow motion or cameras.
+    At `t >= recording.duration` keep its last poses as the pitch's `items`.
+  - Between throws draw the pitch at rest and what the last beat says: a thrower standing
+    at `from` (the next one after `aim`), the teams crossing on `walk`, kubbs stood up on
+    `raise` (replace `items`), a cheer on `over` (`winner`), teams setting out on `setup`
+    (new `items` and `teams`). A pitch coming into view, or after a pause, takes
+    `neighbours.view({ id })`.
+- **iPhone** (a second `lua_State`)
+  - Make a second `Engine` (`Engine(appVersion:)` opens its own `luaL_newstate`) and give
+    its state a C function `__kubbClock` returning monotonic milliseconds
+    (`clock_gettime_nsec_np(CLOCK_UPTIME_RAW) / 1e6`), registered before the boot chunk;
+    no `useTune`. `neighbours.open` as for the web on entering a Tournament match, and
+    `neighbours.close` on leaving.
+  - Once a frame, from the render loop (or a serial queue of the neighbours' own; never
+    the player's engine's), `neighbours.advance({ now, budgetMs: 2 })` with the match
+    clock. Native Lua is as fast as the desktop's: the mean call is 0.06 ms.
+  - Lay out and turn the field from `offset` as for the web, drawn by
+    `PitchRenderer`/`SceneRenderer` at far detail with the USA set.
+  - Play a recording with `Playback.pieces(at:)` in `Recording.swift`: decode the
+    neighbour's recording into a small `Decodable` with `frameDt`, `duration`,
+    `poseScale` and `bodies` (the same `Body` fields) and let `Playback` take the pitch's
+    current `items` in place of `recording.items` (a body not among them, the thrown
+    piece, is added at its first pose). At the end keep the last poses as `items`.
+  - Between throws as for the web, from each event's `phase`.
+- **Playdate**: nothing. It vendors only `core/`, whose two new hooks (`m.run` in
+  core/match, `raising.probe` in core/raising) are nil unless a host sets them, so the
+  game plays exactly as on 0.15.0. Neighbours are not for the device.
 
 ## What the engine now offers that no surface shows yet
 

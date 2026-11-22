@@ -101,6 +101,29 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.15.1** (patch). The Tournament's neighbouring pitches (docs/notes/tournament.md):
+  computer-against-computer matches on the pitches around the player's, as live scenery,
+  behind `neighbours.open`, `neighbours.advance`, `neighbours.view` and
+  `neighbours.close` (`session/neighbours.lua`, docs/SESSION.md "Neighbours"), meant for a
+  Lua state of its own. Each pitch plays the physmatch path in a coroutine cut into slices
+  at every physics step and every decision, so `advance` keeps to a budget by the host's
+  clock (`__kubbClock`, a global the host defines, in milliseconds) or a step count; the
+  pace (a baton every 8 to 15 s, the walk, the raise, 40 to 60 s between matches) is on the
+  host's clock passed in, and the events come from the seed and that clock alone. Recordings
+  are thinned (a pose every 0.04 s, to the millimetre, only what moved, trailing still
+  frames cut): 1.7 KB a throw on average.
+  - **Core**: two hooks a host may set, nil by default and changing nothing when nil:
+    `m.run` on a match (core/match runs the world that settles standing pieces with it in
+    place of `world.run`: the same steps in the same order) and `raising.probe`
+    (core/raising calls it before each spot it tries in a crowded corner's search). The
+    neighbours use them to slice the only long parts of a set-up.
+  - **Hash neutral**: nothing in the session, its snapshot, actions or recordings
+    changes, and the 19 golden matches give every hash as recorded. The neighbours touch
+    no state the session keeps; the tests run them beside a session in one Lua state and
+    its snapshots and recordings do not move.
+  - **For clients**: nothing must change. Showing neighbours is docs/CLIENTS.md "0.15.1 on
+    top": a worker with a second engine (web), a second `lua_State` (iPhone); the Playdate
+    does nothing.
 - **0.15.0** (minor). Kid mode. Jamie (2026-11-21): "'Kid' would be a super good level to
   add: Kid, Beginner, Club, Pro… then we can make a mode for kids to have fun with", and
   "kid level is for kids to have fun with kubb". The computer's levels are Kid, Beginner,

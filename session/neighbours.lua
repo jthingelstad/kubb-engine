@@ -401,7 +401,7 @@ local function pitchLoop(P)
 		-- setting out; with the pitch as it now stands when that differs from what shows
 		local pre = P.pre
 		if pre then
-			if pre.phase == "setup" or pre.phase ~= "aim" or not sameItems(items, P.lastItems) then
+			if pre.phase ~= "aim" or not sameItems(items, P.lastItems) then
 				pre.items = items
 			end
 			if pre.phase == "setup" then pre.teams = P.teams end
@@ -697,8 +697,7 @@ local function viewOf(P)
 	end
 	local out = { id = P.id, offset = P.offset, teams = sh.teams, phase = sh.phase, at = sh.at, items = sh.items }
 	if sh.rec then
-		out.recording, out.side, out.kind, out.from = sh.rec, sh.side, sh.kind, sh.from
-		out.items = sh.items
+		out.recording, out.side, out.kind, out.from, out.at = sh.rec, sh.side, sh.kind, sh.from, sh.recAt
 	end
 	return out
 end
