@@ -528,6 +528,15 @@ and hard into the field kubb, the way the line throws close in.") from `tw.cpu.l
   the rates a match shows (doubles, triples, base kubbs from 8 m, the king) are the same
   within the Gym's noise. The Playdate's step costs the same.
 
+## 1.0 on top
+
+- **A pitch with computer seats** (docs/PITCH.md "Computer seats"): `pitch.engineFor`
+  leaves seats out (a seat carries the pitch's engine), so a pitch with a seat finds its
+  engine and START runs. The workaround can go: the web's `roomEngineFor` and the iPhone's
+  `PitchController.withoutSeats` may pass the document as it is, and the iPhone's test that
+  asserts the raw call finds no engine now fails, as it was written to; delete it or turn
+  it to assert the engine is found.
+
 ## What the engine now offers that no surface shows yet
 
 - **The computer's reason** (`tw.cpu.last`, since 0.11.1): the play and situation behind
