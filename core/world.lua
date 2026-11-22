@@ -561,9 +561,11 @@ local K_V0 <const>, K_MU <const>, K_E <const> = 55, 56, 57
 local K_LN <const>, K_LT1 <const>, K_LT2 <const> = 58, 59, 60   -- accumulated impulses
 local K_LNMAX <const> = 61                                      -- largest normal impulse seen
 local K_REST <const> = 62                                       -- a bounce pass's velocity target
+local K_U <const> = 63                                          -- a ground contact's approach in the bias passes, before it pushed
 
 local REC = {}   -- the records of this step's active contacts, 1 .. nRec (reused)
 local nRec = 0
+local RS_IN = 0.4   -- (world.tune.restitutionSpeed, read at the step's start)
 local BOUNCE = {}   -- the records a bounce pass solves, 1 .. nBounce (reused)
 
 -- Per body, filled each step: position, bounding radius, awake, speed bound.
@@ -779,6 +781,16 @@ local function solve(tk, list, n)
 			local anx, any = r[K_ANX], r[K_ANY]
 			local vn = avz + awx * anx + awy * any
 			local old = r[K_LN]
+			if tk == K_BIAS then
+				-- the approach met with this contact's own push taken out, while that push
+				-- is still small (a resting weight): a blow inside this step that drives the
+				-- piece into the ground (stage 7, "a blow from above")
+				local own = old / r[K_MN]
+				if own <= RS_IN then
+					local u = vn - own
+					if u < r[K_U] then r[K_U] = u end
+				end
+			end
 			local lam = old - r[K_MN] * (vn - r[tk])
 			if lam < 0 then lam = 0 end
 			r[K_LN] = lam
@@ -956,6 +968,73 @@ end
 -- The step
 
 local boxBox, capsuleBox, capsuleCapsule = collide.boxBox, collide.capsuleBox, collide.capsuleCapsule
+
+-- A fast baton meeting a box (0.18, "A blow from above"): the contacts are made at the
+-- step's start, up to a step's travel ahead of the touch (speculative), so their point and
+-- normal are those of the closest features while the baton is still centimetres away. For
+-- a face met square that is the touch's own; for a glancing blow at a top edge or a corner
+-- it is not: a baton coming down onto a kubb's top edge 2 cm off gets a normal 30 degrees
+-- too far over, pushes the kubb aside instead of down, and whether the kubb falls depends
+-- on where the step falls (the report of 2026-11-22: 3 of 8 phases of a step felled it,
+-- MuJoCo every time). So when the nearest contact is still open by more than the margin
+-- and the pair closes on it within the step, the pair is met again at the moment of touch
+-- (both bodies moved on by their velocities, the baton's axis by its turn), and those
+-- contacts are carried back to the step's start: each point with the baton's motion, each
+-- gap grown by what its own normal closes in that time. No table, one more narrow phase for
+-- the pair in the step before a fast touch (TOI_SPEED: slower pairs are met as before).
+local TOI_SPEED <const> = 2   -- m/s a point closes at, at least
+local huge = math.huge
+local function atTouch(A, B, before, margin, tmargin, dt)
+	local n = C.n
+	local best, bi = huge, 0
+	for i = before + 1, n do
+		if cSep[i] < best then best, bi = cSep[i], i end
+	end
+	if best <= tmargin then return end
+	local nx, ny, nz = cNx[bi], cNy[bi], cNz[bi]
+	local px, py, pz = cPx[bi], cPy[bi], cPz[bi]
+	local rx, ry, rz = px - A.x, py - A.y, pz - A.z
+	local avx, avy, avz, awx, awy, awz = A.vx, A.vy, A.vz, A.wx, A.wy, A.wz
+	local bvx, bvy, bvz = 0, 0, 0
+	local bAwake = B.awake
+	if bAwake then bvx, bvy, bvz = B.vx, B.vy, B.vz end
+	local vx = avx + awy * rz - awz * ry - bvx
+	local vy = avy + awz * rx - awx * rz - bvy
+	local vz = avz + awx * ry - awy * rx - bvz
+	local closing = -(vx * nx + vy * ny + vz * nz)
+	if closing < TOI_SPEED then return end
+	local toi = best / closing
+	if toi >= dt then return end
+	-- the pair at the touch
+	local ax, ay, az, u1, u2, u3 = A.x, A.y, A.z, A.r13, A.r23, A.r33
+	local bx, by, bz = B.x, B.y, B.z
+	A.x, A.y, A.z = ax + avx * toi, ay + avy * toi, az + avz * toi
+	local w1, w2, w3 = u1 + (awy * u3 - awz * u2) * toi, u2 + (awz * u1 - awx * u3) * toi, u3 + (awx * u2 - awy * u1) * toi
+	local l = 1 / sqrt(w1 * w1 + w2 * w2 + w3 * w3)
+	A.r13, A.r23, A.r33 = w1 * l, w2 * l, w3 * l
+	if bAwake then B.x, B.y, B.z = bx + bvx * toi, by + bvy * toi, bz + bvz * toi end
+	C.n = before
+	capsuleBox(A, B, margin)
+	local m = C.n
+	A.x, A.y, A.z, A.r13, A.r23, A.r33 = ax, ay, az, u1, u2, u3
+	if bAwake then B.x, B.y, B.z = bx, by, bz end
+	if m == before then
+		-- nothing at the touch after all (the estimate is a straight line): as made
+		capsuleBox(A, B, margin)
+		return
+	end
+	for i = before + 1, m do
+		-- back to the step's start with the baton's point
+		local qx, qy, qz = cPx[i], cPy[i], cPz[i]
+		local sx, sy, sz = qx - A.x - avx * toi, qy - A.y - avy * toi, qz - A.z - avz * toi
+		local pvx = avx + awy * sz - awz * sy
+		local pvy = avy + awz * sx - awx * sz
+		local pvz = avz + awx * sy - awy * sx
+		cPx[i], cPy[i], cPz[i] = qx - pvx * toi, qy - pvy * toi, qz - pvz * toi
+		local cnx, cny, cnz = cNx[i], cNy[i], cNz[i]
+		cSep[i] = cSep[i] - ((pvx - bvx) * cnx + (pvy - bvy) * cny + (pvz - bvz) * cnz) * toi
+	end
+end
 local groundBox, groundCapsule = collide.groundBox, collide.groundCapsule
 
 -- The lone flight. A step with exactly one body awake that is clear of the
@@ -1084,6 +1163,7 @@ end
 
 function world.step(w)
 	local t = world.tune
+	RS_IN = t.restitutionSpeed
 	local P = world.prof
 	if world.loneFlight then
 		if w.loneEpoch ~= epoch then loneRefresh(w) end
@@ -1212,9 +1292,14 @@ function world.step(w)
 					if P then P.narrow = P.narrow + 1 end
 					if a.shape == 1 then
 						if b.shape == 1 then boxBox(a, b, margin)
-						else capsuleBox(b, a, margin) end
+						else
+							capsuleBox(b, a, margin)
+							if C.n > before and SPD[j] > TOI_SPEED then atTouch(b, a, before, margin, tmargin, dt) end
+						end
 					else
-						if b.shape == 1 then capsuleBox(a, b, margin)
+						if b.shape == 1 then
+							capsuleBox(a, b, margin)
+							if C.n > before and sa > TOI_SPEED then atTouch(a, b, before, margin, tmargin, dt) end
 						else capsuleCapsule(a, b, margin) end
 					end
 					if C.n > before then
@@ -1435,6 +1520,7 @@ function world.step(w)
 				local anx, any = r[K_ANX], r[K_ANY]
 				local v0 = avz + awx * anx + awy * any
 				r[K_V0] = v0
+				r[K_U] = v0
 				if v0 < -t.restitutionSpeed then a.impact = stamp end
 				-- surface friction and bounce, dig, warm start
 				local k = cSlot[i]
@@ -1822,6 +1908,13 @@ function world.step(w)
 				nb = nb + 1
 				BOUNCE[nb] = r
 				r[K_REST] = r[K_RELAX]
+				-- a blow from above (0.18): a piece's footing that the blow drove into the
+				-- ground inside this step (no approach when the step began) bounces off it as
+				-- a landing does, -e times the approach it met. Held at rest instead, the
+				-- ground took a baton's downward push on a kubb's top edge with no give back,
+				-- and the kubb stayed on its foot where the reference's hops and turns over
+				-- (docs/notes/physics.md "A blow from above")
+				if kind == 1 and r[K_U] < -rs and r[K_E] > 0 then r[K_REST] = -r[K_E] * r[K_U] end
 			end
 		end
 		local tol, least, most = t.restitutionTol, t.restitutionIterations, t.restitutionMaxIterations
