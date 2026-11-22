@@ -101,6 +101,43 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **0.13.4** (patch). The engine says which names a match from outside would show. A
+  forged pitch start could keep generated names in `snap.opts.teams` while `save.game`
+  held typed ones: `restore` builds the match from `save`, so the rail, the sheet and the
+  winner card showed the typed text, and a client checking `opts` (the web's `badNames`)
+  passed it. The session's new `names.check` (session/namecheck.lua; docs/SESSION.md
+  "Names") takes a snapshot (`{ snap }`, text or object), a replay or kept match
+  (`{ replay }`) or a pitch's document (`{ document, members? }`) and walks it whole:
+  every name in it with where it is, its kind, `ok` and `default` (names.valid's check;
+  a team on a side of one may be a player's name), each player's id against the one its
+  name makes, the ruling, note and mode lines, every other string held to what the
+  engine writes in that place, and the two copies of each name compared. `allowed` is
+  true when nothing is refused and nothing disagrees. It changes nothing. `restore` also
+  takes `{ snap, names: "check" }` and `replayLoad` `names: "check"` (Lua:
+  `session.restore(text, control, { names = "check" })`, `replay.new { ..., names =
+  "check" }`): the same check, refused before anything changes, the error naming the
+  places and never the text. Without it both behave exactly as before, so a person's own
+  kept match with typed names still resumes. Hash neutral: no golden hash or cpu fixture
+  moves; 0.13.4 shares matches with 0.13.0 to 0.13.3. One more file,
+  `session/namecheck.lua`; `session.matchOptions` is exported for it. A failed `restore`
+  now leaves the session (and a loaded replay) as it was; before, it ended the replay.
+
+  For clients: sync the tag, then at each boundary call the engine instead of reading a
+  snapshot's fields:
+  - **A pitch match arriving** (the header's `snap`, on entering it and on every resync):
+    adopt it with `kubbCall("restore", JSON.stringify({ snap, names: "check" }))`; an
+    error means do not show it ("This match has a name the game did not make"). To decide
+    before restoring (the web's `enterMatch`): `names.check({ snap: m.snap }).allowed`.
+  - **A replay or kept match** (`replayProblem`, a kept list, an embed, a share's start):
+    `names.check({ replay: r })` with the whole object (setup or start, snap, players,
+    log), and load it with `replayLoad({ ..., names: "check" })`.
+  - **A lobby**: `names.check({ document, members })` for the host's `teamNames`, the
+    match header's players and the members' names; a name that is refused is shown as
+    its default ("Team A", "Player n"), as before.
+  - **A local resume** (the device's own kept match): the plain `restore`, no check.
+  - `names.valid` stays the check for a single name (the name row, a share's names).
+  - **Playdate**: nothing; it has no pitch.
+
 - **0.13.3** (patch). Generated names reach the web and the iPhone. The session's new
   `names.*` calls (`roll`, `step`, `choices`, `make`, `valid`, `words`, `all`;
   docs/SESSION.md "Names") make, step and check player and team names from

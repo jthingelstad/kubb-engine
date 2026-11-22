@@ -105,7 +105,7 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 | ---------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `newPractice(opts)`          | view              | `{ surface: "grass" \| "sand" \| "snow", level, set, drill }`. The practice pitch (scenes/drills.lua's free throw); `drill: true` throws kubbs at the circle.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, scene, start, maxTurns, modeName }`. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names). `cpu`: `"A"`, `"B"`, `"both"` or a list. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. |
-| `restore(snapshotText)`      | view              | A match from a snapshot. Restored while raising, placing a punishment kubb or after the end, the view shows the match's pitch as it stands (pieces and debris, a king that ended the match lying down) in the last throw's frame, as live, until the next throw is set up. The restored session acts for every side and the computer until `setControl` says otherwise.                                                                                                                                                                                                                                   |
+| `restore(snapshotText)`      | view              | A match from a snapshot. Since 0.13.4 also `{ snap, names: "check" }`, which refuses a snapshot whose names the engine does not allow ("Names", below). Restored while raising, placing a punishment kubb or after the end, the view shows the match's pitch as it stands (pieces and debris, a king that ended the match lying down) in the last throw's frame, as live, until the next throw is set up. The restored session acts for every side and the computer until `setControl` says otherwise.                                                                                                                                                                                                                                   |
 | `snapshot()`                 | text              | The whole match as JSON text. Opaque: store and send it as it is, byte for byte. Matches only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `hash()`                     | `{ hash, bytes }` | FNV-1a 32 of the snapshot text (8 hex digits) and its length. Equal hashes mean equal matches.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `setControl({ sides, cpu })` | need              | Which sides this browser plays (`sides: ["A"]`, `[]` for a spectator) and whether it throws for the computer (`cpu`, default true). One browser on a pitch has `cpu: true`.                                                                                                                                                                                                                                                                                                                                                                                                                                |
@@ -473,7 +473,91 @@ What a client does with them:
   a build step) and size the row for the widest. The longest in characters is not the
   widest in a proportional font, so the engine gives the whole list, not one name.
 - **Boundaries**: `names.valid` (or the JavaScript check from `names.words` where no Lua
-  runs) wherever a name arrives from outside: docs/NAMES.md section 6.
+  runs) for a single name that arrives from outside; `names.check` (below) for a whole
+  match, replay or pitch document: docs/NAMES.md section 6.
+
+#### A match from outside: `names.check` and the strict doors
+
+Since 0.13.4. A snapshot holds each name twice (`opts.teams` and `save.game.teams`),
+makes ids from them and writes them into rulings and the score sheet; `restore` builds
+the match from `save`. A client should not have to know which of those reach the screen,
+so it asks the engine:
+
+| Call | Arguments | Returns |
+| ---- | --------- | ------- |
+| `names.check` | exactly one of `{ snap }` (a snapshot, its text or the decoded object), `{ replay }` (a replay or kept match: `setup` or `start`, and `snap`, `players`, `log` when it has them) or `{ document, members? }` (a pitch's document, docs/PITCH.md, and the pitch's members `[{ id, me }]`) | `{ what, allowed, names, ids, lines, refused, mismatches }` |
+
+- `what`: `"snapshot"`, `"replay"` or `"document"`.
+- `names`: every name, `{ text, from, kind, as?, ok, default }`. `from` is where it is, a
+  path with JSON indices from 0 (`save.game.teams.A.players[0].name`; a replay's are
+  under `setup.`, `start.`, `snap.`, `players.`; a document's under `teamNames.`,
+  `match.`, `members[i].me.name`). `kind` is `"team"` or `"player"`; `ok` and `default`
+  are `names.valid`'s. A team on a side of one player passes as that player's name too,
+  and then `as` is `"player"`. A replay's setup is read as `newMatch` reads it, so a
+  name it leaves out is reported as the default the match would show.
+- `ids`: each player's id in `save.game.teams`, `{ text, from, name, ok }`: `ok` when it
+  is the id the engine makes from the names (`notation.assignIds`). The score sheet
+  writes ids.
+- `lines`: the sentences a snapshot carries, `{ text, from, kind, ok }`: the ruling line
+  (`save.text`: the engine's words, a team name only where the engine puts one), how it
+  ended (`save.game.how`), the sheet's notes and the mode.
+- `refused`: everything that does not pass, `{ text, from, kind, why }`: a name that is
+  neither generated nor a default, an id not made from its name, a line not in the
+  engine's words, and any other string that is not what the engine writes in that place
+  (a side, a phase, a kubb id, a player id, a baton token, a level, a kubb set...),
+  including a string where the engine writes none (a number turned to text, a field it
+  never has, a map key). Every string in a snapshot is looked at, at every depth, so
+  nothing a restored match shows (the rail, the teams, the thrower, the cards, the
+  score sheet and its file name, the winner card, the ruling line) comes from a field
+  the check skipped. A document's own fields other than `teamNames` and `match` are
+  the client's and are not read.
+- `mismatches`: `{ from, other, text, otherText }` where two copies disagree (a name in
+  `save.game.teams` and `opts.teams`, the number of players, `save.mode` and the mode
+  the options make). An honest snapshot never has one: it is a sign of forgery.
+- `allowed`: nothing refused and nothing mismatched.
+
+Something that is not a snapshot (or a replay, or a document) is not an error: `allowed`
+is false and `refused` says why. Two of `snap`, `replay` and `document`, or none, is an
+error. `names.check` makes, restores and changes nothing (no session is needed), and
+never alters what it is given. Its `text` fields are what was sent: a client must not
+show them.
+
+The strict doors refuse a match before anything changes, with an error that names the
+places (`restore: names not allowed: save.game.teams.A.name, ...`) and never the text:
+
+- `restore` takes the snapshot text, as always, or `{ snap, names: "check" }`
+  (`snap` the text or object; a snapshot has `v`, the wrapper does not). With
+  `names: "check"` a snapshot `names.check` does not allow is refused; without it (the
+  text alone, or a wrapper with no `names`) it restores exactly as before. Lua:
+  `session.restore(text, control, { names = "check" })`. Since 0.13.4 a `restore` that
+  fails leaves the session and a loaded replay as they were.
+- `replayLoad({ ..., names: "check" })`: the same for a replay (its setup or start, and
+  its `snap`, `players` and `log` when given). Lua: `replay.new { ..., names = "check" }`.
+
+Use the strict doors for anything someone else sent (a pitch's snapshot on entering and
+on every resync, a kept replay, a share's start) and the plain ones for the device's own
+kept match, which may hold typed names from before generated names and is shown only to
+its owner. Neither changes a hash.
+
+```
+names.check {"snap": "<an honest snapshot>"}
+  -> {"allowed":true,"what":"snapshot","refused":[],"mismatches":[],
+      "names":[{"from":"opts.teams.A.name","kind":"team","text":"Wobbly Towers","ok":true,"default":false},
+               ...,
+               {"from":"save.game.teams.B.name","kind":"team","as":"player","text":"Jolly Juniper","ok":true,"default":false}],
+      "ids":[{"from":"save.game.teams.A.players[0].id","name":"Mighty Maple","text":"mighty_maple","ok":true}, ...],
+      "lines":[{"from":"save.mode","kind":"mode","text":"Computer vs Computer","ok":true},
+               {"from":"save.text","kind":"ruling","text":"field kubb down","ok":true}]}
+names.check {"snap": "<the same, save.game.teams.A typed>"}
+  -> {"allowed":false,
+      "refused":[{"from":"save.game.teams.A.name","kind":"team","text":"Anything Typed","why":"not a generated name"},
+                 {"from":"save.game.teams.A.players[0].name","kind":"player","text":"Typed Too","why":"not a generated name"},
+                 {"from":"save.game.teams.A.players[0].id","kind":"id","text":"mighty_maple","why":"not the id the engine makes from the name"}],
+      "mismatches":[{"from":"save.game.teams.A.name","other":"opts.teams.A.name","text":"Anything Typed","otherText":"Wobbly Towers"},
+                    {"from":"save.game.teams.A.players[0].name","other":"opts.teams.A.players[0].name","text":"Typed Too","otherText":"Mighty Maple"}], ...}
+restore {"snap": "<that snapshot>", "names": "check"}
+  -> {"error":"restore: names not allowed: save.game.teams.A.name, save.game.teams.A.players[0].name, ..."}
+```
 
 ### Actions (a match among browsers)
 

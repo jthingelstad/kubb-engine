@@ -10,6 +10,8 @@
 --   names.valid   { kind, text }                 -> { ok, parts, default }
 --   names.words   {}                             -> { version, hash, rules, max, lists, shapes, never, defaults }
 --   names.all     { kind }                       -> { names }
+--   names.check   { snap | replay | document, members? }
+--                                                -> { what, allowed, names, ids, lines, refused, mismatches }
 --
 -- parts is { shape, words = [word, ...] }: the shape's id (namegen.shapes) and a word per
 -- slot, in order. slot is 0-based (a JSON array's index). A kind that is not "player" or
@@ -24,6 +26,7 @@ import "core/namewords"
 import "core/throwplan"
 import "session/json"
 import "pitch/lobby"
+import "session/namecheck"
 
 local namegen, words, plan, json, lobby = tw.namegen, tw.namewords, tw.plan, tw.web.json, tw.shared.lobby
 local object, NULL = json.object, json.null
@@ -57,6 +60,7 @@ end
 local DEFAULTS = defaultNames()
 local isDefault = {}
 for _, s in ipairs(DEFAULTS) do isDefault[s] = true end
+function names.isDefault(s) return type(s) == "string" and isDefault[s] == true end
 
 local function kindOf(call, a)
 	local k = a.kind
@@ -249,6 +253,25 @@ function R.all(a)
 	local kind = kindOf("names.all", a)
 	ALL[kind] = ALL[kind] or object { names = namegen.all(kind) }
 	return ALL[kind]
+end
+
+-- Every name a match from outside could show, and whether each passes (session/namecheck,
+-- docs/SESSION.md "Names"): exactly one of
+--   { snap }                 a match snapshot, as its text or as the decoded object
+--   { replay }               a replay or kept match ({ setup | start, log, snap?, players? })
+--   { document, members? }   a pitch's document, and the pitch's members [{ id, me }]
+-- -> { what, allowed, names, ids, lines, refused, mismatches }. Changes nothing.
+function R.check(a)
+	local nc = tw.web.namecheck
+	local given = {}
+	for _, k in ipairs { "snap", "replay", "document" } do
+		if a[k] ~= nil and not json.isNull(a[k]) then given[#given + 1] = k end
+	end
+	check(#given == 1, "names.check: exactly one of snap, replay or document")
+	local k = given[1]
+	if k == "snap" then return nc.snapshot(a.snap) end
+	if k == "replay" then return nc.replay(a.replay) end
+	return nc.document(a.document, a.members)
 end
 
 names.calls = R

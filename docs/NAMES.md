@@ -190,9 +190,24 @@ name to someone else checks it, and shows a default when it fails:
 | Boundary                        | Who runs the check                    | When it fails                        |
 | ------------------------------- | ------------------------------------- | ------------------------------------ |
 | A member's name in a pitch      | the pitch server, on join and `me`    | the name is dropped: "Player n"      |
-| A team's name in a pitch match | the pitch server, on START            | "Team A" / "Team B"                  |
+| A pitch match's START           | the pitch server, from the header's players and the setup | refused with `bad-name`: the server cannot put a name right inside the start, because the snapshot is hashed and opaque to it |
+| A match's snapshot a client is handed (entering a pitch match, a resync, joining part way) | the client: `restore` with `{ snap, names: "check" }`, or `names.check({ snap })` first | not shown: "This match has a name the game did not make" |
+| A replay or kept match          | the client: `names.check({ replay })`, and `replayLoad` with `names: "check"` | not played, with the same sentence |
+| A lobby (team names, the match's players, members) | the client: `names.check({ document, members })` | the default is shown ("Team A", "Player n") |
 | A reel or a share               | the share check (it runs the engine)  | refused: "Type a name" becomes "Pick a name" |
 | The pitch card image            | the card renderer                     | the team names are left off          |
+
+**A snapshot is checked whole, by the engine** (since 0.13.4, docs/SESSION.md "Names"). A
+snapshot carries each name twice (`opts.teams`, from which a match is made again, and
+`save.game.teams`, from which `restore` builds it), makes the players' ids from them and
+writes them into the ruling line and the score sheet. A forged start can keep generated
+names in `opts` and typed ones in `save`; the pitch server treats the snapshot as opaque,
+so its header and meta checks never see them, and a client that read `opts` alone (the
+web's first `badNames`) passed it. `names.check` walks every string of the snapshot,
+holds each to what the engine writes in that place, checks both copies of each name and
+says where they disagree, so a client never has to know which fields reach the screen.
+The strict `restore` and `replayLoad` refuse such a match before anything changes; the
+plain ones still resume a person's own kept match with the typed names it was saved with.
 
 The pitch server is JavaScript and knows no Kubb, so it needs the words in its own
 language. `parse` is short; the web ports it beside a JSON copy of the lists that the
@@ -208,12 +223,20 @@ Two kinds of text pass a boundary besides generated names:
   and "Team B" (a side of several), "Player 1" to "Player 6" (a member with no name, or
   one the check dropped). The engine writes them, nobody types them, and a reel of any
   match against the computer carries "Computer". `names.valid` marks them `default`, and
-  `names.words` lists them.
+  `names.words` lists them. "Player n" stops at 6, a side's most (`lobby.TEAM_MAX`):
+  "Player 7" is not a default, and a check that took any number would take typed text
+  such as "Player 69".
 - **A player's name as a team's.** A side of one player is named after that player (the
   pitch's `matchOptions`, `renameStart`), so a team name on such a side is checked as a
   player name.
 
-**Display never checks; boundaries do.** A client shows any name the pitch sends. Then
+**What the check cannot tell.** `names.valid` answers from the words as they are now.
+A name made from a word later taken out for safety (section 7) no longer parses, and the
+check cannot tell it from typed text: both fail, and both are shown as the default. That
+is the intent for a word taken out for safety, and why removing a word is for safety
+only.
+
+**Display never checks; boundaries do.** A client shows a member's name the pitch server has checked as it comes. A match's snapshot is the one thing the server cannot check, so there the client is the boundary (the table above). Then
 clients on two patches of the engine can sit in one lobby even if one has more words.
 
 What this buys outside the game:
