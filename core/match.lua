@@ -52,8 +52,11 @@ end
 
 -- Each engine player's saved player and throw level, from the teams given
 -- to match.new (core/lineup's: { name, key, level, guest }), by side and in
--- order: { A = { { id, key, level, guest } }, B = ... }. rules.new keeps the
--- players in order, so the two lists line up.
+-- order: { A = { { id, key, level, guest, cpu } }, B = ... }. rules.new keeps the
+-- players in order, so the two lists line up. `cpu` (0.17.0) is true for a computer
+-- player in a team (a computer partner, or one of a team of computers at mixed
+-- levels), and absent for everyone else, so a lineup without one is the lineup it
+-- always was.
 function match.lineupOf(g, teams)
 	local out = {}
 	for _, side in ipairs { "A", "B" } do
@@ -61,7 +64,8 @@ function match.lineupOf(g, teams)
 		local list = {}
 		for i, p in ipairs(g.teams[side].players) do
 			local q = given[i] or {}
-			list[i] = { id = p.id, key = q.key, level = q.level, guest = q.guest or nil }
+			if type(q) ~= "table" then q = {} end
+			list[i] = { id = p.id, key = q.key, level = q.level, guest = q.guest or nil, cpu = (q.cpu == true) or nil }
 		end
 		out[side] = list
 	end
@@ -86,7 +90,7 @@ function match.new(opts)
 		surface = opts.surface or "Grass", opening = opts.opening or "2-4-6", first = opts.first or "A",
 		rules = opts.rules,   -- "kid": the Kid rules (core/rules rules.kid); nil: the standard rules
 	}
-	return {
+	local m = {
 		game = g,
 		start = opts.start,       -- {year, month, day, hour, min}
 		mode = opts.mode or "Pass and Play",
@@ -101,6 +105,14 @@ function match.new(opts)
 		cpu = opts.cpu,           -- the sides the computer plays (match.raisePolicy), or nil
 		raising = opts.raising,   -- a policy by side (match.raisePolicy), or nil
 	}
+	-- (0.17.0) a team with a computer player has its kubbs thrown by each player in turn
+	-- (core/order rotateInk), so a computer partner takes its share of the inkasts
+	for _, side in ipairs { "A", "B" } do
+		for _, e in ipairs(m.lineup[side]) do
+			if e.cpu then m.order[side].rotateInk = true end
+		end
+	end
+	return m
 end
 
 -- The order (a match saved before it had one gets a fresh one).
@@ -125,7 +137,70 @@ function match.thrower(m)
 	if not pid then return nil end
 	local p = match.player(m, g.attacker, pid)
 	local e = match.member(m, g.attacker, pid)
-	return { id = pid, name = p and p.name or pid, key = e and e.key, level = e and e.level }
+	return { id = pid, name = p and p.name or pid, key = e and e.key, level = e and e.level,
+		cpu = (e and e.cpu) or nil }
+end
+
+-- ---------- computer players (0.17.0) ----------
+--
+-- A team may hold people, computers, or both. A computer player is either every player
+-- of a side the computer plays (match.cpuSides: m.cpu, the session's old `cpu` option,
+-- or the "Vs Playdate" mode's Team B), or a player whose lineup entry says `cpu`
+-- (match.lineupOf). Each throws at its own level (its lineup entry's: autothrow.choose
+-- reads the thrower's), in the team's throwing order (core/order), so a computer
+-- partner takes its share of the batons and, when the order makes it the inkaster, the
+-- turn's kubbs.
+
+-- Is `id` of `side` a computer player?
+function match.isComputer(m, side, id)
+	local sides = match.cpuSides(m)
+	if sides and sides[side] then return true end
+	local e = match.member(m, side, id)
+	return e ~= nil and e.cpu == true
+end
+
+-- Is `id` of `side` a computer player in a team (its lineup entry says so), as opposed
+-- to a player of a side the computer plays whole?
+function match.isSeat(m, side, id)
+	local e = match.member(m, side, id)
+	return e ~= nil and e.cpu == true
+end
+
+-- Has `side` a person on it? A team with one decides what the rules give the team
+-- (raising, the punishment kubb) by its people; a team of computers decides them itself.
+function match.hasPerson(m, side)
+	local sides = match.cpuSides(m)
+	if sides and sides[side] then return false end
+	for _, p in ipairs(m.game.teams[side].players) do
+		if not match.isComputer(m, side, p.id) then return true end
+	end
+	return false
+end
+
+-- The people on `side`: how many.
+function match.people(m, side)
+	local sides = match.cpuSides(m)
+	if sides and sides[side] then return 0 end
+	local n = 0
+	for _, p in ipairs(m.game.teams[side].players) do
+		if not match.isComputer(m, side, p.id) then n = n + 1 end
+	end
+	return n
+end
+
+-- The levels in order of strength.
+match.LEVEL_RANK = { kid = 1, beginner = 2, club = 3, pro = 4 }
+
+-- The strongest level among `side`'s computer players in a team (lineup entries that
+-- say cpu), or nil when it has none: the level a team of computers makes its team
+-- decisions at.
+function match.strongestLevel(m, side)
+	local best, rank = nil, 0
+	for _, e in ipairs(m.lineup and m.lineup[side] or {}) do
+		local r = e.cpu and match.LEVEL_RANK[e.level] or 0
+		if r > rank then best, rank = e.level, r end
+	end
+	return best
 end
 
 -- Hand the throw set up (m.setup) to another player of its team: the kubbs
@@ -135,6 +210,14 @@ end
 function match.changeThrower(m, pid)
 	local s, g = m.setup, m.game
 	if not s then return false, "none" end
+	-- (0.17.0) a person may never act for a computer partner, nor hand a throw to one: the
+	-- change is between people. A computer's throw is its own, and one person's throw
+	-- given to another swaps with that person's next one (core/order.change), so a
+	-- computer's batons stay where the order put them. ("computer"; a side the computer
+	-- plays whole is as it always was)
+	if (s.thrower and match.isSeat(m, s.side, s.thrower.id)) or match.isSeat(m, s.side, pid) then
+		return false, "computer"
+	end
 	local o = orderOf(m)
 	local ok, why
 	if s.kind == "toss" then ok, why = order.setInkaster(o, pid)
@@ -152,9 +235,11 @@ function match.candidates(m)
 	local o = orderOf(m)
 	for _, p in ipairs(g.teams[s.side].players) do
 		local ok, why
-		if s.kind == "toss" then ok = true else ok, why = order.allowed(o, s.n, p.id, s.n - 1) end
+		local seat = match.isSeat(m, s.side, p.id)
+		if seat then ok, why = false, "computer"
+		elseif s.kind == "toss" then ok = true else ok, why = order.allowed(o, s.n, p.id, s.n - 1) end
 		out[#out + 1] = { id = p.id, name = p.name, ok = ok and true or false, why = why,
-			current = s.thrower and s.thrower.id == p.id }
+			current = s.thrower and s.thrower.id == p.id, cpu = seat or nil }
 	end
 	return out
 end
@@ -171,7 +256,9 @@ function match.turnOrder(m)
 		if last and last.id == pid then last.n = last.n + 1
 		else
 			local p = match.player(m, o.side, pid)
-			out[#out + 1] = { id = pid, name = p and p.name or pid, n = 1 }
+			local e = match.isSeat(m, o.side, pid) and match.member(m, o.side, pid)
+			out[#out + 1] = { id = pid, name = p and p.name or pid, n = 1, cpu = e and true or nil,
+				level = e and e.level or nil }
 		end
 	end
 	return out, o.inkaster and match.player(m, o.side, o.inkaster)
@@ -195,7 +282,10 @@ end
 --   m.mode     "Vs Playdate" when m.cpu is not given: Team B is the Playdate (core/lineup's
 --              VS PLAYDATE). The mode is saved, so a resumed match knows it too.
 -- and each computer side's level from the lineup (its first player that has one; none:
--- autothrow.tune.level, as its throws). m.raising = { A = policy, B = policy }
+-- autothrow.tune.level, as its throws). Since 0.17.0 a team may hold computer players
+-- (lineup entries that say cpu): a team with a person on it raises as a person's side,
+-- by the engine's advice; a team of computers raises as the computer at its strongest
+-- player's level (match.strongestLevel). m.raising = { A = policy, B = policy }
 -- (match.new's `raising`, not saved) names a side's policy outright, a name in
 -- tw.raising.policies or a function(dec, ctx); it wins over the rest.
 -- A match that says none of this (no cpu, no raising, another mode) raises every kubb
@@ -233,6 +323,11 @@ function match.raisePolicy(m, side)
 	local r = m.raising and m.raising[side]
 	if r ~= nil then return r end
 	local sides = match.cpuSides(m)
+	if not (sides and sides[side]) and not match.hasPerson(m, side) then
+		-- a team of computer players (0.17.0): the computer at its strongest level
+		local level = match.strongestLevel(m, side)
+		return function(dec, ctx) return tw.cpu.raise(dec, ctx, level) end
+	end
 	if not sides then return nil end
 	if sides[side] then
 		local level = match.sideLevel(m, side)
@@ -656,14 +751,15 @@ end
 -- match.cpuSides (match.new's `cpu`, or the "Vs Playdate" mode's Team B); a match that
 -- says neither (pass and play, a match from a caller before 0.12) lists no one, and
 -- the file has no [Throw Levels]. A computer player's level is the one it throws at
--- (cpu.levelName: its lineup's level, else autothrow.tune.level).
+-- (cpu.levelName: its lineup's level, else autothrow.tune.level). Since 0.17.0 a
+-- computer player in a team (match.isComputer) is listed with its own level beside the
+-- rest, in team order, so a team of computers at mixed levels or a person's computer
+-- partner reads as it played.
 function match.fileLevels(m)
 	local levels = {}
-	local sides = match.cpuSides(m)
-	if not sides then return levels end
 	for _, side in ipairs { "A", "B" } do
-		if sides[side] then
-			for _, p in ipairs(m.game.teams[side].players) do
+		for _, p in ipairs(m.game.teams[side].players) do
+			if match.isComputer(m, side, p.id) then
 				local e = match.member(m, side, p.id)
 				levels[#levels + 1] = p.id .. " " .. tw.cpu.levelName { thrower = e }
 			end

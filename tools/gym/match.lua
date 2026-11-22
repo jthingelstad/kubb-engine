@@ -51,6 +51,7 @@ import "core/world"
 import "core/autothrow"
 import "core/notation"
 import "core/order"
+import "core/cards"
 import "version"
 local match, world, autothrow, notation, order, plan = tw.match, tw.world, tw.autothrow, tw.notation, tw.order, tw.plan
 local forensics = dofile(here .. "/forensics.lua")
@@ -210,6 +211,9 @@ local function choose(s, r)
 	if teams then
 		local t = teamOf(s.side)
 		level, thrower, hand = t.level, t.thrower, t.hand
+		-- a team of computers at mixed levels (team=, 0.17.0): each throws at its own,
+		-- the thrower's lineup level (autothrow.choose reads it when none is given)
+		if t.levels then level = nil end
 	end
 	if thrower == "human" then a = human.choose(s, r, level, model, hand)
 	else a = autothrow.choose(s, r, opt.scatter, level) end
@@ -377,9 +381,20 @@ local plainRaise = dofile(here .. "/versus.lua").defaultRaise(opt.level, opt.thr
 -- throw it: "plain" (world.run), "forensics", or "stop".
 local function play(gi, each)
 	local start = notation.addMinutes(base, (gi - 1) * 41)
+	local tA, tB = team("A", (gi - 1) % 6 + 1), team("B", (gi + 1) % 6 + 1)
+	-- team= (0.17.0): that team's players, one a level in order, computers in a team
+	if teams then
+		for _, side in ipairs { "A", "B" } do
+			local sp = teamOf(side)
+			if sp.levels then
+				local ps = {}
+				for j, lv in ipairs(sp.levels) do ps[j] = { name = NAMES[side][j], level = lv, cpu = true } end
+				if side == "A" then tA = { name = "Team A", players = ps } else tB = { name = "Team B", players = ps } end
+			end
+		end
+	end
 	local m = match.new { start = start, first = (gi % 2 == 0) and "B" or "A", surface = opt.surface,
-		rules = opt.rules,
-		teams = { A = team("A", (gi - 1) % 6 + 1), B = team("B", (gi + 1) % 6 + 1) } }
+		rules = opt.rules, teams = { A = tA, B = tB } }
 	-- a plain run: both sides raise as the engine raises such a side (0.12.0: the
 	-- computer by its level, the human thrower by the engine's advice; before 0.12,
 	-- apart), so a run scores the level as it plays. versus sets each team's own below
@@ -585,6 +600,41 @@ for gi = opt.from, opt.to do
 	for _, o in ipairs(throws) do jf:write(json(o), "\n") end
 	nThrows = nThrows + #throws
 	local over = { m = gi, over = true, turns = m.game.turn, how = m.game.how, winner = m.game.winner }
+	-- a team of computers at mixed levels (team=): each level's share of the team's batons,
+	-- hits and inkasts (turns it threw the kubbs in), so a run can check the throwing order
+	-- shares them out
+	if teams then
+		for _, side in ipairs { "A", "B" } do
+			local sp = teamOf(side)
+			if sp.levels then
+				local lv = {}
+				for _, e in ipairs(m.lineup[side]) do lv[e.id] = e.level end
+				local by = {}
+				local function row(l)
+					by[l] = by[l] or { players = 0, batons = 0, hits = 0, kubbs = 0 }
+					return by[l]
+				end
+				for _, e in ipairs(m.lineup[side]) do row(e.level).players = row(e.level).players + 1 end
+				for _, t in ipairs(m.game.sheet.turns) do
+					if t.side == side then
+						for _, b in ipairs(t.batons) do
+							local _, _, hit, isThrow = tw.cards.batonCounts(b.token)
+							if isThrow and lv[b.player] then
+								local x = row(lv[b.player])
+								x.batons = x.batons + 1
+								if hit then x.hits = x.hits + 1 end
+							end
+						end
+						for _, pid in ipairs(t.inkastOrder or {}) do
+							if lv[pid] then row(lv[pid]).kubbs = row(lv[pid]).kubbs + 1 end
+						end
+					end
+				end
+				over.byLevel = over.byLevel or {}
+				over.byLevel[sp.label] = by
+			end
+		end
+	end
 	if teams then
 		over.swap, over.first = opt.swap, m.game.first
 		over.limit = m.game.turn > opt.maxTurns

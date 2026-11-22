@@ -8,7 +8,12 @@
 --
 --   lua5.4 tools/physmatch.lua [--n 3] [--seed 1] [--out build/physgames] [--maxturns 40]
 --     [--surface Grass|Sand|Snow] [--scatter 1] [--raise apart|par|together|first]
---     [--level kid|beginner|club|pro] [--rules kid] [-v]
+--     [--level kid|beginner|club|pro] [--rules kid] [--mixed] [-v]
+--
+-- --mixed (0.17.0): computer players in teams at mixed levels. Team A's first player is a
+-- person (thrown by the computer at --level, as every throw here) and the rest computer
+-- players; Team B is computers only; each computer player's level goes round beginner,
+-- club, pro and is the one it throws at, so [Throw Levels] names each with its own.
 --
 -- --scatter multiplies every mistake of the computer's swing (core/autothrow's
 -- scale): 1 is the game's Playdate, lower a steadier thrower. --level is the
@@ -44,7 +49,7 @@ local function team(side, size)
 end
 
 local n, seed, out, maxTurns, verbose, surface, scatter = 3, 1, "build/physgames", 40, false, "Grass", nil
-local raise, level, rulesKind
+local raise, level, rulesKind, mixed
 local i = 1
 while i <= #arg do
 	local a = arg[i]
@@ -57,6 +62,7 @@ while i <= #arg do
 	elseif a == "--level" then level = arg[i + 1]; i = i + 1
 	elseif a == "--rules" then rulesKind = arg[i + 1]; i = i + 1   -- kid: the Kid rules (0.15.0)
 	elseif a == "--scatter" then scatter = tonumber(arg[i + 1]); i = i + 1
+	elseif a == "--mixed" then mixed = true
 	elseif a == "-v" then verbose = true
 	else error("unknown argument " .. a) end
 	i = i + 1
@@ -88,8 +94,16 @@ local function targetKind(s)
 end
 for gi = 1, n do
 	local start = notation.addMinutes(base, (gi - 1) * 41)
+	local tA, tB = team("A", (gi - 1) % 6 + 1), team("B", (gi + 1) % 6 + 1)
+	if mixed then
+		local LV = { "beginner", "club", "pro" }
+		for j, p in ipairs(tA.players) do
+			if j > 1 then p.cpu, p.level = true, LV[(gi + j) % 3 + 1] end
+		end
+		for j, p in ipairs(tB.players) do p.cpu, p.level = true, LV[(gi + 2 * j) % 3 + 1] end
+	end
 	local m = match.new { start = start, first = (gi % 2 == 0) and "B" or "A", surface = surface, rules = rulesKind,
-		teams = { A = team("A", (gi - 1) % 6 + 1), B = team("B", (gi + 1) % 6 + 1) } }
+		teams = { A = tA, B = tB }, mode = mixed and "Vs Computer" or nil }
 	-- both teams are the computer at `level`, so both raise by its policy (0.12.0,
 	-- core/cpu.raising) unless --raise names one: the Gym's plain run does the same
 	m.game.raisePolicy = raise or tw.cpu.raisePolicy(level)
@@ -101,7 +115,8 @@ for gi = 1, n do
 		end
 		local s = match.setup(m)
 		if not s then break end
-		local a = autothrow.choose(s, r, scatter, level)
+		-- (--mixed: a computer player throws at its own level, the thrower's)
+		local a = autothrow.choose(s, r, scatter, (mixed and s.thrower and s.thrower.cpu) and s.thrower.level or level)
 		local res = simulate(s, a, s.surface or "grass")
 		match.resolve(m, res, not a.legal)
 		throws = throws + 1

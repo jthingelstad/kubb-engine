@@ -225,6 +225,36 @@ takes. Parts are split by `;` or `,`. Options: `--n` (seeds, default 300), `--se
 `--surfaces`, `--maxturns`, `--jobs`, `--json`, `--set` (for both teams), `--probe N`
 (below), `--engine`.
 
+`team=club+club+pro` (0.17.0) makes the team a team of computers at mixed levels: one
+player a level, in throwing order, each throwing at its own (the engine's computer players
+in a team, docs/SESSION.md "Computer players"), the team raising at its strongest level
+unless `raise=` names another; it takes the place of `level=` and needs `thrower=cpu`. Such
+a team has as many players as it names, every game; a plain team keeps the sizes that go
+round one to six. The page then reports, for each such team, each level's share of the
+players, of the batons thrown (and its hit rate) and of the inkasts (turns it threw the
+kubbs in).
+
+Teams of computers at mixed levels (0.17.0; grass, 150 seeds each played both ways round,
+seed 1, turn limit 40), team A's paired score:
+
+| team A | team B | A's score (95%) | the levels' shares in team A |
+| --- | --- | --- | --- |
+| club+club+pro | club+club+club | 79.0% (74.6 to 83.4) | pro: 33% of the players, 32.6% of the batons (hit 76.0%), 33.1% of the inkasts |
+| club+club+pro | pro+pro+pro | 11.0% (7.7 to 14.3) | pro: 31.7% of the batons (hit 74.1%), 31.6% of the inkasts |
+| pro+pro+pro | club+club+club | 93.3% (90.6 to 96.1) | |
+| club+pro | club+club | 89.7% (86.4 to 92.9) | pro: 48.9% of the batons (hit 59.1%), 52.7% of the inkasts |
+| beginner+pro | club+club | 26.2% (21.6 to 30.7) | beginner: 50.2% of the batons (hit 40.1%), 48.9% of the inkasts |
+
+A mixed team sits between its members' levels: two club and a pro beat three club four
+games in five and lose to three pro nine in ten, where three pro beat three club 93 in 100.
+The batons go by the share of players, as core/order deals them. In a team of two the
+first in order throws the turn's first three batons (the field kubbs, from the advantage
+line when there is one) and the second the last three, so a pro second hits less often than
+a club first (59% and 70%): the order, not the level. Before the kubbs went round a team
+with a computer player (core/order `rotateInk`), the first in order threw every turn's
+kubbs in a team of two or three; beginner+pro then won 10.0% (6.6 to 13.4) against
+club+club, the beginner throwing all of them.
+
 **What a team's spec reaches.** Its level and thrower make its throws (`autothrow.choose`
 or the human thrower at that level, so its target, stance, arc and swing). Its raising
 policy is given to the engine (`game.raisePolicy`) just before it raises; the Gym raises
