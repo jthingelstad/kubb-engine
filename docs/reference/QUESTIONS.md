@@ -401,8 +401,9 @@ census of 2026-11-21.
      wins 68.4% at pro (65.0 to 71.9) and 72.0% at club (68.4 to 75.6), much of it from
      base kubbs at 8 m, which rise to 40.9% at pro, inside the real range. Its costs: a
      short 8 m baton runs on 6.5 m where it now runs 2.7, and a baton that touches a kubb
-     leaves it standing 4.5% of the time against 11.4%, further from recorded human
-     throws (23.5%).
+     leaves it standing 4.5% of the time against 11.4%, further from the recorded throws'
+     23.5% (people's throws played on the engines of their day, 0.2 to 0.7: not a real
+     rate, docs/notes/gym.md "The recorded-throw bank").
   3. **Kubb knocking kubb, about 1 to 2 points, more as groups tighten.** Against MuJoCo
      with the same sizes, masses, friction and bounce (1,337 hand-made group cases), the
      two engines agree on what the baton keeps and where it goes, and on fences and loose
@@ -519,3 +520,29 @@ census of 2026-11-21.
   then the Gym against the chosen rows.
 - **Touches:** none
 
+## Q20: How long does a real 8 m throw take, and on what line?
+
+- **Status:** open: for the owner (Q19 is the meter's question, on another branch)
+- **Asks:** The owner, 2026-11-22: "I think the physics of our baton throw may just be too
+  slow." A throw's speed is set by its line: to carry 8 m from the hand (0.6 m up) to a
+  kubb's aim height, with the air's drag, a baton needs (`flight.speedForCarry`):
+
+  | launch loft | release speed | flight time | speed at the kubb | coming down at |
+  | --- | --- | --- | --- | --- |
+  | 10 | 13.7 m/s | 0.62 s | 12.8 m/s | 17 degrees |
+  | 15 | 11.8 m/s | 0.74 s | 11.2 m/s | 22 degrees |
+  | 22 (the default at 8 m) | 10.3 m/s | 0.88 s | 9.9 m/s | 28 degrees |
+  | 30 | 9.4 m/s | 1.03 s | 9.1 m/s | 36 degrees |
+
+  Does a real 8 m throw take about 0.9 s and peak about a metre above the hand (the
+  default), or 0.6 to 0.7 s on a flatter line (a quarter to a third faster at the kubb)?
+- **So far:** The engine's flight matches the ballistics (MuJoCo and `flight.carry` agree to
+  millimetres), so a throw is not slow for its line; only the line can be. No source in
+  `docs/reference/observations/` times a flight. What makes hits soft in play is measured
+  apart: a baton that meets the turf before the kubb (about half of a person's 8 m touches)
+  reaches it at about 5.7 m/s instead of 9.8 (`lua5.4 tools/groundfirst.lua`).
+- **Recommendation:** Time one: a lesson or match clip with a baton seen from release to
+  touch, frame by frame. Until then the default line stands; it is the owner's rule by
+  distance (plan.tune.arcLine).
+- **Settle by:** a timed clip, then the owner's word on the line.
+- **Touches:** none

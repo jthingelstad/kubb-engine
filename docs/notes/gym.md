@@ -835,8 +835,14 @@ meter all good 51.9 / 52.2, field kubb toppled 48.1 / 49.2, missed short 34.8 / 
 past 33.9 / 33.4, wide 7.8 / 11.1, touched and stood 23.5 / 13.9, short and stopped
 35.0 / 36.7, first touch on the top 61.2 / 60.5; at beginner, meter all good 81.0 / 83.5,
 field kubb toppled 68.8 / 63.1. Inside the bank's intervals on everything but "touched it,
-it stood", where real throws touch and leave the kubb standing more often (23.5 against
-13.9; and the kubb did not move 7.4 against 3.1). The human thrower at pro is club people
+it stood", where the recorded throws touch and leave the kubb standing more often (23.5
+against 13.9; and the kubb did not move 7.4 against 3.1). That 23.5% is what those throws
+did on the engines they were played on (0.2 to 0.7, before the bounce, the bite and the
+edge-on-edge contacts), not what kubbs do: no real touched-and-stood rate exists (the scored
+games record no touches). Until 2026-11-22 the notes called it "real", and it was cited
+against lowering kubb-on-kubb friction (docs/notes/throw.md "The force carried into a
+group", physics.md "A blow down a column") and as a cost of the flatter throw (Q16); those
+arguments stand on the other reasons they give, or not at all. The human thrower at pro is club people
 on pro's tighter gauge, so it plays worse than club; that column is a what-if, not a level.
 
 Of the 417 room throws, 339 replay to the recorded snapshot under wasmoon on the engine
