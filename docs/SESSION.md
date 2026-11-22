@@ -391,7 +391,7 @@ every release (`a drill released very early or at the sky end takes no forged no
 
 ### Names
 
-Generated player and team names (docs/NAMES.md), since 0.13.2:
+Generated player and team names (docs/NAMES.md), since 0.13.3:
 `kubbCall("names.<name>", argsJson)`, dispatched like `pitch.<name>`. Like the pitch's
 calls they need no `useTune`, `new` or match. Results are plain objects; an argument that
 is wrong (a kind that is not `"player"` or `"team"`, a shape the kind does not have, a

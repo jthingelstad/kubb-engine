@@ -152,6 +152,15 @@ all when no computer plays (`match.fileLevels`). No hash moves, so 0.13.0, 0.13.
   no `[Throw Levels]` (it looked for the people's levels); `docs/notes/saved-players.md`
   says the header names the Playdate's player only.
 
+## 0.13.3 on top
+
+0.13.3 is 0.13.2 with the session's `names.*` calls (docs/SESSION.md "Names"). No hash
+moves and nothing must change; sync `v0.13.3` in place of `v0.13.2`. It is what the web
+and the iPhone need to replace typed names with generated ones (docs/NAMES.md section 8,
+steps 2 and 3): roll one on first run and keep its text, build the name row from `roll`,
+`step` and `choices`, and check every name that arrives from outside with `valid`,
+accepting `ok` or `default`.
+
 ## What the engine now offers that no surface shows yet
 
 - **The computer's reason** (`tw.cpu.last`, since 0.11.1): the play and situation behind
@@ -159,7 +168,7 @@ all when no computer plays (`match.fileLevels`). No hash moves, so 0.13.0, 0.13.
   Never on an action or anything hashed, so a client may show it freely
   (docs/notes/computer-player.md).
 - **Generated names** (`core/namegen`, `core/namewords`, since 0.11.3; the session's
-  `names.*` calls since 0.13.2): team and player names from curated word lists, the step
+  `names.*` calls since 0.13.3): team and player names from curated word lists, the step
   that replaces every typed name (docs/NAMES.md section 10, decided). The web and the
   iPhone call `names.roll` (a seed of their own, locked words in `keep`), `names.step` and
   `names.choices` for a name row with Shuffle, a picker and a lock per word,
