@@ -62,7 +62,7 @@
     "core/tw.lua": "d3bb3a81977440239e9024e243aa3b3dce2ba418b19d87075b8268b73aeff167",
     "core/vec.lua": "16ed8c29ccd68dcc7cff60892b5b2e767aaf01635e7fad30e593f09247326393",
     "core/wind.lua": "5be8fbc824ab65f875570249012fe334c5327b93f5036d37e2679e8bef93a876",
-    "core/world.lua": "84d325b93625b5e0a8054ccf327f211171dc45366e6b5eaa7fbaaf23a23f057f",
+    "core/world.lua": "fb7f63ba1ddbc40a915b998aae0c065804854ca4c3cefb1f23ee45fa93aacf51",
     "pitch/api.lua": "05d1047648620f4fc7167ee7dcac3bb969a0f098614898b1b531b5dd8378594d",
     "pitch/engines.lua": "4d12b862c9a66803a349622dea3b93c7a388c9e781f44b0f126e1d4f52e6f37b",
     "pitch/js.lua": "4861032d59086e78c13d3a3e0628d28b0d147758d780bd659d25cf49d3e7d325",
@@ -85,6 +85,6 @@
     "version.lua": "11e0251c858bd7ab45e8f055e9a99e344e41762bdc8e1e4c635d5e3481cb2e24"
   },
   "bundle": {
-    "sha256": "42bb025133069a5cb27aed8cfc70cfcf654bb23e267bf9e3ab3a590178761f99"
+    "sha256": "d118ccc0dbc90c754c6aa180101a5f78529cb9508d33532fde0e0ef1e1f72ce2"
   }
 }
