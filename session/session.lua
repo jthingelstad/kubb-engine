@@ -638,7 +638,10 @@ function Session:over()
 	self.setup = nil
 	-- the frame the pitch is shown in: the last throw's (a restored session has none yet)
 	self.frameSide = self.frameSide or self.side or "A"
-	local finish = self.finish or self.opts.start
+	-- the last stamp an action carried; none (no host stamped), no finish: the file has no
+	-- End or Duration line and the winner card no minutes (0.17.0; before, the start, so
+	-- every match lasted 0 minutes)
+	local finish = self.finish
 	self.overInfo = {
 		winner = cards.winner(self.m, finish),
 		how = cmatch.howText(self.m),
@@ -1203,6 +1206,21 @@ end
 -- One frame while aiming (docs/SESSION.md "The frame"). inp = { dt, arm,
 -- plan, move = {dx, dy}, walk = {dx, dy} }. Returns { dial, camera, aim,
 -- event, action, recording, need }.
+-- A host's time stamp for an action it makes (0.17.0): { year, month, day, hour, min } on
+-- the start's clock (docs/SESSION.md "Actions", `at`), whole numbers, or nil. Anything else
+-- is no stamp: the engine never invents one.
+local function stampOf(at)
+	if type(at) ~= "table" then return nil end
+	local o = {}
+	for _, k in ipairs { "year", "month", "day", "hour", "min" } do
+		local v = at[k]
+		if type(v) ~= "number" or v ~= v or v ~= math.floor(v) then return nil end
+		o[k] = math.tointeger(v) or v
+	end
+	return o
+end
+session.stampOf = stampOf
+
 function Session:frame(inp)
 	inp = inp or {}
 	local dt = F(inp.dt or 1 / 60)
@@ -1256,6 +1274,10 @@ function Session:frame(inp)
 	out.event = ev
 	if L then
 		local action = self:throwAction(L, how, info)
+		-- the host's stamp (0.17.0): on the action, so every client applying it gets the
+		-- same finish
+		local at = stampOf(inp.at)
+		if at then action.at = at end
 		-- the actor runs the action exactly as every other browser will: through JSON
 		action = json.decode(json.encode(action))
 		out.action = action
@@ -1327,6 +1349,9 @@ function Session:apply(a)
 	end
 	assert(self.kind == "match", "only a match takes " .. tostring(t))
 	local g = self.m.game
+	-- a raise or a punishment kubb placed by hand carries the host's stamp as a throw does
+	-- (0.17.0), so a match that ends on the next throw's resignation still has a finish
+	if (t == "raise" or t == "punish") and stampOf(a.at) then self.finish = stampOf(a.at) end
 	if t == "raise" then
 		assert(self.phase == "settle" and self.settle.mode == "raise", "no kubb to raise")
 		local choice = a.choice and I(a.choice) or nil
@@ -1387,6 +1412,8 @@ end
 -- set-up, so the snapshot before the throw is all it needs.
 function Session:cpuAction()
 	assert(self.kind == "match" and self.phase == "throw" and cpuThrow(self, self.setup),
+function Session:cpuAction(at)
+	assert(self.kind == "match" and self.phase == "throw" and isCpu(self, self.setup.side),
 		"cpuAction: not the computer's throw")
 	local ts = self.ts
 	local a = autothrow.choose(self.setup, rngFor(self, 1, self.throws), tw.web.tune.throw.cpuScatter)
@@ -1394,7 +1421,10 @@ function Session:cpuAction()
 	local L, how = throw.cpuLaunch(ts, a)
 	ts.playerX, ts.playerY = a.x, a.y
 	local info = { scripted = true, back = a.swing and a.swing.back, stop = a.swing and a.swing.releaseAngle }
-	return json.decode(json.encode(self:throwAction(L, how, info)))
+	local action = self:throwAction(L, how, info)
+	local st = stampOf(at)
+	if st then action.at = st end
+	return json.decode(json.encode(action))
 end
 
 -- Standing kubbs in each half now, by role, and the king: { A = { field, base }, B = ...,

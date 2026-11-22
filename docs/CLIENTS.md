@@ -506,6 +506,13 @@ and hard into the field kubb, the way the line throws close in.") from `tw.cpu.l
 the narrower power band on a drive, which a client draws from `aim.plan.powerLo` and
 `powerHi` as before.
 
+- **A match's length** (docs/SESSION.md "Actions", `at`): stamp the throws the engine makes
+  by passing `at` (`{ year, month, day, hour, min }` on the start's clock) in every
+  `frame` call, and put it on the raise, punish and resign actions you make. Every client
+  then writes the same End and Duration. Without stamps a finished match has no Duration
+  (it was 0 minutes): show no time rather than "under a min" when `winner.minutes` is nil.
+  A joiner in another time zone converts to the start's clock.
+
 ## What the engine now offers that no surface shows yet
 
 - **The computer's reason** (`tw.cpu.last`, since 0.11.1): the play and situation behind

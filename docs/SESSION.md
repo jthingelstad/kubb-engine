@@ -871,7 +871,25 @@ The actions:
   only then), as on the Playdate.
 - `{ type: "thrower", id }`: who throws next for the side to throw (`need.candidates`).
 
-`at` (optional) is the finish time stamp the game file uses.
+`at` (optional) is the finish time stamp the game file uses: `{ year, month, day, hour,
+min }`, whole numbers, on the start's clock. The match's finish is the last stamp an
+applied action carried (a throw, a raise, a punishment kubb, a resignation); with none the
+finished file has no End or Duration line and the winner card no `minutes` (until 0.17.0
+the finish fell back to the start, so every match lasted 0 minutes).
+
+Stamping (0.17.0). A person's and the computer's throw actions are made inside the engine,
+so a host stamps them by passing `at` to the call that makes them: `frame({ ..., at })` puts
+it on the action that frame makes (and `Session:cpuAction(at)`, the check's own, likewise);
+a raise, punish or resign action is the client's, so it carries `at` itself. Every client
+applying the action takes the stamp from it, never from its own clock, so all of them
+write the same End and Duration, and a snapshot carries the finish. The clock is the
+start's: `opts.start` is the starting host's local wall time, so a host stamps with the
+time on that clock, converting its own local time by the difference between its time
+zone and the starting host's when they differ (a pitch's joiner in another zone; the
+start does not carry an offset, so a host that may be elsewhere keeps the offset the
+starting host shared). A stamp that is not five whole numbers is dropped, and nothing is
+ever stamped for a host that passes none: old matches and the golden corpus are as before.
+`check.same` and `checkThrow` leave `at` aside.
 
 ## The frame (per-frame call pattern)
 

@@ -896,3 +896,14 @@ rethrows (1.4 against 11 to 18: its kubbs seldom go out) and cleared turns for t
 The trade not taken: narrowing the 8 m release bar to 6.5 degrees takes the recorded hand's
 lone base kubb from 28% to 26% and would move every 8 m throw a person makes; it is left
 for a calibration of the 8 m rows of its own.
+
+Which of the human thrower's rows to trust (2026-11-22). Its batons are drawn from the
+recorded swings and thrown on the current meter, so its baton rows (field batons missed,
+base kubbs from 8 m and from an advantage line, king shots) are the person's. Its inkast is
+not: its field groups lie loose (about 0.65 m from their centre, 7% of kubbs touching),
+where the owner's real groups are tight, and that model is being checked. So its
+multi-kubb rows (took two, three or more) and its inkast rows (rethrown, groups) are not
+used as truth here, and the ladder's person-against-computer scores carry the same doubt:
+a side attacks the field kubbs it threw in itself, so a person whose groups are tighter
+than the model's would take more of them a baton and score higher against club than 48.0%. The
+computer's rows are measured against `docs/reference/play-levels.json` as they stand.
