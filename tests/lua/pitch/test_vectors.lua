@@ -6,7 +6,7 @@
 import "session/api"
 import "session/json"
 import "pitch/js"
-local json, js, NULL = tw.web.json, tw.pitch.js, tw.web.json.null
+local json, js, NULL = tw.web.json, tw.shared.js, tw.web.json.null
 
 local DIR = "tests/pitch/vectors/"
 
@@ -59,7 +59,7 @@ end
 
 local index = json.decode(readFile(DIR .. "index.json"), true)
 local ENGINE = tw.engine.version
-local MM = tw.pitch.lobby.ENGINE
+local MM = tw.shared.lobby.ENGINE
 
 test("the vectors were recorded from the web commit engine.json names", function()
 	local manifest = json.decode(readFile("engine.json"))

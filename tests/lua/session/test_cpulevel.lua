@@ -13,7 +13,7 @@ import "pitch/lobby"
 tw.web.session.useTune("pointer")
 local session, json, check, replay, autothrow = tw.web.session, tw.web.json, tw.web.check, tw.web.replay,
 	tw.autothrow
-local matchopts, lobby, NULL = tw.matchopts, tw.pitch.lobby, tw.web.json.null
+local matchopts, lobby, NULL = tw.matchopts, tw.shared.lobby, tw.web.json.null
 
 local START = { year = 2026, month = 11, day = 20, hour = 11, min = 0 }
 

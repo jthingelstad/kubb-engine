@@ -212,8 +212,8 @@ local function call(method, arg)
 	-- the pitch's pure calls (pitch/api.lua, docs/PITCH.md): "pitch.<name>", or
 	-- "room.<name>", the old spelling, which a bridge that also drives older engines uses
 	if type(method) == "string" then
-		if method:sub(1, 6) == "pitch." then return tw.pitch.api.call(method:sub(7), arg, "pitch") end
-		if method:sub(1, 5) == "room." then return tw.pitch.api.call(method:sub(6), arg, "room") end
+		if method:sub(1, 6) == "pitch." then return tw.shared.api.call(method:sub(7), arg, "pitch") end
+		if method:sub(1, 5) == "room." then return tw.shared.api.call(method:sub(6), arg, "room") end
 	end
 	local f = M[method]
 	if not f then error("unknown call " .. tostring(method), 0) end

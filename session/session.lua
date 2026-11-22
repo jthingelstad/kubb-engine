@@ -252,7 +252,7 @@ local function matchOptions(o)
 	-- the scene, a look only (pitch/lobby.isScene): kept only when given, valid and not
 	-- "day", the default, so the start is otherwise the one a match always had. The
 	-- physics and the rules never read it
-	if tw.pitch.lobby.isScene(o.scene) and o.scene ~= tw.pitch.lobby.OPTION_DEFAULTS.scene then out.scene = o.scene end
+	if tw.shared.lobby.isScene(o.scene) and o.scene ~= tw.shared.lobby.OPTION_DEFAULTS.scene then out.scene = o.scene end
 	-- the teams: { A = { name, players = { { name, level } } }, B = ... }, 1 to 6 players each
 	local teams = {}
 	for _, side in ipairs { "A", "B" } do
@@ -298,7 +298,7 @@ function session.new(o)
 	s.recording = nil
 	if s.kind == "practice" then
 		s.opts = { surface = surfaceKey(o.surface), level = o.level, set = o.set or "classic",
-			scene = tw.pitch.lobby.isScene(o.scene) and o.scene ~= "day" and o.scene or nil }
+			scene = tw.shared.lobby.isScene(o.scene) and o.scene ~= "day" and o.scene or nil }
 		s.ts = throw.new { surface = s.opts.surface, level = o.level, set = s.opts.set }
 		s.phase = "throw"
 		if o.drill then throw.setDrill(s.ts, true) end
@@ -749,7 +749,7 @@ function Session:view()
 		dial = throw.dial(ts, true),
 		surface = ts.surface, set = ts.set,
 		-- the scene to draw (a look only; "day" when the match names none)
-		scene = self.opts.scene or tw.pitch.lobby.OPTION_DEFAULTS.scene,
+		scene = self.opts.scene or tw.shared.lobby.OPTION_DEFAULTS.scene,
 	}
 end
 

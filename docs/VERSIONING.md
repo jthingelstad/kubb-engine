@@ -163,9 +163,9 @@ Every client shows its own version with the engine's beside it, in one form:
 
   **The pitch rename.** The shared-pitch module is `pitch`, as the clients and the pitch
   server already say (the web's docs/PITCH-SERVER.md, "Naming"): the directory `room/` is
-  `pitch/`, its tables `tw.pitch.*`, its calls `kubbCall("pitch.<name>")` (the same 37),
+  `pitch/`, its tables `tw.shared.*`, its calls `kubbCall("pitch.<name>")` (the same 37),
   docs/ROOM.md is docs/PITCH.md. `room.<name>` stays as the old spelling of every call and
-  `tw.room` as the same table as `tw.pitch`; an error names the call as it was made. No
+  `tw.room` as the same table as `tw.shared`; an error names the call as it was made. No
   call, field, document or result changes, and no hash moves. `make room-vectors`,
   `tools/room-vectors.mjs` and `tools/room-scenarios.mjs` are gone, with the half of the
   node test that compared the engine live with the web's modules: those modules have

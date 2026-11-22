@@ -16,8 +16,8 @@ import "pitch/seats"
 import "pitch/sync"
 import "pitch/engines"
 
-local json, js, lobby, seats, sync = tw.web.json, tw.pitch.js, tw.pitch.lobby, tw.pitch.seats, tw.pitch.sync
-local engines = tw.pitch.engines
+local json, js, lobby, seats, sync = tw.web.json, tw.shared.js, tw.shared.lobby, tw.shared.seats, tw.shared.sync
+local engines = tw.shared.engines
 local object, NULL = json.object, json.null
 
 local R = {}
@@ -107,5 +107,5 @@ function pitch.call(name, argText, prefix)
 	return json.encode(object { value = v })
 end
 
-tw.pitch = tw.pitch or {}
-tw.pitch.api = pitch
+tw.shared = tw.shared or {}
+tw.shared.api = pitch

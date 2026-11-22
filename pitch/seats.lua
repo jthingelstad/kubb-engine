@@ -18,7 +18,7 @@ import "core/tw"
 import "session/json"
 import "pitch/js"
 
-local json, js = tw.web.json, tw.pitch.js
+local json, js = tw.web.json, tw.shared.js
 local object = json.object
 local truthy, same, get, includes = js.truthy, js.same, js.get, js.includes
 
@@ -129,5 +129,5 @@ function seats.nextHost(members, host)
 	return nil
 end
 
-tw.pitch = tw.pitch or {}
-tw.pitch.seats = seats
+tw.shared = tw.shared or {}
+tw.shared.seats = seats

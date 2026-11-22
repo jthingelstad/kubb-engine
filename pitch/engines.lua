@@ -17,7 +17,7 @@ import "session/json"
 import "pitch/js"
 import "pitch/lobby"
 
-local json, js, lobby = tw.web.json, tw.pitch.js, tw.pitch.lobby
+local json, js, lobby = tw.web.json, tw.shared.js, tw.shared.lobby
 local NULL, object = json.null, json.object
 local get, same = js.get, js.same
 
@@ -209,5 +209,5 @@ function E.speakAs(members, engine)
 	return out
 end
 
-tw.pitch = tw.pitch or {}
-tw.pitch.engines = E
+tw.shared = tw.shared or {}
+tw.shared.engines = E

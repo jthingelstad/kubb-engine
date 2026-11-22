@@ -12,7 +12,7 @@ import "core/tw"
 import "session/json"
 import "pitch/js"
 
-local json, js = tw.web.json, tw.pitch.js
+local json, js = tw.web.json, tw.shared.js
 local object = json.object
 local truthy, same, get = js.truthy, js.same, js.get
 
@@ -67,5 +67,5 @@ end
 
 sync.asciiSize = js.asciiSize
 
-tw.pitch = tw.pitch or {}
-tw.pitch.sync = sync
+tw.shared = tw.shared or {}
+tw.shared.sync = sync

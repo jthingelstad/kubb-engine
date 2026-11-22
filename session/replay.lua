@@ -39,7 +39,7 @@ import "session/session"
 import "session/check"
 import "pitch/lobby"
 
-local session, check, json, lobby = tw.web.session, tw.web.check, tw.web.json, tw.pitch.lobby
+local session, check, json, lobby = tw.web.session, tw.web.check, tw.web.json, tw.shared.lobby
 local NULL = json.null
 
 local replay = {}
