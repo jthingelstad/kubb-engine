@@ -388,7 +388,10 @@ end
 --               nearer the middle; nil in a standard game
 --   targets     ids to frame: standing field kubbs, else base kubbs, else
 --               the king (batons); nil for a toss
---   n, of       this throw's number and the throws of its kind this turn
+--   n, of       this throw's number and the throws of its kind this turn (a toss: kubbs
+--               and rethrows together, the count Choose reads)
+--   roundN, roundOf  a toss's place in its round (0.17.0): the kubbs thrown in first, or
+--               the kubbs rethrown; what the label and the session's need say
 --   label       "Team A  baton 2 of 6", "Team B  kubb 1 of 3"
 --   debris      core/debris pieces: the batons thrown and the kubbs knocked
 --               down earlier this turn, lying where they came to rest (view
@@ -439,7 +442,12 @@ function match.setup(m)
 		s.projectile, s.kubb = "kubb", n.kubb
 		s.rethrow = n.rethrow
 		s.n, s.of = m.tossed + 1, m.tossed + n.left
-		s.label = fmt("%s  %s %d of %d", match.teamName(side, g), n.rethrow and "rethrow" or "kubb", s.n, s.of)
+		-- what a player is told (0.17.0): the kubb's place in its round, the kubbs thrown in
+		-- first or the ones rethrown (g.roundThrows: thrown in the round so far), so two in
+		-- and one out reads "rethrow 1 of 1", not "kubb 3 of 3". s.n and s.of stay the
+		-- turn's count, which the computer's inkast reads (kubbs still in hand)
+		s.roundN, s.roundOf = (g.roundThrows or 0) + 1, (g.roundThrows or 0) + n.left
+		s.label = fmt("%s  %s %d of %d", match.teamName(side, g), n.rethrow and "rethrow" or "kubb", s.roundN, s.roundOf)
 	else
 		s.projectile = "baton"
 		s.kingShot = n.kingShot

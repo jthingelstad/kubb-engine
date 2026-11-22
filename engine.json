@@ -37,7 +37,7 @@
     "core/howto.lua": "06dea483b7090ac9701a092ff6c07289ff285e029583ac48dddc972f5001af88",
     "core/howtoplay.lua": "55bdc5519a010fe79ac94d9ce41f4a998f69bb2741154bd253f20a2a17d39feb",
     "core/lineup.lua": "c7c96c0c228d0e584a05dfa72508f998d8492a83af3770ca5db4cab178d11a48",
-    "core/match.lua": "02f8c805d5d6020f4c16ec3ecb9dc7bc51cb526b1713b798fc180e503ada42a0",
+    "core/match.lua": "c4d2a6b7469af2757cf0a753e994ce03547ad7b95ac3da67dd2dbe464a1a8637",
     "core/matchopts.lua": "72234d062752f2c8885d564e7f9520de96708dfd22caffd941ac274682045825",
     "core/namegen.lua": "222565636da5f2cdd9ca51ad3f7367744d47b445acb4467888c1f00bf839b64b",
     "core/names.lua": "faec8d960119704c95bd9a72f6462bc2b62daa30e19ff9cedc657a80e452848d",
@@ -76,7 +76,7 @@
     "session/names.lua": "24ad83176ac83dc39d97c75e7fb52cead05c93302fd3d4e55d64b94caa5cab01",
     "session/neighbours.lua": "4738b5caf24092ab08bfeed17d0d6c4b4accefe3defda7fc68440df8568e6e5b",
     "session/replay.lua": "b0af0f4eefca0ac8744a5a788ab472e4ae5052a76f8c8353fee31a578d251e17",
-    "session/session.lua": "a1f4bc8b94503377fdbd177e988442a13eb1ad9f015b2fc6659be6b1f9f0bb0d",
+    "session/session.lua": "46a41ca94040ce82d95ceae688714b41dbca7992c59a547ab5b5c0176a0a94ac",
     "session/throw.lua": "0f6d78a1e125c35b09a11be9174a137064954b0729f83a84a1bb1654e4b2d5ac",
     "session/touch.lua": "1785c2057390574d94f42fde5945558e42ae20186a74d5bd8bc6d523231d4371",
     "session/wide.lua": "e1da66d8553ac7d385d716b6b9ae8ef70a257528c19ec9ac8dc62ef1f6cc3f17",
@@ -85,6 +85,6 @@
     "version.lua": "95db037f285a77ff2ad83b27709b06d9c57bd759bdb8a2c3cad67e798e42a852"
   },
   "bundle": {
-    "sha256": "f61b040aeb6d8b95d633884aed4adae9176e36893defdf226fe87a0201bca760"
+    "sha256": "637af8b856dcbad652d9b3c0ab2e081863d36f0c775c3c9daec04b88f7cd6903"
   }
 }

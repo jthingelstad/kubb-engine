@@ -153,6 +153,25 @@ function session.short(s)
 	return (up:gsub("[%s:,]+$", ""))
 end
 
+-- A Kid match's king knocked down early and stood back up (0.17.0; the ruling's
+-- `kingUp`): it is no kubb down. The recording's result counted it in `down` and so
+-- flagged a baton that felled only the king "1 DOWN" while the ruling was a miss. Here
+-- `down` counts the kubbs only, and a baton's `flag` is theirs ("1 DOWN"), or "KING BACK
+-- UP" when it felled none, as session.short says. A kubb's throw keeps no flag (its rest
+-- text is its line). Output only: a recording is in no snapshot or hash.
+function session.kingUpResult(r, ruling)
+	if type(r) ~= "table" or type(ruling) ~= "table" then return end
+	local up = false
+	for _, p in ipairs(ruling.parts or {}) do if p.code == "kingUp" then up = true end end
+	if not up then return end
+	local kubbs = 0
+	for _, id in ipairs(r.toppled or {}) do if type(id) == "string" and id:match("^[ab]%d+$") then kubbs = kubbs + 1 end end
+	r.down = kubbs
+	if r.flag ~= nil and r.flag ~= "HELICOPTER" then
+		r.flag = kubbs > 0 and (kubbs .. " DOWN") or "KING BACK UP"
+	end
+end
+
 -- A throw's ruling for its recording (docs/SESSION.md "Rulings"): the words (m.text), the
 -- flag's (short), and since 0.7.2 the same as codes (core/match m.ruling): `code` and `n`
 -- the first part's, `parts` every part's, `winner` once the match is won. The words are
@@ -680,7 +699,8 @@ local function plainSetup(setup)
 	if not setup then return nil end
 	return {
 		kind = setup.kind, side = setup.side, projectile = setup.projectile, kubb = setup.kubb,
-		n = setup.n, of = setup.of, label = setup.label, kingShot = setup.kingShot or false,
+		-- a kubb's place in its round (0.17.0): with `rethrow`, among the kubbs rethrown
+		n = setup.roundN or setup.n, of = setup.roundOf or setup.of, label = setup.label, kingShot = setup.kingShot or false,
 		rethrow = setup.rethrow or false, lineY = setup.lineY, forwardY = setup.forwardY, advY = setup.advY,
 		-- a Kid match (0.15.0): kid is true and kidY is the Kid line (view frame), which
 		-- every kubb and baton at a kubb is thrown from (forwardY is where the thrower
@@ -831,7 +851,8 @@ function Session:aimView()
 		end
 	elseif self.setup then
 		local st = self.setup
-		rail.kind, rail.n, rail.of = st.projectile, st.n, st.of
+		rail.kind, rail.n, rail.of = st.projectile, st.roundN or st.n, st.roundOf or st.of
+		rail.rethrow = st.rethrow or nil
 		if ts.drill then
 			local d = floor((ts.markerY - ts.lineY) * 10 + 0.5)
 			rail.r1 = fmt("%d.%d M", d // 10, d % 10)
@@ -1146,6 +1167,7 @@ function Session:applyThrow(a)
 		local m = self.m
 		cmatch.resolve(m, ts.result, not rec.result.legal)
 		rec.result.ruling = session.ruling(m)
+		session.kingUpResult(rec.result, m.ruling)
 		ts.flagText = session.short(m.text)
 		ts.mode = "aim"
 		ts.watching = false
