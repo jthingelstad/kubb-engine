@@ -494,3 +494,26 @@ census of 2026-11-21.
   computer's until its drive is switched on.
 - **Settle by:** done.
 - **Touches:** field.drive, field.power
+
+## Q19: Should a typical player on the meter throw like a club player, or like the people who have played so far?
+
+- **Status:** open: for the owner
+- **Asks:** The person's meter (0.13) was tuned so that the recorded hand of the time (fit 1,
+  418 throws on engine 0.7.1, before the meter) fells a lone kubb as the club rows of
+  `docs/reference/play-levels.json` say. Refitted from people on the meter itself (fit 2,
+  2026-11-22), the recorded hand fells an 8 m base kubb 43% of the time against the club
+  row's 19 to 27% (real games, all teams: 32.7%), lands a thrown kubb dead 78% of the time
+  (the club computer 56%), and beats the club computer in 86 games of 100. Should the bars
+  narrow until a typical player throws like a club player, or stay where the people who
+  have played so far find them?
+- **So far:** Fit 2 rests on 212 throws (133 batons, 79 thrown kubbs) from 6 matches and 4
+  players, one match 35% of them, all on engine 0.13.1 and its wider kubb bars
+  (docs/notes/gym.md "Fitting the human thrower"). The owner said on 2026-11-22 that people
+  now drill too well (owner-2026-11-22#s4); 0.16.0 narrowed a thrown kubb's bars to a
+  baton's for that. Nothing has been narrowed on fit 2.
+- **Recommendation:** Wait for the evidence before narrowing: about 200 throws a cell from
+  10 or more matches and 5 or more players.
+- **Settle by:** the owner's word on who the meter is for, then the recorded matches above,
+  then the Gym against the chosen rows.
+- **Touches:** none
+
