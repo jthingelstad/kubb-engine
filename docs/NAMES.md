@@ -2,7 +2,8 @@
 
 Plan of 2026-11-21, with its first part built: `core/namewords.lua` (the words),
 `core/namegen.lua` (names from them), `tools/names.lua` and `tests/names/` (every name,
-reviewed), `tests/lua/test_namegen.lua`. Nothing calls it yet: the session door, the
+reviewed), `tests/lua/test_namegen.lua`; and the session door, `kubbCall("names.<name>")`
+(`session/names.lua`, docs/SESSION.md "Names"). Nothing in a client calls it yet: the
 pitch's check and the clients come next (section 8).
 
 ## 1. Why
@@ -86,6 +87,12 @@ own draw.
 | `namegen.make(kind, parts)`       | The text for parts, or nil and why (`kind`, `shape`, `word`, `long`).                                              |
 | `namegen.all(kind)`               | Every name, sorted: for tools and tests, not for a Playdate at play.                                               |
 
+The web and the iPhone reach these through the session's door (docs/SESSION.md "Names"):
+`names.roll` (a seed in place of `rand`: the engine draws from `plan.rng(seed)`),
+`names.step`, `names.choices` (every word a slot can take), `names.make`, `names.valid`
+(which also marks the engine's own default names), `names.words` (the lists, shapes and
+rules, hashed, for a check outside Lua) and `names.all`. Slots there are 0-based and parts
+are `{ shape, words: [...] }`.
 **A name is its text, never an index.** Records, pitches and game files hold "Mighty
 Maple". Adding a word changes no name anyone has. Toontown sent the server four list
 indices instead, so it could only accept a name its lists made. `parse` gives the same
@@ -189,8 +196,22 @@ name to someone else checks it, and shows a default when it fails:
 
 The pitch server is JavaScript and knows no Kubb, so it needs the words in its own
 language. `parse` is short; the web ports it beside a JSON copy of the lists that the
-engine writes (a `names.words` call, section 8), checked against `tests/names/` so the
-two can never disagree.
+engine writes (`names.words`, docs/SESSION.md "Names"), checked against `tests/names/` so
+the two can never disagree. `tests/node/names.test.mjs` holds such a port, written from
+`names.words` alone, and proves it gives `names.valid`'s answer on every name and on
+thousands of near misses; `names.words`' `hash` tells the server and a client whether they
+hold the same words.
+
+Two kinds of text pass a boundary besides generated names:
+
+- **The engine's own defaults.** "Computer" (a computer side and its player), "Team A"
+  and "Team B" (a side of several), "Player 1" to "Player 6" (a member with no name, or
+  one the check dropped). The engine writes them, nobody types them, and a reel of any
+  match against the computer carries "Computer". `names.valid` marks them `default`, and
+  `names.words` lists them.
+- **A player's name as a team's.** A side of one player is named after that player (the
+  pitch's `matchOptions`, `renameStart`), so a team name on such a side is checked as a
+  player name.
 
 **Display never checks; boundaries do.** A client shows any name the pitch sends. Then
 clients on two patches of the engine can sit in one lobby even if one has more words.
@@ -228,12 +249,37 @@ What this buys outside the game:
 
 In order, each its own pull request:
 
-1. **The session door.** `kubbCall("names.roll" | "names.step" | "names.valid" |
-   "names.words")` for the web and the iPhone. The client passes a seed, the session
-   draws from it. Hash neutral: a patch release.
+1. **The session door.** Done (0.13.2): `kubbCall("names.roll" | "names.step" |
+   "names.choices" | "names.make" | "names.valid" | "names.words" | "names.all")`
+   (docs/SESSION.md "Names"). The client passes a seed, the session draws from it with
+   `plan.rng`. Hash neutral: a patch release. What a client does next is in
+   docs/SESSION.md "Names" (first run, the name row, layout, boundaries) and
+   docs/CLIENTS.md.
 2. **The pitch's check.** The web ports `parse`, takes the words from `names.words`, and
    checks names on join, `me` and START (section 6). The reel's and the share's checks
-   call the engine they already run.
+   call the engine they already run. In the engine's pitch reducers (not changed by
+   step 1, so a pitch still takes typed names until this is staged):
+   - `lineup` is the one reducer where a member's `me.name` becomes a match name. It
+     would keep `cleanName`, then put `Player n` in place of a name that is neither
+     generated (player kind) nor a default. A typed-name player then plays, and is
+     shown to everyone, themselves included, as `Player n`; the match still starts.
+   - `matchOptions` names a side of one after its player and a side of several
+     `Team A`/`Team B`, so it needs no check of its own once `lineup` has one.
+   - `startCheck` could report the players whose `me.name` is not generated (a list
+     beside `unknown`) without refusing, so a host can say why a name became
+     `Player n`. Refusing START for them would lock older clients out of every pitch.
+   - `startMatch` copies names from the players the host passes into `match.players`;
+     the snapshot already holds them, so it must not rewrite them (the header and the
+     snapshot would disagree).
+   - `cleanName`, `joinTeam`, `lobbyOf` and `replayOf` stay as they are: `joinTeam`
+     moves ids, not names; `cleanName` is the frozen vectors' and the web's display
+     tidy; and nothing rewrites a name already in a kept document or replay (display
+     never checks).
+   - Any of these is a numbered difference in docs/PITCH.md: nearly every lineup and
+     START vector uses typed names ("Ann", "Hanna", emoji), so the vector test needs a
+     rule that maps a non-generated name to `Player n` on those steps.
+   The reducers run on clients, so they keep honest clients consistent; the pitch
+   server's own check (JavaScript, from `names.words`) and the reel's are what hold.
 3. **The clients.** Typed names go on the web, the iPhone and the Playdate (section 10,
    decided).
    First run rolls a name, kept on the device. A name row with Shuffle,
@@ -242,8 +288,8 @@ In order, each its own pull request:
    picker asked for a way to find it. Online, the host rolls the team's name; today a team
    of several is "Team A". Two members with one name in a lobby are told apart there
    (the second shows "II"), never by changing the name. Each client measures its widest
-   name in its own font (`namegen.all`), as Toontown measured its widest name, before it
-   ships.
+   name in its own font (`names.all`; the Playdate `namegen.all`), as Toontown measured
+   its widest name, before it ships.
 4. **The App Store answers.** When no typed name is left anywhere a name can be seen,
    "User-generated content" can change on the iPhone's next submission.
 

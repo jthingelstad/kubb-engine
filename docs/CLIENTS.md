@@ -158,9 +158,15 @@ all when no computer plays (`match.fileLevels`). No hash moves, so 0.13.0, 0.13.
   its last throw or raise (`kind`, `why.play`, such as `field.line` or `raise.par`).
   Never on an action or anything hashed, so a client may show it freely
   (docs/notes/computer-player.md).
-- **Generated names** (`core/namegen`, `core/namewords`, since 0.11.3): team and player
-  names from curated word lists, and `valid` for every boundary that shows one. No
-  session call exposes them yet (docs/NAMES.md section 8).
+- **Generated names** (`core/namegen`, `core/namewords`, since 0.11.3; the session's
+  `names.*` calls since 0.13.2): team and player names from curated word lists, the step
+  that replaces every typed name (docs/NAMES.md section 10, decided). The web and the
+  iPhone call `names.roll` (a seed of their own, locked words in `keep`), `names.step` and
+  `names.choices` for a name row with Shuffle, a picker and a lock per word,
+  `names.valid` wherever a name arrives from outside, and `names.all` once to size the row
+  for the widest name in their own font; the pitch server checks names from
+  `names.words` without Lua (docs/SESSION.md "Names"). The Playdate calls `core/namegen`
+  directly. No surface uses them yet (docs/NAMES.md section 8, steps 2 and 3).
 - **Choosing the next thrower**: the session's `thrower` action among
   `need.candidates`; the web has no control for it (its docs/MULTIPLAYER.md "Not done
   yet").
