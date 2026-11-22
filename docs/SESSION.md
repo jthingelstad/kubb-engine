@@ -883,12 +883,15 @@ it on the action that frame makes (and `Session:cpuAction(at)`, the check's own,
 a raise, punish or resign action is the client's, so it carries `at` itself. Every client
 applying the action takes the stamp from it, never from its own clock, so all of them
 write the same End and Duration, and a snapshot carries the finish. The clock is the
-start's: `opts.start` is the starting host's local wall time, so a host stamps with the
-time on that clock, converting its own local time by the difference between its time
-zone and the starting host's when they differ (a pitch's joiner in another zone; the
-start does not carry an offset, so a host that may be elsewhere keeps the offset the
-starting host shared). A stamp that is not five whole numbers is dropped, and nothing is
-ever stamped for a host that passes none: old matches and the golden corpus are as before.
+start's: `opts.start` is the starting host's local wall time, and its `utcOffset` (0.17.0,
+optional: minutes east of UTC, whole, -900 to 900, the starting host's) says which clock
+that is. Any member stamps the time on that clock: its own UTC time plus the start's
+`utcOffset`. The field is kept on the start through the snapshot, a restore, a replay
+and a pitch's match header; given, it is in the snapshot, so a new match that gives it has
+other hashes than one that does not (an old match, and every golden match, gives none and
+keeps its hashes); a value that is not whole minutes in range is dropped. A stamp that is
+not five whole numbers is dropped, a stamp before the start is no finish (never negative
+minutes), and nothing is ever stamped for a host that passes none.
 `check.same` and `checkThrow` leave `at` aside.
 
 ## The frame (per-frame call pattern)

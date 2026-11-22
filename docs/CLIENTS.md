@@ -498,20 +498,27 @@ it takes to offer computer players.
 
 ## 0.17 on top
 
-0.17.0 is a minor: the computer drives at club and pro (it plans every baton on the
-person's default line), and a person's hard throw holds a full swing's power bar. Sync
+0.17.0 is a minor: the computer drives at club and pro (it plans every baton but the king
+shot on the person's default line), its king shot is calibrated by level, and the drive's
+floor is cheap. Sync
 `v0.17.0` in place of `v0.16.0`; nothing must change. It shares matches with no 0.16: web
 and iPhone move together. Worth showing: the computer's reason `field.drive` ("Driven low
-and hard into the field kubb, the way the line throws close in.") from `tw.cpu.last`, and
-the narrower power band on a drive, which a client draws from `aim.plan.powerLo` and
-`powerHi` as before.
+and hard into the field kubb, the way the line throws close in.") from `tw.cpu.last`.
+
+- **The Playdate's floor**: `plan.solve` and `plan.arcFloor` no longer bisect for the
+  drive's floor (a plan under its floor costs about a default plan's, 0.02 ms in desktop
+  Lua where it cost up to 0.7 ms, about 25 times as much) and keep the last floor, and
+  `arcFloor` makes no table. The throw scene can drop its own cache of the floor and solve
+  as the circle moves, as it does for every other plan.
 
 - **A match's length** (docs/SESSION.md "Actions", `at`): stamp the throws the engine makes
   by passing `at` (`{ year, month, day, hour, min }` on the start's clock) in every
   `frame` call, and put it on the raise, punish and resign actions you make. Every client
   then writes the same End and Duration. Without stamps a finished match has no Duration
   (it was 0 minutes): show no time rather than "under a min" when `winner.minutes` is nil.
-  A joiner in another time zone converts to the start's clock.
+  Put the starting host's UTC offset on the start (`utcOffset`, minutes east of UTC) and
+  stamp every action as UTC plus that offset, so a joiner in another zone stamps on the
+  start's clock.
 
 ## What the engine now offers that no surface shows yet
 

@@ -3,7 +3,7 @@
   "tune": "pointer",
   "matches": [
     {
-      "name":"m01-grass-off-A","start":"482bf406","turns":7,"winner":{"hits":9,"minutes":0,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
+      "name":"m01-grass-off-A","start":"482bf406","turns":7,"winner":{"hits":9,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
       "actions": [
         {"hash":"902e3f40","type":"throw"},
         {"hash":"d7d18bca","type":"throw"},
@@ -53,7 +53,7 @@
       ]
     },
     {
-      "name":"m02-sand-off-B","start":"7198e358","turns":7,"winner":{"hits":7,"minutes":0,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
+      "name":"m02-sand-off-B","start":"7198e358","turns":7,"winner":{"hits":7,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
       "actions": [
         {"hash":"ba8d0193","type":"throw"},
         {"hash":"eef80ee0","type":"throw"},
@@ -96,7 +96,7 @@
       ]
     },
     {
-      "name":"m03-snow-off-A","start":"bb8b8d74","turns":7,"winner":{"hits":3,"minutes":0,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
+      "name":"m03-snow-off-A","start":"bb8b8d74","turns":7,"winner":{"hits":3,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
       "actions": [
         {"hash":"c32e736d","type":"throw"},
         {"hash":"32086c93","type":"throw"},
@@ -137,7 +137,7 @@
       ]
     },
     {
-      "name":"m04-grass-light-B","start":"f20eddb9","turns":7,"winner":{"hits":5,"minutes":0,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
+      "name":"m04-grass-light-B","start":"f20eddb9","turns":7,"winner":{"hits":5,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
       "actions": [
         {"hash":"9bdd4598","type":"throw"},
         {"hash":"e4e3ff54","type":"throw"},
@@ -180,7 +180,7 @@
       ]
     },
     {
-      "name":"m05-sand-light-A","start":"401d231b","turns":7,"winner":{"hits":7,"minutes":0,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
+      "name":"m05-sand-light-A","start":"401d231b","turns":7,"winner":{"hits":7,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
       "actions": [
         {"hash":"4539fb8e","type":"throw"},
         {"hash":"6ba1947f","type":"throw"},
@@ -228,7 +228,7 @@
       ]
     },
     {
-      "name":"m06-snow-light-B","start":"cc4c8c99","turns":7,"winner":{"hits":3,"minutes":0,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
+      "name":"m06-snow-light-B","start":"cc4c8c99","turns":7,"winner":{"hits":3,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
       "actions": [
         {"hash":"dfdb915a","type":"throw"},
         {"hash":"a621716b","type":"throw"},
@@ -266,7 +266,7 @@
       ]
     },
     {
-      "name":"m07-grass-strong-A","start":"054a82fa","turns":7,"winner":{"hits":4,"minutes":0,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
+      "name":"m07-grass-strong-A","start":"054a82fa","turns":7,"winner":{"hits":4,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
       "actions": [
         {"hash":"e3c2e367","type":"throw"},
         {"hash":"147588c9","type":"throw"},
@@ -309,7 +309,7 @@
       ]
     },
     {
-      "name":"m08-sand-strong-B","start":"b11dc620","turns":7,"winner":{"hits":4,"minutes":0,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
+      "name":"m08-sand-strong-B","start":"b11dc620","turns":7,"winner":{"hits":4,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
       "actions": [
         {"hash":"368418fe","type":"throw"},
         {"hash":"323c4789","type":"throw"},
@@ -353,7 +353,7 @@
       ]
     },
     {
-      "name":"m09-snow-strong-A","start":"aee30382","turns":5,"winner":{"hits":7,"minutes":0,"thrown":14,"turns":5,"winner":"A","winnerName":"Team A"},
+      "name":"m09-snow-strong-A","start":"aee30382","turns":5,"winner":{"hits":7,"thrown":14,"turns":5,"winner":"A","winnerName":"Team A"},
       "actions": [
         {"hash":"0ef8acda","type":"throw"},
         {"hash":"97bae98e","type":"throw"},
@@ -381,11 +381,11 @@
         {"hash":"b6a90de2","type":"throw"},
         {"hash":"d661365a","type":"throw"},
         {"hash":"ca0ad018","type":"throw"},
-        {"hash":"bb4f319b","type":"throw"}
+        {"hash":"22f3a80c","type":"throw"}
       ]
     },
     {
-      "name":"m10-grass-off-B","start":"023d3e59","turns":5,"winner":{"hits":10,"minutes":0,"thrown":14,"turns":5,"winner":"B","winnerName":"Team B"},
+      "name":"m10-grass-off-B","start":"023d3e59","turns":5,"winner":{"hits":10,"thrown":14,"turns":5,"winner":"B","winnerName":"Team B"},
       "actions": [
         {"hash":"9c890092","type":"throw"},
         {"hash":"57d7bbd7","type":"throw"},
@@ -419,11 +419,11 @@
         {"hash":"c828a9e6","type":"throw"},
         {"hash":"9d10677f","type":"throw"},
         {"hash":"0888b382","type":"throw"},
-        {"hash":"dbaec6e5","type":"throw"}
+        {"hash":"1c96ec0c","type":"throw"}
       ]
     },
     {
-      "name":"m11-sand-off-A","start":"619ef5cd","turns":7,"winner":{"hits":8,"minutes":0,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
+      "name":"m11-sand-off-A","start":"619ef5cd","turns":7,"winner":{"hits":8,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
       "actions": [
         {"hash":"56a5a1cc","type":"throw"},
         {"hash":"5967dc36","type":"throw"},
@@ -470,7 +470,7 @@
       ]
     },
     {
-      "name":"m12-snow-off-B","start":"ecbc1bc3","turns":7,"winner":{"hits":7,"minutes":0,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
+      "name":"m12-snow-off-B","start":"ecbc1bc3","turns":7,"winner":{"hits":7,"thrown":16,"turns":7,"winner":"A","winnerName":"Team A"},
       "actions": [
         {"hash":"3cfceaad","type":"throw"},
         {"hash":"d62a4c41","type":"throw"},
@@ -513,7 +513,7 @@
       ]
     },
     {
-      "name":"m13-grass-off-A-near","start":"6e56172d","turns":3,"winner":{"hits":7,"minutes":0,"thrown":7,"turns":3,"winner":"A","winnerName":"Team A"},
+      "name":"m13-grass-off-A-near","start":"6e56172d","turns":3,"winner":{"hits":7,"thrown":7,"turns":3,"winner":"A","winnerName":"Team A"},
       "actions": [
         {"hash":"afb5a5c8","type":"throw"},
         {"hash":"24a90df9","type":"throw"},
@@ -535,7 +535,7 @@
       ]
     },
     {
-      "name":"m14-grass-off-B-auto-pro","start":"3255ce24","turns":7,"winner":{"hits":12,"minutes":0,"thrown":20,"turns":7,"winner":"B","winnerName":"Computer"},
+      "name":"m14-grass-off-B-auto-pro","start":"3255ce24","turns":7,"winner":{"hits":12,"thrown":20,"turns":7,"winner":"B","winnerName":"Computer"},
       "actions": [
         {"hash":"cfc61520","type":"throw"},
         {"hash":"85745620","type":"throw"},
@@ -590,11 +590,11 @@
         {"hash":"ac228baf","type":"throw"},
         {"hash":"a13ed9df","type":"throw"},
         {"hash":"5f0cf40b","type":"throw"},
-        {"hash":"41b26de1","type":"throw"}
+        {"hash":"c0efe3ae","type":"throw"}
       ]
     },
     {
-      "name":"m15-sand-off-A-beginner","start":"77f06d86","turns":7,"winner":{"hits":3,"minutes":0,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
+      "name":"m15-sand-off-A-beginner","start":"77f06d86","turns":7,"winner":{"hits":3,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
       "actions": [
         {"hash":"8a029542","type":"throw"},
         {"hash":"4818f8ea","type":"throw"},
@@ -633,7 +633,7 @@
       ]
     },
     {
-      "name":"m16-neon-grid-light-A","start":"fc3085c7","turns":7,"winner":{"hits":9,"minutes":0,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
+      "name":"m16-neon-grid-light-A","start":"fc3085c7","turns":7,"winner":{"hits":9,"thrown":16,"turns":7,"winner":"B","winnerName":"Team B"},
       "actions": [
         {"hash":"522aa45a","type":"throw"},
         {"hash":"9d53882d","type":"throw"},
@@ -681,7 +681,7 @@
       ]
     },
     {
-      "name":"m17-neon-grid-off-B-near-pro","start":"f4bf231d","turns":4,"winner":{"hits":6,"minutes":0,"thrown":8,"turns":4,"winner":"B","winnerName":"Computer"},
+      "name":"m17-neon-grid-off-B-near-pro","start":"f4bf231d","turns":4,"winner":{"hits":6,"thrown":8,"turns":4,"winner":"B","winnerName":"Computer"},
       "actions": [
         {"hash":"9726c8fb","type":"throw"},
         {"hash":"0d4c8dbe","type":"throw"},
@@ -712,7 +712,7 @@
       ]
     },
     {
-      "name":"m18-grass-off-A-near-kid","start":"971e6b21","turns":3,"winner":{"hits":6,"minutes":0,"thrown":6,"turns":3,"winner":"A","winnerName":"Team A"},
+      "name":"m18-grass-off-A-near-kid","start":"971e6b21","turns":3,"winner":{"hits":6,"thrown":6,"turns":3,"winner":"A","winnerName":"Team A"},
       "actions": [
         {"hash":"4474939b","type":"throw"},
         {"hash":"b948c364","type":"throw"},
@@ -733,7 +733,7 @@
       ]
     },
     {
-      "name":"m19-sand-light-B-kid","start":"21de1b38","turns":8,"winner":{"hits":12,"minutes":0,"thrown":21,"turns":8,"winner":"A","winnerName":"Team A"},
+      "name":"m19-sand-light-B-kid","start":"21de1b38","turns":8,"winner":{"hits":12,"thrown":21,"turns":8,"winner":"A","winnerName":"Team A"},
       "actions": [
         {"hash":"34b3617f","type":"throw"},
         {"hash":"ebcbaf80","type":"throw"},

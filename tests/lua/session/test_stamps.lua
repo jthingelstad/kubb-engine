@@ -6,7 +6,9 @@ import "session/session"
 import "session/json"
 import "session/check"
 import "core/autothrow"
+import "session/api"
 tw.web.session.useTune("pointer")
+local function call(method, a) return tw.web.json.decode(kubbCall(method, tw.web.json.encode(a))) end
 local session, json, check, autothrow = tw.web.session, tw.web.json, tw.web.check, tw.autothrow
 
 local START = { year = 2026, month = 11, day = 22, hour = 9, min = 0 }
@@ -102,4 +104,29 @@ test("stamps: a raise and a punishment kubb by hand carry the host's stamp", fun
 		end
 	end
 	expect.truthy(raised, "a person raised by hand")
+end)
+
+test("stamps: the start's utcOffset is kept, round-trips, and moves a hash only when given", function()
+	local function new(start)
+		return session.new { mode = "match", seed = 5, cpu = "both", start = start, maxTurns = 6 }
+	end
+	local plain = new { year = 2026, month = 11, day = 22, hour = 9, min = 0 }
+	local snap = json.decode(plain:snapshot())
+	expect.eq(snap.opts.start.utcOffset, nil, "absent stays absent")
+	local off = new { year = 2026, month = 11, day = 22, hour = 9, min = 0, utcOffset = -360 }
+	expect.eq(off.opts.start.utcOffset, -360)
+	expect.truthy(off:hash() ~= plain:hash(), "a new match that gives it has other hashes")
+	local back = session.restore(off:snapshot())
+	expect.eq(back.opts.start.utcOffset, -360, "through the snapshot")
+	expect.eq(back:hash(), off:hash())
+	expect.eq(call("names.check", { snap = off:snapshot() }).allowed, true, "names.check allows it")
+	local bad = new { year = 2026, month = 11, day = 22, hour = 9, min = 0, utcOffset = "UTC-6" }
+	expect.eq(bad.opts.start.utcOffset, nil, "not whole minutes: dropped")
+	expect.eq(bad:hash(), plain:hash())
+end)
+
+test("stamps: a stamp before the start is no finish", function()
+	local s, log, over = playOut(nil, function() return { year = 2026, month = 11, day = 22, hour = 8, min = 0 } end)
+	expect.eq(s.overInfo.winner.minutes, nil)
+	expect.truthy(not over.file.text:find("Duration", 1, true))
 end)
