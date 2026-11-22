@@ -1161,6 +1161,127 @@
         "levels"
       ],
       "note": "His statements on the aim of the work and on how its questions are settled."
+    },
+    "web-us-rules-v4": {
+      "title": "U.S. National Kubb Championship Rules V4.0",
+      "url": "http://www.usakubb.org/",
+      "kind": "rules",
+      "by": "U.S. National Kubb Championship",
+      "standing": "The official rules of the U.S. National Kubb Championship (Eau Claire, WI), adapted from the 2003 World Championship rules; the rules the engine plays",
+      "language": "en",
+      "length": "12 pages",
+      "status": "observed",
+      "covers": [
+        "rules",
+        "raise",
+        "punish",
+        "inkast",
+        "field",
+        "baseline",
+        "king"
+      ],
+      "original": {
+        "sha256": "d15a12d3bdfc9f8a6121ae60db7e615dc3ca9b291cffe1378607185ea6365e02",
+        "bytes": 740257
+      },
+      "note": "No date in the file. The url is the site the rules name for the current version; the file's own download link was not recorded."
+    },
+    "web-us-rules-v2": {
+      "title": "U.S. National Kubb Championship Rules v2.0",
+      "url": "http://www.usakubb.org/",
+      "kind": "rules",
+      "by": "U.S. National Kubb Championship",
+      "standing": "The official U.S. championship rules of the time Kubb On's 2012 and 2013 pieces were written",
+      "year": 2011,
+      "language": "en",
+      "length": "12 pages",
+      "status": "observed",
+      "covers": [
+        "rules",
+        "raise",
+        "punish",
+        "inkast",
+        "field",
+        "baseline",
+        "king"
+      ],
+      "original": {
+        "sha256": "c6603fba5a4fdcfadb0a378626695627282595cea51eac554f8a35907292dc63",
+        "bytes": 152419
+      },
+      "note": "Copyright 2011 in the file; held as the 2012 rules. The url is the site the rules name; the file's own download link was not recorded."
+    },
+    "web-vm-rules-2003": {
+      "title": "Kubb, a game for all: World Championship Rules",
+      "url": "http://www.vmkubb.com/",
+      "kind": "rules",
+      "by": "Rone Gymnastik och Idrottsklubb (VM i Kubb)",
+      "standing": "The World Championship's own booklet, authorised as official by VM i Kubb",
+      "year": 2003,
+      "language": "en",
+      "length": "6 pages",
+      "status": "observed",
+      "covers": [
+        "rules",
+        "raise",
+        "punish",
+        "baseline",
+        "king"
+      ],
+      "original": {
+        "sha256": "ee4a16b89275b943f66077f98f9d2fd89c1a5c361194463b0e2812cf5e85e960",
+        "bytes": 430763
+      },
+      "note": "English translation of 1998, updated 2003. The url is the site the booklet names; the file's own download link was not recorded. The World Championship has newer rules for 2026, not held."
+    },
+    "web-dkb-rules-2025": {
+      "title": "Offizielles Regelwerk des Deutschen Kubb-Bund e.V., Fassung ab MV 2025",
+      "url": "not recorded: see note",
+      "kind": "rules",
+      "by": "Deutscher Kubb-Bund e.V.",
+      "standing": "The German federation's official rules, in force from its 2025 members' meeting",
+      "year": 2025,
+      "language": "de",
+      "length": "7 pages",
+      "status": "observed",
+      "covers": [
+        "rules",
+        "raise",
+        "punish",
+        "inkast",
+        "baseline",
+        "king"
+      ],
+      "original": {
+        "sha256": "35072865f0eaf7d78170801e3cb9ec9e94b6abb1046e47b79f73b5e7a4b7912d",
+        "bytes": 490080
+      },
+      "note": "Where the private file was fetched from was not recorded, and the file names no web address; a search on 2026-11-21 found no federation page for it."
+    },
+    "web-kf-rules-2026": {
+      "title": "Tornooi- en wedstrijdregels, Kovera Kubb League (2026-1)",
+      "url": "not recorded: see note",
+      "kind": "rules",
+      "by": "Kubbfederatie",
+      "standing": "The Belgian federation's tournament and league rules, a revision of its 2025 rules",
+      "year": 2026,
+      "language": "nl",
+      "length": "41 pages",
+      "status": "observed",
+      "covers": [
+        "rules",
+        "raise",
+        "punish",
+        "inkast",
+        "field",
+        "baseline",
+        "king"
+      ],
+      "original": {
+        "sha256": "7c29e58ea11b563611a0a07829923a21ab5371b3e06f93fd1a578b28e7652c94",
+        "bytes": 1039644
+      },
+      "note": "Where the private file was fetched from was not recorded, and the file names no address of its own; a search on 2026-11-21 found no federation page for it."
     }
   }
 }
