@@ -122,3 +122,46 @@ test("seat: a client's drawn pose is the throw world's, and a settle leaves seat
 	expect.truthy(compared > 200, "kubbs compared: " .. compared)
 	expect.eq(woke, 0, "seated kubbs woken by a settle")
 end)
+
+test("seat: the same kubb whichever side's view the world is built in", function()
+	local frame = tw.frame
+	for i = 1, 40 do
+		local x, y, a = -2.2 + i * 0.11, 0.3 + i * 0.19, 0.4 * i
+		local b = standAt("sand", x, y, a)
+		-- side B's view of the same kubb: the half turn about the pitch's centre
+		local bx, by = frame.point("B", x, y)
+		local c = standAt("sand", bx, by, frame.angle("B", a))
+		local qw, qx, qy, qz = frame.quat("B", b.qw, b.qx, b.qy, b.qz)
+		local dot = math.abs(qw * c.qw + qx * c.qx + qy * c.qy + qz * c.qz)
+		expect.truthy(dot > 1 - 1e-12, string.format("kubb %d: one lean in both views (%.3g)", i, 1 - dot))
+	end
+end)
+
+test("seat: a settled kubb's seat is the pose it stands at in the next throw's world", function()
+	local m = match.new { start = { year = 2026, month = 11, day = 22, hour = 9, min = 0 }, surface = "Grass",
+		teams = { A = { name = "A", players = { { name = "a" } } }, B = { name = "B", players = { { name = "b" } } } } }
+	m.game.raisePolicy = "par"
+	local r = autothrow.rng(3)
+	local checked = 0
+	for _ = 1, 120 do
+		if match.over(m) or checked >= 6 then break end
+		local s = match.setup(m)
+		if not s then break end
+		local w = world.new { surface = s.surface, pieces = match.worldPieces(s) }
+		for _, e in ipairs(s.settled and s.settled.list or {}) do
+			local b = w.byId[e.id]
+			if e.seat and b and not b.toppled then
+				local q = e.seat
+				local qw, qx, qy, qz = tw.frame.quat(s.side, q.qw, q.qx, q.qy, q.qz)
+				local dot = math.abs(qw * b.qw + qx * b.qx + qy * b.qy + qz * b.qz)
+				expect.truthy(dot > 1 - 1e-12, e.id .. ": settled seat is the world's")
+				checked = checked + 1
+			end
+		end
+		local a = autothrow.choose(s, r)
+		autothrow.launch(w, s, a)
+		world.run(w)
+		match.resolve(m, world.result(w), not a.legal)
+	end
+	expect.truthy(checked >= 3, "settled kubbs checked: " .. checked)
+end)

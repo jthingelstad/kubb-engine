@@ -347,6 +347,9 @@ end
 -- setup's `settled`): { kind = "raise", id, side (who raised), which (the end, as a
 -- raise action names it), lying, standing (poses, the engine's frame), displaced,
 -- crowded } or { kind = "punish", id, side, pose }. Nothing here is saved or hashed.
+-- Since 1.0 each also has `seat`, the quaternion the kubb will stand at in the next
+-- throw's world (its seat, engine frame; nil when plumb), so a client ends a watched raise
+-- where the kubb will stand.
 -- Since 0.17.0 each entry also has the surroundings as they stood while it was done,
 -- what a raise or a punishment kubb by hand is shown with (the session's raiseInfo and
 -- punishInfo, Game:context): `others` = { { id, kind, pose } } every other piece on the
@@ -357,6 +360,19 @@ local function surroundings(g, side, id)
 	local others = {}
 	for i, o in ipairs(ctx.others) do others[i] = { id = o.id, kind = o.kind, pose = poseCopy(o.pose) } end
 	return others, poseCopy(ctx.king)
+end
+
+-- The pose a standing kubb at engine pose p takes in the next throw's world, its seat
+-- (world.seat, 1.0), in the engine's frame: { qw, qx, qy, qz }, or nil when it stands
+-- plumb (the grid, the seat off, or no world loaded). Engine and side A's view are the
+-- same frame; another view turns it with frame.quat.
+local function seatOf(g, p)
+	local world = tw.world
+	if not (world and world.seat and p and p.standing) then return nil end
+	local a = p.angle or 0
+	local qw, qx, qy, qz, seated = world.seat(match.surfaceName(g), "kubb", p.x, p.y, math.cos(a / 2), 0, 0, math.sin(a / 2))
+	if not seated then return nil end
+	return { qw = qw, qx = qx, qy = qy, qz = qz }
 end
 
 function match.settle(m)
@@ -374,6 +390,7 @@ function match.settle(m)
 				standing = poseCopy(c.pose), displaced = c.displaced or false, crowded = c.crowded or false,
 				others = others, king = king }
 			list[#list].standing.standing = true
+			list[#list].seat = seatOf(g, list[#list].standing)
 		elseif n.kind == "punish" then
 			local id = n.kubb
 			local others, king = surroundings(g, n.side, id)
@@ -382,6 +399,7 @@ function match.settle(m)
 			local k = g.kubbs[id]
 			list[#list + 1] = { kind = "punish", id = id, side = n.side, pose = poseCopy(k and k.pose),
 				others = others, king = king }
+			list[#list].seat = seatOf(g, list[#list].pose)
 		else
 			break
 		end

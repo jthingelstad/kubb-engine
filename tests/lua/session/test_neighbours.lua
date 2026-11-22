@@ -301,13 +301,14 @@ test("deterministic: two runs agree, and slices of any size give the same events
 end)
 
 test("a crowded corner's raise, searched in slices, comes out as searched whole", function()
-	-- seed 5 has a kubb raised in a crowded corner (core/raising's search, which yields at
+	-- seed 2 has a kubb raised in a crowded corner (core/raising's search, which yields at
 	-- raising.probe): cut into slices of a few steps it must give the same (seed 4 until
-	-- 1.0: the seat's leans and pairRoll from the first step play its matches otherwise)
+	-- 1.0: the seat, pairRoll from the first step and the propped contacts play its
+	-- matches otherwise)
 	local nc, searched = tw.raising.nearestClear, 0
 	tw.raising.nearestClear = function(...) searched = searched + 1; return nc(...) end
 	local function byPitch(budget)
-		call("neighbours.open", { seed = 5, count = 4 })
+		call("neighbours.open", { seed = 2, count = 4 })
 		local ev = run(0, 500, 1 / 60, budget)
 		call("neighbours.close")
 		local out = {}

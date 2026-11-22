@@ -6,6 +6,21 @@ import "core/world"
 import "core/throwplan"
 import "core/flight"
 local world, plan, flight = tw.world, tw.plan, tw.flight
+
+-- A kubb's seat (world.seat, on from 1.0.0) leans a kubb set down plumb by up to its
+-- surface's seat. The two group positions compare two default arcs as measured on plumb
+-- kubbs (tools/driveprobe.lua, docs/notes/throw.md "The drive"); with the seat group2's
+-- margin read 0.11 a baton against the pinned 0.15, so it runs with the seat off (seatOn
+-- 0, as before 1.0); the seat itself is tests/lua/test_seat.lua's.
+local function plumb(fn)
+	return function()
+		local saved = tw.world.tune.seatOn
+		tw.world.tune.seatOn = 0
+		local ok, err = pcall(fn)
+		tw.world.tune.seatOn = saved
+		if not ok then error(err, 0) end
+	end
+end
 local POS = dofile("tests/fixtures/drive/positions.lua")
 
 local function solve(d, release, extra)
@@ -154,10 +169,10 @@ local function felled(pos, release, n)
 end
 
 for _, name in ipairs { "group1", "group2" } do
-	test("drive: the reported " .. name .. " falls more to the drive than to the old default", function()
+	test("drive: the reported " .. name .. " falls more to the drive than to the old default", plumb(function()
 		local old = felled(POS[name], function(d) return plan.sharedArcFor(d) end, 60)
 		local new = felled(POS[name], function(d) return plan.arcFor("baton", d) end, 60)
 		print(string.format("      %s: %.2f a baton against %.2f", name, new, old))
 		expect.truthy(new >= old + 0.15, string.format("%s: %.2f a baton against %.2f", name, new, old))
-	end)
+	end))
 end

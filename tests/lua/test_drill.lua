@@ -11,6 +11,21 @@ import "core/match"
 import "core/outcome"
 local drill, world, match = tw.drill, tw.world, tw.match
 
+-- A kubb's seat (world.seat, on from 1.0.0) leans a kubb set down plumb by up to its
+-- surface's seat. This test drills from the baseline at x = 0, where base kubb a3
+-- stands; a lean of a few degrees brings the base kubb into the launch and the rule
+-- calls an own-half hit, which is not what the test is about, so it runs with the seat
+-- off (seatOn 0, as before 1.0); the seat itself is tests/lua/test_seat.lua's.
+local function plumb(fn)
+	return function()
+		local saved = tw.world.tune.seatOn
+		tw.world.tune.seatOn = 0
+		local ok, err = pcall(fn)
+		tw.world.tune.seatOn = saved
+		if not ok then error(err, 0) end
+	end
+end
+
 local sqrt, abs = math.sqrt, math.abs
 
 -- One drill at the marker (mx, my) from the baseline at y = 0 on an empty
@@ -344,7 +359,7 @@ local function drillSetup(s, mx, my, power)
 	return world.result(w)
 end
 
-test("drill: drilled kubbs that end short or out are rethrown, then punished", function()
+test("drill: drilled kubbs that end short or out are rethrown, then punished", plumb(function()
 	local m = match.new {}
 	local s = match.setup(m)
 	local r = still(s.pieces)
@@ -382,7 +397,7 @@ test("drill: drilled kubbs that end short or out are rethrown, then punished", f
 	expect.truthy(b.y > 8, string.format("ends past the baseline (%.2f)", b.y))
 	match.resolve(m, res, false)
 	expect.eq(m.text, "out twice: punishment kubb")
-end)
+end))
 
 -- The dead landing (0.11, world.tune deadLanding; Jamie, 2026-11-21: "the contact
 -- with the ground is completely on target and doesn't bounce. The roll dynamics can

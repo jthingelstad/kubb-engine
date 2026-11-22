@@ -1223,8 +1223,10 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
   by name: kubbs stand too firmly. Switched on by the owner, 2026-11-22: "yes turn on the
   kubbs too stable"). `world.tune.seatOn` 1 (as shipped) leans a kubb standing plumb (set
   down or raised: its pose a turn about the vertical alone) up to its surface's `seat`
-  degrees, in a direction of its own, seeded from where it stands (`world.seedFrom` of x,
-  y and its turn), so the same each time a world is built there (`world.seat`). It rests
+  degrees, in a direction of its own, seeded from where it stands (`world.seedFrom` of x
+  and y as side A sees them, 1.0.0; as built, of x, y and its turn in whichever side's
+  view the world was built), so the same each time a world is built there, from either
+  side's view (`world.seat`). It rests
   on the edge it leans to; once anything wakes it, it is the ordinary physics' (a nudge
   rocks it back plumb, the turf gave), and a kubb that has moved keeps the pose it came to
   rest in. The king, batons and the grid's kubbs stand as before. Off (0) every piece
@@ -1241,7 +1243,17 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     plumb kubb (MuJoCo's column and lone-kubb cases, the rounded edge's normal, a baton
     planted on a level top, a report's launches, two touching sleepers) run with the seat
     off, each saying why; two neighbours tests follow the matches the seat plays (a turn
-    handed over with no kubbs to throw; the crowded raise is now seed 5's).
+    handed over with no kubbs to throw; the crowded raise is now seed 2's).
+  - **And two more before 1.0.0.** As built the seed read the world's own coordinates and
+    turn, which are the thrower's view: a kubb with no kept pose leaned one way in side A's
+    view and another in side B's, so a kubb drawn between throws (the session's frame) could
+    step at the next throw by up to twice its seat. It is now seeded from the point as side
+    A sees it and turned with the frame (`test_seat`: one lean in both views). And each
+    `setup.settled` entry carries `seat`, the orientation the raised or placed kubb will
+    stand at, so a client ends a watched raise where the throw's world will have it. Four
+    more tests that pin plumb geometry or a measurement made on plumb kubbs run with the
+    seat off, each saying why (a drill and a lob from the baseline at a base kubb's x, the
+    meter's lone-kubb targets, the two group positions).
   - **The range.** A lawn's dips under a 7 cm foot are 1 to 3 mm, a lean of 1 to 2.5
     degrees: grass `seat` 2. A foot pressed into loose sand sits deeper and less even:
     sand 3. Packed snow takes a footprint and holds it: snow 1.5. The Techno grid is a hard

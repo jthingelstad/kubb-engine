@@ -8,6 +8,21 @@ import "core/world"
 import "core/autothrow"
 local plan, flight, world, autothrow = tw.plan, tw.flight, tw.world, tw.autothrow
 
+-- A kubb's seat (world.seat, on from 1.0.0) leans a kubb set down plumb by up to its
+-- surface's seat. This test holds the person's meter to tools/meterprobe.lua's targets,
+-- measured on a plumb lone kubb (with the seat the 6 m rate read 57% against 48, the
+-- meter's tuning and not the turf), so it runs with the seat off (seatOn 0, as before
+-- 1.0); the seat itself is tests/lua/test_seat.lua's.
+local function plumb(fn)
+	return function()
+		local saved = tw.world.tune.seatOn
+		tw.world.tune.seatOn = 0
+		local ok, err = pcall(fn)
+		tw.world.tune.seatOn = saved
+		if not ok then error(err, 0) end
+	end
+end
+
 local PY = 1
 
 local function personSol(d, projectile)
@@ -220,7 +235,7 @@ test("meter: the release past its bar pulls the baton, late left and early right
 	expect.eq(plan.launch(c, sw, { level = lvc }, {}).sideDeg, 0)
 end)
 
-test("meter: the recorded hand fells a lone kubb about as the reference's club rows say", function()
+test("meter: the recorded hand fells a lone kubb about as the reference's club rows say", plumb(function()
 	local here = debug.getinfo(1, "S").source:match("^@(.*)/[^/]*$") or "."
 	local human = dofile(here .. "/../../tools/gym/human.lua")
 	-- fit 1, the hand the meter's bars were tuned with (0.13). Fit 2 (2026-11-22, the
@@ -244,4 +259,4 @@ test("meter: the recorded hand fells a lone kubb about as the reference's club r
 		local pc = 100 * fell / n
 		expect.truthy(math.abs(pc - c[2]) <= 8, string.format("%d m: %.0f%% against %d", d, pc, c[2]))
 	end
-end)
+end))
