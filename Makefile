@@ -17,6 +17,7 @@ test-lua:
 
 test-session:
 	"$(LUA)" tests/lua/run.lua tests/lua/session/test_*.lua
+	"$(LUA)" tests/lua/run.lua tests/lua/session/direct/test_*.lua
 
 # The pitch's calls (docs/PITCH.md) under desktop Lua: the web's unit tests ported, the
 # deliberate differences, and every vector in tests/pitch/vectors/ (a frozen corpus).

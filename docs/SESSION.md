@@ -515,6 +515,10 @@ so it asks the engine:
   `save.game.teams` and `opts.teams`, the number of players, `save.mode` and the mode
   the options make). An honest snapshot never has one: it is a sign of forgery.
 - `allowed`: nothing refused and nothing mismatched.
+- `place` (and a mismatch's `otherPlace`), on every refusal and mismatch: a forged
+  snapshot chooses its own keys, so `from` can carry submitted text. `place` is the same
+  path with each component the engine does not itself name replaced by `?`. Show
+  `place`, never `from` or `text`; the strict doors' errors use it too.
 
 Something that is not a snapshot (or a replay, or a document) is not an error: `allowed`
 is false and `refused` says why. Two of `snap`, `replay` and `document`, or none, is an

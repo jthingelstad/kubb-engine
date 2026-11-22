@@ -224,6 +224,32 @@ test("names.check: the reviewer's forgery (generated opts, typed save) is caught
 	forged(e, "save.game.teams.A.players[0].name", "a typed name with its id")
 end)
 
+test("a place is safe to show: a forged key never reaches the report's place or the strict error", function()
+	local d = base()
+	d["Anything Typed"] = "x"
+	d.save.game["Rude Key Here"] = { deep = "y" }
+	d.save.game.teams.A.name = "Typed Team"
+	local rep = call("names.check", { snap = d })
+	expect.eq(rep.allowed, false)
+	local sawForged = false
+	for _, r in ipairs(rep.refused) do
+		expect.truthy(not r.place:find("Typed", 1, true) and not r.place:find("Rude", 1, true), r.place)
+		if r.from:find("Anything Typed", 1, true) then
+			sawForged = true
+			expect.eq(r.place, "?")
+		end
+	end
+	expect.truthy(sawForged, "the forged key is reported, under its raw path")
+	for _, m in ipairs(rep.mismatches) do
+		expect.truthy(not m.place:find("Typed", 1, true) and not m.otherPlace:find("Typed", 1, true), m.place)
+	end
+	expect.eq(tw.web.namecheck.place("save.game.teams.A.players[0].name"), "save.game.teams.A.players[0].name")
+	expect.eq(tw.web.namecheck.place("save.game.Rude Key Here.deep"), "save.game.?.?")
+	local why = refused("restore", { snap = d, names = "check" })
+	expect.truthy(why and why:find("names not allowed", 1, true), tostring(why))
+	expect.truthy(not why:find("Typed", 1, true) and not why:find("Rude", 1, true) and not why:find("Anything", 1, true), why)
+end)
+
 test("names.check: a forged name or text in each place is refused", function()
 	local cases = {
 		{ "save.game.teams.B.players[0].name", "a player's name (the thrower, the rail)",

@@ -48,19 +48,14 @@ names.RULES = 1
 
 local LISTS = { "adjectives", "woods", "teams" }
 
--- The names the engine itself gives when there is no name: the computer's side and its
--- player, a side with no name ("Team A"), a player with none ("Player n", n up to the
--- pitch's TEAM_MAX). Not generated, but made by the engine and never typed, so a
--- boundary takes them (docs/NAMES.md section 6) as well as generated names.
-local function defaultNames()
-	local out = { "Computer", "Team A", "Team B" }
-	for i = 1, lobby.TEAM_MAX do out[#out + 1] = "Player " .. i end
-	return out
-end
-local DEFAULTS = defaultNames()
+-- The names the engine itself gives when there is no name ("Computer", "Team A",
+-- "Player n"): session/namecheck holds them (it needs them and is imported here, never
+-- the other way round), and a boundary takes them as well as generated names
+-- (docs/NAMES.md section 6).
+local DEFAULTS = tw.web.namecheck.DEFAULTS
 local isDefault = {}
 for _, s in ipairs(DEFAULTS) do isDefault[s] = true end
-function names.isDefault(s) return type(s) == "string" and isDefault[s] == true end
+names.isDefault = tw.web.namecheck.isDefault
 
 local function kindOf(call, a)
 	local k = a.kind

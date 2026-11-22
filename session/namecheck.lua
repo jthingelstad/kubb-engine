@@ -164,14 +164,38 @@ local function textOf(v)
 	return NULL
 end
 
-local function refuse(rep, from, text, kind, why)
-	rep.refused[#rep.refused + 1] = { text = textOf(text), from = from, kind = kind, why = why }
+-- A place fit to show. `from` is a path through what was sent, and a forged snapshot
+-- chooses its own keys, so a path can carry submitted text ("Anything Typed"). `place` is
+-- the same path with every component the engine does not itself name (VOCAB, built below
+-- from the rules) replaced by "?": the only form an error or a client may show.
+local VOCAB = {}
+function nc.place(from)
+	return (tostring(from):gsub("[^%.%[%]]+", function(w)
+		if VOCAB[w] or w:match("^%d+$") then return w end
+		return "?"
+	end))
 end
+
+local function refuse(rep, from, text, kind, why)
+	rep.refused[#rep.refused + 1] = { text = textOf(text), from = from, place = nc.place(from), kind = kind, why = why }
+end
+
+-- The names the engine itself gives when there is no name: the computer's side and its
+-- player, a side with no name ("Team A"), a player with none ("Player n", n up to the
+-- pitch's TEAM_MAX). Not generated, but made by the engine and never typed. Held here,
+-- not in session/names (which imports this file), so the strict restore and replayLoad
+-- work for a Lua caller that never loaded session/api.
+local DEFAULTS = { "Computer", "Team A", "Team B" }
+for i = 1, tw.shared.lobby.TEAM_MAX do DEFAULTS[#DEFAULTS + 1] = "Player " .. i end
+local IS_DEFAULT = {}
+for _, s in ipairs(DEFAULTS) do IS_DEFAULT[s] = true end
+nc.DEFAULTS = DEFAULTS
+function nc.isDefault(s) return type(s) == "string" and IS_DEFAULT[s] == true end
 
 -- names.valid's answer: ok (a generated name of the kind), default (the engine's own).
 local function judge(kind, text)
 	if type(text) ~= "string" then return false, false end
-	return namegen.parse(kind, text) ~= nil, tw.web.names.isDefault(text)
+	return namegen.parse(kind, text) ~= nil, nc.isDefault(text)
 end
 nc.judge = judge
 
@@ -196,7 +220,8 @@ local function line(rep, from, text, kind, ok)
 end
 
 local function mismatch(rep, from, other, a, b)
-	rep.mismatches[#rep.mismatches + 1] = { from = from, other = other, text = textOf(a), otherText = textOf(b) }
+	rep.mismatches[#rep.mismatches + 1] = { from = from, place = nc.place(from), other = other,
+		otherPlace = nc.place(other), text = textOf(a), otherText = textOf(b) }
 end
 
 -- ---------- the walk ----------
@@ -284,6 +309,16 @@ RULES[".save.text"] = { line = "ruling" }
 KEYS[".save.game.kubbs"] = kubb
 KEYS[".save.game.sheet.turns[].inkast"] = pid
 KEYS[".save.game.sheet.turns[].inkastAt"] = pid
+
+-- The words a place may be shown with (nc.place): every field the rules above name, and
+-- the fixed ones of a replay and a pitch document.
+for _, t in ipairs { RULES, KEYS } do
+	for path in pairs(t) do
+		for w in path:gmatch("[%a_][%w_]*") do VOCAB[w] = true end
+	end
+end
+for _, w in ipairs { "opts", "save", "game", "teams", "players", "name", "id", "A", "B", "setup", "start", "snap",
+	"log", "a", "teamNames", "match", "members", "me" } do VOCAB[w] = true end
 
 local function lineOk(kind, v, ctx)
 	if kind == "mode" then return MODES[v] == true end
@@ -542,8 +577,10 @@ end
 -- The strict door's refusal: the places, never the text (an error may be shown).
 function nc.why(rep)
 	local at = {}
-	for _, r in ipairs(rep.refused) do at[#at + 1] = r.from end
-	for _, m in ipairs(rep.mismatches) do at[#at + 1] = m.from .. " (differs from " .. m.other .. ")" end
+	for _, r in ipairs(rep.refused) do at[#at + 1] = nc.place(r.from) end
+	for _, m in ipairs(rep.mismatches) do
+		at[#at + 1] = nc.place(m.from) .. " (differs from " .. nc.place(m.other) .. ")"
+	end
 	local n = #at
 	if n > 6 then
 		for i = n, 7, -1 do at[i] = nil end
