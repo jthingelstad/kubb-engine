@@ -21,7 +21,9 @@ is new and optional.
   several engines"; decided 2026-11-21, after this guide was first written to keep 0.9
   beside 0.13). Drop 0.9, 0.8 and 0.7: web `vendor:sync` with `--drop`, iPhone an empty
   `OLDER`. A match, replay or reel made on a dropped engine is not replayed on another;
-  the client says it was made on an older version of the game.
+  the client says it was made on an older version of the game. (Since 2026-11-22 the web
+  also carries the engines of the current App Store and TestFlight builds of the iPhone
+  app, so a later move reads the web's docs/ENGINES.md before it drops one.)
 - **Web and iPhone share a match only on the same major.minor.** Both must be on 0.13
   to play each other; a pitch whose players carry no common engine says who must
   update (`engineFor`'s `missing`). A player whose client has no supported engine is told to

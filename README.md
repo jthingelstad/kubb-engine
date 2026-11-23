@@ -32,7 +32,7 @@ Three clients run this engine unchanged:
 
 - the Playdate game (`playdate-kubb`),
 - the browser version at throwingwood.com (`kubb.thingelstad.xyz`),
-- the coming iPhone app.
+- the iPhone and iPad app (`throwingwood-ios`).
 
 Each vendors a tagged release (`vX.Y.Z`) byte for byte and never edits its copy: the
 Playdate takes `core/`, the web and the iPhone the whole engine, as files or as the
