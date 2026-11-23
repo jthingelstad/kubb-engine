@@ -8,7 +8,7 @@ It names the whole engine: `core/`, `pitch/` (`room/` before 0.13), `session/`, 
 
 - **Major**: a format change. The snapshot (`session.snapshotVersion`), an action's
   shape, or a document format a client stores or sends (the recording, the game file
-  the session writes, the room's document in a way an older client cannot read) changes, so an old client cannot read what a new one writes.
+  the session writes, the pitch's document in a way an older client cannot read) changes, so an old client cannot read what a new one writes.
   A format change an older client cannot read is a major; fields that only add, inside
   a match pinned to its major.minor, go with the minor. A major may also be declared:
   the owner names a release the next major with no format change (1.0.0, 2026-11-22: the
@@ -33,11 +33,11 @@ play, its replay, its embed, its highlight reel, a share's check and its score s
 Two clients share an online match only when both carry that engine (and load the same
 tune; docs/SESSION.md "Starting"). Patch versions may differ.
 
-The room enforces it: START writes `match.engine` and refuses while a player names
-another engine, and a client joining a running match checks with `room.mayPlay`
-(docs/ROOM.md "Engines in one match"). When clients carry several engines, the next
-match runs on the room's engine, the newest that the host and every player carry
-(`room.engineFor`), and a client that carries several speaks down to it so a client
+The pitch enforces it: START writes `match.engine` and refuses while a player names
+another engine, and a client joining a running match checks with `pitch.mayPlay`
+(docs/PITCH.md "Engines in one match"). When clients carry several engines, the next
+match runs on the pitch's engine, the newest that the host and every player carry
+(`pitch.engineFor`), and a client that carries several speaks down to it so a client
 that carries one agrees. Records of a match name the engine it was played on
 (`replayOf` carries `engine`), so a replay knows which engine reproduces it.
 
@@ -64,12 +64,12 @@ is the pitch's (docs/PITCH.md).
   replayed. Dropping a minor is a client's release, never the engine's. (Until
   2026-11-21 the rule was a window: a minor stayed a year after its last match. That is
   gone.)
-- **What clients call only grows.** Within the window one client code base drives every
-  engine it carries, so from one minor to the next the session's and the room's calls,
+- **What clients call only grows.** One client code base drives every
+  engine it carries, so from one minor to the next the session's and the pitch's calls,
   their arguments and their results only gain: no call, field or value a client relies
   on is renamed, removed or changes meaning. A client feature-detects anything newer
   (a call that answers `{"error": "unknown call ..."}`, a field that is absent) and does
-  without it on an older engine. The room's document grows the same way: new top-level
+  without it on an older engine. The pitch's document grows the same way: new top-level
   keys only, which `lobbyOf` keeps, because a watcher on another engine writes its own
   seat. A change that cannot keep to this is a major version.
 
@@ -88,7 +88,7 @@ Every client shows its own version with the engine's beside it, in one form:
 - A platform's build number is not part of the label. Where it is shown it stands
   apart, as "build 114".
 - The label is for a person reading the app and for a private feedback report. It is
-  never on the room's wire or in a kept match, replay or share: those name only the
+  never on the pitch's wire or in a kept match, replay or share: those name only the
   engine the match was played on, and say nothing of which client played.
 
 ## Releases and vendoring
