@@ -1,10 +1,11 @@
 # Moving a client from 0.9.0 to 1.0.0
 
-The web game, the iPhone app and the Playdate game all vendor engine 0.9.0. This page is
-what each changes to move to 0.13.0, built from the "For clients" parts of
+The web game, the iPhone app and the Playdate game all vendored engine 0.9.0 when this
+page was begun; on 2026-11-22 all three are on 1.0.0. This page is what each changes to
+move to 0.13.0, built from the "For clients" parts of
 docs/VERSIONING.md's 0.10.0, 0.11.0, 0.11.1 to 0.11.3, 0.12.0 and 0.13.0 entries, and
 checked against each client's code as it stood on 2026-11-21 (file names below are the
-client's own). The notes say why; this says what.
+client's own), and then each release on top. The notes say why; this says what.
 
 "Must" is what breaks, or plays an older engine's game, if left undone. "Worth showing"
 is new and optional.
@@ -585,7 +586,8 @@ differs): web and iPhone move together.
   `names.valid` wherever a name arrives from outside, and `names.all` once to size the row
   for the widest name in their own font; the pitch server checks names from
   `names.words` without Lua (docs/SESSION.md "Names"). The Playdate calls `core/namegen`
-  directly. No surface uses them yet (docs/NAMES.md section 8, steps 2 and 3).
+  directly. The web and the iPhone have the name row and the pitch server checks names
+  (docs/NAMES.md section 8, steps 2 and 3).
 - **Choosing the next thrower**: the session's `thrower` action among
   `need.candidates`; the web has no control for it (its docs/MULTIPLAYER.md "Not done
   yet"). Since 0.17 it is between people only.

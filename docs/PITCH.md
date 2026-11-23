@@ -60,7 +60,7 @@ let out = kubbCall("pitch.joinTeam", #"{"doc":\#(docText),"id":"\#(me)","side":"
 
 ### The old spelling
 
-`room.<name>` reaches the same call as `pitch.<name>`, with the same bytes back, and
+`room.<name>` reaches the same call as `pitch.<name>`, with the same bytes back.
 The tables are `tw.shared.*`, not `tw.pitch.*`: `tw.pitch` is the playing field's geometry (`core/pitch`), and the two must not share a table. `tw.room` is the same table as `tw.shared`. A client that carries older engines (0.7 to
 0.9 know only `room.`) can keep one bridge that says `room.` for all of them, and move to
 `pitch.` when it stops carrying them. New code says `pitch.`.
@@ -242,7 +242,7 @@ Each is `pitch.<name>`; the fields are the argument object's. "nothing" is `valu
 | `announce`     | `carries, engine`                                              | The presence fields a client carrying several engines sends while the pitch's engine is `engine`: `{ engine: "<engine>+engines", engines: [...] }`. Since 0.8.1.                                                               |
 | `speakAs`      | `members, engine`                                              | The members with `me.engine` set to `engine` for each that carries it, for a host passing them to `engine`'s own `startMatch`. Since 0.8.1.                                                                                     |
 | `compareEngines` | `a, b`                                                       | -1, 0 or 1 as major.minor `a` is older than, equal to or newer than `b`; null when either is not a version. Since 0.8.1.                                                                                                       |
-| `constants`    |                                                                | `DOC_VERSION, TEAM_MAX, SEATS, SIDES, NAME_MAX, LEVELS, OPTION_DEFAULTS, MATCH_OPTIONS, LOG_BUDGET, REPLAY_VERSION`, sync's `CLIENT` and `WITH_BYTES` (4096), and `ENGINE` (this engine's major.minor).                       |
+| `constants`    |                                                                | `DOC_VERSION, TEAM_MAX, SEATS, SIDES, NAME_MAX, LEVELS, OPTION_DEFAULTS, MATCH_OPTIONS, LOG_BUDGET, REPLAY_VERSION`, sync's `CLIENT` and `WITH_BYTES` (4096), `ENGINE` (this engine's major.minor) and `SEAT_LEVELS` (a seat's levels, since 0.17).                       |
 
 ### Who acts
 
