@@ -27,14 +27,14 @@ Found while the clients moved to 1.0.0 (2026-11-22), none fixed in it. Each need
   or a floor found without one, would let it go (playdate-kubb docs/notes/performance.md
   "Engine 1.0").
 - **A glance at a top corner** depends on where the step falls ("A glance at a top corner"
-  below; the fix is the local branch `at-touch`, waiting on docs/reference/QUESTIONS.md
+  below; the fix is the unmerged branch `at-touch`, waiting on docs/reference/QUESTIONS.md
   Q21, a filmed count of what a real graze does).
 - **The iPhone's distance tab** rounds to whole metres where the web now reads tenths under
   5 m ("1.5 M"); the engine gives `dist` unrounded, so this is the iPhone's to match.
 
 ## Physics
 
-DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `world`,
+DESIGN.md section 5. Pure Lua in `core/`: `quat`, `body`, `collide`, `world`,
 `playback`, `bench`.
 
 - Units are meters, kilograms, seconds, radians. World axes: x across the pitch, y from
@@ -55,7 +55,7 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
   `world.result` (touched, stakesTouched, toppled, kingToppled, outNotToppled, rest poses,
   firstContact, firstHit).
 - A drilled kubb (`world.launchDrill`) is a plain body released from the swing and
-  scattered by seeded normals at launch; the air turns it in flight (`world.aeroTurn`,
+  scattered by seeded normals at launch; the air turns it in flight (`aeroTurn` in `core/world`,
   the projectile only) and on the ground it is a kubb like any other ("Drilling").
 - **The air's drag** (audit 8, 2026-11-16; before it a throw flew in a vacuum unless there
   was wind). The thrown piece (`w.projectile`, until its first contact) loses `k |r| r` of
@@ -120,7 +120,7 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
   plumb line through the centre misses the end face it stands on (a kubb past about 25
   degrees from upright, the king past about 17). `world.step` applies it when a box goes to
   sleep, never while it is still rocking; `world.result` applies it to anything still moving
-  when the throw ran out of time; `world.add` applies it to a piece placed already leaning.
+  when the throw ran out of time; `world.addPiece` applies it to a piece placed already leaning.
 - Sleep (`world.step`, phase 8): a piece sleeps once it has moved slower than the sleep
   thresholds for `sleepTime` while held up. Held up means one of these, in that step:
   - it pressed on the ground;
@@ -221,7 +221,7 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
 - Tests: `tests/lua/test_quat.lua`, `tests/lua/test_physics.lua` (rest and sleep, energy,
   tipping thresholds against the analytic values, dominoes, baton hits and misses,
   surfaces, stakes, determinism, playback). Outcomes are tested with tolerances.
-- Benchmark: `make bench` on the desktop; on the device the System Menu "Pitch" item, set to
+- Benchmark (in playdate-kubb; this repo has no `make bench`): `make bench` on the desktop; on the device the System Menu "Pitch" item, set to
   "bench" (shown only with the `debug` flag file, below), runs the identical `core/bench` scenario a chunk of steps per frame, then times
   30 draws of the throw scene, shows ms per step, steps per 20 ms frame (overall and in
   the collision phase), total time and draw ms per frame, and appends one line to
@@ -459,7 +459,7 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
   phase (`world.PHASES`) into it; nil costs one test per phase.
 - The ground's texture (Jamie, 2026-11-14: "in a real game of Kubb there is always random
   stuff because of the surface"). Every surface a game can be played on carries a
-  `texture` (`world.SURFACES`: grass, sand, snow). The ground stays a flat plane; what a
+  `texture` (`world.SURFACES`: grass, sand, snow, and from 0.14 the grid, "The grid" below). The ground stays a flat plane; what a
   flat plane leaves out is put back where it is cheap:
   - **Patches.** The ground is cut into `cell` (0.25 m) patches, each with five numbers in
     -1..1 from an integer hash of the patch and the throw's seed. They are read only when
@@ -1221,7 +1221,7 @@ DESIGN.md section 5. Pure Lua in `source/core/`: `quat`, `body`, `collide`, `wor
     nearest contact is open by more than the margin and the pair closes on it within the
     step, the pair is met again at the touch and its contacts carried back to the step's
     start; with it, a footing driven into the ground inside the step bounces as a landing
-    does), on a local branch, `at-touch`, not merged. It waits on a measurement: what a
+    does), on a branch, `at-touch`, not merged. It waits on a measurement: what a
     real baton does to a kubb's top edge (docs/reference/QUESTIONS.md Q21). If real
     grazes fall, the fix ships with a sharper rounding (2 to 3 mm); if they skim, the
     engine already over-fells them and the phase is the smaller error.

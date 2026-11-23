@@ -5,7 +5,7 @@ Subsystem notes moved out of `AGENTS.md` (2026-11-17). The hard rules are also i
 
 ## Rules engine
 
-`source/core/rules.lua` (`tw.rules`) is Rules V4.0 as a pure state machine. It knows nothing
+`core/rules.lua` (`tw.rules`) is Rules V4.0 as a pure state machine. It knows nothing
 about physics: it asks for the next action and takes resolved throws (the outcome records
 below) and the defender's choices. Helpers: `core/pitch.lua` (dimensions, halves, stakes,
 `advantageMeters`), `core/rect.lua` (oriented rectangles), `core/raising.lua` (II.D raising

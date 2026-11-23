@@ -76,8 +76,8 @@ golden hashes held. What exists of each:
   that puts the two one behind the other (and a step or two along the line when straight
   behind is no good); each scored by its lane times the chance of hitting the front kubb
   from there. `inkast.depth` (pro): the kubbs end to end in columns down the baton's path,
-  four to a column, held 4.35 m from the baseline. Club knows neither and plays as in
-  0.11.2 (Jamie, 2026-11-21: it is to be retuned as a whole against its new target).
+  four to a column, held 4.35 m from the baseline. Club knows neither and, but for
+  `field.drive` (0.18.0), plays as in 0.11.2 (Jamie, 2026-11-21: it is to be retuned as a whole against its new target).
 - **Choose raises** (0.12.0): `cpu.raising` is the level table (pro `par`, club `apart`,
   beginner `first`) and `cpu.raise(dec, ctx, level)` the decision, kept in `cpu.last`
   with `kind = "raise"` and, at pro, `why.play = "raise.par"` (facts: the level, the
@@ -87,7 +87,7 @@ golden hashes held. What exists of each:
   in for a random end, which needs Choose's own stream.
 - **The plays table** (`core/plays.lua`) holds the three plays 0.11.0 carries out:
   `inkast.corner`, `inkast.roll` and `field.roles`, and since 0.12.0 `raise.par`,
-  `field.line` and `inkast.depth`. A baton at a base kubb and the king
+  `field.line` and `inkast.depth`, and since 0.18.0 `field.drive`. A baton at a base kubb and the king
   shot carry out no play in the reference, so their `why` has facts and no play.
 - **Throw** is `autothrow.choose`: Choose, then the stance, the solve, the swing and the
   launch.
@@ -278,7 +278,7 @@ Then plays, by what `gym versus` shows matters most. Its first results (2026-11-
 The levels are far apart: pro beats club 97 games in 100 and club beats beginner 94
 (0.12.0, seeds 1 and 2). The owner's targets (owner-2026-11-21#s6): a new player wins
 about two games in three against beginner, a typical online player about four in ten
-against club, and pro is left hard, with no extra level yet. Today the human thrower (the Gym's
+against club, and pro is left hard, with no extra level yet. In 0.12.0 the human thrower (the Gym's
 person, at the same level) wins about 98 in 100 against beginner, 16 against club and
 none against pro.
 Whether a level should beat the one below it that often is a product question (Q11 and

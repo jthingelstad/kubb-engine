@@ -491,8 +491,9 @@ census of 2026-11-21.
   96.5% and 96.2 / 98.7 / 96.8%. Every row holds within its interval or rises
   (docs/notes/throw.md "The drive", "What else it reaches").
 - **Recommendation:** Done: one line by distance, lowered (`plan.tune.arcLine`), for every
-  target; `plan.arcFor` takes no target. The line before is `plan.sharedArcFor`, the
-  computer's until its drive is switched on.
+  target; `plan.arcFor` takes no target. The line before is `plan.sharedArcFor`, still
+  the beginner and Kid computer's and every level's king shot (the drive is on at club
+  and pro from 0.18.0).
 - **Settle by:** done.
 - **Touches:** field.drive, field.power
 
@@ -522,7 +523,7 @@ census of 2026-11-21.
 
 ## Q20: How long does a real 8 m throw take, and on what line?
 
-- **Status:** open: for the owner (Q19 is the meter's question, on another branch)
+- **Status:** open: for the owner (Q19 is the meter's question)
 - **Asks:** The owner, 2026-11-22: "I think the physics of our baton throw may just be too
   slow." A throw's speed is set by its line: to carry 8 m from the hand (0.6 m up) to a
   kubb's aim height, with the air's drag, a baton needs (`flight.speedForCarry`):

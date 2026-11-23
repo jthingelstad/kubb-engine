@@ -89,7 +89,7 @@ the reader moved, 2026-11-21).
   2026-11-16), with seeds 2, 3 and 4.
 
 - **Single throws against real video** (2026-11-16): `docs/reference/REALCLIPS.md` and
-  `realclips.json`, 220 events measured frame by frame from public video beside the
+  `realclips.json` (in `playdate-kubb`), 220 events measured frame by frame from public video beside the
   engine's figures, with intervals and a ranked list of where the engine sits outside.
   Pass 2 (198 events, a tournament cage camera calibrated by a homography on the painted
   lines, engine at `3703fe4`): a real drill on grass moves a median 0.22 m from its first
