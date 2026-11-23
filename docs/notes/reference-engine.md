@@ -188,6 +188,6 @@ goes to `build/mjref/report.md`, with every number in `report.json`.
   - It cannot give a small restitution that holds across speeds.
   - It does not converge on a tumbling baton's bounce height or a drill's run on: they
     change with the contact stiffness. Read those cells as a range, not a reference.
-- `tools/physfuzz.lua` (the physfuzz branch) looks for invariant breaks within our engine,
+- `tools/physfuzz.lua` (docs/notes/physics-fuzz.md) looks for invariant breaks within our engine,
   including a half-time-step check. This compares our engine against another engine. The
   two share no files. Findings 2 to 4 are the kind its dt check should flag.

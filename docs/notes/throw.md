@@ -33,8 +33,9 @@ this throw: "HOW TO THROW" below).
   B + up/down taps move the planned release `plan.tune.arcStepDeg` (15) within
   `releaseMinDeg`..`releaseMaxDeg` and set `s.arcSet`; until then the release is
   `plan.arcFor`: a drill's is half past 1; a baton's goes by the distance from the stance
-  to the circle, never by the kind of target (from 0.10.0: half past 5 at 2 m and under,
-  4 o'clock at 8 m, a line between; `throw.defaultArc`). B + left/right taps: a baton's tilt (`s.tilt`, steps of
+  to the circle, never by the kind of target (from 0.10.0 to 0.15: half past 5 at 2 m and
+  under, 4 o'clock at 8 m, a line between; from 0.16 the lower line `plan.tune.arcLine`,
+  "The drive"; `throw.defaultArc`). B + left/right taps: a baton's tilt (`s.tilt`, steps of
   `tiltStepDeg` to `tiltMaxDeg`), a kubb's spin (`s.spin`, to `spinSteps` taps). While A or
   B is held the crank does not throw. The swivel is always the plan's (`s.sol.swivel`).
 - **The plan.** `replan(s)` (`throw.replan`) runs `plan.solve` into `s.sol` (reused, no
@@ -281,16 +282,16 @@ stuttered flick); the crank sign is applied for you.
 
 Every number that is a guess lives in one table per module, with a comment:
 
-- `tw.camera.tune` (`source/core/camera.lua`): aim crane (first person), lens range,
+- `tw.camera.tune` (`core/camera.lua`): aim crane (first person), lens range,
   framing rule, how far past the circle it looks (`circleBeyond`), the plan view
   (`shoulder`: crane, fit box, lens range, swing and refit times; "The aim camera"),
   impact camera, follow margins and mid-flight zoom; `tw.camera.minimap` for the minimap.
-- `tw.swing.tune` (`source/core/swing.lua`): crank sign (`forwardSign`, the one constant
+- `tw.swing.tune` (`core/swing.lua`): crank sign (`forwardSign`, the one constant
   to flip if forward feels backwards on hardware), the dead zone (`startBackDeg`), the
   backswing cap, the flick's start and stop speeds (`swingStartDps`, `releaseStopDps`,
   `speedWindow`), the sky ball (`skyDeg`), the cooldown, the flick's power
   (`fullFlickDps`, `minFlickFrac`), the pull and the shake (`roughFull`).
-- `tw.plan.tune` (`source/core/throwplan.lua`): the power scale (`reachZeroDeg`, the
+- `tw.plan.tune` (`core/throwplan.lua`): the power scale (`reachZeroDeg`, the
   anchors: 9 o'clock 4 m, 10 o'clock 8 m), the loft scale (5 o'clock 12 degrees, 3 o'clock
   32), the default arcs by target (`arc`), `arcStepDeg`, the release's range, `tiltStepDeg`
   and `tiltMaxDeg`, `spinSteps` and `spinPerStep`, the sky ball's extra, the helicopter
@@ -299,11 +300,11 @@ Every number that is a guess lives in one table per module, with a comment:
   centre goes through a standing piece (`aimHeightShare` 0.3, 0.5 until 0.9: "Aimed through the piece");
   the drive (0.16: `driveKneeDeg`, `loftAt0`, `lineMinDeg`, `driveBackMaxDeg`,
   `driveTurnToDeg`, `arcLine`: "The drive");
-  `tw.plan.levels` (beginner, club, pro: the computer's standard, `autothrow.cpuLevel`;
+  `tw.plan.levels` (kid from 0.15.0, beginner, club, pro: the computer's standard, `autothrow.cpuLevel`;
   the targets' half widths, the error inside a target, the shake and overpower costs, the
   nerves and `tumbleSd`; `plan.LEVELS` in menu order); `tw.plan.meters` (the person's
   meter: "The person's meter").
-- `tw.flight.tune` (`source/core/flight.lua`): gravity, hand height, the hand at a short throw
+- `tw.flight.tune` (`core/flight.lua`): gravity, hand height, the hand at a short throw
   (`nearM`, `nearHandHeight`, `nearReach`, `nearFlatten`, `nearAimZ`, `nearAimRef`,
   `nearSpeed`, `nearLoftDeg`, `nearTip`, `nearLow`, `nearTurnM`, `nearTurnDeg`,
   `nearTurnOverDeg`, `nearOverLoft`: "The hand at a short throw" below), loft range (5 to 55) and step,
@@ -322,35 +323,35 @@ Every number that is a guess lives in one table per module, with a comment:
   rest hold, the drilled kubbs kept on the practice pitch (`drillKeep`), the target
   circle (`markerRadius`, `markerSegments`), the aim arc ("The aim arc") and HOW TO
   THROW's tap of B (`howtoTap`).
-- `tw.howto.tune` (`source/core/howto.lua`) and `tw.render.howto.tune`: HOW TO THROW's
+- `tw.howto.tune` (`core/howto.lua`) and `tw.render.howto.tune`: HOW TO THROW's
   pass thresholds (crank at the bottom, tries, how far the circle and the walk must move)
   and its panel ("HOW TO THROW"). `tw.render.howtoplay.tune`: HOW TO PLAY's card layout
   (title, rule, the words' column and bottom, the little pitch).
-- `tw.drill.tune` (`source/core/drill.lua`): every drilling mapping (docs/notes/drills.md
+- `tw.drill.tune` (`core/drill.lua`): every drilling mapping (playdate-kubb's docs/notes/drills.md
   "Drilling").
-- `tw.outcome.tune` (`source/core/outcome.lua`): when a body counts as standing, moved or
+- `tw.outcome.tune` (`core/outcome.lua`): when a body counts as standing, moved or
   turned, and how high a tossed kubb must rest to be on another.
-- `tw.autothrow.tune` (`source/core/autothrow.lua`): the computer thrower's level, aim, basket,
+- `tw.autothrow.tune` (`core/autothrow.lua`): the computer thrower's level, aim, basket,
   the spot beside the group (`spot*`), the baton's lane (`lane*`), a drill's steadier swing
   (`drillScale`) and the synthetic swing's mistakes. How far off a throw goes with its
   range is the shared nerves (`tw.plan.tune` "Nerves", `plan.levels` `nervesDeg`,
   `nervesLen`).
-- `tw.world.tune` (`source/core/world.lua`): step, solver passes, slop and push, contact
+- `tw.world.tune` (`core/world.lua`): step, solver passes, slop and push, contact
   margin, bounce threshold and passes, wood-on-wood friction and bounce (`pairMu`, `pairE`:
   every pair of pieces), sleep and wake
   thresholds, topple angle, out margin, maximum throw time, stake height (0.15 m: a real stake, 6 inches out of the ground).
-  `tw.world.surfaces`: one parameter set per ground (grass, sand, snow; ice is a marked
-  placeholder): friction, bounce, dig, rolling resistance, and the ground's `texture`
+  `tw.world.surfaces`: one parameter set per ground (grass, sand, snow, and from
+  0.14 the Techno scene's grid): friction, bounce, dig, rolling resistance, and the ground's `texture`
   (Physics, "The ground's texture"). `world.SURFACES` lists the playable ones in order.
-- `tw.collide.tune` (`source/core/collide.lua`): `batonRound`, how rounded a box's edges are
+- `tw.collide.tune` (`core/collide.lua`): `batonRound`, how rounded a box's edges are
   to a baton ("Physics", "Baton hits"). `world.tune.batonTurnHold`: how the ground holds a
   baton's spin.
-- `tw.bench` (`source/core/bench.lua`): the benchmark scenario (pieces, throw, seconds,
+- `tw.bench` (`core/bench.lua`): the benchmark scenario (pieces, throw, seconds,
   and `bench.debris`, the lying batons and kubbs of a full turn).
-- `tw.debris.tune` (`source/core/debris.lua`): `matchEps`, how close the engine's pose of a
+- `tw.debris.tune` (`core/debris.lua`): `matchEps`, how close the engine's pose of a
   piece (a lying tossed kubb, a standing kubb, the king) must stay to the one recorded at
   rest for that exact pose to be used.
-- `tw.match.tune` (`source/core/match.lua`): `settleDeg` and `settleGap`, how tilted (0.5
+- `tw.match.tune` (`core/match.lua`): `settleDeg` and `settleGap`, how tilted (0.5
   degrees) or how far off the ground (2 mm) a carried standing piece must be for
   `match.settleStanding` to run it to rest.
 - `tw.render.world.tune` and `tw.render.hud.tune`: shadow direction (also the light that
@@ -371,12 +372,12 @@ Every number that is a guess lives in one table per module, with a comment:
   double's second star, the anchor lift, the chips; `tw.burstpick.tune` the double's window and the fall judged at the impact (`fallV`, `fallW`, `judgeFor`, `grazeFor`);
   `tw.sound.tune` (`source/sound.lua`) the knocks' volume and rate spread and the king's
   chord ("Knocks"); `throw.tune.knockLate`.
-- `tw.playback.paceTune`, `tw.playback.calm`, `tw.playback.slow` (`source/core/playback.lua`):
+- `tw.playback.paceTune`, `tw.playback.calm`, `tw.playback.slow` (`core/playback.lua`):
   the pace of the picture, the calm tail and the slow motion ("Playback", "Slow motion").
 - `tw.scenes.title.tune`, `tw.render.cards.tune`, `tw.render.ui.tune`: where the title's
   menu, the cards' lines, pips and pitch map, and the ringed buttons sit (screen pixels
   from the design boards), and the system paths tried for the label font.
-- `tw.raising.tune` (`source/core/raising.lua`): the search that slides an obstructed
+- `tw.raising.tune` (`core/raising.lua`): the search that slides an obstructed
   footprint clear, and the punishment candidate grid. Stake radius and other piece sizes are
   in `tw.pitch`.
 
@@ -388,7 +389,7 @@ about 29, and the three match-case throws averaged 4.6 to 7.2 ms a step; real ti
 steps per 20 ms), the draw (about 18 ms in flight, 11 after the hit) and the rest of the
 update (device run of 2026-11-13). The device cannot compute a
 throw in real time, so the picture always plays slower than real time; the goal is that it
-does so steadily. `source/scenes/throw.lua` and `source/core/playback.lua`:
+does so steadily. `source/scenes/throw.lua` and `core/playback.lua`:
 
 - In flight the display is unlocked (`flightRate` 0) and every frame takes `framePeriod`
   (0.040 s): the physics gets what is left after the update's own work, the draw and the
@@ -657,7 +658,8 @@ harder.
 - **The bars carry the difficulty by distance.** The half widths are `powerHalf8` (2
   degrees) and `releaseHalf8` (7.5) at 8 m, times `1 + widen x (8 - d)` (`widen` 0.45,
   never under `narrowMin` 0.5), the distance from the stance to the circle held to `nearM`
-  .. `farM` (3 to 10 m); a kubb's 1.35 times that (`kubbPower`, `kubbRelease`). So 6.5 /
+  .. `farM` (3 to 10 m); a kubb's 1.35 times that until 0.16 and a baton's since
+  (`kubbPower`, `kubbRelease` 1; the Kid meter keeps 1.35). So 6.5 /
   24.4 at 3 m and under, 5.6 / 21 at 4 m, 3.8 / 14.2 at 6 m, 2 / 7.5 at 8 m. The power bar
   is never drawn thinner than 2 degrees either side at 8 m, so it stays usable on a phone
   and a crank. The session's bands are the solution's `powerLo..powerHi` and
@@ -934,8 +936,8 @@ a small child's hand (x3) 79% / 83% / 78% at 1.5 / 2 / 3 m against 85% / 88% / 8
 Kid line the drive is the kinder throw. A perfect swing fells it every time on both.
 
 **What did not change.** Base kubbs from 8 m, the king, every plan from the knee up and
-the computer's throws (`cpu.tune.drive` is off: `docs/reference/plays/field.md`
-`field.drive`) launch bit for bit as before; `tools/physdump.lua` is unchanged. The Playdate's
+the computer's throws (`cpu.tune.drive` was off in 0.16, on at club and pro from 0.18.0:
+`docs/reference/plays/field.md` `field.drive`) launch bit for bit as before; `tools/physdump.lua` is unchanged. The Playdate's
 crank feeds the same arm degrees (`core/swing`, the device traces in `test_swing`
 unchanged); a plan under the knee costs it one bisection when the plan changes, never per
 frame.

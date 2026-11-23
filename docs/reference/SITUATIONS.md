@@ -39,7 +39,7 @@ or counted from a score sheet.
 | batons left | Batons this team has not thrown this turn | `s.of - s.n + 1` on a baton |
 | advantage line | The thrower stands forward of the baseline, at the field kubb nearest the centre line that the other team left standing | `s.forwardY` |
 | surface | The ground: it changes how a kubb stops | `s.surface` |
-| level | kid, beginner, club or pro. Kid is proposed; the engine has the other three | `s.thrower.level`, `plan.LEVELS` |
+| level | kid, beginner, club or pro. Kid since 0.15.0 | `s.thrower.level`, `plan.LEVELS` |
 
 Not in the engine yet, and needed by plays already written:
 
