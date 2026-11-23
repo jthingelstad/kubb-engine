@@ -1,4 +1,4 @@
--- Replay recorded crank traces through source/core/swing.lua.
+-- Replay recorded crank traces through core/swing.lua.
 --
 --   lua5.4 tools/replay_traces.lua [--current-sign] <traces.jsonl> [...]
 --

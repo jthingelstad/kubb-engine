@@ -1,4 +1,4 @@
--- Desktop test runner for source/core, on plain Lua 5.4.
+-- Desktop test runner for the engine, on plain Lua 5.4.
 --   lua5.4 tests/lua/run.lua [test_file.lua ...]
 -- With no arguments it runs every tests/lua/test_*.lua. Exits non-zero if any
 -- test fails. No dependencies.
@@ -7,9 +7,10 @@ local here = arg[0]:match("^(.*)/[^/]*$") or "."
 local root = here .. "/../.."
 local sourceDir = root
 
--- The import shim. Playdate's `import "core/vec"` runs source/core/vec.lua
--- once and returns its value the first time, nil after (Inside Playdate 4.2).
--- This does the same from the source/ folder, so core files run unchanged.
+-- The import shim. Playdate's `import "core/vec"` runs core/vec.lua (in the
+-- game, source/core/vec.lua) once and returns its value the first time, nil
+-- after (Inside Playdate 4.2). This does the same from the repository's root,
+-- so core files run unchanged.
 local imported = {}
 function import(name)
 	name = name:gsub("%.lua$", "")

@@ -152,7 +152,6 @@ export async function scorecard(o) {
   const t0 = Date.now();
   // the longest configurations first, so the pool ends together
   tasks.sort((a, b) => (a.c.level === 'beginner' ? 0 : 1) - (b.c.level === 'beginner' ? 0 : 1));
-  const cfgT = new Map();
   await runPool(tasks, o.jobs, (d, n) => { if (process.stderr.isTTY) process.stderr.write(`\rgym: ${d}/${n} batches`); });
   if (process.stderr.isTTY) process.stderr.write('\n');
   const wall = (Date.now() - t0) / 1000;

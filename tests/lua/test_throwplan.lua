@@ -377,7 +377,6 @@ test("plan: nerves are off unless asked for; on, the same swing draws the same m
 end)
 
 test("plan: the release sets the tumble, a turn over the flight inside the wrist's range", function()
-	local tn = plan.tune
 	-- a full throw at 8 m: one turn over the clean flight
 	local sol = solve("baton", 0, 0, 0, 8, 90, "club")
 	expect.near(sol.tumble * sol.flightT / (2 * math.pi), plan.levels.club.tumbleTurns, 1e-9)

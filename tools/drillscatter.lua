@@ -244,7 +244,7 @@ local histR, histN = { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }
 local VB = { 0.25, 0.5, 1.0, 2.0 }
 local VL = { "under 0.25 m/s", "0.25-0.5", "0.5-1", "1-2", "over 2" }
 local histV, touchByV = { 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0 }
-local short, beside, past, onTop = 0, 0, 0, 0
+local short, beside, past = 0, 0, 0
 local landOn = 0
 local function bucket(B, v) local k = 1; while k <= #B and v >= B[k] do k = k + 1 end; return k end
 local t0 = os.clock()

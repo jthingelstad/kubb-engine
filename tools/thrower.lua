@@ -1,7 +1,7 @@
 -- A random thrower for headless games: it invents plausible throw outcomes
 -- WITHOUT physics (hit or miss by distance, multi-kubb hits when kubbs are
 -- close, inkast landing spots with scatter) and plays whole games through
--- source/core/rules.lua. Seeded and reproducible.
+-- core/rules.lua. Seeded and reproducible.
 --
 -- Loaded with dofile/loadfile after an `import` shim is defined (the test
 -- runner's, or tools/games.lua's). Returns the module table.
