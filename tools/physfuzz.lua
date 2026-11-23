@@ -968,7 +968,6 @@ local function addCluster(f, T, info)
 end
 
 for i = 1, n do
-	local T0 = nil
 	local res = iterate(i)
 	local T = res.T
 	if kindOnly and ((kindOnly == "kubb") ~= (T.projectile == "kubb")) then

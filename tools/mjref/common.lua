@@ -1,4 +1,4 @@
--- Loads the game's core (source/core) for the tools/mjref Lua scripts, with
+-- Loads the engine's core (core/) for the tools/mjref Lua scripts, with
 -- the same import shim as tools/batonprobe.lua, and returns the helpers they
 -- share: json, cases and the mode's surface.
 local here = arg[0]:match("^(.*)/[^/]*$") or "."

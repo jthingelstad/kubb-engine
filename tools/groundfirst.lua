@@ -91,7 +91,6 @@ local function throwAt(d, yaw, L, seed, alone)
 		end
 		if not at and ((a == b and other == k) or (a == k and other == b)) then at = pre end
 	end
-	local onGround = false
 	for _ = 1, 8 * 240 do
 		local was = at
 		-- (the speed the step began with: onContact comes after the step's impulses)

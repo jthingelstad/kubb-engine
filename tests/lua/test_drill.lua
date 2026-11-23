@@ -228,7 +228,6 @@ local function planDrill(mx, my, loft, taps, surface, seed, pieces, scatter)
 end
 
 local SPIN_MARKERS = { { -1, 4.8 }, { 0, 6 }, { 1, 7.2 } }
-local SPIN_SEEDS = { 3, 7, 11 }
 
 test("drill: spin holds the drill's attitude to the touch; with little spin the air turns it", function()
 	-- A spun drill is a gyroscope: with three taps it lands about as it left

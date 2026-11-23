@@ -111,7 +111,7 @@ test("the nerves: a clean swing goes off its line, the same way every time, and 
 	local words = { [-1] = "PULLED LEFT", [0] = "STRAIGHT", [1] = "PULLED RIGHT" }
 	expect.eq(v.side, words[v.sideV])
 	-- seeded by the swing and the plan: the same swing draws the same nerves
-	local rec2, a2 = one()
+	local _, a2 = one()
 	expect.eq(a2.launch.swivel, a.launch.swivel)
 	expect.eq(a2.launch.speed, a.launch.speed)
 	-- and they moved the launch off the plan's own
