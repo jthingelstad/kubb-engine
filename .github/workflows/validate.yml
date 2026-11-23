@@ -51,6 +51,10 @@ jobs:
         run: make golden-check NODE=node
       - name: engine.json
         run: make manifest-check NODE=node
+      - name: Play reference
+        run: make refcheck NODE=node
+      - name: Generated names
+        run: make names-check LUA=lua5.4
       - name: Headless games
         run: make games LUA=lua5.4 NODE=node
 

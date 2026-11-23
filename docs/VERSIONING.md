@@ -46,11 +46,17 @@ that carries one agrees. Records of a match name the engine it was played on
 A client carries an engine only while we have decided it is supported, never because it
 was once released (the owner, 2026-11-21: "We should only support engines that we decide
 are worth supporting not just ones that have published so that we can push players to
-the new engines"). **The supported set today is the newest minor alone.** The machinery
+the new engines"). **The supported set today is the engines of the builds people have.**
+The web carries its own engine, the newest, and those of the current App Store,
+TestFlight Beta and TestFlight Dev builds of the iPhone app, four at most (the owner,
+2026-11-22: "Web will support the CURRENT App Store release and the CURRENT Test Flight
+Dev and Beta releases. At most the web will support those three versions and whatever
+version it is running natively."; the web's docs/ENGINES.md keeps the table of those
+builds). An iPhone build carries the newest alone, and the Playdate shares no match.
+From 2026-11-21 until then the set was the newest minor alone. The machinery
 below lets a client carry more than one, each at that minor's last tag, byte for byte,
-and load only the one a page needs; it is there for a day we decide an older minor is
-worth keeping, and it is not a promise to keep any. How a pitch picks between engines
-is the pitch's (docs/PITCH.md).
+and load only the one a page needs; it is not a promise to keep any engine past that
+rule. How a pitch picks between engines is the pitch's (docs/PITCH.md).
 
 - **The principle.** A match runs, replays, renders and is checked on its own
   `match.engine`. A client that carries it uses it; one that does not says so, as
@@ -58,7 +64,8 @@ is the pitch's (docs/PITCH.md).
   replayed on another: the client says it was made on an older version.
 - **The supported set is a decision.** An engine is in it because we said so, and leaves
   when we say so: not when the last kept match on it has aged out, and not while some
-  older build is still in someone's hands. A player on a client with no supported engine
+  superseded build is still in someone's hands (the current App Store and TestFlight
+  builds are the ones the rule above keeps an engine for). A player on a client with no supported engine
   in common is told to update (`engineFor`'s `missing`), and a kept match or replay from
   an engine no longer carried says it was made on an older version and cannot be
   replayed. Dropping a minor is a client's release, never the engine's. (Until
