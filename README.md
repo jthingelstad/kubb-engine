@@ -22,7 +22,8 @@ session and the pitch from the web game (`kubb.thingelstad.xyz`, `lua/web/` and
 - `core/`: rules, physics, notation.
 - `pitch/`: a shared pitch's document, its reducers, who acts, the pitch's engine.
 - `session/`: the session and its API (`session/api.lua`), the pitch's calls too.
-- `tune/`: a host's values for the core's tune tables (`tune/pointer.lua`, the web's).
+- `tune/`: a host's values for the core's tune tables (`tune/pointer.lua`, the web's;
+  `tune/touch.lua`, the pointer's with the touch pendulum's constants).
 - `version.lua`: the engine's version.
 
 ## Clients
@@ -56,14 +57,20 @@ Needs Lua 5.4 and Node; run `npm ci` once (wasmoon, for the wasm tests).
 - `make test`: the core's Lua tests (`tests/lua/`), the session's
   (`tests/lua/session/`) and the pitch's (`tests/lua/pitch/`, with the frozen vectors in
   `tests/pitch/vectors/`), the notation gate over `tests/fixtures/games/` and its refusal
-  cases (`tests/fixtures/bad/`), the session under wasmoon, the golden hashes and the
-  `engine.json` check.
+  cases (`tests/fixtures/bad/`), the session under wasmoon, the golden hashes, the
+  `engine.json` check, the play reference's check (`make refcheck`) and the names check.
 - `make golden`: rewrite the golden hashes (only with a minor version bump);
   `make golden-native`: how far desktop Lua agrees with them.
 - `make bundle`: the engine as one JSON file in `build/`.
-- `make games`: 500 seeded rules-only games and 5 physics matches, every one gated.
+- `make manifest`: rewrite `engine.json`'s hashes after an intended change.
+- `make games`: 500 seeded rules-only games and 15 physics matches (5 standard, 5 Kid, 5
+  with computer players in teams at mixed levels), every one gated.
 - `make physfuzz`: the physics fuzzer (a measuring tool).
 - `make realgames`: optional; needs a pk-kubb-score checkout (`PK_KUBB_SCORE`).
+- `make batonvalue`: optional, the same checkout; the batons a position costs
+  (docs/notes/real-games.md "Baton value").
+- `make sync-notation`: refresh `tests/vendor/pk-kubb-score/` from that checkout's latest
+  tag, or `PKTAG=`.
 - `make names`: rewrite `tests/names/`, every generated name, after a change to the
   words (docs/NAMES.md); `make test` fails while they are stale.
 - `make gym`: the Kubb Gym's scorecard (docs/notes/gym.md), a measuring tool.

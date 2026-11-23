@@ -73,7 +73,7 @@ kubbs knocked down means more come back as field kubbs, so games run longer).
 After the tight groups ("Tuned toward the real games", 2026-11-16) 150 physics matches
 (seed 2): 14.6 turns a game, batons hit a base kubb 39% and a field kubb 79%, 149 won on
 the king and 1 resigned.
-`tools/physmatch.lua [--n --seed --out --maxturns --surface --scatter -v]` plays whole matches through
+`tools/physmatch.lua [--n --seed --out --maxturns --surface --scatter --raise --level --rules --mixed -v]` plays whole matches through
 `core/match` with every throw run by `core/world` to rest (the match scene's path without
 the screen; about 0.7 s a match on a Mac) and writes the game files. Team sizes go round
 one to six (game i: Team A `(i - 1) % 6 + 1` players, Team B `(i + 1) % 6 + 1`), and every

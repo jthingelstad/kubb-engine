@@ -3,8 +3,9 @@
 Plan of 2026-11-21, with its first part built: `core/namewords.lua` (the words),
 `core/namegen.lua` (names from them), `tools/names.lua` and `tests/names/` (every name,
 reviewed), `tests/lua/test_namegen.lua`; and the session door, `kubbCall("names.<name>")`
-(`session/names.lua`, docs/SESSION.md "Names"). Nothing in a client calls it yet: the
-pitch's check and the clients come next (section 8).
+(`session/names.lua`, docs/SESSION.md "Names"). The web and the iPhone call it, the
+Playdate uses `core/namegen`, and the pitch server checks names; the engine's pitch
+reducers still take typed names (section 8).
 
 ## 1. Why
 
@@ -279,7 +280,9 @@ In order, each its own pull request:
    docs/SESSION.md "Names" (first run, the name row, layout, boundaries) and
    docs/CLIENTS.md.
 2. **The pitch's check.** The web ports `parse`, takes the words from `names.words`, and
-   checks names on join, `me` and START (section 6). The reel's and the share's checks
+   checks names on join, `me` and START (section 6). The web's part is done: the pitch
+   server checks with `backend/pitch-server/names.mjs` (its PROTOCOL.md section 6a), and
+   the reels with `names.check`. The reel's and the share's checks
    call the engine they already run. In the engine's pitch reducers (not changed by
    step 1, so a pitch still takes typed names until this is staged):
    - `lineup` is the one reducer where a member's `me.name` becomes a match name. It
@@ -303,8 +306,10 @@ In order, each its own pull request:
      rule that maps a non-generated name to `Player n` on those steps.
    The reducers run on clients, so they keep honest clients consistent; the pitch
    server's own check (JavaScript, from `names.words`) and the reel's are what hold.
-3. **The clients.** Typed names go on the web, the iPhone and the Playdate (section 10,
-   decided).
+3. **The clients.** Typed names go on the web and the iPhone; the Playdate offers both
+   (section 10, decided). The three clients have the name row (the web's
+   `src/ui/name-row.js`, the iPhone's `KubbRenderer/NameRow.swift`, the Playdate's Names
+   screen).
    First run rolls a name, kept on the device. A name row with Shuffle,
    each word a picker (the crank on the Playdate), a lock per word: Toontown's name shop
    was scroll lists and Shuffle, and players who wanted "their" word in a pure-random

@@ -30,10 +30,13 @@ frame is the throwing side's (the defending side's for raising and punishment).
 | `session/check.lua`   | `tw.web.check`: a shared match's throws checked: the computer's made again, a person's held to the dial.           |
 | `session/wide.lua`    | `tw.web.wide`: the wide view, one camera for the whole pitch.                                                      |
 | `session/names.lua`   | `tw.web.names`: generated names, `kubbCall("names.<name>")` (below, "Names"; docs/NAMES.md).                       |
+| `session/namecheck.lua` | `tw.web.namecheck`: the names in a match from outside, `names.check` and the strict doors (below, "Names"; since 0.13.4). |
+| `session/touch.lua`   | `tw.web.touch`: a finger on the pendulum, projected onto the crank (below, "Touch pendulum").                      |
 | `session/neighbours.lua` | `tw.web.neighbours`: the Tournament's neighbouring pitches, `kubbCall("neighbours.<name>")` (below, "Neighbours"; since 0.15.1). |
 | `session/json.lua`    | `tw.web.json`: deterministic JSON (sorted keys, shortest round-trip floats, integers kept apart from floats).      |
 | `pitch/`              | The pitch's calls, `kubbCall("pitch.<name>")` (`room.` before 0.13): a shared pitch's document, who acts (docs/PITCH.md). |
 | `tune/pointer.lua`    | `tw.tune.pointer`: a pointer's values for the core's tune tables, and the session's dial and throw tables.         |
+| `tune/touch.lua`      | `tw.tune.touch`: the pointer's tables, and the touch pendulum's projection constants.                              |
 | `version.lua`         | `tw.engine`: the engine's name and version (docs/VERSIONING.md).                                                   |
 
 The tables keep the web's `tw.web.*` names, so the web adopts this with path changes

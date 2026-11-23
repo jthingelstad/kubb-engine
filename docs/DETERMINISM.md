@@ -47,7 +47,7 @@ and wasm, and never regenerate the corpus anywhere but under wasmoon (`make gold
 
 ## The gate
 
-`make golden-check` (in `make test` and CI) plays `tests/golden/drive.lua`'s fifteen
+`make golden-check` (in `make test` and CI) plays `tests/golden/drive.lua`'s twenty-one
 matches through `kubbCall`, under wasmoon, and compares the hash after every action with
 the corpus. Twelve are computer against computer at club, across the three surfaces,
 three winds and both first teams, with the pointer tune and at most six turns each. The thirteenth
@@ -59,6 +59,8 @@ never throws; the person's other throws are swings on the dial, and the person r
 hand, taking the end offered first. The fourteenth and fifteenth (since 0.12.0) cover
 raising by side (`match.raisePolicy`): a person whose kubbs the engine raises
 (RAISING: AUTOMATIC, so by par) throwing as the thirteenth's does, against the computer
-at pro, and the computer at beginner both sides. It passing is what
+at pro, and the computer at beginner both sides. The sixteenth and seventeenth (since
+0.14.0) are on the grid, the eighteenth and nineteenth (since 0.15.0) Kid matches, and the
+twentieth and twenty-first (since 0.17.0) have computer players in teams. It passing is what
 "hash-neutral" means in docs/VERSIONING.md. The hashes do not depend on the frame time
 the host feeds `frame` (1/60 s and 1/4 s give the same corpus).
