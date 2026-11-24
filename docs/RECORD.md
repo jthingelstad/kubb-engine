@@ -165,6 +165,8 @@ An event is `{ "type": ..., ... }`. Every event also takes:
 - `id`: anything the host likes. Warnings this event raises carry it back.
 
 An unknown `type`, or an event that is not an object, is skipped with an `event` warning.
+It keeps its place in the log: `record.events` gives a `null` (or anything not an object)
+back as `false`, and a rebuild skips it again with the same warning at the same index.
 
 ### toss: a kubb thrown in
 

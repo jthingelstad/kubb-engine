@@ -125,7 +125,8 @@ Every client shows its own version with the engine's beside it, in one form:
     no Kid rules.
   - **`Y` in the inkast token** (`notation.inkastBody`): failed rescues, which only record
     mode writes, go after `P` (`IRPYQN`, the canonical order). The rules engine never has
-    a `Y`, so no game file it writes changes.
+    a `Y`, so no game file it writes changes. `core/gamefile` reads a token of failed
+    rescues alone (`2Y`) as an inkast, not as batons.
   - **Golden hashes**: unchanged (`make golden-check` passes with no `make golden`). Record
     mode uses no physics, no tune and no random draw.
   - **Playing together**: a 1.1 match plays exactly as a 1.0 match (the same hashes). By

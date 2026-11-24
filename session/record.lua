@@ -36,6 +36,27 @@ local function plain(v)
 	return out
 end
 
+-- An event as the log keeps it: a JSON null (or nothing) is kept as false, so the log
+-- keeps its place, record.apply skips it with a warning as it did when added, and a
+-- rebuild gives the same indexes.
+local function event(v)
+	if v == nil or rawequal(v, NULL) then return false end
+	return plain(v)
+end
+
+-- The door's decode leaves a hole for a null in an array, so the list runs to its
+-- highest index, not to its first hole.
+local function eventList(list)
+	local out = {}
+	if type(list) ~= "table" then return out end
+	local n = 0
+	for k in pairs(list) do
+		if math.type(k) == "integer" and k > n then n = k end
+	end
+	for i = 1, n do out[i] = event(list[i]) end
+	return out
+end
+
 local function result(r, want)
 	local out = { state = record.state(r), warnings = r.warnings }
 	want = want or {}
@@ -66,7 +87,7 @@ end
 
 function M.add(a)
 	local h = need()
-	local e = plain(a and a.event)
+	local e = event(a and a.event)
 	h.events[#h.events + 1] = e
 	h.r.added = {}
 	record.apply(h.r, e)
@@ -79,7 +100,7 @@ end
 
 function M.rebuild(a)
 	local game = a and a.game ~= nil and plain(a.game) or need().game
-	local events = plain(a and a.events) or {}
+	local events = eventList(a and a.events)
 	local r = record.build(game, events)
 	held = { game = game, events = events, r = r }
 	return result(r, a and a.want)
@@ -99,7 +120,7 @@ function M.view(a) return result(need().r, a and a.want) end
 function M.events() return { events = need().events } end
 
 function M.build(a)
-	return result(record.build(plain(a and a.game), plain(a and a.events) or {}), a and a.want)
+	return result(record.build(plain(a and a.game), eventList(a and a.events)), a and a.want)
 end
 
 local door = {}
