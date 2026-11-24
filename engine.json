@@ -32,7 +32,7 @@
     "core/drills.lua": "ae4113243ab8d677abc80310bad9e998f8da7380b193e1405b311662904a0103",
     "core/flight.lua": "04f3d9989d80c5184adb41b053f4eda43e272e3e92e7801e70b31da57fcd0ec7",
     "core/frame.lua": "3f9e4493c4b0663e90fb12ddd29a94b686d5f724f6d4c67cf2c886221dde8487",
-    "core/gamefile.lua": "c44a0336ccda5ebd0bb7dcb190925f28c02919e4716817110fed3b20db9f0ea4",
+    "core/gamefile.lua": "3a8d69a88db443f8de0a72dfca116dad1690efb0f11a5f5460ca8ce6fdd8b1e8",
     "core/history.lua": "348c26b776c431e467e35ea0263031045bb844f3df75b6a5a95636ac97c07565",
     "core/howto.lua": "06dea483b7090ac9701a092ff6c07289ff285e029583ac48dddc972f5001af88",
     "core/howtoplay.lua": "55bdc5519a010fe79ac94d9ce41f4a998f69bb2741154bd253f20a2a17d39feb",
@@ -76,7 +76,7 @@
     "session/namecheck.lua": "10ea8b3e2b1efbf9d430fb31dc29b85b7eef821f5f21304daf18169c4b244018",
     "session/names.lua": "24ad83176ac83dc39d97c75e7fb52cead05c93302fd3d4e55d64b94caa5cab01",
     "session/neighbours.lua": "4738b5caf24092ab08bfeed17d0d6c4b4accefe3defda7fc68440df8568e6e5b",
-    "session/record.lua": "7ff99f7dbb513108aa868961dd7aa014c5aad3a754996cd42c050d26897436a1",
+    "session/record.lua": "a5f41f13d5a9b94c7bfea8fac20046e4a33b819e0744a0c93bd79e79847e6ec7",
     "session/replay.lua": "25575574766f680f9c595520744d4398415a362f7114088f1a94794c9c78b3b0",
     "session/session.lua": "625a44ed828950e7a225d991701af29bdf3837d20007a33fc07256e170be1c01",
     "session/throw.lua": "452f6f0fef8217578f5b4e0e87b7aaa7d90c9e8890135516c7a63ec4dff47464",
@@ -87,6 +87,6 @@
     "version.lua": "9af6b4f0dd538b6673b9a5efec88d395c943fad94b91a952857dc898c288b1ec"
   },
   "bundle": {
-    "sha256": "3826f64e5a18271b27b9f6178b4344c243dc84633f127513ae6497c725856753"
+    "sha256": "0a8df5ff259cac9b0518b34c22ac2be4a84d4fb5411e09cf7bfdecfbe5638317"
   }
 }

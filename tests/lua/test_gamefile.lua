@@ -98,3 +98,14 @@ test("gamefile: the score sheet on screen leaves positions out", function()
 	expect.eq(gamefile.shown("2. ash:I (windy) ash:F"), "2. ash:I (windy) ash:F")
 	expect.eq(gamefile.shown('[Rules "U.S. Championship 4.0, 2-4-6"]'), '[Rules "U.S. Championship 4.0, 2-4-6"]')
 end)
+
+test("gamefile: an inkast of failed rescues alone (2Y, record mode) is not counted as batons", function()
+	local text = table.concat({
+		'[Notation "2"]', '[Team A "North"]', '[Team B "South"]', '[First "Team A"]', '[Win "Team A"]', "",
+		"1. 2B -", "2. 2Y F - - -", "3. A F F K", "",
+	}, "\n")
+	local s = assert(gamefile.parse(text))
+	expect.eq(s.hits.B[2], 4, "Team B threw 4 batons")
+	expect.eq(s.hits.B[1], 1)
+	expect.eq(s.hits.A[2], 2 + 3)
+end)
