@@ -112,6 +112,27 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **1.1.0** (minor). Record mode (docs/RECORD.md): a real game of kubb scored throw by
+  throw, for Kubb: Pitchside, behind `kubbCall("record.<name>")`. It only adds. There is a
+  new door, `core/record` and `session/record`, and no existing call, format or hash
+  changes. The minor is for the new door, as "fields that only add go with the minor"
+  says. It is not a patch because a client may rely on the door being there.
+  - **Record mode**: a setup and a log of plain events (toss, punish, pitch, advantage,
+    baton, resign, call, capture, note). It is rebuilt from the whole log for an undo or
+    an edit. Every call returns the state a scorer's screen needs, with the notation file
+    and the score sheet's rows on request. Capture switches (players, pitch, lay, stance)
+    choose the lines the file writes. Breaches of the rules come back as warnings. It has
+    no Kid rules.
+  - **`Y` in the inkast token** (`notation.inkastBody`): failed rescues, which only record
+    mode writes, go after `P` (`IRPYQN`, the canonical order). The rules engine never has
+    a `Y`, so no game file it writes changes.
+  - **Golden hashes**: unchanged (`make golden-check` passes with no `make golden`). Record
+    mode uses no physics, no tune and no random draw.
+  - **Playing together**: a 1.1 match plays exactly as a 1.0 match (the same hashes). By
+    "Playing together", it still shares a pitch only with a client on 1.1. The web
+    carries 1.1 alongside 1.0 while an iPhone build on 1.0 is live, or the web and the
+    iPhone move together.
+  - **For clients**: nothing must change. docs/CLIENTS.md "1.1 on top".
 - **1.0.0** (major, declared). The owner (2026-11-22): "lets move all four projects to
   version 1.0.0 and tag those releases. We will use that version to submit to the App
   Store as well." No format changes: the snapshot, actions, the recording, the game file

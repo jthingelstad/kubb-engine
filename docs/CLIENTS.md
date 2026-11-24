@@ -574,6 +574,23 @@ differs): web and iPhone move together.
 - **The rest**: nothing to change. pairRoll from the first step and the propped contacts
   change how throws settle (a few throws in thousands no longer run to the 12 s limit).
 
+## 1.1 on top
+
+1.1.0 adds record mode (docs/RECORD.md), for Kubb: Pitchside. Nothing else changes, and no
+hash moves. Sync `v1.1.0` (web `npm run vendor:sync -- --tag v1.1.0`, iPhone `TAG=v1.1.0`,
+Playdate `make vendor-sync TAG=v1.1.0`).
+
+- **Every client**: nothing must change. The Playdate's `core/` gains `core/record.lua`,
+  which nothing it runs imports. A game file the rules engine writes is unchanged: `Y`
+  (`notation.inkastBody`) appears only in record mode's files.
+- **Web and iPhone, online play**: matches are shared on major.minor (docs/VERSIONING.md
+  "Playing together"), so a web on 1.1 must also carry 1.0 while an iPhone build on 1.0
+  is in TestFlight or the App Store (`docs/ENGINES.md` in the web repository), or both
+  move at once.
+- **Kubb: Pitchside**: the whole of docs/RECORD.md. It loads the engine as the iPhone app
+  does (the bundle, `import "session/api"`) and calls only `record.<name>`, with no
+  `useTune`.
+
 ## What the engine now offers that no surface shows yet
 
 - **The computer's reason** (`tw.cpu.last`, since 0.11.1): the play and situation behind

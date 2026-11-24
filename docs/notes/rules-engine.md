@@ -225,10 +225,11 @@ statistics, and depends on pk-kubb-score one way. Times are `{ year, month, day,
 - Inkast token per player, in order of first toss: `I` = every first throw this turn
   (rescued kubbs included, so I = kubbs knocked last turn + Q), `R` = every rethrow made,
   `P` = punishment kubbs (also in R), `Q` = rescues, `N` = kubbs that came to rest on another
-  (capped at 5, the grammar's limit), `E` = king toppled by a thrown kubb. `Y` is never
-  written. No inkast token when there was nothing to throw. `I` and `R` are inked when the
+  (capped at 5, the grammar's limit), `E` = king toppled by a thrown kubb. The rules engine
+  never writes `Y` (a failed rescue is intent it cannot see); record mode does
+  (docs/RECORD.md), and `inkastBody` places it after `P` since 1.1.0. No inkast token when there was nothing to throw. `I` and `R` are inked when the
   kubb is thrown; `P`, `Q` and `N` when the round is judged, to the player who made its last
-  throw (the grammar takes the letters in any order; the token always writes `IRPQN`).
+  throw (the grammar takes the letters in any order; the token always writes `IRPYQN`, as the canonical form orders them).
 - When the game ends before the inkast is done (king toppled by a kubb, or a resign), the
   token still counts every kubb that was due, so kubb.js's inkast check holds.
 - `A` follows the inkast when the attacker throws from an advantage line: bare, as the
