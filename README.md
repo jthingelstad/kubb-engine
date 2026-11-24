@@ -10,7 +10,9 @@ with JSON in and out (docs/SESSION.md); and the pitch (`pitch/`), a shared pitch
 document and who acts in it, behind the same door (docs/PITCH.md); and generated names for
 players and teams (`core/namegen`, `core/namewords`, docs/NAMES.md); and the scenes a match
 is played in and the surfaces and kubb sets each allows (`core/scenes`,
-docs/notes/scenes.md). It has no drawing,
+docs/notes/scenes.md); and record mode, a real game scored throw by throw and written as
+Planet Kubb Notation, behind the same door (`core/record`, docs/RECORD.md; since 1.1.0).
+It has no drawing,
 input, network or file access; a client supplies those.
 
 The core was extracted from the Playdate game (`playdate-kubb`, `source/core/`) and the
@@ -56,8 +58,8 @@ Needs Lua 5.4 and Node; run `npm ci` once (wasmoon, for the wasm tests).
 
 - `make test`: the core's Lua tests (`tests/lua/`), the session's
   (`tests/lua/session/`) and the pitch's (`tests/lua/pitch/`, with the frozen vectors in
-  `tests/pitch/vectors/`), the notation gate over `tests/fixtures/games/` and its refusal
-  cases (`tests/fixtures/bad/`), the session under wasmoon, the golden hashes, the
+  `tests/pitch/vectors/`), the notation gate over `tests/fixtures/games/`, its refusal
+  cases (`tests/fixtures/bad/`) and record mode's games (`tests/fixtures/record/`), the session under wasmoon, the golden hashes, the
   `engine.json` check, the play reference's check (`make refcheck`) and the names check.
 - `make golden`: rewrite the golden hashes (only with a minor version bump);
   `make golden-native`: how far desktop Lua agrees with them.

@@ -10,7 +10,7 @@ local gamefile = {}
 
 local MONTHS <const> = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC" }
 
--- An inkast token carries I or R (core/notation writes IRPQN in order).
+-- An inkast token carries I or R (core/notation writes IRPYQN in order).
 local function isInkast(tok) return tok:find("[IR]") ~= nil end
 
 -- The game's summary, or nil and why. Fields: headers (every [Key "Value"]),

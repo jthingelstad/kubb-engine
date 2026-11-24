@@ -45,6 +45,11 @@ iPhone app (the bundle: core, pitch, session and tune).
   `src/net/lobby.js`, `seats.js` and `sync.js`, which are now wrappers over it, so the Lua
   is the source of truth. Its deliberate differences from the JavaScript the vectors were
   recorded from are listed in docs/PITCH.md; any other difference is a bug.
+- `core/record` and `session/record`: record mode, a real game scored throw by throw
+  (Kubb: Pitchside), behind `kubbCall("record.<name>")` (since 1.1.0; docs/RECORD.md). It
+  counts as pk-kubb-score's `kubb.js` counts and warns instead of refusing; it is not
+  `tw.rules` and uses no physics. `tests/fixtures/record/games.lua` holds its games;
+  `make test-node` gates the file of each (`tools/recordgames.lua`).
 - `tune/`: a host's values for the core's tune tables, chosen by the host's `useTune`
   call (`pointer` for the web). `tune/touch.lua` calibrates the pendulum in `session/touch.lua`; both inputs share the CPU and physics tune.
 - `version.lua`: the engine's version (not in `core/`).
@@ -158,7 +163,8 @@ iPhone app (the bundle: core, pitch, session and tune).
 `docs/notes/` holds the subsystem notes (rules engine, physics, physics fuzz, the
 reference engine, real games, headless games, the throw, the Kubb Gym, the computer
 player, scenes, Kid mode, and the Tournament's neighbouring pitches, built in 0.15.1). Read the note before changing
-the part it covers. `docs/SESSION.md` is the session's API, `docs/PITCH.md` the pitch's,
+the part it covers. `docs/SESSION.md` is the session's API, `docs/PITCH.md` the pitch's, `docs/RECORD.md`
+record mode's,
 `docs/VERSIONING.md` and `docs/DETERMINISM.md` the version rules and the reference
 platform, and `docs/CLIENTS.md` what each client (web, iPhone, Playdate) changes to move
 from engine 0.9.0 to this release. Code comments also

@@ -33,6 +33,7 @@ frame is the throwing side's (the defending side's for raising and punishment).
 | `session/namecheck.lua` | `tw.web.namecheck`: the names in a match from outside, `names.check` and the strict doors (below, "Names"; since 0.13.4). |
 | `session/touch.lua`   | `tw.web.touch`: a finger on the pendulum, projected onto the crank (below, "Touch pendulum").                      |
 | `session/neighbours.lua` | `tw.web.neighbours`: the Tournament's neighbouring pitches, `kubbCall("neighbours.<name>")` (below, "Neighbours"; since 0.15.1). |
+| `session/record.lua`  | `tw.web.record`: record mode, a real game scored throw by throw, `kubbCall("record.<name>")` (docs/RECORD.md; since 1.1.0). |
 | `session/json.lua`    | `tw.web.json`: deterministic JSON (sorted keys, shortest round-trip floats, integers kept apart from floats).      |
 | `pitch/`              | The pitch's calls, `kubbCall("pitch.<name>")` (`room.` before 0.13): a shared pitch's document, who acts (docs/PITCH.md). |
 | `tune/pointer.lua`    | `tw.tune.pointer`: a pointer's values for the core's tune tables, and the session's dial and throw tables.         |
@@ -101,7 +102,7 @@ tune (the golden hashes are recorded with `pointer`).
 ## The API
 
 Every method below is `kubbCall(name, JSON.stringify(args))` behind a wrapper. Results
-are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13) are in docs/PITCH.md. Angles are degrees unless named otherwise; times are seconds.
+are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13) are in docs/PITCH.md, record mode's (`record.<name>`, since 1.1.0) in docs/RECORD.md. Angles are degrees unless named otherwise; times are seconds.
 
 ### Sessions
 

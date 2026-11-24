@@ -24,14 +24,19 @@ test-session:
 test-pitch:
 	"$(LUA)" tests/lua/run.lua tests/lua/pitch/test_*.lua
 
+# The notation gate over the fixture games and its refusals, then over every file record
+# mode writes in its tests (tests/fixtures/record/games.lua; docs/RECORD.md).
 test-node:
 	"$(NODE)" tests/node/notation-gate.mjs tests/fixtures/games
 	"$(NODE)" tests/node/gate-rejects.mjs
 	"$(NODE)" tools/realgames.mjs tests/fixtures/games tests/fixtures/games > /dev/null
+	rm -rf build/recordgames
+	"$(LUA)" tools/recordgames.lua --out build/recordgames
+	"$(NODE)" tests/node/notation-gate.mjs build/recordgames
 
 # The session under wasmoon (the reference platform), loaded from the bundle.
 test-wasm:
-	"$(NODE)" --test tests/node/*.test.mjs
+	LUA="$(LUA)" "$(NODE)" --test tests/node/*.test.mjs
 
 # The golden hashes (docs/DETERMINISM.md): tests/golden/drive.lua's matches under
 # wasmoon must give every hash in tests/golden/hashes.json. A change that moves one
