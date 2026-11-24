@@ -109,3 +109,13 @@ test("gamefile: an inkast of failed rescues alone (2Y, record mode) is not count
 	expect.eq(s.hits.B[1], 1)
 	expect.eq(s.hits.A[2], 2 + 3)
 end)
+
+test("gamefile: a game called (W, record mode) does not count W as a baton", function()
+	local text = table.concat({
+		'[Notation "2"]', '[Team A "North"]', '[Team B "South"]', '[First "Team A"]', '[Win "Team A"]', "",
+		"1. B W", "",
+	}, "\n")
+	local s = assert(gamefile.parse(text))
+	expect.eq(s.hits.A[1], 1)
+	expect.eq(s.hits.A[2], 1, "one baton thrown, not two")
+end)

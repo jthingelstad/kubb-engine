@@ -44,8 +44,8 @@ local function event(v)
 	return plain(v)
 end
 
--- The door's decode leaves a hole for a null in an array, so the list runs to its
--- highest index, not to its first hole.
+-- The door decodes keeping nulls (door.call), so a null is json.null here; the list
+-- still runs to its highest index, for a caller in Lua that leaves holes.
 local function eventList(list)
 	local out = {}
 	if type(list) ~= "table" then return out end
@@ -99,7 +99,8 @@ function M.add(a)
 end
 
 function M.rebuild(a)
-	local game = a and a.game ~= nil and plain(a.game) or need().game
+	local game = a and a.game
+	if game == nil then game = need().game end
 	local events = eventList(a and a.events)
 	local r = record.build(game, events)
 	held = { game = game, events = events, r = r }
@@ -128,8 +129,16 @@ local door = {}
 function door.call(name, arg)
 	local f = M[name]
 	if not f then error("unknown call record." .. tostring(name), 0) end
+	-- decoded keeping nulls, so a null in an event list keeps its place (the plain
+	-- decode drops a trailing one); every argument but the list is then plain
 	local a = nil
-	if arg and arg ~= "" then a = json.decode(arg) end
+	if arg and arg ~= "" then
+		local raw = json.decode(arg, true)
+		if type(raw) == "table" and not rawequal(raw, NULL) then
+			a = {}
+			for k, v in pairs(raw) do a[k] = k == "events" and v or plain(v) end
+		end
+	end
 	local r = f(a)
 	if r == nil then r = json.object() end
 	return json.encode(r)
