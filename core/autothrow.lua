@@ -72,6 +72,8 @@ autothrow.tune = {
 	basketX = 1.9,           -- m from the middle: just inside the sideline's middle stake
 	basketY = 4.75,          -- m from the baseline (view y): just past the centre line
 	basketNear = 1.5,        -- m: field kubbs within this of a basket count for it
+	inkastSkipOut = 1,       -- 1 (1.2.0): the inkast reads leave out a kubb that is out for now
+	                         -- (core/read inNow); 0: every kubb on the pitch counts, as in 1.1
 	-- The spot (2026-11-16): a kubb drilled onto one already lying in the
 	-- basket lands on it and skips a metre away, so each kubb goes beside
 	-- the group instead: the clear spot nearest the basket on a small grid.
@@ -123,12 +125,17 @@ autothrow.tune = {
 	-- kubb at the basket itself, 1 rests each beside the kubbs already lying
 	-- (cpu.spot); row: with group, 1 lays them flank to flank in a row
 	-- (rowStep apart), 0 picks a clear spot from the grid as 0.10 did. How steady
-	-- the release is comes from the level too (plan.levels' drillScatter).
+	-- the release is comes from the level too (plan.levels' drillScatter). basketY
+	-- (1.2.0; Jamie, 2026-11-26: the computer drilled "a couple meters back from the
+	-- midline. That isn't what real players do"): how far from the baseline the level's
+	-- basket lies, for its spot; nil is basketY above. Club a safe step past the centre
+	-- line, pro pushed to it (docs/reference/play-levels.json inkast-spot): a kubb that
+	-- runs short is thrown again (II.C.4), and real pro inkasts rethrow one kubb in seven.
 	inkast = {
 		kid = { spin = 0, hand = 0.6, group = 0, row = 0 },   -- 0.15.0: tossed out, as a beginner, rougher
 		beginner = { spin = 0, hand = 0.5, group = 0, row = 0 },
-		club = { spin = 1, hand = 0.26, group = 1, row = 1 },
-		pro = { spin = 1, hand = 0.06, group = 1, row = 1 },
+		club = { spin = 1, hand = 0.26, group = 1, row = 1, basketY = 4.45 },
+		pro = { spin = 1, hand = 0.06, group = 1, row = 1, basketY = 4.3 },
 	},
 	rowStep = 0.075,         -- m across between kubbs lying flank to flank in a row
 	drillScale = 0.2,        -- a drilled kubb's swing mistakes are this much of a baton's, for a
