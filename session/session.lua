@@ -1172,6 +1172,14 @@ function Session:setControl(c)
 	local sides = c.sides or { "A", "B" }
 	self.control = { A = false, B = false, cpu = c.cpu ~= false }
 	for _, side in ipairs(sides) do self.control[side] = true end
+	-- (1.4.0) the sides whose baton to go this client throws (seats.controlFor with a togo
+	-- need): a host that may stand in for both sides throws only the one it is given
+	if type(c.togo) == "table" then
+		self.control.togo = {}
+		for _, side in ipairs(c.togo) do
+			if side == "A" or side == "B" then self.control.togo[side] = true end
+		end
+	end
 	-- (0.17.0) this client now throws for the computer, which another was throwing for and
 	-- this one held at the release (the host changed mid-throw): it releases on the next
 	-- frame, the very throw the other would have made
@@ -1182,11 +1190,7 @@ function Session:setControl(c)
 	-- (1.4.0) the throw to go: this client's baton is the first side it now controls that
 	-- owes one
 	if self.phase == "togo" then
-		local want
-		for _, s2 in ipairs(self:togoOwed()) do
-			if self.control[s2] then want = s2; break end
-		end
-		if want ~= self.togoAt then self:togoPrepare() end
+		if self:togoMine() ~= self.togoAt then self:togoPrepare() end
 	end
 	return self:need()
 end
@@ -1377,13 +1381,20 @@ function Session:togoBegin()
 	self:togoPrepare()
 end
 
--- Set this client's next baton to go up: the first side, A then B, that owes one and that
--- this client controls (one device: A's, then B's).
-function Session:togoPrepare()
-	local side
+-- The side whose baton to go this client throws next: the first side, A then B, that owes
+-- one and that this client controls (one device: A's, then B's), or, when setControl gave a
+-- `togo` list (a pitch), the first owed side in it.
+function Session:togoMine()
+	local only = self.control.togo
 	for _, s2 in ipairs(self:togoOwed()) do
-		if self.control[s2] then side = s2; break end
+		if self.control[s2] and (not only or only[s2]) then return s2 end
 	end
+	return nil
+end
+
+-- Set this client's next baton to go up (togoMine).
+function Session:togoPrepare()
+	local side = self:togoMine()
 	self.togoAt = side
 	if not side then
 		self.setup = nil

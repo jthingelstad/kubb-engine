@@ -65,11 +65,11 @@
     "core/vec.lua": "16ed8c29ccd68dcc7cff60892b5b2e767aaf01635e7fad30e593f09247326393",
     "core/wind.lua": "5be8fbc824ab65f875570249012fe334c5327b93f5036d37e2679e8bef93a876",
     "core/world.lua": "f90157fe4cc1bc4347b9c807476c35925b712c8bf55befaca508564e65eaa191",
-    "pitch/api.lua": "c541ca21d865974104be8ca572df7f3ff0a93f6f66225a72c757b1a0371dbb5e",
+    "pitch/api.lua": "fd0c73be9779f85b03edd5a87bb409fa3f50c6481408236c887f053ab61f4fdb",
     "pitch/engines.lua": "c3e1cb876bb7b35b70d6daf703ce6b42224342e3a46799602f5f242168e1882c",
     "pitch/js.lua": "4861032d59086e78c13d3a3e0628d28b0d147758d780bd659d25cf49d3e7d325",
     "pitch/lobby.lua": "96b87d08d657af6a95783eeec97058841e16529bc991e3f611ee6fd9083669ed",
-    "pitch/seats.lua": "533975600aa84b3ec53ad5f2a15fe1f5c55f3db6edb6208a0d7ef8942128325d",
+    "pitch/seats.lua": "dd3629e79b005681fe73ee2924b29f0599c7787aee77caf699a952199ea0af37",
     "pitch/sync.lua": "fcdda8e612f296267603e47b268ded6ed8fecf7ed4d46a7c50cd25ba4ad2b60b",
     "session/api.lua": "285a1154ec8e07a989459b36e0e95cf014db8f5c3360c9f21f4528f1b39ce3d2",
     "session/check.lua": "c446f29acd57070c3209fe10558c1ea2d9d34691332c0a16270c60dd45537d8e",
@@ -79,7 +79,7 @@
     "session/neighbours.lua": "8d4df3ab31bdb170f06c4d508275aca2b47f1dfad7614b570e46bf678839f834",
     "session/record.lua": "e79351c336c74ed33f9c0a656a9732062b11566af39bc2007e8f1b329699cb20",
     "session/replay.lua": "ce42cb3511eed63360a4313e915e6ef12aea6959a69db887b6f7adfb161a93b7",
-    "session/session.lua": "90988444a5e69357261bb98dffecd2d96b073f412303ab3c4d9414d392825e50",
+    "session/session.lua": "0e33fde595610f207ca749161d5ff22d5efa6ac328fd3106d3e9814e163db821",
     "session/throw.lua": "24948030408fecefb07f50c159a8990d47793d89a8030c39f4ebbb056466fc1c",
     "session/touch.lua": "1785c2057390574d94f42fde5945558e42ae20186a74d5bd8bc6d523231d4371",
     "session/wide.lua": "c80673309f8a58f37cebf87d2ec1f585cf75e8c25dc6565ed31ea9948e6018b3",
@@ -88,6 +88,6 @@
     "version.lua": "8b667dbc8feac961d5352eafb27a64afe4dfa98a531d8f691dbdc979800eb3ba"
   },
   "bundle": {
-    "sha256": "0cb15d86d5c24914a85d94ce99154ff0cb970db1437991d0e10b339b10a2bcce"
+    "sha256": "a02f099a053e3aad954150c3691d14089a2840d09a279ad431f4f74ab8f53fbe"
   }
 }

@@ -630,7 +630,10 @@ use them.
       verdict), so say "Tie: throw again" or "Both kings down: throw again".
     - Pass and play: after A throws, the need's `side` is B. Show a handoff card.
   - `seats.actorsFor` already handles `togo`: each side's baton goes to its first
-    player's member, then a team-mate, then the host.
+    player's member, then a team-mate, then the host. On a pitch, while the need is a
+    `togo` need, call `controlFor { ctx, me, need }` and pass its `togo` list to
+    `setControl` (and call it again when `sameControl` says the control changed), so
+    the host throws only the baton that is its own.
 - **Raise in any order** (docs/SESSION.md "Raising in any order"):
   - Draw every kubb in `need.lying` as one that can be picked. Picking one shows its
     `ends`.
