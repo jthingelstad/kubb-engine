@@ -81,9 +81,9 @@ test("settled: the computer's raises and an automatic match's, kubb by kubb, as 
 		{ seed = 33, cpu = { "A", "B" }, raising = "auto" },
 		{ seed = 34, cpu = { "A", "B" }, raising = "auto", computer = "beginner" },
 		{ seed = 35, cpu = { "A", "B" }, raising = "auto", computer = "beginner" },
-		-- (1.2.0: the inkast nearer the centre line plays these seeds otherwise; 37 has a
-		-- crowded raise)
-		{ seed = 37, cpu = { "A", "B" }, raising = "auto" },
+		-- (1.2.0: the inkast nearer the centre line plays these seeds otherwise; 37 had a
+		-- crowded raise. 1.3.0's row plays 37 otherwise too; 40 has one)
+		{ seed = 40, cpu = { "A", "B" }, raising = "auto" },
 	} do
 		local m = { mode = "match", start = START, maxTurns = 14,
 			teams = { A = { name = "Ada", players = { { name = "Ada", level = "club", key = "m1" } } },

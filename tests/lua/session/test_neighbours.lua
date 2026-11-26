@@ -304,11 +304,12 @@ test("a crowded corner's raise, searched in slices, comes out as searched whole"
 	-- seed 6 has a kubb raised in a crowded corner (core/raising's search, which yields at
 	-- raising.probe): cut into slices of a few steps it must give the same (seed 4 until
 	-- 1.0: the seat, pairRoll from the first step and the propped contacts play its
-	-- matches otherwise; seed 6 since 1.2.0, whose inkast plays seed 2 otherwise)
+	-- matches otherwise; seed 6 since 1.2.0, whose inkast plays seed 2 otherwise; seed 7
+	-- since 1.3.0, whose row plays seed 6 otherwise)
 	local nc, searched = tw.raising.nearestClear, 0
 	tw.raising.nearestClear = function(...) searched = searched + 1; return nc(...) end
 	local function byPitch(budget)
-		call("neighbours.open", { seed = 6, count = 4 })
+		call("neighbours.open", { seed = 7, count = 4 })
 		local ev = run(0, 500, 1 / 60, budget)
 		call("neighbours.close")
 		local out = {}

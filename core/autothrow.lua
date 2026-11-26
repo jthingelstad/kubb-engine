@@ -135,12 +135,15 @@ autothrow.tune = {
 	-- rowDepth; not a pro column) no deeper than rowPast past the level's basket, so one kubb that ran on is the backstop the next rolls into instead of the
 	-- depth the next one copies; 0 aims it level with the kubb it goes beside, as 1.2 did,
 	-- and every overshoot adds to the last (an owner's club inkast rested 5.21, 5.43, 5.77
-	-- and 6.23 m from the baseline, the centre line at 4).
+	-- and 6.23 m from the baseline, the centre line at 4). On since 1.3.0 (Gym 300 seeds:
+	-- the club computer with it beats club without 60.6%, and its kubbs rest past the
+	-- centre line p90 0.86 m against 1.25; docs/notes/computer-player.md "The row's depth").
+	-- Pro lays columns (cpu.tune.depth), which this does not reach.
 	inkast = {
 		kid = { spin = 0, hand = 0.6, group = 0, row = 0 },   -- 0.15.0: tossed out, as a beginner, rougher
 		beginner = { spin = 0, hand = 0.5, group = 0, row = 0 },
-		club = { spin = 1, hand = 0.26, group = 1, row = 1, basketY = 4.45, rowCap = 0, rowPast = 0.15 },
-		pro = { spin = 1, hand = 0.06, group = 1, row = 1, basketY = 4.3, rowCap = 0, rowPast = 0.15 },
+		club = { spin = 1, hand = 0.26, group = 1, row = 1, basketY = 4.45, rowCap = 1, rowPast = 0.15 },
+		pro = { spin = 1, hand = 0.06, group = 1, row = 1, basketY = 4.3, rowCap = 1, rowPast = 0.15 },
 	},
 	rowStep = 0.075,         -- m across between kubbs lying flank to flank in a row
 	drillScale = 0.2,        -- a drilled kubb's swing mistakes are this much of a baton's, for a

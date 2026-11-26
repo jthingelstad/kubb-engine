@@ -112,7 +112,7 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
-- **1.3.0** (minor; draft, the person's meter part). The honest person's meter (the
+- **1.3.0** (minor; draft). The honest person's meter (the
   owner, 2026-11-26: "no nerves for people, the release pulls batons and kubbs, release bar
   5 at 8 m", "Easy/Standard/Hard player levels as bar widths"; docs/notes/throw.md "The
   honest meter (1.3.0)").
@@ -141,6 +141,23 @@ Every client shows its own version with the engine's beside it, in one form:
   - **For clients**: optional. A client may offer the throw level and send it as the
     player entry's `throw` (and `me.throw` on a pitch); one that does not plays
     everyone on Standard.
+  - The computer's row, from
+    the same played game as 1.2.0: the club computer's later kubbs were aimed level with
+    the innermost kubb lying, so each overshoot added to the last (in one turn they rested
+    5.21, 5.43, 5.77 and 6.23 m from the baseline, the centre line at 4).
+    - **A cap on the row's depth** (`autothrow.tune.inkast.<level>.rowCap`, `rowPast`;
+      `inkast.first`, `inkast.roll`): a later row kubb is aimed no deeper than 0.15 m past
+      the level's basket, so the kubb that ran on is the backstop the next one rolls
+      toward. Club (and a pro with `inkast.depth` off); pro columns and beginner are
+      untouched. Where club's kubbs rest past the centre line (300 matches): median 0.54 to
+      0.51 m, 90th percentile 1.25 to 0.86 m, over a metre 18.7 to 5.6%. Lying kubbs
+      touching another 0.42 to 0.41, rethrown 0.9 to 1.0% (versus): the groups hold.
+    - **Gym**: club with the cap beats club without 60.6% (57.3 to 63.8; seed 2 64.2%).
+      Club against itself: field batons missed 20.4 to 18.5%, batons to clear 3.69 to
+      3.86, turns a game 15.3 to 17.3 (docs/notes/computer-player.md "The row's depth").
+    - **Golden hashes**: changed; the computer's fixture (`tests/fixtures/cpu/choose.txt`)
+      rewritten. Two session tests moved to seeds that still raise in a crowded corner
+      (neighbours seed 7, settled seed 40).
 - **1.2.0** (minor). The computer's inkast, from a played game (the owner, 2026-11-26:
   the computer "drills its kubbs a couple meters back from the midline. That isn't what
   real players do", and "its first Kubb in went out of bounds. It then threw kubbs toward

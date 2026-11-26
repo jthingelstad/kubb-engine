@@ -51,8 +51,10 @@ local function against(file)
 end
 
 -- 0.12.0's plays as shipped (field.line and inkast.depth, both at pro only), 0.13.0's
--- beginner and 1.2.0's inkast (the baskets nearer the line, kubbs out for now not counted): tests/fixtures/cpu/choose.txt, rewritten by tools/cpufixture.lua each time.
-test("autothrow.choose matches the 1.2.0 fixture in every field", function()
+-- beginner, 1.2.0's inkast (the baskets nearer the line, kubbs out for now not counted)
+-- and 1.3.0's row (a later kubb aimed no deeper than the cap, inkast rowCap):
+-- tests/fixtures/cpu/choose.txt, rewritten by tools/cpufixture.lua each time.
+test("autothrow.choose matches the 1.3.0 fixture in every field", function()
 	against("choose.txt")
 end)
 
@@ -75,8 +77,12 @@ test("with the 0.12.0 plays off and 0.12's beginner and club, autothrow.choose m
 	local at = tw.autothrow.tune
 	local skip, clubY, proY = at.inkastSkipOut, at.inkast.club.basketY, at.inkast.pro.basketY
 	at.inkastSkipOut, at.inkast.club.basketY, at.inkast.pro.basketY = 0, nil, nil
+	-- (1.3.0) a row's later kubb aimed level with the kubb it goes beside, however deep
+	local clubCap, proCap = at.inkast.club.rowCap, at.inkast.pro.rowCap
+	at.inkast.club.rowCap, at.inkast.pro.rowCap = 0, 0
 	local ok, err = pcall(against, "choose-0.11.txt")
 	at.inkastSkipOut, at.inkast.club.basketY, at.inkast.pro.basketY = skip, clubY, proY
+	at.inkast.club.rowCap, at.inkast.pro.rowCap = clubCap, proCap
 	for name, p in pairs(cpu.tune) do p.on = saved[name] end
 	for k, v in pairs(kingSaved) do ks[k] = v end
 	ss.beginner = beginner

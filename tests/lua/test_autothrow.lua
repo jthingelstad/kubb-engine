@@ -217,7 +217,9 @@ test("a toss goes beside a kubb lying at the basket, never onto it or over it", 
 	for _, level in ipairs { "club", "pro" } do
 		local a = autothrow.choose(s, autothrow.rng(1), 0, level)
 		expect.near(a.plan.tx, lying.x - t.rowStep, 1e-9)
-		expect.near(a.plan.ty, lying.y, 1e-9)
+		-- (1.3.0) no deeper than rowPast past the level's basket (inkast rowCap)
+		local ik = t.inkast[level]
+		expect.near(a.plan.ty, math.min(lying.y, ik.basketY + ik.rowPast), 1e-9)
 		expect.near(a.drill.markerX, lying.x - t.rowStep, 1e-9)
 	end
 	tw.cpu.tune.depth.on = depthOn
