@@ -305,3 +305,59 @@ test("checkStart: a togo match's first snapshot is a start; one with a baton to 
 	o.mode = "match"
 	expect.eq(session.new(o):need().kind, "togo")
 end)
+
+-- (Codex on #61) the names check knows the throw to go's strings; a match whose first
+-- players are both computers has none; the aiming calls work on a baton to go.
+test("names check: a decided and a half-thrown throw to go pass a strict restore", function()
+	import "session/namecheck"
+	local nc = tw.web.namecheck
+	-- half thrown: A's baton in, B owed (pass and play)
+	local s = newMatch { seed = 21 }
+	local r = s:apply(personBaton(s, "A", 3))
+	expect.truthy(r.ok, r.why)
+	local rep = nc.snapshot(json.decode(s:snapshot()))
+	expect.eq(#rep.refused, 0, rep.refused[1] and (rep.refused[1].from .. ": " .. rep.refused[1].why))
+	expect.truthy(s.togo.acts.A.launch and s.togo.acts.A.type == "togo")
+	-- decided
+	local d = newMatch { seed = 21, cpu = "B" }
+	expect.truthy(d:apply(personBaton(d, "A", 3)).ok)
+	expect.truthy(d.m.game.firstBy or d:need().kind == "togo")
+	rep = nc.snapshot(json.decode(d:snapshot()))
+	expect.eq(#rep.refused, 0, rep.refused[1] and (rep.refused[1].from .. ": " .. rep.refused[1].why))
+	expect.truthy(nc.isTogoText("throw to go: Team A 0.42 m, Team B king down; 3 rounds"))
+	expect.truthy(nc.isTogoText("throw to go: Team A king down, Team B 1.00 m"))
+	expect.eq(nc.isTogoText("throw to go: Team A Anything Typed, Team B 1.00 m"), false)
+	expect.eq(nc.isTogoText("throw to go: Team B 1.00 m, Team A 1.00 m"), false)
+	-- a field a client added does not ride into the snapshot
+	local e = newMatch { seed = 22 }
+	local a = personBaton(e, "A", 3)
+	a.note = "Anything Typed"
+	expect.truthy(e:apply(a).ok)
+	expect.eq(e.togo.acts.A.note, nil)
+end)
+
+test("both teams' first players computers: no throw to go", function()
+	local function teams(firstCpu)
+		return {
+			A = { name = "Team A", players = { firstCpu and { cpu = true, level = "club" } or { name = "Player 1" }, { name = "Player 2" } } },
+			B = { name = "Team B", players = { { cpu = true, level = "club" }, { name = "Player 3" } } },
+		}
+	end
+	local s = newMatch { teams = teams(true) }
+	expect.eq(s.opts.togo, nil)
+	expect.eq(s:need().kind, "throw")
+	local t = newMatch { teams = teams(false) }
+	expect.eq(t.opts.togo, true)
+	expect.eq(t:need().kind, "togo")
+	expect.eq(#t:need().owe, 1)
+end)
+
+test("the aiming calls move a baton to go's circle and arc", function()
+	local s = newMatch { seed = 23 }
+	local before = s:aimView()
+	local out = s:setTarget(0.3, 2.0, false)
+	expect.near(out.aim.marker.x, 0.3, 1e-9)
+	expect.near(out.aim.marker.y, 2.0, 1e-9)
+	local arc = s:setArc(30)
+	expect.truthy(arc.aim.plan.release ~= before.plan.release or before.plan.release == 30, "the arc moved")
+end)

@@ -939,7 +939,8 @@ spent, nothing goes on the score sheet's turns, and turn 1 starts after it as al
 - **Turning it on**: `newMatch({ ..., togo: true })` (or `"on"`). If it is absent or
   false, the match starts as before and `first` decides. With it on, `first` is ignored.
   It is never on in a Kid match (`rules: "kid"` or the Kid computer) or in a match with no
-  person in it (`cpu: "both"`). It is kept in the start, so a match that has it gets
+  person in it (`cpu: "both"`), nor when neither team's first player is a person (the
+  first player throws the baton to go, so there would be nobody to throw it). It is kept in the start, so a match that has it gets
   other hashes. A shared pitch carries it as the setting `togo: "on" | "off"`
   (docs/PITCH.md "The throw to go"). **The product default is on**, but the engine's
   default is off, so every older match and golden hash stays as it was. A client that
@@ -963,9 +964,10 @@ spent, nothing goes on the score sheet's turns, and turn 1 starts after it as al
   - `again` is the last round's verdict (below) when this round is a rethrow.
 - **Throwing**: aim and throw as for any baton (`view`, `aim`, `frame`). The circle starts
   on the ground 1.4 m short of the king (`togo.tune.markerShort`), and the arc starts on
-  the lob `togo.arc()`. The person may move both. There is no wind. A release returns
+  the lob `togo.arc()`. The person may move both (`setTarget`, `setArc` and the other aiming
+  calls work as on a throw). There is no wind. A release returns
   `action` `{ type: "togo", side, round, how, launch, stance, target, swing?, verdicts?,
-  plan?, at? }` with no `seq`. Send it to the pitch like a throw; every member applies it
+  plan?, at? }` with no `seq`. `apply` keeps only those fields. Send it to the pitch like a throw; every member applies it
   with `apply`.
 - **Blind and simultaneous**: no baton is thrown until both are in. Each one is thrown on
   its own world (the pitch as the match sets it up, nothing else on it), so their order
