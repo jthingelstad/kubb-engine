@@ -112,31 +112,51 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
-- **1.3.0** (minor; draft). The honest person's meter (the
-  owner, 2026-11-26: "no nerves for people, the release pulls batons and kubbs, release bar
-  5 at 8 m", "Easy/Standard/Hard player levels as bar widths"; docs/notes/throw.md "The
-  honest meter (1.3.0)").
+- **1.3.0** (minor; draft). The honest person's meter and a club a typical player can
+  beat (the owner, 2026-11-26: "no nerves for people, the release pulls batons and kubbs,
+  release bar 5 at 8 m", "Easy/Standard/Hard player levels as bar widths", "the computer
+  levels retuned so a typical player wins about 4 in 10 against club"; docs/notes/throw.md
+  "The honest meter (1.3.0)", "The bars' corners").
   - **No nerves on a person's throw**: `nervesDeg`, `nervesLen`, `tumbleSd` 0 on the
     person's meters, so the same swing gives the same throw. The Kid meter and the
     computer's levels keep theirs.
   - **The release bar** at 8 m is 5 degrees either side (was 7.5); the power bar is
     unchanged.
-  - **The release pulls inside its bar** (`edgeM` 0.05: 5 cm at the throw's distance at
-    the bar's edge), and **a thrown kubb is pulled** too (`kubbPull` 0.15, inside a bar
-    `kubbInGain` 0.3). A perfect swing and a steady swing inside both bars still fell a
-    lone kubb at 4, 6 and 8 m; the recorded hand now sits on club's row (70 / 50 / 28 at
-    4 / 6 / 8 m, was 76 / 62 / 44).
+  - **The release pulls inside its bar** (`edgeM` 0.035: 3.5 cm at the throw's distance
+    at the bar's edge; past it `pullPerDeg` 0.25, was 0.15), and **a thrown kubb is
+    pulled** too (`kubbPull` 0.15, inside a bar `kubbInGain` 0.3). The recorded hand now
+    sits on club's row (69 / 50 / 29 at 4 / 6 / 8 m, was 76 / 62 / 44).
+  - **Every swing inside both bars fells a lone kubb**, at the bars' corners and edges too
+    (`tools/meterprobe.lua --parts corners`: 3 to 10 m, turned 0 to 90 degrees, 840
+    throws a meter, none missed on Easy, Standard or Hard; `test_meter` pins it). A 3 to
+    4 m baton under release 15 arrives short of a half turn, nearly lying down, and was
+    aimed as if upright, so it passed over the kubb, even a perfect swing (1.2.0 too).
+    `plan.solve` now lowers the centre's aim by the half length the baton has tipped and
+    solves the line again (`plan.tune.aimByTurn`); plans from release 15 up are as
+    before. The computer's close drives move with it (neutral in the Gym: club 51.1%,
+    pro 48.9% with it against without). The drive floors at 3 and 4 m are 8.9 and 11.6
+    (were 9.3 and 12.3).
   - **Easy, Standard and Hard for a person**: a player entry's `throw` (`"easy"`,
     `"standard"`, `"hard"`; absent is standard), the meter that person throws on, wider or
     narrower bars only. Kept in the start only when not standard; carried by the pitch as
     `me.throw` into `lineup` and `matchOptions`; written in `[Throw Levels]` as
     `<id> easy` or `<id> hard`; `newPractice` takes it. `pitch.constants` has
-    `THROW_LEVELS`.
+    `THROW_LEVELS`. Hard's bars at 8 m are 2.0 / 3.5 (power at the 2-degree floor, the
+    release narrower than Standard's 5); Easy's 5.0 / 12.0.
+  - **Club retuned** (`autothrow.tune.swingScale.club` 1.3 to 1.5, `plan.levels.club.tumbleSd`
+    0.06 to 0.08; docs/notes/computer-player.md "Club against a typical player"). The
+    recorded people on Standard against club: 20.3% (17.3 to 23.4) to 40.3% (36.6 to
+    44.1; seed 2 43.6%). On Easy 91.3 to 95.6%, on Hard 5.8 to 12.5%. Pro beats club
+    98.8%, club beats beginner 100%; beginner, pro and Kid are untouched. Club against
+    itself: field batons missed 18.4 to 21.8% (club's row 30 to 40), base kubbs from the
+    advantage line 69.0 to 63.2% (33 to 45), king shots 71.1 to 63.2% (62 to 75), turns a
+    game 17.6 to 18.7 (8 to 14: no lever measured shortens them).
+  - **Gym**: `versus` takes `throw=easy|standard|hard` for a person's level.
   - **`checkThrow`** models the edge and kubb pulls exactly, and with no nerves pins a
     person's swivel, speed and tumble to the swing within rounding.
-  - **Golden hashes**: every golden match with a person changes (`make golden`); the
-    computer's fixture (`tests/fixtures/cpu/choose.txt`) and the matches without a
-    person do not.
+  - **Golden hashes**: golden matches change (`make golden`): those with a person by
+    the meter, and the computer's by the aim by turn and club's retune; the computer's
+    fixture (`tests/fixtures/cpu/choose.txt`) is rewritten.
   - **Playing together**: a 1.3 match shares a pitch only with a client on 1.3.
   - **For clients**: optional. A client may offer the throw level and send it as the
     player entry's `throw` (and `me.throw` on a pitch); one that does not plays

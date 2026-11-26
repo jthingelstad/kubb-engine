@@ -215,6 +215,9 @@ plan.tune = {
 -- club's nervesDeg 0.8 until 0.13: then its base kubbs from 8 m fell 19.5% (the bottom of
 -- club's reference row, 19 to 27) and the recorded people on the person's meter beat it
 -- about 60 games in 100; at 0.5 it is 25% and they win about 49 (docs/notes/gym.md)
+-- club's tumbleSd 0.06 until 1.3.0: with autothrow's swingScale.club 1.5 at 0.08 the recorded
+-- people on the honest Standard meter win about 40 games in 100 against club, where they won 20
+-- (docs/notes/computer-player.md "Club against a typical player")
 plan.levels = {
 	-- kid (0.15.0, docs/notes/kid-mode.md): the Kid computer, gentle and a little clumsy, set
 	-- in the Gym so a child's hand on the Kid meter wins about three games in four
@@ -223,7 +226,7 @@ plan.levels = {
 	beginner = { powerHalf = 15, releaseHalf = 30, inGain = 0.1, shakeGain = 0.5,  overGain = 0.5,
 		nervesDeg = 1.6, nervesLen = 0.06, tumbleTurns = 0.62, tumbleSd = 0.10, drillScatter = 2 },
 	club     = { powerHalf = 8,  releaseHalf = 18, inGain = 0.3, shakeGain = 0.75, overGain = 0.75,
-		nervesDeg = 0.5, nervesLen = 0.03, tumbleTurns = 0.50, tumbleSd = 0.06, drillScatter = 1 },
+		nervesDeg = 0.5, nervesLen = 0.03, tumbleTurns = 0.50, tumbleSd = 0.08, drillScatter = 1 },
 	pro      = { powerHalf = 4,  releaseHalf = 10, inGain = 0.6, shakeGain = 1,    overGain = 1,
 		nervesDeg = 0.5, nervesLen = 0.02, tumbleTurns = 0.50, tumbleSd = 0.035, drillScatter = 0.35 },
 }

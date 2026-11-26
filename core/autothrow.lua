@@ -36,12 +36,16 @@ autothrow.tune = {
 	-- Beginner 1.6 until 0.13: then it cleared 88% of its fields against beginner's
 	-- reference 35 to 55 and a newcomer on the person's meter won 3 games in 100; at
 	-- 2.2 it clears about half and the newcomer wins about 52 (docs/notes/gym.md
-	-- "The person's meter")
+	-- "The person's meter"). Club 1.3 until 1.3.0: then the recorded people on the honest
+	-- Standard meter won 20 games in 100 against it; at 1.5 (and club's tumbleSd 0.08) they
+	-- win about 40 (docs/notes/computer-player.md "Club against a typical player"). 1.5 is
+	-- the most club can take: a steady swing's shake then reaches 0.33, a 30-degree tilt, so
+	-- past it the swing helicopters (1.8: 19% of its batons illegal)
 	drillSpin = 1,           -- taps of axial spin on every drill, to steady the flight: what a
 	                         -- thrower's hand does, not a thing a level's name decides (until
 	                         -- 0.10: beginner 0, club 1, pro 2). One tap is the least that holds
 	                         -- the nose to the touch; the levels differ by their swings' mistakes
-	swingScale = { kid = 1.5, beginner = 2.2, club = 1.3, pro = 1 },
+	swingScale = { kid = 1.5, beginner = 2.2, club = 1.5, pro = 1 },
 	-- the king shot (0.18.0): one throw from the baseline that ends the game, or loses it
 	-- when it fells a kubb with it (II.B), under the most pressure of any. Its swing's
 	-- mistakes and its nerves are the level's times kingScale, set in the Gym so each
