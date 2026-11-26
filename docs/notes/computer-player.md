@@ -284,6 +284,62 @@ none against pro.
 Whether a level should beat the one below it that often is a product question (Q11 and
 the levels) and is not settled here.
 
+## The row's depth (1.3.0)
+
+From a played online game (the owner, 2026-11-26): the club computer's drilled kubbs
+rested 1.2 to 2.2 m past the centre line, where real players drill near it. In one turn
+the rests went 5.21, 5.43, 5.77 and 6.23 m from the baseline. The cause was the row
+(`cpu.spot`): the first kubb aims at the basket and runs on a little, and each later kubb
+was aimed beside the innermost kubb lying at that kubb's depth, so every overshoot added to
+the last. 1.2.0 moved only where the row starts.
+
+The play is `inkast.first` with `inkast.roll`: the first kubb is the marker the rest are
+thrown off, and a later kubb lands just short of the group and rolls into it, so the kubb
+already down is the backstop, not a depth to copy. With
+`autothrow.tune.inkast.<level>.rowCap = 1` a later row kubb is aimed beside the innermost
+lying kubb as before, but no deeper than `rowPast` (0.15 m, about a kubb's width and a
+gap) past the level's basket (`core/cpu` rowDepth). A kubb lying short of that is still
+laid level with. A pro column is laid deep on purpose and grows forward toward the
+line, so the cap does not reach it; a beginner throws every kubb at the basket.
+
+Built switched off, then proven in the Gym (grass, 300 seeds each played both ways
+round, turn limit 40):
+
+| team A | team B | B's score (95%) |
+| --- | --- | --- |
+| club | club, rowCap 1, rowPast 0 | 61.8% (58.4 to 65.3) |
+| club | club, rowCap 1, rowPast 0.15 | 60.6% (57.3 to 63.8) |
+| club | club, rowCap 1, rowPast 0.3 | 57.1% (53.8 to 60.4) |
+| club, rowCap 1 (seed 2) | club, rowCap 0 | 35.8% (32.7 to 39.0) |
+
+Where the club computer's drilled kubbs rest past the centre line (kubbs in the far half
+only; `gym run --out`, 300 matches of the computer against itself, read from each drill's
+`restY` in the throw lines, as the Gym has no row for it yet; the versus runs agree):
+
+| | median | 90th percentile | over 1 m |
+| --- | --- | --- | --- |
+| club, 1.2 (every kubb) | 0.54 m | 1.25 m | 18.7% |
+| club, 1.2 (the last of an inkast of 3 or more) | 0.69 m | 1.47 m | 28.4% |
+| club, rowPast 0.15 (every kubb) | 0.51 m | 0.86 m | 5.6% |
+| club, rowPast 0.15 (the last of 3 or more) | 0.55 m | 0.87 m | 5.2% |
+| pro (columns; unchanged) | 0.45 m | 0.72 m | 1.3% |
+| beginner (the basket; unchanged) | 0.49 m | 1.23 m | 17.0% |
+
+The median stays where the basket puts it (club 4.45 m, 1.2.0); what goes is the tail
+that grew kubb by kubb. The groups do not fall apart (versus, without the cap against
+with it): lying kubbs touching another after an inkast of three or more 0.42 against 0.41
+(inside the noise; 0.43 against 0.41 at rowPast 0, just past it), three or more touching
+in a chain 29.0% against 27.1%, kubbs rethrown 0.9% against 1.0%, kubbs resting outside
+the far half 1.3% against 1.4%. The group is tighter: its farthest two kubbs 1.02 m apart
+against 0.82. rowPast 0 puts the kubbs nearer still (median 0.44 m, p90 0.78) but loses a
+little touching, so 0.15 is the one switched on, at club (and pro, where only a pro with
+`inkast.depth` off lays a row).
+
+What it costs: the club computer is stronger, and its games against itself are longer
+(17.3 turns against 15.3; real club games 8 to 14). The owner's target has a typical
+online player winning about four in ten against club, so club's strength wants measuring
+against the Gym's person again with the rest of 1.3.
+
 ## Computer players in teams (0.17.0)
 
 Since 0.17.0 the computer is a player, not only a side: a team may hold people and

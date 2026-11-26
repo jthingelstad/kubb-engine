@@ -75,7 +75,8 @@ test("a toss beside a kubb already down: inkast.roll, with the basket and the ku
 	local it = d.intent
 	expect.eq(it.basket, 1)
 	expect.near(it.tx, 1.7 - t.rowStep, 1e-12)
-	expect.near(it.ty, 4.9, 0)
+	-- f2 lies at 4.9, deeper than club's basket and rowPast: aimed short of it (1.3.0)
+	expect.near(it.ty, t.inkast.club.basketY + t.inkast.club.rowPast, 1e-12)
 	expect.eq(it.spin, 1)
 	expect.eq(it.standY, 0)
 	expect.near(it.arc, plan.arcFor("drill"), 0)

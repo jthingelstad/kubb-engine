@@ -116,7 +116,11 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
 - **Levels:** Proposed: pro. Club tries and lands it less often.
 - **Engine:** modelled in part (0.11.0). Later kubbs are aimed off the innermost kubb
   already lying by the basket (`cpu.spot`, `read.innermostLying`). The first kubb is
-  thrown like the others, with the same spin: there is no dead first drill.
+  thrown like the others, with the same spin: there is no dead first drill. From 1.3.0 a
+  later row kubb is aimed no deeper than 0.15 m past the basket (`inkast.<level>.rowCap`,
+  `rowPast`), so a first kubb that ran on is the marker and backstop, not a depth each
+  later kubb copies and overshoots again (club p90 past the centre line 1.25 m to 0.86;
+  docs/notes/computer-player.md "The row's depth").
 - **Gym:** needs a row: how far the first kubb rests from its marker.
 
 ## inkast.roll: Later kubbs roll into the ones already down
@@ -143,6 +147,8 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
   another.
 - **Engine:** modelled (0.11.0): club and pro spin one tap toward the sideline and the
   plan aims short of the spot by the roll (`drill.rollFor`, `autothrow.tune.inkast`).
+  Since 1.3.0 a row's later kubb beside one lying deep is aimed short of it, at most
+  `rowPast` past the basket, to run on toward it (`rowCap`).
 - **Gym:** needs a row: thrown kubbs that come to rest touching another.
 
 ## inkast.steer: Roll it either way
