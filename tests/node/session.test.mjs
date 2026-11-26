@@ -206,7 +206,9 @@ test("two browsers play a whole match in step; a third joins mid-match", async (
     } else {
       // a human swing on the dial at the plan's power and release
       const plan = actor.aim().aim.plan;
-      const stop = plan.release + ((humanThrows % 3) - 1) * 8;
+      // this script's swing does not let go at a stop under 0, which 8 degrees early
+      // reaches on a short drive (a 2 m baton planned at 7.5 degrees, seen in 1.3.0)
+      const stop = Math.max(1, plan.release + ((humanThrows % 3) - 1) * 8);
       let out;
       for (const arm of swingArms(plan.back, stop)) {
         out = actor.frame({ dt: 1 / 60, arm });

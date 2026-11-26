@@ -38,6 +38,7 @@ function R.constants()
 		MATCH_OPTIONS = options, LEVELS = { table.unpack(lobby.LEVELS) }, LOG_BUDGET = lobby.LOG_BUDGET,
 		REPLAY_VERSION = lobby.REPLAY_VERSION, CLIENT = sync.CLIENT, WITH_BYTES = sync.WITH_BYTES,
 		ENGINE = lobby.ENGINE, SEAT_LEVELS = { table.unpack(lobby.SEAT_LEVELS) },
+		THROW_LEVELS = { table.unpack(tw.plan.THROW_LEVELS) },   -- a person's (me.throw), since 1.3
 	}
 end
 
