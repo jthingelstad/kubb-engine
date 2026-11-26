@@ -338,7 +338,94 @@ little touching, so 0.15 is the one switched on, at club (and pro, where only a 
 What it costs: the club computer is stronger, and its games against itself are longer
 (17.3 turns against 15.3; real club games 8 to 14). The owner's target has a typical
 online player winning about four in ten against club, so club's strength wants measuring
-against the Gym's person again with the rest of 1.3.
+against the Gym's person again with the rest of 1.3. It was: "Club against a typical player (1.3.0)" below.
+
+## Club against a typical player (1.3.0)
+
+The owner's target (approved 2026-11-26): "the computer levels retuned so a typical player
+wins about 4 in 10 against club". The typical player is the Gym's human thrower (the
+recorded people, fit 2, hand x1) on the honest Standard meter. Measured first, with 1.3's
+meter and the aim by the baton's turn in (docs/notes/throw.md "The bars' corners"): it won
+20.3% (17.3 to 23.4) against club. Club's field batons missed 18% (club's measured row is 30
+to 40) and it cleared 80% of its fields against the person's 54%: the gap was club's close
+throws, not its base kubbs (26% from 8 m, the person 27%).
+
+Each lever alone, the person against club with one number changed (150 seeds unless said;
+the person's score, paired by seed, with its 95% interval):
+
+| club's change | person's score | club's field batons missed | base kubbs from 8 m | illegal |
+| --- | --- | --- | --- | --- |
+| none (300 seeds) | 20.3% (17.3 to 23.4) | 17.8 | 26.3 | 2.6 |
+| `nervesDeg` 0.8 | 25.2% (20.1 to 30.2) | | | |
+| `nervesDeg` 1.1 | 37.7% (31.9 to 43.4) | 19.4 | 14.2 | 2.0 |
+| `nervesLen` 0.05 | 23.2% (18.5 to 27.9) | | | |
+| `tumbleSd` 0.1 | 24.7% (20.1 to 29.3) | 19.2 | 26.0 | 2.4 |
+| `kingScale.club` 2.2 | 22.8% (18.6 to 27.1) | 17.2 | 25.8 | 4.4 |
+| `inkast.club.hand` 0.45 | 19.3% (15.2 to 23.5) | 18.6 | 25.5 | 2.4 |
+| `swingScale.club` 1.4 | 33.5% (28.5 to 38.5) | 20.5 | 23.8 | 2.7 |
+| `swingScale.club` 1.5 | 38.0% (32.3 to 43.7) | 23.5 | 23.0 | 3.5 |
+| `swingScale.club` 1.8 | 87.7% (84.2 to 91.2) | 33.2 | 19.2 | 19.1 |
+| `swingScale.club` 2.2 | 96.7% (94.7 to 98.7) | | | |
+
+The nerves grow with the throw's effort, so they barely reach a field throw: 1.1 took the
+base kubbs from 8 m to 14% (club's row is 19 to 27) before the person reached 40. The swing
+scale reaches the close throws, but past 1.5 it is a cliff: a steady swing's shake (up to
+`shakeMax` 0.22 times the scale) passes 0.33, a 30-degree tilt (`legalTiltDeg`), and the
+batons helicopter (19% of them illegal at 1.8). So the swing scale goes to 1.5, the edge,
+and the tumble's spread makes up the rest:
+
+| club | person's score, seed 1 (300) | seed 2 (300) |
+| --- | --- | --- |
+| 1.2 and the first 1.3 draft: `swingScale` 1.3, `tumbleSd` 0.06 | 20.3% (17.3 to 23.4) | |
+| `swingScale` 1.5 | 38.5% (34.5 to 42.5) | |
+| `swingScale` 1.5, `nervesDeg` 0.65 | 41.7% (37.8 to 45.5) | |
+| **`swingScale` 1.5, `tumbleSd` 0.08 (shipped)** | **40.3% (36.6 to 44.1)** | **43.6% (39.7 to 47.5)** |
+
+The nerves row also lands but takes club's base kubbs from 8 m to 19.9%, the bottom of its
+row, so the tumble is the one shipped. Beginner, pro and Kid are not touched.
+
+Every matchup, before (club 1.3 / 0.06) and after (grass, 300 seeds both ways round;
+the first team's score):
+
+| team A | team B | before | after |
+| --- | --- | --- | --- |
+| person, Standard | club | 20.3% (17.3 to 23.4) | 40.3% (36.6 to 44.1) |
+| person, Easy | club | 91.3% (89.1 to 93.6) | 95.6% (94.0 to 97.1) |
+| person, Hard | club | 5.8% (4.0 to 7.6) | 12.5% (10.0 to 15.0) |
+| person, hand x2 (a newcomer) | beginner | 57.8% (54.3 to 61.4) | the same |
+| person, hand x1 | beginner | 98.2% (97.1 to 99.2) | the same |
+| person, hand x1 | pro | 2.6% (1.3 to 3.8) | the same |
+| person, hand x0.5 (a master) | pro | 62.3% (58.5 to 66.1) | the same |
+| club | beginner | 100.0% | 100.0% |
+| pro | club | 97.0% (95.7 to 98.3) | 98.8% (97.9 to 99.6) |
+
+The ladder holds. The aim by the baton's turn is neutral for the computer: club with it
+against club without, 51.1% (49.8 to 52.4); pro 48.9% (47.2 to 50.6).
+
+Club's scorecard against the real games (`gym run --full --levels club`, 300 matches of the
+computer against itself; club's row from `docs/reference/play-levels.json`):
+
+| row | before | after | club's row | all real games |
+| --- | --- | --- | --- | --- |
+| turns a game | 17.6 | 18.7 | 8 to 14 | 8.9 |
+| field batons: missed | 18.4 | 21.8 | 30 to 40 | 24.7 |
+| field batons: took two | 17.2 | 15.7 | 8 to 13 | 16.0 |
+| turns with field kubbs: cleared them | 71.0 | 66.3 | 68 to 80 | 83.4 |
+| turns from an advantage line | 25.8 | 29.9 | 15 to 22 | 14.4 |
+| base kubb from the baseline (8 m) | 25.0 | 23.6 | 19 to 27 | 32.7 |
+| base kubb from an advantage line | 69.0 | 63.2 | 33 to 45 | 51.7 |
+| king shots that toppled it | 71.1 | 63.2 | 62 to 75 | 83.8 |
+| illegal throws, of batons | 2.1 | 3.5 | | |
+| kubbs rethrown, of kubbs thrown in | 0.9 | 0.9 | 11 to 18 | 14.1 |
+
+Field misses and base kubbs from the advantage line move toward club's row; turns a game
+move away from it (17.6 to 18.7). None of the levers measured shortened club's games: each
+makes club weaker, and a weaker club leaves more standing and takes longer to finish. What
+else is off in the rows (not measured as causes): club clears its fields less often than
+real club players (66% against 68 to 80), throws from an advantage line twice as often (30%
+against 15 to 22) and almost never rethrows a kubb (0.9% against 11 to 18). Those belong to
+the inkast's and the field's plays, a change of how club plays rather than of its hand, for
+the play reference and the Gym in their own pull request.
 
 ## Computer players in teams (0.17.0)
 

@@ -52,14 +52,16 @@ end
 
 -- 0.12.0's plays as shipped (field.line and inkast.depth, both at pro only), 0.13.0's
 -- beginner, 1.2.0's inkast (the baskets nearer the line, kubbs out for now not counted)
--- and 1.3.0's row (a later kubb aimed no deeper than the cap, inkast rowCap):
+-- 1.3.0's row (a later kubb aimed no deeper than the cap, inkast rowCap), its aim by the
+-- baton's turn (plan.tune.aimByTurn) and its club (swingScale 1.5, tumbleSd 0.08):
 -- tests/fixtures/cpu/choose.txt, rewritten by tools/cpufixture.lua each time.
 test("autothrow.choose matches the 1.3.0 fixture in every field", function()
 	against("choose.txt")
 end)
 
 -- With every play 0.12.0 added switched off (cpu.tune's on = 0), the beginner's swing
--- scale at its 0.12 value (1.6) and club's nervesDeg at its (0.8), the computer chooses
+-- scale at its 0.12 value (1.6) and club's nervesDeg, swing scale and tumbleSd at theirs
+-- (0.8, 1.3, 0.06), the computer chooses
 -- exactly as 0.11.0 did:
 -- tests/fixtures/cpu/choose-0.11.txt is the fixture 0.11.0 wrote, untouched.
 test("with the 0.12.0 plays off and 0.12's beginner and club, autothrow.choose matches the 0.11.0 fixture", function()
@@ -73,6 +75,9 @@ test("with the 0.12.0 plays off and 0.12's beginner and club, autothrow.choose m
 	local club = tw.autothrow.cpuLevel("club")
 	local clubNerves, planNerves = club.nervesDeg, tw.plan.levels.club.nervesDeg
 	club.nervesDeg, tw.plan.levels.club.nervesDeg = 0.8, 0.8
+	-- (1.3.0) club's swing scale and tumble before the retune
+	local clubSS, clubTumble, planTumble = ss.club, club.tumbleSd, tw.plan.levels.club.tumbleSd
+	ss.club, club.tumbleSd, tw.plan.levels.club.tumbleSd = 1.3, 0.06, 0.06
 	-- (1.2.0) the inkast reads count every kubb, and club and pro aim at the one basket
 	local at = tw.autothrow.tune
 	local skip, clubY, proY = at.inkastSkipOut, at.inkast.club.basketY, at.inkast.pro.basketY
@@ -87,5 +92,6 @@ test("with the 0.12.0 plays off and 0.12's beginner and club, autothrow.choose m
 	for k, v in pairs(kingSaved) do ks[k] = v end
 	ss.beginner = beginner
 	club.nervesDeg, tw.plan.levels.club.nervesDeg = clubNerves, planNerves
+	ss.club, club.tumbleSd, tw.plan.levels.club.tumbleSd = clubSS, clubTumble, planTumble
 	if not ok then error(err, 0) end
 end)
