@@ -112,7 +112,7 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
-- **1.3.0** (minor; draft). The honest person's meter and a club a typical player can
+- **1.3.0** (minor). The honest person's meter and a club a typical player can
   beat (the owner, 2026-11-26: "no nerves for people, the release pulls batons and kubbs,
   release bar 5 at 8 m", "Easy/Standard/Hard player levels as bar widths", "the computer
   levels retuned so a typical player wins about 4 in 10 against club"; docs/notes/throw.md
