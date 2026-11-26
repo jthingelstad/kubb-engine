@@ -78,7 +78,7 @@ or junk as a fresh lobby.
                                                 people and computer seats together
   computers?: { seatId: { level, name? } },   since 0.17, only while a seat exists
   options:  { surface, opening, raising, wind, set },
-  settings: { computer?, scene? },   since 0.9, only when the host set one (difference 9)
+  settings: { computer?, scene?, togo? },   since 0.9 (togo 1.4), only when the host set one (difference 9)
   open:     false | true,     true lists the pitch under Open games
   started:  false | true,
   n:        0,                matches started on this pitch
@@ -270,6 +270,37 @@ as above, as they always have. When the host changes, the new host's `controlFor
 Two clients acting at once are settled by the pitch server: it takes an action only as
 the next sequence, and the other is refused.
 
+### The throw to go (1.4.0)
+
+The throw to go (docs/SESSION.md "The throw to go") is a pitch setting. It is kept in
+`settings.togo` as `"on"` or `"off"`, like `computer` and `scene` (difference 9). A
+0.9 to 1.3 engine's reducers keep only the settings they know, so they drop `togo` when
+they rewrite the document. On a pitch where such a client has joined, a 1.4 host sets it
+again (docs/VERSIONING.md "1.4.0").
+
+- **The default**: `OPTION_DEFAULTS.togo` is `"off"`, so a pitch that never set it plays
+  as before 1.4. The product's default is on, and that default belongs to the clients:
+  when a client makes a pitch, it calls `setOptions { togo: "on" }` (and for a solo
+  match passes `togo: true` to `newMatch`). Leaving the engine's default off keeps every
+  older document, header and hash as it was.
+- **The row**: `MATCH_OPTIONS` has `{ "togo", "Throw to go", { { "on", "On" }, { "off",
+  "Off" } } }` just before Computer, which stays the last row. `optionsOf` and
+  `optionRows` carry it; `matchOptions` turns `"on"` into the match's `togo`. A Kid
+  pitch (the Kid computer) or one with no person plays no throw to go, whatever the
+  setting.
+- **Who acts** (`actorsFor` on a `togo` need): for each side still owed, its thrower's
+  owner (`need.throwers[side].key`). If they are not connected, the first connected
+  team-mate; failing that, the host. Both sides may throw at once. Each client sends
+  its baton when it is thrown, and every member applies both (`apply`), in either order.
+  A baton for a side already in is refused as `"thrown"`, which leaves the match
+  unchanged, so a retry is harmless. Nobody acts for the computer's baton: every engine
+  makes the same one from the seed once the people's batons are in (`need.computer`).
+  The host needs no extra step for it.
+- **Raising** (1.4.0): `actorsFor` on a raise is unchanged (any connected defender, else
+  the host). Now that a raise names its kubb (`{ type: "raise", kubb, which }`), two
+  team-mates raising different kubbs at once both land. A stale raise of a kubb already
+  raised is refused (`"not lying"`) and changes nothing.
+
 ### Replays and reels
 
 | Call           | Fields                                  | Value                                                                                                                                                              |
@@ -413,7 +444,7 @@ are where the Lua decides otherwise, each deliberate and tested
 7. **`ctx.connected` is a list**, not a `Set`.
 8. **Results are wrapped** in `{"value": ...}`, and `undefined` comes back as `null`.
 9. **The engine's own options** (since 0.9) live in a top-level `settings` object, not
-   in `options`: `{ computer?, scene? }`, each present only when a host set a valid
+   in `options`: `{ computer?, scene?, togo? }` (`togo` since 1.4.0), each present only when a host set a valid
    value, and `settings` only when one is. An older engine's `lobbyOf` (0.8.2 and before)
    rebuilds `options` from the five keys it knows but keeps a top-level key it does not
    know, so a 0.8 client's `joinTeam` or `setAccess` in a shared lobby leaves them as the

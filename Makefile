@@ -94,7 +94,7 @@ GAMES_SEED := 1
 PHYS_N     := 5
 
 games:
-	@rm -rf build/games build/physgames build/physgames-kid build/physgames-mixed
+	@rm -rf build/games build/physgames build/physgames-kid build/physgames-mixed build/togogames
 	"$(LUA)" tools/games.lua --n $(GAMES_N) --seed $(GAMES_SEED) --out build/games
 	"$(NODE)" tests/node/notation-gate.mjs build/games
 	"$(LUA)" tools/physmatch.lua --n $(PHYS_N) --seed $(GAMES_SEED) --out build/physgames
@@ -103,6 +103,8 @@ games:
 	"$(NODE)" tests/node/notation-gate.mjs build/physgames-kid
 	"$(LUA)" tools/physmatch.lua --n $(PHYS_N) --seed $(GAMES_SEED) --mixed --out build/physgames-mixed
 	"$(NODE)" tests/node/notation-gate.mjs build/physgames-mixed
+	"$(LUA)" tools/togogames.lua --n 2 --seed $(GAMES_SEED) --out build/togogames
+	"$(NODE)" tests/node/notation-gate.mjs build/togogames
 
 # Real games against the engine's own (tools/realgames.mjs, docs/notes/real-games.md):
 # REAL_N physics matches into build/realgames, then the same figures from them

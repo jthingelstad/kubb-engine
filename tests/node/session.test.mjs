@@ -405,3 +405,80 @@ test("a server's checks: checkCpu, checkThrows, replayDocument, renameStart", as
   assert.notEqual(server.hash().hash, actor.hash().hash);
   server.call('replayEnd');
 });
+
+// 1.4.0 under wasmoon: the throw to go by a swing on the dial, a watcher applying the
+// batons and every action after them in step; the view from one side changing no hash;
+// cpuPlay against a watched computer turn.
+test("1.4: the throw to go by hand, a view from B, and cpuPlay, all in step", async () => {
+  const actor = await Engine.create();
+  const watcher = await Engine.create();
+  actor.newMatch({ seed: 9, cpu: "B", start: START, togo: true, maxTurns: 6 });
+  actor.call("setView", { side: "B" });
+  watcher.restore(actor.snapshot());
+  watcher.setControl({ sides: [], cpu: false });
+  let n = actor.need();
+  assert.equal(n.kind, "togo");
+  assert.equal(n.side, "A");
+  assert.equal(n.frame, "B", "the view's frame");
+  assert.equal(n.computer.B, true);
+  const plan = actor.aim().aim.plan;
+  let out;
+  for (const arm of swingArms(plan.back, plan.release)) {
+    out = actor.frame({ dt: 1 / 60, arm });
+    if (out.event) break;
+  }
+  if (!out.action) out = actor.frame({ dt: 1 / 60 });
+  assert.ok(out.action, "the baton to go was thrown");
+  assert.equal(out.action.type, "togo");
+  assert.equal(out.recording.kind, "togo");
+  const w = watcher.apply(out.action);
+  assert.equal(w.ok, true);
+  assert.equal(watcher.hash().hash, actor.hash().hash, "in step after the throw to go");
+  const res = out.recording.result;
+  assert.ok(res.how === "again" || res.first === "A" || res.first === "B");
+  console.log(`      throw to go: ${res.text} (${res.how})`);
+  // the computer's turn, skipped on one, watched on the other
+  const skip = await Engine.create();
+  for (let guard = 0; guard < 400; guard++) {
+    n = actor.need();
+    if (n.kind === "over" || n.kind === "togo") break;
+    if (n.cpu) {
+      skip.restore(actor.snapshot());
+      const played = skip.call("cpuPlay", {});
+      let steps = 0;
+      while (actor.need().cpu && actor.need().kind === "throw" && steps < played.steps.length) {
+        let o;
+        for (let i = 0; i < 900 && !o?.action; i++) o = actor.frame({ dt: 1 / 60 });
+        assert.ok(o.action);
+        watcher.apply(o.action);
+        assert.equal(actor.hash().hash, played.steps[steps].h, `cpuPlay step ${steps} = the watched throw`);
+        steps++;
+      }
+      assert.ok(steps > 0);
+      assert.equal(steps, played.steps.length, "every step cpuPlay made was watched");
+      console.log(`      cpuPlay: ${steps} computer throws, each the watched one's hash; then ${played.need.kind} ${played.need.side ?? ''} (turn ${played.need.turn})`);
+      break;
+    }
+    if (n.kind === "raise") {
+      const a = { type: "raise", kubb: n.lying[n.lying.length - 1].id };
+      assert.equal(actor.apply(a).ok, true);
+      watcher.apply(a);
+    } else if (n.kind === "punish") {
+      const a = { type: "punish", x: n.cursor.x, y: n.cursor.y, frame: n.frame };
+      assert.equal(actor.apply(a).ok, true);
+      watcher.apply(a);
+    } else {
+      const p = actor.aim().aim.plan;
+      let o;
+      for (const arm of swingArms(p.back, Math.max(1, p.release))) {
+        o = actor.frame({ dt: 1 / 60, arm });
+        if (o.event) break;
+      }
+      if (!o.action) o = actor.frame({ dt: 1 / 60 });
+      assert.ok(o.action);
+      watcher.apply(o.action);
+    }
+    assert.equal(watcher.hash().hash, actor.hash().hash);
+  }
+  actor.call("setView", {});
+});

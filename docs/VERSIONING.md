@@ -112,6 +112,46 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **1.4.0** (minor). Four additions, every one opt in. A match that uses none of them
+  plays and hashes exactly as on 1.3 (`make golden-check` passes with the corpus
+  untouched).
+  - **Raise in any order**: the raise need lists every lying kubb (`lying`, each with its
+    own choices, ends and default; recomputed after each raise). It also carries one
+    camera for the whole raise at the raiser's end (`camera`, kind `"raise"`), the
+    raising side's `players`, and `frame`. The action `{ type: "raise", kubb, which }`
+    raises any of them. A stale raise (a team-mate raised that kubb first) is refused
+    cleanly with the match unchanged. `{ type: "raise", choice }` is as before. Core:
+    `Game:lyingKubbs`, `raiseOptions`, `canRaise`, `raiseKubb`, and `need().lying`
+    (docs/notes/rules-engine.md "Raising in any order").
+  - **The throw to go**: `newMatch { togo: true }`, or the pitch setting `togo: "on"`
+    with the MATCH_OPTIONS row "Throw to go". Each team throws one baton from its
+    baseline at the king before turn 1. The closer baton that leaves the king standing
+    wins first throw. A team that topples the king loses. Both toppled, or a tie to the
+    millimetre, means throw again. The two batons are blind and simultaneous, and one
+    recording shows both. The computer's baton is made by every engine from the seed
+    (purpose 5). The phase is in the snapshot, `replay`, `checkThrow` (`type: "togo"`)
+    and `checkStart`. The game file adds `[Engine:first "..."]`; `[First]` stays. Never
+    in a Kid match or a match with no person. Off when absent: the product default (on)
+    is the clients' to set (docs/SESSION.md "The throw to go", docs/PITCH.md "The throw
+    to go", docs/notes/rules-engine.md "The throw to go").
+  - **A view from one side**: `setView { side, box? }`. Every output comes in that
+    side's frame, and the other side's throws, inkast and raises come through a camera
+    at the viewer's end (`camera.tune["end"]`, `.tall`, `camera.fromEnd`, `camera.fit`).
+    A punishment kubb takes `frame` on its action and on `checkPunish`. View only
+    (docs/SESSION.md "A view from one side").
+  - **The computer's turn, fast**: `frame { speed }` (1, 2 or 4; 1 to 8 taken) plays its
+    think and swing faster without changing its throw. `cpuPlay { at?, recordings? }`
+    plays every computer throw until a person is needed, with no frames; it equals a
+    watched turn action for action and hash for hash. Solo only (docs/SESSION.md "The
+    computer's turn, fast").
+  - **Playing together**: as every minor, a 1.4 match shares a pitch only with clients
+    on 1.4, and a web on 1.4 carries 1.3 while an iPhone build on 1.3 is live. On a pitch
+    whose engine is 1.3 (a player carries no 1.4), that match has no throw to go. A 1.3
+    engine's reducers also drop `settings.togo` when they rewrite the document (they keep
+    only the settings they know), so after a 1.3 client has joined, the setting reads
+    off until a 1.4 host sets it again. A client may say so on its options card.
+  - **Tools**: `tools/togogames.lua` (in `make games`) plays matches with the throw to go
+    to the end and gates their files.
 - **1.3.0** (minor). The honest person's meter and a club a typical player can
   beat (the owner, 2026-11-26: "no nerves for people, the release pulls batons and kubbs,
   release bar 5 at 8 m", "Easy/Standard/Hard player levels as bar widths", "the computer

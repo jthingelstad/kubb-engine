@@ -555,6 +555,11 @@ function notation.render(game, meta)
 	h("First", teamLabel(game.first))
 	if game.winner then h("Win", teamLabel(game.winner)) end
 	h("Scored by", notation.scorer .. " " .. (meta.version or "0.0.0"))
+	-- how First was decided (1.4.0: the throw to go, core/togo; meta.firstBy, or the
+	-- game's): a writer's own key (notation-2.md: a key with a character other than a
+	-- letter or a space is the writer's for good), before Mode in code-point order
+	local firstBy = meta.firstBy or game.firstBy
+	if firstBy then h("Engine:first", firstBy) end
 	if meta.mode then h("Mode", meta.mode) end
 	-- the throw levels given (docs/PLAYERS.md decision 7; the computer's players
 	-- since 0.13.2, match.fileLevels): "kim pro, sam club"
