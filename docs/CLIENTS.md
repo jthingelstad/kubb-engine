@@ -574,6 +574,17 @@ differs): web and iPhone move together.
 - **The rest**: nothing to change. pairRoll from the first step and the propped contacts
   change how throws settle (a few throws in thousands no longer run to the 12 s limit).
 
+## 1.2 on top
+
+1.2.0 changes how the computer throws its kubbs in (docs/VERSIONING.md "1.2.0"): club and
+pro aim nearer the centre line, and a kubb that is out for now is not built on. Every hash
+moves; no call or format changes. Sync `v1.2.0` (web `npm run vendor:sync -- --tag v1.2.0`,
+iPhone `TAG=v1.2.0`, Playdate `make vendor-sync TAG=v1.2.0`).
+
+- **Every client**: nothing must change.
+- **Web and iPhone, online play**: a web on 1.2 carries 1.0 (and 1.1 if it carries it)
+  while an iPhone build on them is live (`docs/ENGINES.md` in the web repository).
+
 ## 1.1 on top
 
 1.1.0 adds record mode (docs/RECORD.md), for Kubb: Pitchside. Nothing else changes, and no

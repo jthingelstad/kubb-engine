@@ -112,6 +112,35 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **1.2.0** (minor). The computer's inkast, from a played game (the owner, 2026-11-26:
+  the computer "drills its kubbs a couple meters back from the midline. That isn't what
+  real players do", and "its first Kubb in went out of bounds. It then threw kubbs toward
+  that out of bound Kubb attempting to make a group").
+  - **Kubbs out for now** (`read.inNow`, `autothrow.tune.inkastSkipOut`): a kubb thrown
+    this turn that could not be raised in bounds where it lies (the rules' own test,
+    `raising.canRaise`) no longer counts for a basket and is never built beside (row,
+    into, column). In 1.1 a club row built on a kubb past the sideline or short of the
+    centre line, aiming the next kubbs out too (10 of the 12 kubbs out in 20 seeded club
+    matches drew a later kubb within half a metre of them).
+  - **Baskets nearer the centre line** (`autothrow.tune.inkast.<level>.basketY`): club
+    4.45 m from the baseline (was 4.75), pro 4.3, and pro's columns may reach to 4.15 m
+    (`cpu.tune.depth.front`, was 4.35). Beginner and kid keep 4.75 and their scatter.
+    Where the computer's kubbs rest, past the centre line, median (20 seeded matches a
+    level): club 0.85 to 0.54 m, pro 0.67 to 0.45 m (p90 1.71 to 1.34, 0.92 to 0.71).
+  - **Neighbours** (`session/neighbours`): when a setup differs from the last by no more
+    than rounding and so sends no items, the next throw's `after` is baked from what is
+    shown, so a client playing the events and `neighbours.view` agree on bodies the throw
+    leaves still (they could differ by one rounding step).
+  - **Gym, 120 matches a level, computer, 1.1.0 to 1.2.0** (only moves past 99%): club
+    field batons missed 23.2 to 20.5%, rethrown 1.3 to 0.8%, target toppled 73.3 to 76.4%;
+    pro cleared its field kubbs 87.9 to 82.8% of turns (real tournament games 83.4),
+    batons to clear 3.34 to 3.60, two or more from one baton 20.4 to 22.4%, kubbs lying
+    touching after an inkast of three or more 17.1 to 22.0%, illegal batons 1.0 to 2.3%
+    (more throws at about 4 m, where the engine's batons helicopter most at every level).
+  - **Golden hashes**: changed (`make golden`); the computer's fixture
+    (`tests/fixtures/cpu/choose.txt`) rewritten; the neighbours hash moved.
+  - **Playing together**: a 1.2 match shares a pitch only with a client on 1.2.
+  - **For clients**: nothing in a call or format changes. docs/CLIENTS.md "1.2 on top".
 - **1.1.0** (minor). Record mode (docs/RECORD.md): a real game of kubb scored throw by
   throw, for Kubb: Pitchside, behind `kubbCall("record.<name>")`. It only adds. There is a
   new door, `core/record` and `session/record`, and no existing call, format or hash

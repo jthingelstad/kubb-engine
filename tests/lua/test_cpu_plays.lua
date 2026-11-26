@@ -184,7 +184,8 @@ test("inkast.depth lays each kubb in front of the last, down the baton's path", 
 		local d = cpu.decide(toss({ k("x", "B", -1.9, 4.75) }, 2, 1), rng(1), "pro")
 		expect.eq(d.why.play, "inkast.depth")
 		expect.near(d.intent.tx, t.basketX * d.intent.basket, 0)
-		expect.near(d.intent.ty, t.basketY, 0, "two in hand fit in front of the basket")
+		-- (1.2.0) the pro basket lies nearer the line than a column of two from front reaches
+		expect.near(d.intent.ty, math.max(t.inkast.pro.basketY, dt.front + step), 1e-12, "two in hand fit in front of the basket")
 		d = cpu.decide(toss({ k("x", "B", -1.9, 4.75) }, 6, 1), rng(1), "pro")
 		expect.near(d.intent.ty, dt.front + (dt.run - 1) * step, 1e-12, "a full column of four")
 		-- one lying along the throw: the next rests gap in front of it, in its lane
@@ -218,12 +219,13 @@ test("inkast.depth lays each kubb in front of the last, down the baton's path", 
 		expect.near(d.intent.ty, y1 - step, 1e-12)
 		-- never nearer the centre line than `front`: a column of three whose next spot would
 		-- cross it is full, and the next column starts beside it
-		local c2 = { k("f1", "B", 1.9, 4.75, true, HALF), k("f2", "B", 1.9, 4.75 - step, true, HALF),
-			k("f3", "B", 1.9, 4.75 - 2 * step, true, HALF) }
+		local y0 = dt.front + 2.5 * step
+		local c2 = { k("f1", "B", 1.9, y0, true, HALF), k("f2", "B", 1.9, y0 - step, true, HALF),
+			k("f3", "B", 1.9, y0 - 2 * step, true, HALF) }
 		d = cpu.decide(toss(c2, 6, 4), rng(1), "pro")
-		expect.truthy(4.75 - 3 * step < dt.front, "the next spot would cross front")
+		expect.truthy(y0 - 3 * step < dt.front, "the next spot would cross front")
 		expect.eq(d.why.facts.spot, "column")
-		expect.near(d.intent.ty, 4.75, 0)
+		expect.near(d.intent.ty, y0, 0)
 	end)
 	-- a beginner throws at the basket whatever the switch says
 	with("depth", "beginner", 1, function()

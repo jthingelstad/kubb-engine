@@ -34,8 +34,10 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
 - **Levels:** Proposed: pro and club always. Beginner and kid do not aim for a corner.
 - **Engine:** modelled in part (`cpu.basket`; `autothrow.basket` until 0.11.1). It picks the
   corner that already holds more field kubbs and flips a coin on a tie. It does not know
-  the thrower's hand, and it stays 0.6 m inside the sideline and 0.75 m past the centre
-  line (`basketX`, `basketY`), so its kubbs do not lie on a line.
+  the thrower's hand, and it stays 0.6 m inside the sideline (`basketX`) and, from 1.2.0,
+  0.45 m past the centre line at club and 0.3 m at pro (`inkast.<level>.basketY`; 0.75 m
+  before, and still at beginner), so its kubbs do not lie on a line. A kubb out for now
+  does not count for a corner (`read.inNow`, 1.2.0).
 - **Gym:** needs a row: thrown kubbs resting on a line.
 
 ## inkast.stance: Work along the baseline as the group grows
@@ -90,8 +92,9 @@ Every `Levels` line is a proposal of ours, not a source's, until Jamie settles i
 - **Levels:** Proposed: club and pro. The coach teaches it to beginners, so a beginner
   may aim there too, though not reliably.
 - **Engine:** not modelled (0.13.0). One kubb goes to the basket like any other, which
-  sits 0.6 m inside the sideline and 0.75 m past the centre line (`basketX`, `basketY`):
-  already off the line, but nearer it than either source.
+  sits 0.6 m inside the sideline and, from 1.2.0, 0.45 m (club) or 0.3 m (pro) past the
+  centre line (`basketX`, `inkast.<level>.basketY`): already off the line, but nearer it
+  than either source.
 - **Gym:** needs a row: first-baton hits on a lone field kubb, by where it stands.
 
 ## inkast.first: The first kubb is the marker

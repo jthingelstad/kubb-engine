@@ -82,6 +82,35 @@ test("a toss beside a kubb already down: inkast.roll, with the basket and the ku
 	expect.eq(cpu.text(d.why), "Laid beside the kubb lying by the right basket, to roll in beside it.")
 end))
 
+-- A lying kubb of the far half with its pose (world frame; side A's view is the world's).
+local function lying(id, x, y)
+	local p = k(id, "B", x, y, true)
+	p.pose = { x = x, y = y, standing = false, angle = math.pi / 2 }
+	return p
+end
+
+test("a kubb out for now is not built on: the row goes beside the one in (1.2.0)", plain(function()
+	local t = autothrow.tune
+	-- f1 went out past the right sideline, f2 lies in by the right basket
+	local s = toss({ lying("f1", 2.75, 4.5), lying("f2", 1.9, 4.5) }, 4, 3)
+	local d = cpu.decide(s, counting(1), "club")
+	expect.eq(d.why.facts.near, 1, "the kubb out is not counted for the basket")
+	expect.eq(d.why.facts.beside, "f2")
+	expect.near(d.intent.tx, 1.9 - t.rowStep, 1e-12)
+	-- with only the kubb out lying there, the basket is empty: aim at the basket itself
+	s = toss({ lying("f1", 2.75, 4.5), lying("f3", 1.9, 3.7) }, 4, 3)
+	d = cpu.decide(s, counting(1), "club")
+	expect.eq(d.why.facts.spot, "basket", "f3 lies short of the centre line: out too")
+	-- 1.1's reading, every kubb counted
+	t.inkastSkipOut = 0
+	local ok, err = pcall(function()
+		d = cpu.decide(toss({ lying("f1", 2.75, 4.5) }, 4, 3), counting(1), "club")
+		expect.eq(d.why.facts.beside, "f1")
+	end)
+	t.inkastSkipOut = 1
+	if not ok then error(err, 0) end
+end))
+
 test("a first toss at an empty half: inkast.corner, the basket itself, one coin from the stream", plain(function()
 	local t = autothrow.tune
 	local r = counting(7)
@@ -91,7 +120,7 @@ test("a first toss at an empty half: inkast.corner, the basket itself, one coin 
 	expect.eq(d.why.facts.coin, true)
 	expect.eq(d.why.facts.spot, "basket")
 	expect.near(math.abs(d.intent.tx), t.basketX, 0)
-	expect.near(d.intent.ty, t.basketY, 0)
+	expect.near(d.intent.ty, t.inkast.pro.basketY, 0, "pro's basket, nearer the centre line (1.2.0)")
 	expect.eq(d.intent.spin, d.intent.basket, "one tap toward the sideline")
 	expect.truthy(cpu.text(d.why):match("^Into the %a+ basket: 0 field kubbs by it, 0 by the other%.$"), cpu.text(d.why))
 	-- a beginner throws at the basket with no spin, whatever lies there

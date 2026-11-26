@@ -32,7 +32,8 @@ test("tosses go to the basket with more field kubbs near it, drilled from behind
 	expect.eq(autothrow.basket(s, autothrow.rng(1)), 1)
 	local a = autothrow.choose(s, autothrow.rng(1), 0)
 	expect.near(a.plan.tx, t.basketX, 1e-9)
-	expect.near(a.plan.ty, t.basketY, 1e-9)
+	-- (1.2.0) the level's basket, nearer the centre line at club and pro
+	expect.near(a.plan.ty, (t.inkast[t.level] or {}).basketY or t.basketY, 1e-9)
 	-- straight behind it on the baseline, at the drill arc
 	expect.near(a.x, t.basketX, 1e-9)
 	expect.near(a.y, 0, 1e-9)
@@ -41,7 +42,7 @@ test("tosses go to the basket with more field kubbs near it, drilled from behind
 	expect.near(a.loftDeg, plan.loftFor(plan.arcFor("drill")), 1e-9)
 	expect.truthy(a.drill and a.legal and a.tumbleRate == 0, "a drilled kubb")
 	expect.near(a.drill.markerX, t.basketX, 1e-9)
-	expect.near(a.drill.markerY, t.basketY, 1e-9)
+	expect.near(a.drill.markerY, (t.inkast[t.level] or {}).basketY or t.basketY, 1e-9)
 end)
 
 test("an empty far half: either basket, about half each", function()

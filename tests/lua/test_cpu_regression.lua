@@ -50,9 +50,9 @@ local function against(file)
 	expect.truthy(#want > 10000, "the fixture is there")
 end
 
--- 0.12.0's plays as shipped (field.line and inkast.depth, both at pro only) and 0.13.0's
--- beginner: tests/fixtures/cpu/choose.txt, rewritten by tools/cpufixture.lua each time.
-test("autothrow.choose matches the 0.18.0 fixture in every field", function()
+-- 0.12.0's plays as shipped (field.line and inkast.depth, both at pro only), 0.13.0's
+-- beginner and 1.2.0's inkast (the baskets nearer the line, kubbs out for now not counted): tests/fixtures/cpu/choose.txt, rewritten by tools/cpufixture.lua each time.
+test("autothrow.choose matches the 1.2.0 fixture in every field", function()
 	against("choose.txt")
 end)
 
@@ -71,7 +71,12 @@ test("with the 0.12.0 plays off and 0.12's beginner and club, autothrow.choose m
 	local club = tw.autothrow.cpuLevel("club")
 	local clubNerves, planNerves = club.nervesDeg, tw.plan.levels.club.nervesDeg
 	club.nervesDeg, tw.plan.levels.club.nervesDeg = 0.8, 0.8
+	-- (1.2.0) the inkast reads count every kubb, and club and pro aim at the one basket
+	local at = tw.autothrow.tune
+	local skip, clubY, proY = at.inkastSkipOut, at.inkast.club.basketY, at.inkast.pro.basketY
+	at.inkastSkipOut, at.inkast.club.basketY, at.inkast.pro.basketY = 0, nil, nil
 	local ok, err = pcall(against, "choose-0.11.txt")
+	at.inkastSkipOut, at.inkast.club.basketY, at.inkast.pro.basketY = skip, clubY, proY
 	for name, p in pairs(cpu.tune) do p.on = saved[name] end
 	for k, v in pairs(kingSaved) do ks[k] = v end
 	ss.beginner = beginner
