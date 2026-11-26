@@ -413,16 +413,16 @@ local function matchOptions(o)
 	-- the throw to go (1.4.0; core/togo, docs/SESSION.md "The throw to go"): who throws
 	-- first is thrown for before turn 1. Kept only when asked for (true or "on"), never in
 	-- a Kid match (a child's match starts at once, as it always did) and never when no
-	-- person plays (computer against computer has no one to watch it decided), so every
-	-- other match has the start it always had
+	-- person throws a baton to go (each team's first player throws it: match.togoThrower;
+	-- with the computer first on both, nobody would throw and nobody watch it decided), so
+	-- every other match has the start it always had
 	if (o.togo == true or o.togo == "on") and out.rules ~= "kid" then
 		local person = false
 		for _, side in ipairs { "A", "B" } do
 			local whole = false
 			for _, c2 in ipairs(cpu) do if c2 == side then whole = true end end
-			if not whole then
-				for _, p in ipairs(teams[side].players) do if not p.cpu then person = true end end
-			end
+			local p1 = teams[side].players[1]
+			if not whole and p1 and not p1.cpu then person = true end
 		end
 		if person then out.togo = true end
 	end
@@ -1069,7 +1069,9 @@ end
 -- ---------- aiming ----------
 
 function Session:canAim()
-	return self.phase == "throw" and self.ts.mode == "aim" and not self.ts.watching
+	-- (1.4.0) and a baton to go this client has set up (togoPrepare)
+	local ph = self.phase == "throw" or (self.phase == "togo" and self.togoAt ~= nil)
+	return ph and self.ts.mode == "aim" and not self.ts.watching
 end
 
 local function aimOut(s)
@@ -1530,7 +1532,12 @@ function Session:applyTogo(a)
 	if self:togoCpu(side) then return no("the computer's") end
 	if type(a.launch) ~= "table" then return no("no launch") end
 	local stamp = stampOf(a.at)
-	tg.acts[side] = json.decode(json.encode(a))
+	-- kept (in the snapshot while the other baton is owed) with only the fields a baton
+	-- reads, so nothing a client added rides along (session/namecheck checks each string)
+	local keep = {}
+	for _, k in ipairs { "type", "side", "round", "how", "launch", "stance", "target", "swing", "verdicts",
+		"plan", "input", "scripted", "at" } do keep[k] = a[k] end
+	tg.acts[side] = json.decode(json.encode(keep))
 	if stamp then self.finish = stamp end
 	if #self:togoOwed() > 0 then
 		self:togoPrepare()
