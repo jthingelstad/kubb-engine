@@ -1,6 +1,6 @@
 {
   "name": "kubb-engine",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "extractedFrom": {
     "repository": "jthingelstad/playdate-kubb",
     "path": "source/core",
@@ -19,14 +19,14 @@
     "note": "pitch/ (room/ before 0.13) began as src/net's lobby.js, seats.js and sync.js in Lua, now the one implementation; tests/pitch/vectors/ are a frozen corpus recorded from this commit (docs/PITCH.md)"
   },
   "files": {
-    "core/autothrow.lua": "f95b1f4d2591527690b850055df04f57b93a75895e4cdf84b411b3b6ca278fa1",
+    "core/autothrow.lua": "c298b7b7b4f69246b1da8d9822d969c50f07e56b7a159fff76a044a4947196a1",
     "core/bench.lua": "763ad4227dbc59ac8279b42165afbd2945ed951b5ad00e8934f239f534194e7f",
     "core/body.lua": "7984503fa805f27b9acc4cdfe998f730178a6c7fa5edf2f28950d274819c3b31",
     "core/burstpick.lua": "2c3f468a44b041a4161f2f7db7f49efbba2d16c2585ec7ac5b2610af22a4ce10",
     "core/camera.lua": "c0b7f5f1ed1b7f39a38f9c486d44ed6ea4127fefcbe02ef8f108d3b8e4de4a52",
     "core/cards.lua": "ce65806a21fb8154de39396f50eff48aac9566a10f26afb0daaebd906811e922",
     "core/collide.lua": "336d17840bf9abcf98323bdf94302f28c5b76ac7be774d85e6378f758a997b2d",
-    "core/cpu.lua": "07eeacff725f98eb6b05ed7e55b16e9488358cb9f1a8a8b9bc96b74d5b20389e",
+    "core/cpu.lua": "d96ec18a2941cf6695788d6f8901545091852d4e8edfa67f7bbe1032094635fb",
     "core/debris.lua": "ccc8553bd70a231cc939adea8e511e842b5ab6ddd21b9afc45a904cce698fa17",
     "core/drill.lua": "ce52799e1941dcd5afaa1ffc26b1c0ba932f655c19cb2a27bcab7ec569f00f1b",
     "core/drills.lua": "ae4113243ab8d677abc80310bad9e998f8da7380b193e1405b311662904a0103",
@@ -37,7 +37,7 @@
     "core/howto.lua": "06dea483b7090ac9701a092ff6c07289ff285e029583ac48dddc972f5001af88",
     "core/howtoplay.lua": "55bdc5519a010fe79ac94d9ce41f4a998f69bb2741154bd253f20a2a17d39feb",
     "core/lineup.lua": "c7c96c0c228d0e584a05dfa72508f998d8492a83af3770ca5db4cab178d11a48",
-    "core/match.lua": "fa689242fa508b342662f7cdb7e4afbf2bc11259b4686ed018c3c0474abf6d8d",
+    "core/match.lua": "3bc19ccf38f3dc3940474924bba68f5e264d860d824f246dfe71ca3a407ed202",
     "core/matchopts.lua": "72234d062752f2c8885d564e7f9520de96708dfd22caffd941ac274682045825",
     "core/namegen.lua": "222565636da5f2cdd9ca51ad3f7367744d47b445acb4467888c1f00bf839b64b",
     "core/names.lua": "faec8d960119704c95bd9a72f6462bc2b62daa30e19ff9cedc657a80e452848d",
@@ -58,35 +58,35 @@
     "core/save.lua": "27cb87941e929a186884b3d38c4eae6ef86adca764b3af04ca5bb9ce3b5cfff2",
     "core/scenes.lua": "5d0659fc63a71548f7ae9638c2bcb07638af3a45fdcf820d75b2f66dec50186f",
     "core/swing.lua": "c55fd9282c913a1f12cfb463e887e64372846ac32ff5d704b54b4a65510c5b4a",
-    "core/throwplan.lua": "54d9d09a2b3f68679583460ce4cc7cc5d15a2b0d8e1064409db206d523d20990",
+    "core/throwplan.lua": "87fd45194c8de12b9de1eb754db3217bf8ae856b26bfd2dd5d1274c97e5d234d",
     "core/trace.lua": "677a86eeea08ff9cfae63f57a0852f7e3a140428de278db0da6c1cf63ddc1896",
     "core/tw.lua": "d3bb3a81977440239e9024e243aa3b3dce2ba418b19d87075b8268b73aeff167",
     "core/vec.lua": "16ed8c29ccd68dcc7cff60892b5b2e767aaf01635e7fad30e593f09247326393",
     "core/wind.lua": "5be8fbc824ab65f875570249012fe334c5327b93f5036d37e2679e8bef93a876",
     "core/world.lua": "f90157fe4cc1bc4347b9c807476c35925b712c8bf55befaca508564e65eaa191",
-    "pitch/api.lua": "05d1047648620f4fc7167ee7dcac3bb969a0f098614898b1b531b5dd8378594d",
+    "pitch/api.lua": "c541ca21d865974104be8ca572df7f3ff0a93f6f66225a72c757b1a0371dbb5e",
     "pitch/engines.lua": "c3e1cb876bb7b35b70d6daf703ce6b42224342e3a46799602f5f242168e1882c",
     "pitch/js.lua": "4861032d59086e78c13d3a3e0628d28b0d147758d780bd659d25cf49d3e7d325",
-    "pitch/lobby.lua": "b53ebbc98a49e4212676eecac76df1799068e3336cd218a8107c3e769f804daa",
+    "pitch/lobby.lua": "4ed5081f8e655b2391e18b4c6879b7c5296f133efce5a3a1962b6b04e509683a",
     "pitch/seats.lua": "33634cb42311d361869f7690104a223600e198307f6065629a9bc874df06cd42",
     "pitch/sync.lua": "fcdda8e612f296267603e47b268ded6ed8fecf7ed4d46a7c50cd25ba4ad2b60b",
     "session/api.lua": "b2aac617434578bf8c7d8c6fe784068186038bacdf1b7acd0d4d84d1e07e4dd1",
-    "session/check.lua": "129a4fa911b251e83330b57661c42090289fe667161e0d8f11651aaf33303805",
+    "session/check.lua": "83c7f50acef0cacbe9db485517c2c495680a02a7b337361b7326a2c854418244",
     "session/json.lua": "8d0668bd82f2b3537fff0d76e986d813fc94104560ebcf2ae66416bf2f79185c",
-    "session/namecheck.lua": "10ea8b3e2b1efbf9d430fb31dc29b85b7eef821f5f21304daf18169c4b244018",
+    "session/namecheck.lua": "1cf347cb05d281b661f88a1e688d929fc7e8b7b7421e65d0b3842da817cd5c4c",
     "session/names.lua": "24ad83176ac83dc39d97c75e7fb52cead05c93302fd3d4e55d64b94caa5cab01",
     "session/neighbours.lua": "8d4df3ab31bdb170f06c4d508275aca2b47f1dfad7614b570e46bf678839f834",
     "session/record.lua": "e79351c336c74ed33f9c0a656a9732062b11566af39bc2007e8f1b329699cb20",
     "session/replay.lua": "25575574766f680f9c595520744d4398415a362f7114088f1a94794c9c78b3b0",
-    "session/session.lua": "625a44ed828950e7a225d991701af29bdf3837d20007a33fc07256e170be1c01",
-    "session/throw.lua": "452f6f0fef8217578f5b4e0e87b7aaa7d90c9e8890135516c7a63ec4dff47464",
+    "session/session.lua": "e18b95b509af41f4e558d36fcfcbe96532d5e26a1203a51401165d6689091649",
+    "session/throw.lua": "ac36f2ea444ccf87589b6459a7bba5c2838e0abcc667d7b597104961270b451e",
     "session/touch.lua": "1785c2057390574d94f42fde5945558e42ae20186a74d5bd8bc6d523231d4371",
     "session/wide.lua": "3d1844ff9f2d38c01b83a1daa1326309236fd730b535353f9b5f9347000fd416",
     "tune/pointer.lua": "7b30c67adf47fb8387e5b0dd7f73af3c92c99116d05781885e7fc0157fcc9397",
     "tune/touch.lua": "b7c3f2851c4c386cc39a76d891cf273d703ac231fe51c235db5d1bc404915221",
-    "version.lua": "d5624e624405d657abf905085898ad6d3a4ec30538954bc03d1bd5fff2bff9ee"
+    "version.lua": "dba7dfdb4a3b0816d5b4a25ebd16cf4a53528e7a53f9471b8c36c1ad0b74558f"
   },
   "bundle": {
-    "sha256": "4f2d1486fb8e23c1363abeb2f63a7c8440c8f2455e7339d6d6b29d3077e93082"
+    "sha256": "1efd0e1ecb2485b7a506365f14d7d7078a0383c1bdfd2a0ca72e7c7cdea0e213"
   }
 }
