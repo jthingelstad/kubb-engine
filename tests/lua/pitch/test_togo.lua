@@ -56,3 +56,34 @@ test("seats: each side's baton to go is its first player's, else a teammate's, e
 	need.owe = { "B" }
 	expect.eq(seats.togoActor(need, ctx, "A"), nil)
 end)
+
+test("controlFor with a togo need: the host who stands in for both throws only its own baton", function()
+	local need = { kind = "togo", owe = { "A", "B" },
+		throwers = { A = { key = "a1" }, B = { key = "b1" } } }
+	local ctx = { players = { A = { { id = "a1" } }, B = { { id = "b1" } } }, host = "b1",
+		connected = { "a1", "b1" } }
+	local c = seats.controlFor(ctx, "b1", need)
+	expect.eq(table.concat(c.sides, ","), "A,B", "the host may still stand in for both")
+	expect.eq(table.concat(c.togo, ","), "B", "but throws only B's baton to go")
+	expect.eq(table.concat(seats.controlFor(ctx, "a1", need).togo, ","), "A")
+	expect.eq(seats.controlFor(ctx, "b1").togo, nil, "no need: as before")
+	expect.eq(seats.sameControl(c, seats.controlFor(ctx, "b1")), false, "a togo list is part of the control")
+	-- a1 gone: the host throws both
+	ctx.connected = { "b1" }
+	local c2 = seats.controlFor(ctx, "b1", need)
+	expect.eq(table.concat(c2.togo, ","), "A,B")
+	expect.eq(seats.sameControl(c, c2), false)
+	-- through the door, and into the session: the host's session sets up B's baton, not A's
+	local r = json.decode(kubbCall("pitch.controlFor", json.encode { ctx = { players = ctx.players, host = "b1",
+		connected = { "a1", "b1" } }, me = "b1", need = need }), true).value
+	expect.eq(table.concat(r.togo, ","), "B")
+	local s = tw.web.session.new { mode = "match", seed = 4, start = START, togo = true,
+		teams = { A = { name = "Team A", players = { { name = "Ann", key = "a1" } } },
+			B = { name = "Team B", players = { { name = "Bo", key = "b1" } } } } }
+	expect.eq(s:need().side, "A", "one device: A's first")
+	local n = s:setControl { sides = r.sides, cpu = r.cpu, togo = r.togo }
+	expect.eq(n.side, "B")
+	expect.eq(n.setup.side, "B")
+	n = s:setControl { sides = { "A", "B" } }
+	expect.eq(n.side, "A", "no togo list: A then B again")
+end)

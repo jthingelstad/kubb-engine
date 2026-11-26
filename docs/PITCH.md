@@ -252,7 +252,7 @@ Each is `pitch.<name>`; the fields are the argument object's. "nothing" is `valu
 | `actorsFor`   | `need, ctx`     | The members who may act now. A throw is its owner's (`need.setup.thrower.key`); if they are not connected, the first connected team-mate in throwing order takes it; failing that, the host. A raise or punishment kubb: any connected defender, else the host. The computer's (a side it plays, or a computer player: `need.cpu`): the host. Practice and the end: nobody. A computer player is never a team-mate here (since 0.17). |
 | `mayAct`      | `need, ctx, me` | May `me` act? Never for the computer's throw (the host's engine throws it by itself).                                                                                                                                                                                                                                   |
 | `shownActor`  | `need, ctx`     | Who to show as acting: the first who may, `"cpu"`, or null.                                                                                                                                                                                                                                                             |
-| `controlFor`  | `ctx, me`       | This client's `setControl` argument: `{ sides, cpu }`, its own team's side, every human side for the host, and the computer for the host.                                                                                                                                                                               |
+| `controlFor`  | `ctx, me, need?`| This client's `setControl` argument: `{ sides, cpu }`, its own team's side, every human side for the host, and the computer for the host. With a `togo` need (1.4.0), also `togo`: the sides whose baton to go `me` throws (`togoActor`).                                                                                                                                                                               |
 | `sameControl` | `a, b`          | Are two controls the same (so `setControl` need not be called again)?                                                                                                                                                                                                                                                   |
 | `playingSide` | `ctx, me`       | The side `me` plays for, or null (watching).                                                                                                                                                                                                                                                                            |
 | `teamIds`     | `ctx, side`     | The side's member ids in throwing order: its people (since 0.17 a computer player is not a member).                                                                                                                                                                                                                     |
@@ -290,7 +290,11 @@ again (docs/VERSIONING.md "1.4.0").
   setting.
 - **Who acts** (`actorsFor` on a `togo` need): for each side still owed, its thrower's
   owner (`need.throwers[side].key`). If they are not connected, the first connected
-  team-mate; failing that, the host. Both sides may throw at once. Each client sends
+  team-mate; failing that, the host. Both sides may throw at once. While the need is a
+  `togo` need, pass it to `controlFor` (`{ ctx, me, need }`): the control then carries
+  `togo`, the sides whose baton this member throws, and `setControl` with it sets up only
+  those. Without it a host, who may stand in for both sides, would set up A's baton even
+  while A's own player is connected. Each client sends
   its baton when it is thrown, and every member applies both (`apply`), in either order.
   A baton for a side already in is refused as `"thrown"`, which leaves the match
   unchanged, so a retry is harmless. Nobody acts for the computer's baton: every engine

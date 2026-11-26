@@ -124,7 +124,9 @@ end
 -- The engine's control for this client (setControl): the human sides it may ever act
 -- for (its own team's, and every human side when it is the host, who stands in for
 -- anyone), and the computer when it is the host. mayAct decides need by need.
-function seats.controlFor(ctx, me)
+-- (1.4.0) Given the view's need, a `togo` need adds `togo`: the sides whose baton to go
+-- this member throws (togoActor), so a host who may stand in for both throws only its own.
+function seats.controlFor(ctx, me, need)
 	local sides = {}
 	local host = get(ctx, "host")
 	for _, s in ipairs { "A", "B" } do
@@ -132,15 +134,29 @@ function seats.controlFor(ctx, me)
 			if same(me, host) or includes(seats.teamIds(ctx, s), me) then sides[#sides + 1] = s end
 		end
 	end
-	return object { sides = sides, cpu = same(me, host) }
+	local out = { sides = sides, cpu = same(me, host) }
+	if truthy(need) and same(get(need, "kind"), "togo") then
+		local tg = {}
+		for _, s in ipairs { "A", "B" } do
+			if same(seats.togoActor(need, ctx, s), me) then tg[#tg + 1] = s end
+		end
+		out.togo = tg
+	end
+	return object(out)
+end
+
+local function sameList(sa, sb)
+	if not js.isTable(sa) or not js.isTable(sb) or #sa ~= #sb then return false end
+	for i = 1, #sa do if not same(sa[i], sb[i]) then return false end end
+	return true
 end
 
 function seats.sameControl(a, b)
 	if not truthy(a) or not truthy(b) then return false end
 	if not same(get(a, "cpu"), get(b, "cpu")) then return false end
-	local sa, sb = get(a, "sides"), get(b, "sides")
-	if not js.isTable(sa) or not js.isTable(sb) or #sa ~= #sb then return false end
-	for i = 1, #sa do if not same(sa[i], sb[i]) then return false end end
+	if not sameList(get(a, "sides"), get(b, "sides")) then return false end
+	local ta, tb = get(a, "togo"), get(b, "togo")
+	if truthy(ta) or truthy(tb) then return sameList(ta, tb) end
 	return true
 end
 
