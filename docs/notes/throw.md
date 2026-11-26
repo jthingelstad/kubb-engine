@@ -777,8 +777,9 @@ off the line sideways, with all of their error along the throw: inside the bars 
 exactly where it was aimed, so a person could drill it anywhere.
 
 **What changed** (`plan.meters.standard`; the Kid meter and the computer's levels are not
-touched, so the computer's throws are bit-for-bit as in 1.2: `tests/fixtures/cpu/choose.txt`
-and the golden matches without a person):
+touched, so the meter alone left the computer's throws bit-for-bit as in 1.2; the aim by
+the baton's turn below moves 30 of `tests/fixtures/cpu/choose.txt`'s 480 cases, all close
+club and pro batons, "The bars' corners"):
 
 - **No nerves for people.** `nervesDeg`, `nervesLen` and `tumbleSd` are 0 (they were 0.12,
   0.008 and 0.015). The draws are still taken from the swing's seed, so the stream is the
@@ -786,12 +787,13 @@ and the golden matches without a person):
   every time. `checkThrow` then pins the swivel to the swing to within rounding.
 - **A narrower release bar.** `releaseHalf8` 5 degrees at 8 m (was 7.5): 14.0 / 9.5 / 5.0
   at 4 / 6 / 8 m. The power bar is unchanged (5.6 / 3.8 / 2.0).
-- **The release pulls inside the bar too.** `edgeM` 0.05: a release at the bar's edge
-  turns the line by the angle 5 cm makes at the throw's distance, straight through to the
+- **The release pulls inside the bar too.** `edgeM` 0.035 (0.05 in the first draft; "The
+  bars' corners"): a release at the bar's edge turns the line by the angle 3.5 cm makes at
+  the throw's distance, straight through to the
   centre (`plan.releasePull`: `-e x er / h` inside, `e = atan(edgeM / d)`), and past the
-  edge the old `pullPerDeg` slope is added on, so the pull is continuous. A late release
+  edge `pullPerDeg` (0.25 a degree, was 0.15) is added on, so the pull is continuous. A late release
   still pulls left and an early one right. A swing inside both bars still fells a lone
-  kubb at every range (the baton is wider than the 5 cm).
+  kubb at every range, at the bars' very corners too.
 - **The thrown kubb is pulled too.** `kubbPull` 0.15 degrees a degree past the bar and the
   same edge pull inside it, so a drill's error is sideways as well as along; inside a bar
   its error counts `kubbInGain` 0.3 (a baton's `inGain` stays 0.1), so a kubb inside the
@@ -807,7 +809,7 @@ any of them.
 | --- | --- | --- | --- | --- | --- |
 | easy | 5.0 / 12.0 | 9.5 / 22.8 | 14.0 / 33.6 | 0.04 | 0.12 |
 | standard | 2.0 / 5.0 | 3.8 / 9.5 | 5.6 / 14.0 | 0.1 | 0.3 |
-| hard | 1.5 / 3.5 | 2.8 / 6.6 | 4.2 / 9.8 | 0.1 | 0.3 |
+| hard | 2.0 / 3.5 | 3.8 / 6.6 | 5.6 / 9.8 | 0.1 | 0.3 |
 
 Easy's gains are lower because its bars are wide: at the standard gains a steady swing
 anywhere inside easy's bars drilled only 61% of kubbs within 0.3 m and felled 96 to 99% of
@@ -822,9 +824,9 @@ A lone standing kubb, felled at 4 / 6 / 8 m:
 | --- | --- | --- | --- | --- | --- |
 | a perfect swing | 100 / 100 / 100 | 100 / 100 / 100 | 100 / 100 / 100 | 100 / 100 / 100 | 100 |
 | steady swings inside both bars (PULLED) | 100 / 100 / 100 (0) | 100 / 100 / 100 (0) | 100 / 100 / 100 (0) | 100 / 100 / 100 (0) | 100 |
-| the recorded hand x2 | 53 / 33 / 24 | 66 / 48 / 28 | 42 / 21 / 16 | 22 / 16 / 12 | beginner 45 / 22 / 10 |
-| the recorded hand x1 | 76 / 62 / 44 | 84 / 72 / 59 | 70 / 50 / 28 | 56 / 34 / 22 | club 72 / 48 / 27 |
-| the recorded hand x0.5 | 87 / 79 / 69 | 91 / 83 / 81 | 85 / 71 / 58 | 81 / 66 / 45 | pro 88 / 70 / 45 |
+| the recorded hand x2 | 53 / 33 / 24 | 66 / 48 / 28 | 41 / 22 / 16 | 24 / 16 / 13 | beginner 45 / 22 / 10 |
+| the recorded hand x1 | 76 / 62 / 44 | 83 / 71 / 58 | 69 / 50 / 29 | 57 / 36 / 22 | club 72 / 48 / 27 |
+| the recorded hand x0.5 | 87 / 79 / 69 | 90 / 84 / 81 | 86 / 71 / 60 | 82 / 66 / 46 | pro 88 / 70 / 45 |
 
 Read across: Standard puts the recorded hand on club's row (it was well above it), Easy x2
 (a newcomer on Easy) near club's row, and Hard x0.5 (a strong player on Hard) on pro's,
@@ -835,10 +837,10 @@ median rest from the spot, within 0.3 m, landed dead.
 
 | thrower | before | easy | standard | hard |
 | --- | --- | --- | --- | --- |
-| the recorded hand x2 | 46 cm, 40%, 38% | 16 cm, 70%, 75% | 69 cm, 28%, 26% | 84 cm, 19%, 16% |
-| the recorded hand x1 | 6 cm, 79%, 78% | 7 cm, 89%, 93% | 21 cm, 62%, 64% | 31 cm, 48%, 45% |
-| the recorded hand x0.5 | 4 cm, 93%, 92% | 4 cm, 97%, 96% | 9 cm, 88%, 88% | 9 cm, 88%, 87% |
-| steady swings inside both bars | 4 cm, 98%, 96% | 10 cm, 98%, 94% | 10 cm, 98%, 94% | 8 cm, 98%, 96% |
+| the recorded hand x2 | 46 cm, 40%, 38% | 15 cm, 70%, 78% | 70 cm, 27%, 24% | 80 cm, 21%, 16% |
+| the recorded hand x1 | 6 cm, 79%, 78% | 7 cm, 88%, 91% | 19 cm, 65%, 66% | 25 cm, 56%, 54% |
+| the recorded hand x0.5 | 4 cm, 93%, 92% | 4 cm, 98%, 96% | 8 cm, 90%, 90% | 9 cm, 87%, 86% |
+| steady swings inside both bars | 4 cm, 98%, 96% | 10 cm, 98%, 95% | 10 cm, 97%, 94% | 10 cm, 97%, 94% |
 | a dead-centre steady swing | 2 cm, 98%, 96% | 3 cm, 98%, 95% | 3 cm, 98%, 95% | 3 cm, 98%, 95% |
 | the computer at club / pro | 8 cm, 79%, 56% / 3 cm, 98%, 96% | the same | the same | the same |
 
@@ -847,16 +849,59 @@ from it: still a good kubb, no longer one placed to the centimetre.
 
 **What to watch.**
 
-- Hard's power bar is 1.5 degrees either side at 8 m, under the 2-degree floor 0.13 kept
-  so the bar stays usable on a phone and a crank. It is drawn; whether it is usable on
-  each surface is for the clients to check.
-- At the edge pull a swing at the far corner of both bars puts the baton at the kubb's
-  edge: on Hard at 4 m a swing at one corner of both bars (the backswing short and the
-  release early, both at their edges) glanced off 2 times in 36 yaws, and on Hard at 8 m a
-  short, late corner missed once in 40; the other corners fell every time. Steady swings spread inside the bars
-  fell every time (400 a range).
+- Hard's power bar is 2.0 degrees either side at 8 m (1.5 in the first draft), the
+  2-degree floor 0.13 kept so the bar stays usable on a phone and a crank; at 2.0 it is
+  standard's at every range, so Hard differs by its release bar (3.5 at 8 m against 5).
+  The recorded hand on Hard still fells clearly under club's row and x0.5 sits on pro's.
 - The recorded matches were thrown on the old meter. People on narrower bars will likely
   aim more carefully than the model, so the meter is set on the lower side again.
+
+### The bars' corners (1.3.0)
+
+The rule is that any swing inside both bars lands. The honest rows above draw swings across
+the inside of the bars; this measures the worst of them, a steady swing (shake 0) with a
+full flick at each corner of both bars and each edge's midpoint, 0.999 of each half width,
+at a lone kubb turned 0 to 90 degrees:
+
+    lua5.4 tools/meterprobe.lua --parts corners --meters easy,standard,hard,kid
+      [--corner-step 0.5] [--corner-yaw 15]
+
+On the first 1.3.0 draft that grid (3 to 10 m every half metre, every 15 degrees, 840
+throws a meter) missed on every meter, and a perfect swing missed too, between 3.1 and
+3.9 m. Two causes:
+
+- **The aim height assumed an upright baton.** `plan.aimZFor` puts the baton's centre 0.173
+  m up, right for a baton that arrives upright (half a turn). Under release 15 the drive
+  eases the turn (`driveTurnToDeg`), so at 3 to 4 m the baton arrives 0.22 to 0.41 turns
+  round, nearly lying down, and its centre at 0.173 m carried its body over the 15 cm kubb.
+  1.2.0 has the same band. From 1.3.0 (`plan.tune.aimByTurn` 1) `plan.solve` works out how
+  far round the baton is at the kubb and, when it is short of a half turn, lowers the
+  centre by the half length it has tipped (`hl x (1 - |cos|)`) and solves the line again
+  for that height. A baton that has turned half a turn or more keeps its plan: from release
+  15 up every level turns its own 0.5 or 0.62, so those plans are bit-for-bit as in 1.2. This is the plan, not the person: the computer's close drives get it too (30 of
+  choose.txt's 480 cases, club and pro batons under release 15), and the drive floors at 3
+  and 4 m drop to 8.9 and 11.6 (were 9.3 and 12.3; "The drive").
+- **The edge pull was wider than a corner can take.** At `edgeM` 0.05 a release at the
+  bar's edge put the baton's centre 5 cm off the kubb's, and with the power at its edge too
+  a corner swing glanced off. Tried 0.02 to 0.05, alone and with the pull shrinking as the
+  power goes to its edge (a "diamond"): 0.035 with no diamond is the widest that misses
+  nothing on the grid. The smaller pull raised the recorded hand's rows (standard x1 to 53%
+  at 6 m against 48), so `pullPerDeg` past the bar goes from 0.15 to 0.25, which puts a
+  release just past the edge about where it was pulled before and the rows back on club's.
+
+Misses on the grid, final settings (Hard 2.0 / 3.5 at 8 m):
+
+| meter | 3 to 10 m every 0.5 m, every 15 degrees (840) | every 0.25 m, every 5 degrees (4408) |
+| --- | --- | --- |
+| easy | 0 | 0 |
+| standard | 0 | 1 (7.75 m, long and early, turned 70) |
+| hard | 0 | 0 |
+| kid | 10 (9.5 and 10 m) | not run |
+
+The one dense-grid miss is a kubb struck hard that tilts past 70 degrees and rights itself,
+a chaotic edge of the contact, not a line that misses. The Kid meter keeps its nerves (a
+seeded draw), so its misses are draws past the bars' far end, not corners. `test_meter`
+pins the corners and edges at 3.5, 5 and 8 m, turned 0, 45 and 90, on each player level.
 
 ## The Kid meter (0.15)
 
@@ -977,7 +1022,8 @@ heights, the floor moves by under 1e-7 degrees except where the carry speed itse
 kubb 2.21 m away the search now finds the lower of two roots 7e-4 degrees apart. No
 golden plan moves.
 The floor by distance (a kubb's aim height, the person's meter): 0.0 at 1 m, 0.3 at 1.5
-m, 5.0 at 2 m, 9.3 at 3 m, 12.3 at 4 m, 14.8 at 5 m, 15 from 6 m. `aim.controls.arc.min`
+m, 5.0 at 2 m, 8.9 at 3 m, 11.6 at 4 m, 14.8 at 5 m, 15 from 6 m (9.3 and 12.3 at 3 and 4 m
+until 1.3.0's aim by the baton's turn, "The bars' corners"). `aim.controls.arc.min`
 is that floor for the throw in hand (`docs/SESSION.md`).
 
 **The turn** (`driveTurnToDeg`). Under the knee the planned tumble eases from the level's

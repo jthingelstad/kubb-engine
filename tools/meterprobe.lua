@@ -23,10 +23,18 @@
 --             kubb's length (0.15 m) and within 0.3 m, the share that landed dead
 --             (world.tune deadLanding), that rested out of the pitch, and the mean
 --             scatter; the recorded hand at each of --hands' scales
+--   corners   (1.3.0, only when named) a steady, full-flick swing at the four corners and
+--             four edge midpoints of both bars (0.999 of each half width), at a lone kubb
+--             turned 0 to 90 degrees, 3 to 10 m: the misses, each with its range, swing
+--             and turn, per meter (--meters). On a meter with no nerves every one must
+--             fell (docs/notes/throw.md "The bars' corners")
 -- A measuring tool: it changes nothing in the engine.
 --
 --   lua5.4 tools/meterprobe.lua [--n 400] [--ranges 4,6,8]
---     [--parts perfect,honest,hand,drill] [--hand club] [--seed 1]
+--     [--parts perfect,honest,hand,drill,corners] (corners only when named)
+--     [--meters easy,standard,hard,kid] (the corners part's meters) [--corner-ranges 4,8]
+--     [--corner-step 0.5] (metres between its ranges, 3 to 10) [--corner-yaw 15] (degrees
+--     between the kubb's turns, 0 to 90) [--hand club] [--seed 1]
 --     [--meter kid] (a meter of plan.meters; the Kid meter, 0.15.0, also counts a helicopter
 --     as thrown, as the Kid rules do) [--hands 2,1,0.5] (the hand scales the hand part draws)
 --     [--set plan.meters.standard.powerHalf8=4] (one tune a --set; a surface's number as
@@ -64,6 +72,7 @@ local SURFACE = "grass"
 ARC = "line"
 local ranges = { 4, 6, 8 }
 local parts = { perfect = true, honest = true, hand = true, drill = true }
+local cornerMeters, cornerRanges, cornerStep, cornerYaw = nil, nil, 0.5, 15
 local function list(s, num)
 	local out = {}
 	for v in s:gmatch("[^,]+") do out[#out + 1] = num and tonumber(v) or v end
@@ -79,6 +88,10 @@ while i <= #arg do
 	elseif a == "--surface" then SURFACE = v; i = i + 1
 	elseif a == "--meter" then meterName = v; i = i + 1
 	elseif a == "--hands" then hands = list(v, true); i = i + 1
+	elseif a == "--meters" then cornerMeters = list(v); i = i + 1
+	elseif a == "--corner-ranges" then cornerRanges = list(v, true); i = i + 1
+	elseif a == "--corner-step" then cornerStep = tonumber(v); i = i + 1
+	elseif a == "--corner-yaw" then cornerYaw = tonumber(v); i = i + 1
 	elseif a == "--arc" then ARC = v; i = i + 1
 	elseif a == "--model" then i = i + 1
 	elseif a == "--king" then KING = true
@@ -91,8 +104,13 @@ while i <= #arg do
 		assert(path, "--set path=value")
 		local t, keys = tw, list(path:gsub("%.", ","))
 		for k = 1, #keys - 1 do t = assert(t[keys[k]], "no " .. path) end
-		assert(type(t[keys[#keys]]) == "number", path .. " is not a number")
-		t[keys[#keys]] = tonumber(val)
+		local cur = t[keys[#keys]]
+		if type(cur) == "boolean" or val == "true" or val == "false" then
+			t[keys[#keys]] = val == "true"
+		else
+			assert(cur == nil or type(cur) == "number", path .. " is not a number")
+			t[keys[#keys]] = tonumber(val)
+		end
 		i = i + 1
 	else error("unknown option " .. a) end
 	i = i + 1
@@ -118,16 +136,17 @@ local function throwAt(d, yaw, L)
 	return touched, k.toppled
 end
 
-local function solveAt(d)
+local function solveAt(d, meter)
 	-- the default arc a person's circle on the kubb gets: from 0.16 the lowered line (the
 	-- drive close in); --arc shared for the line before
 	local kind = KING and "king" or (d >= 6 and "base" or "field")
 	local release = ARC == "shared" and plan.sharedArcFor(d) or plan.arcFor("baton", d)
 	return plan.solve({ projectile = "baton", px = 0, py = PY, tx = 0, ty = PY + d,
-		release = release, meter = METER, aimZ = plan.aimZFor(kind) }, {})
+		release = release, meter = meter or METER, aimZ = plan.aimZFor(kind) }, {})
 end
 
 local function pct(a, b) return b > 0 and 100 * a / b or 0 end
+
 
 print(fmt("meterprobe: the person's meter (%s), %d throws a cell, seed %d", meterName or plan.tune.meter, n, seed))
 print("bars by range (half widths, degrees): power / release, and the release's pull past its bar (deg/deg)")
@@ -303,5 +322,48 @@ if parts.drill then
 			local sw = autothrow.swing(sol, r, at.inkast[lname].hand, {})
 			return plan.launch(sol, sw, { projectile = "kubb", tilt = 0, spin = taps, level = lv, nerves = nr }, {}), sol
 		end)
+	end
+end
+
+if parts.corners then
+	-- the bars' corners and edges (1.3.0): a steady (shake 0), full-flick swing at each of
+	-- the four corners of both bars and the four midpoints of their edges, 0.999 of each
+	-- half width, at a lone kubb turned 0, 15, .. 90 degrees, every half metre from 3 to
+	-- 10 m, on each meter named (--meters; the one --meter names by default). On a meter
+	-- with no nerves (easy, standard, hard) each throw is exact: every one must fell. The
+	-- Kid meter keeps its nerves, so its row is a draw (seeded)
+	local F = 0.999
+	local SW = { { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }
+	local NAME = { ["-1,-1"] = "short+early", ["-1,1"] = "short+late", ["1,-1"] = "long+early",
+		["1,1"] = "long+late", ["-1,0"] = "short", ["1,0"] = "long", ["0,-1"] = "early", ["0,1"] = "late" }
+	local rs = cornerRanges or {}
+	if #rs == 0 then for k = 0, math.floor(7 / cornerStep + 0.5) do rs[#rs + 1] = 3 + k * cornerStep end end
+	local yaws = {}
+	for k = 0, math.floor(90 / cornerYaw + 0.5) do yaws[#yaws + 1] = k * cornerYaw end
+	print("\ncorners and edges of both bars, steady, full flick: misses / throws (each miss: range, swing, yaw)")
+	for _, mn in ipairs(cornerMeters or { meterName or plan.tune.meter }) do
+		local m = plan.meter(mn)
+		local miss, total, list = 0, 0, {}
+		local nr = plan.rng(seed * 900 + 7)
+		for _, d in ipairs(rs) do
+			local sol = solveAt(d, m)
+			local lv = sol.level
+			for _, c in ipairs(SW) do
+				local sw = { back = sol.back + c[1] * lv.powerHalf * F, releaseAngle = sol.release + c[2] * lv.releaseHalf * F,
+					flickFrac = 1, shake = 0, smoothness = 1, pull = 1, how = "stopped" }
+				for _, y in ipairs(yaws) do
+					local L = plan.launch(sol, sw, { nerves = nr }, {})
+					assert(L.powerV == 0 and L.releaseV == 0 and L.steady, "outside a bar")
+					local _, f = throwAt(d, math.rad(y), L)
+					total = total + 1
+					if not f then
+						miss = miss + 1
+						list[#list + 1] = fmt("%.1f %s %d", d, NAME[c[1] .. "," .. c[2]], y)
+					end
+				end
+			end
+		end
+		print(fmt("  %-8s %3d / %d missed", mn, miss, total))
+		for k = 1, #list, 6 do print("    " .. table.concat(list, "; ", k, math.min(#list, k + 5))) end
 	end
 end

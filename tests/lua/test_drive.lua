@@ -137,8 +137,9 @@ test("drive: a kept drive raised to a new floor runs no carry that returns nan",
 	flight.speedForCarry = real
 	assert(ok, err)
 	expect.eq(bad, 0, "carries that returned nan (" .. calls .. " in all)")
-	-- the floors as docs/notes/throw.md gives them (a kubb's aim height, the person's meter)
-	for d, f in pairs { [1.5] = 0.3, [2] = 5.0, [3] = 9.3, [4] = 12.3, [5] = 14.8 } do
+	-- the floors as docs/notes/throw.md gives them (a kubb's aim height, the person's meter; 3 and 4 m
+	-- lower from 1.3.0, the aim by how the baton arrives)
+	for d, f in pairs { [1.5] = 0.3, [2] = 5.0, [3] = 8.9, [4] = 11.6, [5] = 14.8 } do
 		expect.near(solve(d, 0).release, f, 0.05, "the floor at " .. d .. " m")
 	end
 end)

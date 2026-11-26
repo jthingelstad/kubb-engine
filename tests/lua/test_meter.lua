@@ -142,6 +142,33 @@ test("meter: the meter is honest: a steady swing inside both bars fells the kubb
 	end
 end)
 
+-- 1.3.0 (docs/notes/throw.md "The bars' corners"): the honest test above draws inside the
+-- bars; this one throws at their very corners and edge midpoints (0.999 of each half
+-- width), steady and with a full flick, where a swing is furthest from the plan and still
+-- in. Before 1.3.0 a 3 to 4 m baton aimed as if it arrived upright passed over the kubb at
+-- some of these, and the edge pull glanced a corner swing off; tools/meterprobe.lua
+-- --parts corners runs the whole grid (3 to 10 m, every 15 degrees)
+test("meter: a steady swing at the bars' corners and edges fells the kubb, at every player level", function()
+	local SW = { { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }, { -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 } }
+	for _, name in ipairs(plan.THROW_LEVELS) do
+		for _, d in ipairs { 3.5, 5, 8 } do
+			local sol = personSol(d, nil, name)
+			local lv = sol.level
+			for _, c in ipairs(SW) do
+				local sw = { back = sol.back + c[1] * lv.powerHalf * 0.999,
+					releaseAngle = sol.release + c[2] * lv.releaseHalf * 0.999, flickFrac = 1,
+					shake = 0, smoothness = 1, pull = 1, how = "stopped" }
+				local L = plan.launch(sol, sw, { nerves = true }, {})
+				expect.truthy(L.powerV == 0 and L.releaseV == 0 and L.steady, "inside both bars and steady")
+				for _, yaw in ipairs { 0, 45, 90 } do
+					expect.truthy(fells(d, math.rad(yaw), L),
+						string.format("%s %.1f m, swing %d,%d, kubb turned %d: fell", name, d, c[1], c[2], yaw))
+				end
+			end
+		end
+	end
+end)
+
 test("meter: no hidden draw: the same swing gives the same throw, nerves asked or not", function()
 	for _, name in ipairs(plan.THROW_LEVELS) do
 		local m = plan.meter(name)
@@ -166,19 +193,23 @@ test("meter: no hidden draw: the same swing gives the same throw, nerves asked o
 	for _, name in ipairs(plan.LEVELS) do expect.truthy(plan.levels[name].nervesDeg > 0, name) end
 end)
 
-test("meter: easy's bars are wider than standard's and hard's narrower, at every range and for both", function()
+test("meter: easy's bars are wider than standard's and hard's no wider, at every range and for both", function()
 	for _, projectile in ipairs { "baton", "kubb" } do
 		for _, d in ipairs { 2, 3, 4, 6, 8, 10 } do
 			local e = plan.meterLevel(plan.meter("easy"), d, projectile)
 			local st = plan.meterLevel(plan.meter("standard"), d, projectile)
 			local h = plan.meterLevel(plan.meter("hard"), d, projectile)
 			local at = projectile .. " " .. d .. " m"
-			expect.truthy(e.powerHalf > st.powerHalf and st.powerHalf > h.powerHalf, at .. ": power")
+			-- hard's power bar is standard's (1.3.0: the 2-degree floor at 8 m), its release narrower
+			expect.truthy(e.powerHalf > st.powerHalf and st.powerHalf >= h.powerHalf, at .. ": power")
 			expect.truthy(e.releaseHalf > st.releaseHalf and st.releaseHalf > h.releaseHalf, at .. ": release")
 			-- an easier level never lets more of an error inside a bar through
 			expect.truthy(e.inGain <= st.inGain and st.inGain <= h.inGain, at .. ": inGain")
 		end
 	end
+	-- no meter's power bar is drawn thinner than 2 degrees either side at 8 m (docs/notes/
+	-- throw.md: usable on a phone and a crank)
+	for _, v in ipairs(plan.THROW_LEVELS) do expect.truthy(plan.meters[v].powerHalf8 >= 2, v .. ": the power floor") end
 	expect.eq(plan.meter("easy"), plan.meters.easy)
 	expect.eq(plan.meter("hard"), plan.meters.hard)
 	expect.eq(plan.meter("standard"), plan.meters.standard)
