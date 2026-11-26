@@ -41,12 +41,16 @@ local n = g:need()
     `decision = { mode, choices, ends }` from `tw.raising.options`; mode is `choice` (both
     footprints clear and in bounds), `forced` (one), `displaced` (none clear: touching the
     obstruction, II.D.5; the defender may still pick the end when both qualify).
+    Since 1.4.0 it also has `lying`: the ids of every field kubb of the half still lying,
+    in id order (`kubb` is the first). Any of them may be raised next.
   - `{ kind = "punish", side, kubb, half }`: the defender places a punishment kubb.
   - `{ kind = "baton", side, n, of, left, kingShot, throwY, advantageY, targets }`: `throwY`
     is the advantage line when there is one and this is not a king shot, else the baseline.
     `targets` are the standing field kubbs, else the base kubbs, else `{ "king" }`.
   - `{ kind = "over", winner, how }`.
-- Actions: `g:toss(outcome, player)`, `g:raise(choiceIndex | nil, policy)` (nil = automatic),
+- Actions: `g:toss(outcome, player)`, `g:raise(choiceIndex | nil, policy, id?)` (nil = automatic; `id`
+  since 1.4.0: any id of `need().lying`, the index then into that kubb's own decision),
+  `g:raiseKubb(id, which, policy)` (1.4.0: by the end's `which`, nil the policy's),
   `g:raiseAll(policy)`, `g:placePunishment(pose)` (returns false and a reason when invalid),
   `g:autoPunishment(policy)`, `g:throwBaton(outcome, player)`, `g:resign(side, player)` (only
   on the resigning team's own turn). `player` is an id or name; it defaults to the team's
@@ -140,6 +144,52 @@ by where every kubb lies once they are all thrown, and they come last.
   (not in bounds). Moving a kubb thrown this turn is never II.C.4b, wherever it lies.
 - **A rescue is judged at the end too:** an established kubb knocked out and knocked back in
   before the round ends stays where it lies, no `Q`.
+
+### Raising in any order (1.4.0)
+
+The rules say nothing about the order in which a team stands up its kubbs. Before 1.4 the
+engine raised them in id order. Now `g:lyingKubbs()` lists every field kubb of the half
+still lying, and `g:raiseOptions(id)` gives a kubb's decision as it lies now: the same
+`raising.options` that `need().decision` gives, read from the pitch at that moment, since
+a kubb already stood up can block another's end. `g:canRaise(id, which)` says whether a
+raise would be taken, and why not: `"not raising"`, `"not lying"`, `"no end"` or `"that
+end"`. Nothing is written on the sheet for the order: the turn line records where each
+kubb stands, whatever order it went up in.
+
+### The throw to go (1.4.0)
+
+Who throws first, thrown for before turn 1 (core/togo). Each team throws one baton from the middle of its own baseline
+at the king, both thrown blind, on their own worlds, so neither baton moves the other.
+The verdict (`togo.decide`):
+
+- The baton at rest nearest the king, with the king left standing, wins.
+- Touching the king is fine (a gap of 0).
+- A team that topples the king loses: the other team throws first.
+- If both topple it, or the gaps are equal to the millimetre (`togo.mm`), both throw
+  again.
+
+The gap (`togo.gap`) is measured from the baton's axis segment, less its radius, to the
+king's centre less half the king's side, wherever the baton rests (off the pitch too). It
+is never below 0. A helicopter counts: neither is a rule of the throw to go, only of a
+turn's.
+
+It is not part of `tw.rules`: the game starts after it. `match.setFirst(m, side, text)`
+makes the game again with that side first (no throw has happened) and keeps the text as
+`g.firstBy`. The game file writes it as `[Engine:first "throw to go: Team A 0.42 m,
+Team B 0.88 m"]`, beside the standard `[First]`. It is a writer-owned header key, so
+pk-kubb-score's reader keeps it and nothing else changes. No to-go in Kid matches. The
+session runs the phase (docs/SESSION.md "The throw to go").
+
+The distance thrown at, a person's circle and the computer's aim (`togo.tune`): a person's
+circle starts 1.4 m short of the king's centre, on the ground, on the lob `togo.arc()`.
+The computer aims 1.25 m short at beginner and club and 1.4 m at pro, on its level's swing
+and nerves. These were chosen so the computer topples the king no more often than a person
+of its standing (the Gym's recorded hand, scaled x2, x1 and x0.5 for Easy, Standard and
+Hard). Over 300 batons: the person toppled 1%, 1% and 0%, the computer 1%, 1% and 0%
+(beginner, club and pro). The median gap was 0.61, 0.60 and 0.56 m for the person and
+0.88, 0.70 and 0.70 m for the computer. A circle nearer the king (0.45 to 1.1 m short)
+toppled it 40 to 100% of the time even for a steady swing inside both bars, since a
+baton's lob runs on after it lands. A person may still put the circle there.
 
 ### The Kid rules (0.15.0)
 

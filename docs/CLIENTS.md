@@ -574,6 +574,121 @@ differs): web and iPhone move together.
 - **The rest**: nothing to change. pairRoll from the first step and the propped contacts
   change how throws settle (a few throws in thousands no longer run to the 12 s limit).
 
+## 1.4 on top
+
+All three clients vendor 1.0.0 (2026-11-26). This section is everything from 1.0 to 1.4
+in one place. Read it in place of the 1.1 and 1.2 sections below, which it covers; 1.3
+had no section of its own. Sync `v1.4.0` (web `npm run vendor:sync -- --tag v1.4.0`,
+iPhone `TAG=v1.4.0`, Playdate `make vendor-sync TAG=v1.4.0`).
+
+### What 1.1 to 1.3 brought (no call a client makes changed)
+
+- **1.1, record mode** (docs/RECORD.md): `record.<name>` for Kubb: Pitchside. Nothing to
+  change. The Playdate's `core/` gains `core/record.lua`, which nothing it runs imports.
+- **1.2, the computer's inkast**: club and pro aim nearer the centre line and do not
+  build on a kubb that is out for now. Every hash moves. Nothing to change.
+- **1.3, the honest meter**: a person's throws have no nerves, the release bar at 8 m is
+  5 degrees either side, and inside the bars the release pulls a little. Club is
+  retuned. Every hash moves.
+  - Worth showing: Easy, Standard and Hard per person (`teams.<side>.players[i].throw`:
+    `"easy"`, `"hard"`, absent for standard; `me.throw` on a pitch;
+    `pitch.constants().THROW_LEVELS`). A client that does not offer it plays everyone on
+    Standard.
+  - The Playdate: the meter's bars are narrower. Check that the crank's dial still reads
+    on the device.
+- **Online**: every minor shares matches only on major.minor. A web on 1.4 carries 1.0
+  while an iPhone build on 1.0 is live (`docs/ENGINES.md` in the web repository).
+
+### 1.4: what each client changes
+
+Nothing must change: every 1.4 addition is opt in. What follows is what a client does to
+use them.
+
+**Web and iPhone (the session)**
+
+- **The throw to go** (docs/SESSION.md "The throw to go"; docs/PITCH.md "The throw to
+  go"). The product default is on.
+  - Solo and pass and play: pass `togo: true` on every `newMatch`, and offer a Throw to
+    go switch (on by default) that passes `false`.
+  - On a pitch: the host calls `setOptions { togo: "on" }` when it makes the pitch. The
+    options card shows the `MATCH_OPTIONS` row "Throw to go" (from `optionRows`), which
+    comes just before Computer.
+  - Handle the need `kind: "togo"`:
+    - While this session owes a baton (`need.side`), aim and throw it like any baton
+      (`view`, `frame`).
+    - Show `throwers[side]` (`name`, and `throw` for whose meter is in play) and
+      `computer[side]`.
+    - While waiting for the other side (`owe` without a side of this session's), show
+      "waiting for <team>". Show nothing of the baton already thrown: it is blind.
+    - Send a release's `action` (`type: "togo"`, no `seq`) like a throw. Apply other
+      members' with `apply`.
+    - When the last baton is in, `apply` or `frame` returns the recording
+      (`recording.kind: "togo"`). Play it with `showAt` as a throw is played. Then show
+      `recording.result.text` (or build words from `result.A`, `result.B`, `how`,
+      `first`), e.g. "Team B throws first: 0.42 m against 0.88 m". If `how` is
+      `"again"`, the next need is the togo need of round 2 (`need.again` repeats the
+      verdict), so say "Tie: throw again" or "Both kings down: throw again".
+    - Pass and play: after A throws, the need's `side` is B. Show a handoff card.
+  - `seats.actorsFor` already handles `togo`: each side's baton goes to its first
+    player's member, then a team-mate, then the host.
+- **Raise in any order** (docs/SESSION.md "Raising in any order"):
+  - Draw every kubb in `need.lying` as one that can be picked. Picking one shows its
+    `ends`.
+  - Send `{ type: "raise", kubb: <id>, which: <the chosen end's which> }`. If the result
+    is `{ ok: false, why: "not lying" }`, a team-mate got there first: redraw from
+    `need`.
+  - Show the raise through `need.camera`, one camera for the whole raise, and drop the
+    client's own raise camera (the web's `raiseCamera` in `src/game/scenes.js`, used by
+    `src/game/game.js`; the iPhone's raise camera in `RaiseWatch.swift` and
+    `SoloPitch.swift`).
+  - `n` of `of` still counts. `need.players` carries the raising side's players with
+    their `throw`.
+  - Sending `{ type: "raise", choice }` still works (the first kubb).
+- **A view from one side** (docs/SESSION.md "A view from one side"):
+  `setView { side: <this player's side>, box: <the frame box> }` once, beside or in
+  place of `setWide`. Every output then comes in that side's frame, so the pitch never
+  turns at a change of ends. The other side's throws, inkast and raises come with the
+  end camera (`camera.kind: "end"`). Draw through the camera given, as now; no client
+  turns anything.
+  - Turned too: `need.setup.settled` and a raise's or punishment kubb's poses.
+  - Punishment: send `{ type: "punish", x, y, frame: need.frame }`, and pass the same
+    `frame` to `checkPunish`.
+  - `setView({})` turns it off. While the wide view is on, the wide view wins.
+- **The computer's turn, fast** (docs/SESSION.md "The computer's turn, fast"):
+  - `frame { dt, speed }` with 1, 2 or 4 from a speed control shown during the
+    computer's turn.
+  - A "Skip" control calls `cpuPlay { at, recordings: false }` and draws `need` and
+    `view` from its result. It may show the steps' `short` words as a list. Solo only:
+    never call it on a pitch.
+
+**Playdate (the core)**
+
+- The core gains `core/togo.lua`, `Game:lyingKubbs`, `Game:raiseOptions`,
+  `Game:canRaise`, `Game:raiseKubb`, `need().lying`, `camera.fit`, `camera.fromEnd`
+  and `camera.tune["end"]` and `.raise`, `match.togoSetup`, `match.togoThrower` and
+  `match.setFirst`, and `[Engine:first]` in the game file (written only when
+  `g.firstBy` is set).
+- **Raise in any order**: `scenes/settle.lua` may let the d-pad move between
+  `need().lying` and raise with `g:raiseKubb(id, which, policy)`, or
+  `g:raise(choice, policy, id)`. `g:raise(choice, policy)` with no id is as before.
+  `camera.fromEnd(nil, pts, box, "raise")` gives one camera for the whole half, in place
+  of `raiseCamera`'s per-kubb close-up, if that reads better on the 400 x 240 screen.
+  The framing was checked on a 400 x 240 box, but not on the device.
+- **The throw to go** (worth showing; the session's phase is the reference to port):
+  1. Build each side's set-up with `match.togoSetup(m, side)`, then throw a person's
+     baton with the usual scene. The circle starts at
+     `king.y - togo.tune.markerShort` on the ground, and the arc at `togo.arc()`.
+  2. Throw the computer's with `togo.cpuThrow(setup, rng, level)`.
+  3. Simulate each on its own world.
+  4. Measure each with `togo.gap(res, setup.batonId)` and get the verdict from
+     `togo.decide`.
+  5. Then call `match.setFirst(m, first, togo.text(e, verdict, rounds))`.
+
+  No to-go in Kid matches. The Playdate keeps its own saves, so it decides how a
+  mid-phase save looks.
+- A view from one side and `cpuPlay` are session calls. The Playdate does not run the
+  session and has nothing to change.
+
 ## 1.2 on top
 
 1.2.0 changes how the computer throws its kubbs in (docs/VERSIONING.md "1.2.0"): club and

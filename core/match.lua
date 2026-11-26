@@ -835,8 +835,56 @@ function match.file(m, finish, version, location)
 	local start = m.start or finish
 	local g = m.game
 	local text = notation.render(g, { start = start, finish = finish, version = version, mode = m.mode,
-		levels = match.fileLevels(m), location = location })
+		levels = match.fileLevels(m), location = location, firstBy = g.firstBy })
 	return text, notation.filename(start, g.teams.A.name, g.teams.B.name)
+end
+
+-- ---------- the throw to go (1.4.0, core/togo) ----------
+
+-- Who throws `side`'s baton to go: the first player in its throwing order (the team's
+-- first player), with match.thrower's shape { id, name, key, level, cpu, throw }.
+function match.togoThrower(m, side)
+	local p = m.game.teams[side].players[1]
+	local e = match.member(m, side, p.id)
+	local cpu = match.isComputer(m, side, p.id) or nil
+	local level = e and e.level
+	return { id = p.id, name = p.name, key = e and e.key, level = level, cpu = cpu, throw = e and e.throw or nil }
+end
+
+-- The set-up for `side`'s baton to go (view frame of side): the pitch as the match
+-- starts, one baton from the middle of its own baseline, the king its only target. The
+-- shape of match.setup's, kind "togo"; not kept on m (m.setup stays the turn's).
+function match.togoSetup(m, side)
+	local g = m.game
+	local s = { kind = "togo", side = side, pieces = outcome.pieces(g, side), lineY = 0, forwardY = 0,
+		surface = match.surfaceName(g), debris = {}, projectile = "baton", targets = {},
+		n = 1, of = 1, batonId = "togo" .. side, togo = true, markerNear = 2 }
+	s.label = fmt("%s  throw to go", match.teamName(side, g))
+	s.thrower = match.togoThrower(m, side)
+	return s
+end
+
+-- The throw to go decided it: `side` throws first. Only before the first throw of the
+-- match; the game is made again with that side first (nothing has happened in it), its
+-- players' ids kept, and `how` (togo.text) kept on it as game.firstBy, which the game
+-- file writes as [Engine:first]. Returns the new game.
+function match.setFirst(m, side, how)
+	local g = m.game
+	assert(g.turn == 1 and #g.sheet.turns <= 1 and m.tossed == 0, "setFirst: only before the first throw")
+	local teams = {}
+	for _, sd in ipairs { "A", "B" } do
+		local ps = {}
+		for i, p in ipairs(g.teams[sd].players) do ps[i] = { name = p.name } end
+		teams[sd] = { name = g.teams[sd].name, players = ps }
+	end
+	local ng = rules.new { teams = teams, surface = g.surface, opening = g.opening, first = side, rules = g.rules,
+		raisePolicy = g.raisePolicy }
+	for _, sd in ipairs { "A", "B" } do
+		for i, p in ipairs(g.teams[sd].players) do ng.teams[sd].players[i].id = p.id end
+	end
+	ng.firstBy = how
+	m.game, m.turn = ng, ng.turn
+	return ng
 end
 
 -- Standing kubbs of a side's half (field and base), for the HUD.

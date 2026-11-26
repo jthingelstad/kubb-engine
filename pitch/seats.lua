@@ -14,6 +14,8 @@
 --   takes it (it is still that player's throw on the sheet); failing that, the host.
 -- - A raise or a punishment kubb is for any connected member of the defending team
 --   (need.side), else the host. The pitch's compare-and-set settles two at once.
+-- - The throw to go (1.4.0): each side that owes a baton has its own actor at once
+--   (seats.togoActor): its first player's member, else a connected teammate, else the host.
 -- - The computer's throws are the host's client's (cpu: true), and only its: a side the
 --   computer plays whole, and since 0.17 a computer player in a team (need.cpu). A team's
 --   computer players are not members: never a throw's stand-in, never a raise's actor, so
@@ -65,6 +67,18 @@ function seats.actorsFor(need, ctx)
 		end
 		return hostOnly(ctx)
 	end
+	if same(kind, "togo") then
+		-- (1.4.0) the throw to go: one baton for each side that owes one (need.owe), each
+		-- thrown by its team's first player (need.throwers[side].key), else the first
+		-- connected member of that team, else the host; both at once
+		local out = {}
+		local owe = get(need, "owe")
+		for _, sd in ipairs(js.isTable(owe) and owe or {}) do
+			local id = seats.togoActor(need, ctx, sd)
+			if truthy(id) and not includes(out, id) then out[#out + 1] = id end
+		end
+		return out
+	end
 	if same(kind, "raise") or same(kind, "punish") then
 		local mates = {}
 		for _, id in ipairs(seats.teamIds(ctx, side)) do
@@ -74,6 +88,20 @@ function seats.actorsFor(need, ctx)
 		return hostOnly(ctx)
 	end
 	return {}
+end
+
+-- (1.4.0) Who throws `side`'s baton to go now: its first player's member when connected,
+-- else the first connected member of the team, else the host; nil when the side owes none
+-- (thrown, or the computer's).
+function seats.togoActor(need, ctx, side)
+	if not truthy(need) or not same(get(need, "kind"), "togo") then return nil end
+	if not includes(get(need, "owe"), side) then return nil end
+	local owner = get(get(get(need, "throwers"), side), "key")
+	if isConnected(ctx, owner) then return owner end
+	for _, id in ipairs(seats.teamIds(ctx, side)) do
+		if isConnected(ctx, id) then return id end
+	end
+	return hostOnly(ctx)[1]
 end
 
 -- May member `me` act for `need`? Never for the computer's throw: the engine throws it

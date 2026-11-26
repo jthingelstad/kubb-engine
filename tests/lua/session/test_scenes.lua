@@ -192,16 +192,16 @@ test("pitch.optionRows: the card a scene leaves; the Scene row first, no Kubbs r
 	end
 	local park = pitch("optionRows", { scene = "day" })
 	expect.eq(park.scene, "day")
-	expect.eq(keys(park), "scene,opening,raising,wind,computer")
+	expect.eq(keys(park), "scene,opening,raising,wind,togo,computer", "Throw to go (1.4.0) before Computer")
 	expect.eq(#park.rows[1][3], #scenes.list, "every scene on the Scene row")
 	expect.eq(park.rows[1][3][1][2], "Park")
 	local bw = pitch("optionRows", { scene = "bw" })
-	expect.eq(keys(bw), "scene,surface,opening,raising,wind,computer")
+	expect.eq(keys(bw), "scene,surface,opening,raising,wind,togo,computer")
 	local vs = {}
 	for i, c in ipairs(bw.rows[2][3]) do vs[i] = c[1] end
 	expect.eq(table.concat(vs, ","), "grass,sand,snow", "only its surfaces")
 	for _, id in ipairs { "beach", "night", "neon", "minnesota", "tournament" } do
-		expect.eq(keys(pitch("optionRows", { scene = id })), "scene,opening,raising,wind,computer", id)
+		expect.eq(keys(pitch("optionRows", { scene = id })), "scene,opening,raising,wind,togo,computer", id)
 	end
 	local t = pitch("optionRows", { scene = "tournament" })
 	expect.eq(t.defaults.set, "usa"); expect.eq(t.defaults.surface, "grass")

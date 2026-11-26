@@ -109,7 +109,7 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 | Call                         | Returns           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ---------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `newPractice(opts)`          | view              | `{ scene, surface: "grass" \| "sand" \| "snow" \| "grid", level, set, drill, throw }`. The practice pitch (scenes/drills.lua's free throw); `drill: true` throws kubbs at the circle. Since 0.14 a `scene` named decides the surface and the set as for a match (below), and `setSurface` then takes only a surface the scene allows.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, rules, scene, start, maxTurns, modeName }`. `rules: "kid"` (since 0.15): the Kid rules whatever the computer (pass and play with two children); absent, a match has them only with the Kid computer. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names); since 0.17 a player may be a computer player, `{ cpu: true, level, name?, key? }` ("Computer players", below). `cpu`: `"A"`, `"B"`, `"both"` or a list: every player of that side is the computer, at the match's `computer` level, as before 0.17. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"kid"` (since 0.15), `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; `"kid"` with a computer side makes the match a Kid match ("Kid matches", below); absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. **Since 0.14 a scene decides** ("Scenes", below): with `scene` named, `new` takes the surface given only if the scene allows it (else the scene's default) and the set likewise, and an id the catalogue does not have is Park (`"day"`, not kept). With no `scene`, the options stand as given, as before 0.14. Restore, replay, checkStart and renameStart make a match from its options as they were recorded, whatever its scene. |
+| `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, rules, scene, start, maxTurns, modeName, togo }`. `togo: true` (since 1.4.0): the throw to go decides who throws first ("The throw to go", below). `rules: "kid"` (since 0.15): the Kid rules whatever the computer (pass and play with two children); absent, a match has them only with the Kid computer. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names); since 0.17 a player may be a computer player, `{ cpu: true, level, name?, key? }` ("Computer players", below). `cpu`: `"A"`, `"B"`, `"both"` or a list: every player of that side is the computer, at the match's `computer` level, as before 0.17. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"kid"` (since 0.15), `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; `"kid"` with a computer side makes the match a Kid match ("Kid matches", below); absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. **Since 0.14 a scene decides** ("Scenes", below): with `scene` named, `new` takes the surface given only if the scene allows it (else the scene's default) and the set likewise, and an id the catalogue does not have is Park (`"day"`, not kept). With no `scene`, the options stand as given, as before 0.14. Restore, replay, checkStart and renameStart make a match from its options as they were recorded, whatever its scene. |
 | `restore(snapshotText)`      | view              | A match from a snapshot. Since 0.13.4 also `{ snap, names: "check" }`, which refuses a snapshot whose names the engine does not allow ("Names", below). Restored while raising, placing a punishment kubb or after the end, the view shows the match's pitch as it stands (pieces and debris, a king that ended the match lying down) in the last throw's frame, as live, until the next throw is set up. The restored session acts for every side and the computer until `setControl` says otherwise.                                                                                                                                                                                                                                   |
 | `snapshot()`                 | text              | The whole match as JSON text. Opaque: store and send it as it is, byte for byte. Matches only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `hash()`                     | `{ hash, bytes }` | FNV-1a 32 of the snapshot text (8 hex digits) and its length. Equal hashes mean equal matches.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -177,6 +177,8 @@ crowded }`; `ends[i] = { which, pose, inBounds, obstructedBy, ok, why }` (`why`:
   END IS OUT" or "THAT END IS BLOCKED"); `default` is the index the engine would pick for
   this person: its best advice, `par` (since 0.12.0; it was `apart`), so a client offers it
   first.
+- `{ kind: "togo", round, owe, side, setup, ... }` (since 1.4.0): a baton to go ("The
+  throw to go", below).
 - `{ kind: "punish", side, kubb, cursor {x, y}, bounds {xMin, xMax, yMin, yMax}, keepOut
 [{ kind, id, x, y, r }], others, n, of, team, local }`: a punishment kubb to place.
 - `{ kind: "over", winner, how, file { text, name }, text, short }`: the match is over;
@@ -868,7 +870,7 @@ a cheer on `over`, teams setting out on `setup`.
 | Call                | Returns                                                 |
 | ------------------- | ------------------------------------------------------- |
 | `apply(action)`     | `{ ok, recording?, need, why?, label? }`                |
-| `checkPunish(x, y)` | `{ ok, why, label }` without placing.                   |
+| `checkPunish(x, y, frame?)` | `{ ok, why, label }` without placing (`frame` since 1.4.0). |
 | `aimState()`        | This browser's aim, to send while aiming.               |
 | `showAim(state)`    | Someone else's aim shown here: `{ aim, camera, dial }`. |
 
@@ -886,6 +888,9 @@ The actions:
   degrees, taps). Every client applies `launch`, never `plan`; the kubb's `spin` is what
   the side's next kubb starts from (below), and `checkThrow` holds the throw to it. The
   computer's throws and older actions have none.
+- `{ type: "raise", kubb, which? }` (since 1.4.0): any kubb of `need.lying` on its end
+  ("Raising in any order", below).
+- `{ type: "togo", side, round, ... }` (since 1.4.0): a baton to go ("The throw to go").
 - `{ type: "raise", choice }`: the index into `need.choices` (leave it out for
   `need.default`, the engine's advice). Raised automatically (the match option
   `raising: "auto"`), a person's kubbs go up by the same advice and the computer's by its
@@ -920,6 +925,163 @@ keeps its hashes); a value that is not whole minutes in range is dropped. A stam
 not five whole numbers is dropped, a stamp before the start is no finish (never negative
 minutes), and nothing is ever stamped for a host that passes none.
 `check.same` and `checkThrow` leave `at` aside.
+
+### The throw to go (1.4.0)
+
+Who throws first, thrown for before turn 1 (core/togo; docs/notes/rules-engine.md "The
+throw to go"). Each team throws one baton from the middle of its own baseline at the king.
+The baton that comes to rest nearest the king and leaves it standing wins: that team
+throws first. Touching the king is fine. A team that knocks the king over loses, and the
+other team throws first. If both knock it over, or the two are equal to the millimetre,
+both teams throw again (round 2, 3, ...). It is not a turn: no baton of the match is
+spent, nothing goes on the score sheet's turns, and turn 1 starts after it as always.
+
+- **Turning it on**: `newMatch({ ..., togo: true })` (or `"on"`). If it is absent or
+  false, the match starts as before and `first` decides. With it on, `first` is ignored.
+  It is never on in a Kid match (`rules: "kid"` or the Kid computer) or in a match with no
+  person in it (`cpu: "both"`). It is kept in the start, so a match that has it gets
+  other hashes. A shared pitch carries it as the setting `togo: "on" | "off"`
+  (docs/PITCH.md "The throw to go"). **The product default is on**, but the engine's
+  default is off, so every older match and golden hash stays as it was. A client that
+  wants it on by default passes `togo: true` on every `newMatch` it makes (for a pitch:
+  `setOptions { togo: "on" }`), and offers the Throw to go row to turn it off.
+- **The need**:
+  `{ kind: "togo", round, owe, side, setup, thrown { A, B }, throwers { A, B },
+  computer { A, B }, cpu: false, local, again? }`.
+  - `owe` lists the sides still to throw this round.
+  - `side` is the side this session throws for now: the first owed side it controls, or
+    nil.
+  - `setup` is that side's throw, as a throw's setup in its own view frame (`togo: true`,
+    `kind: "togo"`, `projectile: "baton"`, `n` 1 of 1, `lineY` 0, `targets` empty,
+    `batonId` `"togoA"` or `"togoB"`, `thrower`).
+  - `throwers[side]` is `{ id, name, level, key, cpu?, throw? }`: the team's first
+    player, who throws its baton. `throw` is that person's meter (`"easy"`, `"hard"`,
+    absent for standard), so a client can show whose `throw` level is in play.
+  - `computer[side]` is true where the engine throws that side's baton. `cpu` is always
+    false: nobody acts for the computer here. The engine makes the computer's baton
+    itself once the people's are in.
+  - `again` is the last round's verdict (below) when this round is a rethrow.
+- **Throwing**: aim and throw as for any baton (`view`, `aim`, `frame`). The circle starts
+  on the ground 1.4 m short of the king (`togo.tune.markerShort`), and the arc starts on
+  the lob `togo.arc()`. The person may move both. There is no wind. A release returns
+  `action` `{ type: "togo", side, round, how, launch, stance, target, swing?, verdicts?,
+  plan?, at? }` with no `seq`. Send it to the pitch like a throw; every member applies it
+  with `apply`.
+- **Blind and simultaneous**: no baton is thrown until both are in. Each one is thrown on
+  its own world (the pitch as the match sets it up, nothing else on it), so their order
+  does not matter. In pass and play, the need moves to B once A has thrown, and nothing is
+  shown in between.
+- **The recording**: when the last baton comes in, `apply` (or `frame`) returns one
+  recording (`recording.kind: "togo"`). `showAt` plays both batons together in one frame,
+  the viewer's (`setView`'s side, else the side this session alone plays, else A), through
+  a camera at that end with the king and both batons in it. `recording.result` is
+  `{ togo: true, A, B, first, how, why?, round, text }`:
+  - `A` and `B` are each `{ gap, mm, toppled, cpu?, verdicts, restX, restY }`. `gap` is
+    in metres from the baton's nearest part to the king's side, and is 0 when touching.
+    `restX`/`restY` are in the recording's frame.
+  - `how` is `"closer"`, `"king"` or `"again"`; `why` is `"tie"` or `"both king"`.
+  - `text` is the line the game file keeps, e.g. `"throw to go: Team A 0.42 m, Team B
+    king down"`.
+- **Then**: the side that won is the match's first side. The game file writes its usual
+  `[First]` and, beside it, `[Engine:first "<text>"]`, which says how first was decided.
+  Turn 1's throw need follows. After a rethrow, the need is the togo need again with
+  `round` one higher.
+- **Refusals** come back `{ ok: false, why, need }` and change nothing:
+  - `"no throw to go"` (not in the phase)
+  - `"not this round"`
+  - `"no such side"`
+  - `"thrown"` (that side's baton is in)
+  - `"the computer's"`
+  - `"no launch"`
+- **Snapshot, restore, replay, check**: a snapshot taken mid-phase keeps the round and the
+  batons already in (`togo`), and `restore` resumes there. The batons are part of the
+  match: `replay`, `checkThrow` (`type: "togo"`: the same meter and swing checks as a
+  baton) and `checkStart` all handle them.
+- **The computer**: its baton goes to `togo.target(level)` on the level's swing, mistakes
+  and nerves (`togo.tune.short`: beginner and club 1.25 m short, pro 1.4). Seeded on seed
+  purpose 5. It is never more likely to knock the king over than a person of its
+  standing (tests/lua/session/test_togo.lua).
+
+### Raising in any order (1.4.0)
+
+The raise need (`raiseInfo`, above) now also carries:
+
+- `lying`: every field kubb of the half still lying, in id order (the first is `kubb`).
+  Each entry is `{ id, pose, mode, choices, ends, default }`, as the top-level fields
+  give for the first.
+- `camera`: one camera for the whole raise. It sits at the raiser's own end, with every
+  lying kubb, its ends and the king in it (`camera.tune.raise`; kind `"raise"`), fitted to
+  the `setView` box when there is one. A client's own raise camera can go.
+- `frame`: the raiser's side, the frame every pose is in.
+- `players`: the raising side's players as a `thrower` (`id, name, level, key, cpu?,
+  throw?`).
+
+`n` and `of` keep counting the kubbs raised (n of of). The list is made again after each
+raise, since raising one kubb can block or free another's end.
+
+The action `{ type: "raise", kubb, which?, at? }` raises any kubb in `lying` on its end
+`which`, as its `choices[i].which` names it. If `which` is absent, that kubb goes on its
+default end. A raise naming a kubb that is not lying (a teammate raised it first), or an
+end that cannot stand, comes back `{ ok: false, why, label }` with the match unchanged.
+`why` is one of `"not raising"`, `"not lying"`, `"no end"` or `"that end"`. On a pitch,
+any member of the defending team may raise any of the kubbs (docs/PITCH.md, `actorsFor`).
+`{ type: "raise", choice }` with no `kubb` works as before: the first kubb, by index.
+
+### A view from one side (1.4.0)
+
+`setView({ side: "A" | "B", box? })` returns `{ side, box }`. `setView({})` turns it off
+and returns `{}`. It is modelled on the wide view and is view only: nothing in a snapshot,
+an action or a hash changes (tests/lua/session/test_view.lua plays a match with and
+without it and compares every action and the snapshot). Like the wide view, it belongs to
+the Lua state and outlasts `new` and `restore`. If both are on, the wide view wins.
+
+While it is on:
+
+- Every output is in `side`'s view frame, whoever throws. That covers `view`, `aim`,
+  `frame`, `showAt`, `apply`, `recording`, `need`, `cpuPlay` and the needs inside them.
+  - Turned: items, aim, minimap, a recording's bursts and spots, a setup's lines
+    (`lineY`, `forwardY`, `advY`, `kidY`), `setup.settled`, and a raise's or a punishment
+    kubb's poses, cursor, bounds and keep-out circles.
+  - Each output carries `view: side`, and each need `frame: side`.
+- When the other side throws, inkasts or raises, `camera` is a camera at the viewer's end
+  (`camera.tune["end"]`, kind `"end"`), fitted to `box` (frame px, default
+  `camera.tune["end"].box`). The fit keeps in view:
+  - for an aim: the viewer's baseline, the king, the thrower and the circle
+  - for a recording (one camera for the whole of it): where the projectile was thrown
+    from, landed and came to rest
+  - for a raise: every lying kubb and its ends
+
+  A tall box (a phone held upright) uses `camera.tune["end"].tall`, which is higher and
+  nearer. Framing is checked at 4, 6 and 8 m targets on 400 x 240, 1440 x 900, 844 x 390,
+  390 x 844 and 768 x 1024 windows: every point stays inside the box, the viewer's end is
+  at the bottom, and near kubbs are no smaller than far ones. The side's own throws keep
+  the thrower's camera.
+- A punishment kubb's need says `frame` (the viewer's) and `actionFrame` (the placing
+  side's). Send `{ type: "punish", x, y, frame }` with x and y in `frame`, or leave out
+  `frame` and send them in the placing side's frame as before. `checkPunish(x, y, frame)`
+  takes the same.
+- A raise action names a kubb and an end, not a place, so a raise needs no frame.
+
+### The computer's turn, fast (1.4.0)
+
+- **Watching it faster**: `frame({ dt, speed })`, where `speed` is 1, 2 or 4 (any number
+  from 1 to 8 is taken). The computer's think and swing run that many times faster. Its
+  throw is chosen before it is shown, so the speed never changes what it throws:
+  x1, x2 and x4 give the same action in fewer frames. A person's frames ignore it. The
+  playback's own speed is `showAt`'s, as before.
+- **Skipping it**: `cpuPlay({ at?, recordings? })` returns `{ steps, need, view }`. It
+  plays every computer throw (and the raises the engine makes between them) with no
+  frames, until a person is needed or the match is over.
+  - Each step is `{ a, h, seq, side, text, short, ruling, recording? }`: the action, the
+    hash after it, its ruling and, with `recordings: true`, its recording in its
+    thrower's frame (in the viewer's with `setView`).
+  - The actions are exactly the ones a watched turn makes. A watched turn and `cpuPlay`
+    end on the same hash (tests/lua/session/test_cpuplay.lua).
+  - Solo only: on a pitch, the computer's actions are made by the one member that throws
+    for it and are sent one by one, as now.
+  - `at` stamps every action it makes.
+  - It does nothing while the throw to go is undecided: the computer's baton to go is
+    made with the person's.
 
 ## The frame (per-frame call pattern)
 

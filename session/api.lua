@@ -67,7 +67,80 @@ function M.setWide(a)
 	return json.object()
 end
 
+-- A view from one side (1.4.0; session/wide "a view from one side", docs/SESSION.md): while
+-- it is on (and the wide view is off: the wide view wins), every output comes in that
+-- side's frame, and the other side's throws, inkast and raises come with a camera at the
+-- viewer's end. It belongs to this Lua state, as the wide view does. View only.
+local viewSide, viewBox = nil, nil
+local VIEW = { need = true, cpuPlay = true }
+for k in pairs(WIDE) do VIEW[k] = true end
+
+-- setView { side = "A" | "B", box? } turns it on (box: the frame px the end camera is
+-- fitted to; absent, camera.tune["end"].box); {} (or no side) turns it off. Returns
+-- { side, box } or {}.
+function M.setView(a)
+	if a and (a.side == "A" or a.side == "B") then
+		viewSide = a.side
+		local b = a.box
+		viewBox = b and { left = b.left + 0, top = b.top + 0, right = b.right + 0, bottom = b.bottom + 0 } or nil
+	else
+		viewSide, viewBox = nil, nil
+	end
+	session.viewSide, session.viewBox = viewSide, viewBox
+	if not viewSide then return json.object() end
+	return { side = viewSide, box = viewBox or tw.camera.tune["end"].box }
+end
+
+-- The end camera for the last recording when it is the other side's (fixed for the
+-- whole of it), made once per recording.
+local recCam = { rec = nil, cam = nil }
+local function recordingCam()
+	local rec = S.recording
+	if recCam.rec == rec and recCam.side == viewSide and recCam.box == viewBox then return recCam.cam end
+	local t = wide.T(S.recSide, viewSide)
+	local tr = wide.recording(t, rec)
+	if tr and tr.launch and tr.launch.x and t == "B" then
+		local l = {}
+		for k, v in pairs(tr.launch) do l[k] = v end
+		l.x, l.y = tw.frame.point("B", l.x, l.y)
+		local c = {}
+		for k, v in pairs(tr) do c[k] = v end
+		c.launch = l
+		tr = c
+	end
+	recCam.rec, recCam.side, recCam.box = rec, viewSide, viewBox
+	recCam.cam = wide.endCamera(viewBox, nil, tr)
+	return recCam.cam
+end
+
+local viewOut
+function viewOut(method, r)
+	if wideCam or not viewSide or not S or not VIEW[method] or type(r) ~= "table" then return r end
+	if method == "showAt" then
+		if wide.T(S.recSide, viewSide) == "B" and r.items then
+			r.items = wide.items("B", r.items)
+			if S.recording then r.camera = recordingCam() end
+		end
+		r.view = viewSide
+		return r
+	end
+	if method == "recording" then return (r.timeline and wide.recording(wide.T(S.recSide, viewSide), r)) or r end
+	if method == "need" then return wide.needTo(r, viewSide, viewBox) end
+	if method == "cpuPlay" then
+		-- each step's recording is in its thrower's frame (step.side)
+		for _, st in ipairs(r.steps or {}) do
+			if st.recording then st.recording = wide.recording(wide.T(st.side, viewSide), st.recording) end
+		end
+		if type(r.need) == "table" then r.need = wide.needTo(r.need, viewSide, viewBox) end
+		if type(r.view) == "table" then r.view = viewOut("view", r.view) end
+		return r
+	end
+	local cams = { box = viewBox, aim = function(aimT) return wide.endCamera(viewBox, aimT) end }
+	return wide.toSide(r, viewSide, S.frameSide, S.recSide, cams)
+end
+
 local function wideOut(method, r)
+	if viewSide and not wideCam then return viewOut(method, r) end
 	if not wideCam or not S or not WIDE[method] or type(r) ~= "table" then return r end
 	if method == "showAt" then return wide.out(r, wideCam, S.recSide, S.recSide) end
 	if method == "recording" then
@@ -164,7 +237,7 @@ function M.setControl(a) return act():setControl(a) end
 function M.aimState() return need():aimState() end
 function M.showAim(a) return need():showAim(a) or json.object() end
 function M.apply(a) return act():apply(a) end
-function M.checkPunish(a) return need():checkPunish(a.x, a.y) end
+function M.checkPunish(a) return need():checkPunish(a.x, a.y, a.frame) end
 function M.hash() local text = need():snapshot(); return { hash = session.fnv(text), bytes = #text } end
 -- ---------- a replay (session/replay.lua) ----------
 -- replayLoad { setup, h0, log } (or { start, ... }; options checkCpu, checkThrows and
@@ -231,6 +304,9 @@ end
 -- log? }: the renamed start, the players' ids old to new, and the log with its thrower
 -- actions' ids mapped (session.renameLog), so the renamed match replays to its end.
 function M.checkThrow(a) return check.throw(need(), a) end
+-- cpuPlay { at?, recordings? } (1.4.0, docs/SESSION.md "The computer's turn, fast"): every
+-- computer throw until a person is needed, no frames: { steps, need, view }
+function M.cpuPlay(a) return act():cpuPlay(a or {}) end
 function M.checkStart(a)
 	local ok, why = session.startCheck(a and a.start)
 	return { ok = ok, why = why }

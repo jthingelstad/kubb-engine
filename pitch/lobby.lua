@@ -56,7 +56,7 @@ lobby.REPLAY_VERSION = 1
 
 local OPTION_KEYS = { "surface", "opening", "raising", "wind", "set" }
 lobby.OPTION_DEFAULTS = { surface = "grass", opening = "2-4-6", raising = "hand", wind = "off", set = "classic",
-	computer = "club", scene = "day" }
+	computer = "club", scene = "day", togo = "off" }
 
 -- The engine's own options (docs/PITCH.md "Differences"), which the JavaScript does not
 -- know. They live in the document's top-level `settings` ({ computer?, scene? }), not
@@ -67,7 +67,7 @@ lobby.OPTION_DEFAULTS = { surface = "grass", opening = "2-4-6", raising = "hand"
 -- and `settings` only when one is, so a document without them (every one an older
 -- client wrote) reads, cleans and writes exactly as before; an absent one is its
 -- default. Each key's test of a value:
-local OWN_KEYS = { "computer", "scene" }
+local OWN_KEYS = { "computer", "scene", "togo" }
 
 -- A scene (Jamie, 2026-11-20: scenes and effects are new settings; since 0.14 a scene
 -- decides the surfaces and the kubb sets a match may have, core/scenes). The engine
@@ -85,11 +85,15 @@ local OWN_OK = {
 	-- per game setting"); absent: club, as before
 	computer = function(v) return includes(lobby.LEVELS, v) end,
 	scene = lobby.isScene,
+	-- the throw to go (1.4.0, core/togo): "on" or "off"; absent: off, the match as before.
+	-- A client that wants it on by default sets it (docs/PITCH.md "The throw to go")
+	togo = function(v) return v == "on" or v == "off" end,
 }
 -- taken from setOptions
 local OWN_SET = {
 	computer = OWN_OK.computer,
 	scene = scenes.known,
+	togo = OWN_OK.togo,
 }
 
 -- The match options the host sets: { key, label, { { value, label }, ... } }, as on the
@@ -110,6 +114,9 @@ lobby.MATCH_OPTIONS = {
 	{ "wind", "Wind", { { "off", "Off" }, { "light", "Light" }, { "strong", "Strong" } } },
 	{ "set", "Kubbs", { { "classic", "Classic" }, { "usa", "USA" }, { "sweden", "Sweden" },
 		{ "minnesota", "Minnesota" }, { "wisconsin", "Wisconsin" } } },
+	-- (1.4.0) who throws first, thrown for before turn 1 (core/togo); off: Team A first.
+	-- Before Computer, which stays the last row
+	{ "togo", "Throw to go", { { "on", "On" }, { "off", "Off" } } },
 	{ "computer", "Computer", { { "kid", "Kid" }, { "beginner", "Beginner" }, { "club", "Club" }, { "pro", "Pro" } } },
 }
 

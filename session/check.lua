@@ -449,7 +449,7 @@ local function personThrow(s, a)
 	end
 	-- the target
 	local dt = drill.tune
-	local inArea = abs(target.x) <= dt.markerXMax + EPS and target.y - lineY >= dt.markerNear - EPS
+	local inArea = abs(target.x) <= dt.markerXMax + EPS and target.y - lineY >= (ts.markerNear or dt.markerNear) - EPS
 		and target.y - lineY <= dt.markerFar + EPS
 	local onPiece = nil
 	for _, it in ipairs(ts.items or {}) do
@@ -539,6 +539,7 @@ end
 -- and atLevel whether that is among them. From 0.13 a person's throw is on one meter
 -- whatever the level, so a throw that fits lists every level and atLevel is true.
 function check.throw(s, a)
+	if type(a) == "table" and a.type == "togo" then return check.togo(s, a) end
 	if type(a) ~= "table" or a.type ~= "throw" then return fail("not a throw") end
 	if s.kind ~= "match" or s.phase ~= "throw" or not s.setup then return fail("no throw set up") end
 	if a.seq == nil or math.tointeger(a.seq) ~= s.throws then return fail("throw out of step") end
@@ -548,6 +549,30 @@ function check.throw(s, a)
 		return { ok = false, computer = true, why = "not the computer's throw: " .. tostring(firstDiff(a, want)) }
 	end
 	local ok, r = pcall(personThrow, s, a)
+	if not ok then return fail("not a throw this engine can read: " .. tostring(r)) end
+	r.computer = false
+	return r
+end
+
+-- A baton to go (1.4.0; docs/SESSION.md "The throw to go"): could it be `a.side`'s baton
+-- in this round, thrown on a person's dial? The same checks as a person's throw, against
+-- the set-up the side's baton is thrown from (Session:togoPrepare's, on a throw state of
+-- its own, so the session is not moved). A computer's baton is never an action a client
+-- sends: the engine makes it when the people's are in, so one is refused here.
+function check.togo(s, a)
+	if type(a) ~= "table" or a.type ~= "togo" then return fail("not a baton to go") end
+	if s.kind ~= "match" or s.phase ~= "togo" or not s.togo then return fail("no throw to go") end
+	if a.round == nil or math.tointeger(a.round) ~= s.togo.round then return fail("not this round") end
+	local side = a.side
+	if side ~= "A" and side ~= "B" then return fail("no such side") end
+	if s.togo.acts[side] then return fail("thrown") end
+	if s:togoCpu(side) then return fail("the computer's baton is the engine's") end
+	local setup = tw.match.togoSetup(s.m, side)
+	local ts = throw.new { surface = s.opts.surface, set = s.opts.set, meter = session.meterOf(s.opts) }
+	ts.throwLevel = setup.thrower.throw
+	throw.prepare(ts, setup)
+	ts.level = setup.thrower.level
+	local ok, r = pcall(personThrow, { ts = ts, setup = setup, kind = "match" }, a)
 	if not ok then return fail("not a throw this engine can read: " .. tostring(r)) end
 	r.computer = false
 	return r
