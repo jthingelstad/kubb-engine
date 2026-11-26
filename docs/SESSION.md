@@ -108,7 +108,7 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 
 | Call                         | Returns           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ---------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `newPractice(opts)`          | view              | `{ scene, surface: "grass" \| "sand" \| "snow" \| "grid", level, set, drill }`. The practice pitch (scenes/drills.lua's free throw); `drill: true` throws kubbs at the circle. Since 0.14 a `scene` named decides the surface and the set as for a match (below), and `setSurface` then takes only a surface the scene allows.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `newPractice(opts)`          | view              | `{ scene, surface: "grass" \| "sand" \| "snow" \| "grid", level, set, drill, throw }`. The practice pitch (scenes/drills.lua's free throw); `drill: true` throws kubbs at the circle. Since 0.14 a `scene` named decides the surface and the set as for a match (below), and `setSurface` then takes only a surface the scene allows.                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | `newMatch(opts)`             | view              | `{ seed, teams, cpu, first, opening, raising, wind, surface, set, computer, rules, scene, start, maxTurns, modeName }`. `rules: "kid"` (since 0.15): the Kid rules whatever the computer (pass and play with two children); absent, a match has them only with the Kid computer. `teams: { A: { name, players: [{ name, level, key }] }, B: ... }`, 1 to 6 players a side (strings work as names); since 0.17 a player may be a computer player, `{ cpu: true, level, name?, key? }` ("Computer players", below). `cpu`: `"A"`, `"B"`, `"both"` or a list: every player of that side is the computer, at the match's `computer` level, as before 0.17. `first: "A" \| "B"`. `opening: "2-4-6" \| "six"`. `raising: "hand" \| "auto"`. `wind: "off"` or a core/wind level (`"light"`, `"strong"`, ...). `start: { year, month, day, hour, min }`: the match clock's start (the game file's date; pass the host's local time). `maxTurns`: the side to throw at that turn resigns (tests, quick games). `computer` (since 0.9): the computer's level, `"kid"` (since 0.15), `"beginner"`, `"club"` or `"pro"`, given to every player on a computer side whose entry names no level of its own; `"kid"` with a computer side makes the match a Kid match ("Kid matches", below); absent, unknown or `"club"` (the default) the option is not kept, so the start is the one a match always had, and the computer throws at club. A person's level is their entry's own. `scene` (since 0.9): the look to draw the pitch in, an id of lowercase letters, digits and hyphens, 1 to 24 characters (`pitch/lobby.isScene`); the engine keeps it in the start like `set` and never reads it otherwise. Absent, invalid or `"day"` (the default) it is not kept. The view's `scene` is the one to draw (`"day"` when none); a client draws a scene it does not know as `"day"`. Practice (`new` with `mode: "practice"`) takes `scene` too. **Since 0.14 a scene decides** ("Scenes", below): with `scene` named, `new` takes the surface given only if the scene allows it (else the scene's default) and the set likewise, and an id the catalogue does not have is Park (`"day"`, not kept). With no `scene`, the options stand as given, as before 0.14. Restore, replay, checkStart and renameStart make a match from its options as they were recorded, whatever its scene. |
 | `restore(snapshotText)`      | view              | A match from a snapshot. Since 0.13.4 also `{ snap, names: "check" }`, which refuses a snapshot whose names the engine does not allow ("Names", below). Restored while raising, placing a punishment kubb or after the end, the view shows the match's pitch as it stands (pieces and debris, a king that ended the match lying down) in the last throw's frame, as live, until the next throw is set up. The restored session acts for every side and the computer until `setControl` says otherwise.                                                                                                                                                                                                                                   |
 | `snapshot()`                 | text              | The whole match as JSON text. Opaque: store and send it as it is, byte for byte. Matches only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
@@ -132,7 +132,7 @@ are plain objects. The pitch's calls (`pitch.<name>`, `room.<name>` before 0.13)
 
 - `{ kind: "throw", side, setup, cpu, local, candidates?, wind, ... }`. `setup` is the
   throw (`kind`, `projectile` "baton" or "kubb", `n` of `of`, `label`, `kingShot`,
-  `rethrow`, `lineY`, `forwardY`, `advY`, `targets`, `thrower { id, name, level, key, cpu? }`;
+  `rethrow`, `lineY`, `forwardY`, `advY`, `targets`, `thrower { id, name, level, key, cpu?, throw? }`;
   for a kubb, `n` of `of` is its place in its round (since 0.17.0): the kubbs thrown in
   first ("kubb 2 of 2"), or with `rethrow` true the kubbs rethrown ("rethrow 1 of 1": two
   in and one out, the out one again; before, "kubb 3 of 3"); the label and the aim's
@@ -298,6 +298,22 @@ change whenever the circle or the stance moves, so a surface redraws its bands f
 view, as it already does; there is no new field. A Kid match's people throw on the Kid meter
 (0.15, docs/notes/throw.md "The Kid meter"): the same fields, much wider bars.
 
+**A person's throw level** (since 1.3.0; docs/notes/throw.md "The honest meter (1.3.0)").
+A person's player entry in `newMatch`'s teams takes `throw`: `"easy"`, `"standard"` or
+`"hard"`, the meter that person throws on (`plan.meters`); absent is `"standard"`. The
+levels differ only in their bars (wider on easy, narrower on hard) and in how much an error
+inside a bar counts, never in randomness: since 1.3.0 a person's throw has no nerves, so
+the same swing gives the same throw. `"standard"` is not kept, so a match without the field
+(or with `"standard"`) has the start, snapshot and hashes it would have had; `"easy"` and
+`"hard"` are kept on the entry in the start (`opts.teams.<side>.players[i].throw`) and in
+the match's lineup, so a restore and a replay throw on the same meter. Any other value is
+refused: `newMatch` fails with an error that says so. A computer entry carries none.
+`need.setup.thrower.throw` is the thrower's level when not standard, and the aim view's
+bars are that meter's, switching when the `thrower` action hands the throw to a person on
+another level. `newPractice` takes `throw` too (an unknown value is standard) and its throw
+checkpoint keeps it. A Kid match keeps the Kid meter for every person, whatever their level.
+On a shared pitch each member says their own level as `me.throw` (docs/PITCH.md).
+
 **Computer players** (0.17.0). Jamie (2026-11-22): "In online play we should be able to
 add computer players to the match, with a specified level. I may have three friends and we
 want to play a team of three computers (two at club and one at pro). Or we want to play 2
@@ -354,7 +370,8 @@ teams: {
   `.level`, and `inkasterCpu`. The hand-off card shows whenever the team on turn has a
   person, whoever throws first; the pass card only before a person's throw.
 - **The game file.** `[Throw Levels]` names every computer player with its level, in team
-  order, Team A's first (people are not listed); `[Mode]` is `"Vs Computer"` when any
+  order, Team A's first; people are not listed, except (since 1.3.0) a person on `easy` or
+  `hard`, as `<id> easy` (never in a Kid match); `[Mode]` is `"Vs Computer"` when any
   computer plays, `"Computer vs Computer"` when both teams are computers only, `"Pass and
   Play"` otherwise.
 - **One device.** The same lineup plays with no pitch: a person with a computer partner
@@ -499,10 +516,12 @@ log. A server (a highlight reel) can replay it in the engine and check this much
   makes a throw (`session/check.lua` lists each with its source): the plan solved again
   for the stance and target with every release and tilt (or spin) a player can choose
   (since 0.9 any value in range, the action's `plan` tried first), on the person's meter
-  (from 0.13; every level before); the loft pinned by the stop (since 0.8.0, a baton planned under 2 m with the
+  (from 0.13; every level before; since 1.3.0 the thrower's own `throw` meter); the loft pinned by the stop (since 0.8.0, a baton planned under 2 m with the
   plan's flatter share of it and the heave of a swing past the power target, as
   `plan.launch` gives them); the tilt pinning the shake and the pull; the
-  swivel, speed and tumble within the nerves' largest draw (and never under the floors
+  swivel, speed and tumble within the nerves' largest draw (since 1.3.0 a person's meter has
+  no nerves, so these are pinned to what the swing gives, the release's pull on a baton and
+  a thrown kubb included, within rounding; and never under the floors
   the throw clamps to: a tumble under `tumbleMin`, a length draw under `lenMin`), `ZMAX` = sqrt(-2 ln 1e-12),
   about 7.43 sds (`plan.rng`'s normal floors u1 at 1e-12); the flick between
   `minFlickFrac` and 1 and matching the power verdict; a kubb's `scatter` the one the swing gives (from 0.13 `plan.scatterFor` of the shake and how far past a bar the swing went; 0.11 and 0.12: the level's `drillScatter`); a kubb's nose, spin and wobble

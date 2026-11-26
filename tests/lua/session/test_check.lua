@@ -186,14 +186,15 @@ test("the computer's throw made again from the snapshot is the very action frame
 end)
 
 test("a replay with checkCpu: an honest log passes; a computer throw at half speed is forged", function()
-	local m = match(2)
+	local m = match(3)
 	local r = replay.new { start = m.start, log = noH(m.log), checkCpu = true, checkThrows = true }
 	local info = r:finish()
 	expect.eq(info.forged, false, "honest: " .. tostring(info.forgedWhy))
 	expect.eq(info.outOfBounds, false, "honest: " .. tostring(info.outOfBoundsWhy))
 	expect.eq(info.differs, false)
 	expect.truthy(info.over, "the match ends")
-	expect.truthy(info.cpuChecked > 10 and info.throwsChecked > 10, "both kinds checked")
+	expect.truthy(info.cpuChecked > 10 and info.throwsChecked > 10,
+		"both kinds checked: " .. tostring(info.cpuChecked) .. " and " .. tostring(info.throwsChecked))
 	-- the computer's throws that knocked nothing down: halving the speed of one of them
 	local quiet = cpuIndexes(m, function(rec) return rec and #(rec.result.toppled or {}) == 0 end)
 	expect.truthy(#quiet > 0, "a quiet computer throw")
@@ -238,7 +239,7 @@ end)
 
 test("checkThrow takes every person's throw the dial made: pointer and touch, every level, batons and kubbs", function()
 	local n, kubbs, lv, touch = 0, 0, {}, 0
-	for _, k in ipairs { { 1 }, { 2 }, { 4, true }, { 5, true }, { 6 } } do
+	for _, k in ipairs { { 1 }, { 2 }, { 3 }, { 4, true }, { 5, true }, { 6 } } do
 		local m = match(k[1], { touch = k[2] })
 		for _, t in ipairs(m.throws) do
 			local s = session.restore(t.before)
@@ -718,7 +719,7 @@ test("replayStep gives the kubbs standing before and after each action", functio
 end)
 
 test("the wide view un-turns Team B's landing, rest and first hit", function()
-	local m = match(2)
+	local m = match(3)
 	call("setWide", { box = { left = 0, top = 0, right = 1280, bottom = 800 } })
 	call("replayLoad", { start = m.start, log = noH(m.log) })
 	local n = 0
@@ -746,7 +747,7 @@ test("the wide view un-turns Team B's landing, rest and first hit", function()
 	end
 	call("replayEnd")
 	call("setWide", {})
-	expect.truthy(n > 5, "Team B's throws")
+	expect.truthy(n > 5, "Team B's throws: " .. n)
 end)
 
 test("setClient's location is the game file's Location line; by default it is Playdate's", function()

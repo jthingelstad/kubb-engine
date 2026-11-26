@@ -97,27 +97,36 @@ test("all base kubbs down stands the pitch up again", function()
 	expect.eq(down, 0, "stood up after the last base kubb fell")
 end)
 
-test("the nerves: a clean swing goes off its line, the same way every time, and the verdict says which way", function()
-	local function one()
-		local s = session.new { mode = "practice" }
+test("no nerves on a person's meter (1.3.0): a clean swing goes on its line, the same every time, and says STRAIGHT", function()
+	local function one(o)
+		local s = session.new(o or { mode = "practice" })
 		s.ts.nerves = true
 		local out, a = cleanThrow(s)
 		return out.recording, a
 	end
 	local rec, a = one()
 	local v = rec.result.verdicts
-	expect.truthy(a.verdicts.sideV == -1 or a.verdicts.sideV == 0 or a.verdicts.sideV == 1, "the action carries sideV")
+	expect.eq(a.verdicts.sideV, 0, "the action carries sideV")
 	expect.eq(v.sideV, a.verdicts.sideV)
-	local words = { [-1] = "PULLED LEFT", [0] = "STRAIGHT", [1] = "PULLED RIGHT" }
-	expect.eq(v.side, words[v.sideV])
-	-- seeded by the swing and the plan: the same swing draws the same nerves
+	expect.eq(v.side, "STRAIGHT")
+	-- the same swing gives the same throw
 	local _, a2 = one()
 	expect.eq(a2.launch.swivel, a.launch.swivel)
 	expect.eq(a2.launch.speed, a.launch.speed)
-	-- and they moved the launch off the plan's own
+	-- and the nerves, asked for, move nothing: the throw is the plan's own
 	local s0 = session.new { mode = "practice" }
 	local _, a0 = cleanThrow(s0)
-	expect.truthy(a0.launch.swivel ~= a.launch.swivel or a0.launch.speed ~= a.launch.speed, "the nerves moved the launch")
+	expect.eq(a0.launch.swivel, a.launch.swivel, "no draw moved the line")
+	expect.eq(a0.launch.speed, a.launch.speed, "nor the length")
+	expect.eq(a0.launch.tumble, a.launch.tumble, "nor the turn")
+	-- on every player level
+	for _, tl in ipairs(tw.plan.THROW_LEVELS) do
+		local r1, b = one { mode = "practice", throw = tl }
+		expect.eq(r1.result.verdicts.side, "STRAIGHT", tl)
+		local _, b0 = cleanThrow(session.new { mode = "practice", throw = tl })
+		expect.eq(b0.launch.swivel, b.launch.swivel, tl)
+		expect.eq(b0.launch.speed, b.launch.speed, tl)
+	end
 end)
 
 test("a throw recorded before the nerves replays with no sideways verdict", function()

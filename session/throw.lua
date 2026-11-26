@@ -89,10 +89,12 @@ throw.level = plan.tune.defaultLevel
 function throw.levelFor(s)
 	return s.level or s.defaultLevel or throw.level
 end
--- The meter a person's throw is planned on (plan.meter): the same for every person,
--- whatever throw.levelFor(s) says.
+-- The meter a person's throw is planned on (plan.meter), whatever throw.levelFor(s) says:
+-- the match's (s.meter: the Kid meter in a Kid match), else the thrower's own throw
+-- level (s.throwLevel, 1.3.0: a player entry's `throw`, easy, standard or hard), else
+-- the standard meter.
 function throw.meterFor(s)
-	return plan.meter(s.meter)
+	return plan.meter(s.meter or s.throwLevel)
 end
 
 -- ---------- pieces ----------
@@ -394,7 +396,13 @@ local function replan(s)
 	-- ARC's real range for the throw in hand (throw.controls)
 	s.arcMin = plan.arcFloor(q)
 	s.swivel, s.loftDeg = sol.swivel, sol.loft
-	s.planLevel, s.planDirty = throw.levelFor(s), false
+	s.planLevel, s.planMeter, s.planDirty = throw.levelFor(s), q.meter, false
+end
+
+-- Is the plan stale: marked so, or made for another level or meter (1.3.0: a thrower
+-- with another throw level)?
+local function stale(s)
+	return s.planDirty or s.planLevel ~= throw.levelFor(s) or s.planMeter ~= throw.meterFor(s)
 end
 throw.replan = replan
 
@@ -500,6 +508,7 @@ function throw.new(opts)
 		set = opts.set or throw.tune.set,
 		defaultLevel = opts.level,
 		meter = opts.meter,   -- the meter a person throws on (plan.meters): "kid" in a Kid match, nil the standard
+		throwLevel = opts.throwLevel, -- the person's throw level (1.3.0): "easy" or "hard", nil standard
 		layout = throw.defaultLayout(),
 		items = {}, targets = {}, snaps = {},
 		lineY = throw.tune.lineY, forwardY = throw.tune.lineY, advY = nil,
@@ -835,7 +844,7 @@ function throw.aimFrame(s, inp)
 		if s.markerMoving then settleMarker(s, false) end
 	end
 	s.markerMoving = moving
-	local changed = s.planDirty or s.planLevel ~= throw.levelFor(s)
+	local changed = stale(s)
 	if changed then replan(s) end
 	-- the plan view: a smooth move both ways (camera.tune.shoulder.time)
 	local st = camera.tune.shoulder
@@ -1035,7 +1044,7 @@ function throw.playerLaunch(s, r)
 	-- (no level: the solution's, the person's meter at this distance)
 	local o = { projectile = kubb and "kubb" or "baton", tilt = s.tilt, spin = s.spin }
 	o.nerves = nervesFor(s) or nil
-	if s.planDirty or s.planLevel ~= throw.levelFor(s) then replan(s) end
+	if stale(s) then replan(s) end
 	local L = plan.launch(s.sol, r, o, {})
 	return L, kubb and "drill" or "baton"
 end

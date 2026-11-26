@@ -643,6 +643,10 @@ level's nerves were drawn on every throw, the person's as well as the computer's
 level also set the person's bars, so picking a harder computer made the person's own throw
 harder.
 
+Since 1.3.0 the person's meter has no nerves, a release bar of 5 degrees at 8 m, a release
+pull inside the bar and on a thrown kubb, and three levels (Easy, Standard, Hard): "The
+honest meter (1.3.0)" below. What follows is 0.13's meter as it was built.
+
 - **A level is the computer's standard only.** `plan.levels` describes how the computer
   throws (`autothrow.cpuLevel`: pro's gauge with the level's nerves, tumble and hand). The
   computer's throws are unchanged (`tests/fixtures/cpu/choose.txt` passes untouched; the 13
@@ -755,6 +759,104 @@ A drilled kubb onto the basket's spot (1.9 m out, 4.75 m), one tap of spin, 400 
 
 In the Gym (docs/notes/gym.md "The person's meter") each hand's game rows are set beside
 the reference row it should sit in.
+
+### The honest meter (1.3.0)
+
+The owner approved, 2026-11-26: "kubb-engine 1.3.0 with the honest person's meter (no
+nerves for people, the release pulls batons and kubbs, release bar 5 at 8 m),
+Easy/Standard/Hard player levels as bar widths". The rules it follows: what the player does
+shows in the result; there is no hidden random draw on a person's throw; a perfect throw
+always lands; an easier level means wider bars and never makes a good throw fail; and a
+drilled kubb is not placed "literally wherever you want".
+
+**What the recorded matches showed.** 464 throws on the 0.13-era meter, from 20 matches.
+Batons at 8 m felled 48% overall, and 79% of those whose swing was inside both bars: the
+release bar was wide enough that a swing well off the centre still came back ON, and
+nothing told the player why a good-looking throw missed. Thrown kubbs landed a median 7 cm
+off the line sideways, with all of their error along the throw: inside the bars a kubb went
+exactly where it was aimed, so a person could drill it anywhere.
+
+**What changed** (`plan.meters.standard`; the Kid meter and the computer's levels are not
+touched, so the computer's throws are bit-for-bit as in 1.2: `tests/fixtures/cpu/choose.txt`
+and the golden matches without a person):
+
+- **No nerves for people.** `nervesDeg`, `nervesLen` and `tumbleSd` are 0 (they were 0.12,
+  0.008 and 0.015). The draws are still taken from the swing's seed, so the stream is the
+  same length, but each multiplies to exactly 0: the same swing gives the same throw,
+  every time. `checkThrow` then pins the swivel to the swing to within rounding.
+- **A narrower release bar.** `releaseHalf8` 5 degrees at 8 m (was 7.5): 14.0 / 9.5 / 5.0
+  at 4 / 6 / 8 m. The power bar is unchanged (5.6 / 3.8 / 2.0).
+- **The release pulls inside the bar too.** `edgeM` 0.05: a release at the bar's edge
+  turns the line by the angle 5 cm makes at the throw's distance, straight through to the
+  centre (`plan.releasePull`: `-e x er / h` inside, `e = atan(edgeM / d)`), and past the
+  edge the old `pullPerDeg` slope is added on, so the pull is continuous. A late release
+  still pulls left and an early one right. A swing inside both bars still fells a lone
+  kubb at every range (the baton is wider than the 5 cm).
+- **The thrown kubb is pulled too.** `kubbPull` 0.15 degrees a degree past the bar and the
+  same edge pull inside it, so a drill's error is sideways as well as along; inside a bar
+  its error counts `kubbInGain` 0.3 (a baton's `inGain` stays 0.1), so a kubb inside the
+  bars still lands near its spot but not on it.
+
+**Three levels for a person: Easy, Standard, Hard.** A player entry's `throw` (`"easy"`,
+`"standard"`, `"hard"`; absent is standard) picks the meter that person throws on
+(`plan.meters.easy`, `.standard`, `.hard`; `throw.meterFor`). They differ only in their bars
+and in how much an error inside a bar counts, never in randomness: there are no nerves on
+any of them.
+
+| meter | power / release at 8 m | at 6 m | at 4 m | `inGain` | `kubbInGain` |
+| --- | --- | --- | --- | --- | --- |
+| easy | 5.0 / 12.0 | 9.5 / 22.8 | 14.0 / 33.6 | 0.04 | 0.12 |
+| standard | 2.0 / 5.0 | 3.8 / 9.5 | 5.6 / 14.0 | 0.1 | 0.3 |
+| hard | 1.5 / 3.5 | 2.8 / 6.6 | 4.2 / 9.8 | 0.1 | 0.3 |
+
+Easy's gains are lower because its bars are wide: at the standard gains a steady swing
+anywhere inside easy's bars drilled only 61% of kubbs within 0.3 m and felled 96 to 99% of
+lone kubbs, which breaks "an easier level never makes a good throw fail". A Kid match keeps
+the Kid meter for every person, whatever their level.
+
+Measured with `lua5.4 tools/meterprobe.lua --n 400 --ranges 4,6,8 --meter <name>` (seed 1;
+the recorded hand is fit 2, `tools/gym/human-model.json`). Before is 1.2.0's standard meter.
+A lone standing kubb, felled at 4 / 6 / 8 m:
+
+| | before | easy | standard | hard | target |
+| --- | --- | --- | --- | --- | --- |
+| a perfect swing | 100 / 100 / 100 | 100 / 100 / 100 | 100 / 100 / 100 | 100 / 100 / 100 | 100 |
+| steady swings inside both bars (PULLED) | 100 / 100 / 100 (0) | 100 / 100 / 100 (0) | 100 / 100 / 100 (0) | 100 / 100 / 100 (0) | 100 |
+| the recorded hand x2 | 53 / 33 / 24 | 66 / 48 / 28 | 42 / 21 / 16 | 22 / 16 / 12 | beginner 45 / 22 / 10 |
+| the recorded hand x1 | 76 / 62 / 44 | 84 / 72 / 59 | 70 / 50 / 28 | 56 / 34 / 22 | club 72 / 48 / 27 |
+| the recorded hand x0.5 | 87 / 79 / 69 | 91 / 83 / 81 | 85 / 71 / 58 | 81 / 66 / 45 | pro 88 / 70 / 45 |
+
+Read across: Standard puts the recorded hand on club's row (it was well above it), Easy x2
+(a newcomer on Easy) near club's row, and Hard x0.5 (a strong player on Hard) on pro's,
+with the recorded hand on Hard clearly under club.
+
+A drilled kubb onto the basket's spot (1.9 m out, 4.75 m), one tap of spin, 400 drills:
+median rest from the spot, within 0.3 m, landed dead.
+
+| thrower | before | easy | standard | hard |
+| --- | --- | --- | --- | --- |
+| the recorded hand x2 | 46 cm, 40%, 38% | 16 cm, 70%, 75% | 69 cm, 28%, 26% | 84 cm, 19%, 16% |
+| the recorded hand x1 | 6 cm, 79%, 78% | 7 cm, 89%, 93% | 21 cm, 62%, 64% | 31 cm, 48%, 45% |
+| the recorded hand x0.5 | 4 cm, 93%, 92% | 4 cm, 97%, 96% | 9 cm, 88%, 88% | 9 cm, 88%, 87% |
+| steady swings inside both bars | 4 cm, 98%, 96% | 10 cm, 98%, 94% | 10 cm, 98%, 94% | 8 cm, 98%, 96% |
+| a dead-centre steady swing | 2 cm, 98%, 96% | 3 cm, 98%, 95% | 3 cm, 98%, 95% | 3 cm, 98%, 95% |
+| the computer at club / pro | 8 cm, 79%, 56% / 3 cm, 98%, 96% | the same | the same | the same |
+
+A steady drill inside the bars now rests about 10 cm from its spot where it rested 4 cm
+from it: still a good kubb, no longer one placed to the centimetre.
+
+**What to watch.**
+
+- Hard's power bar is 1.5 degrees either side at 8 m, under the 2-degree floor 0.13 kept
+  so the bar stays usable on a phone and a crank. It is drawn; whether it is usable on
+  each surface is for the clients to check.
+- At the edge pull a swing at the far corner of both bars puts the baton at the kubb's
+  edge: on Hard at 4 m a swing at one corner of both bars (the backswing short and the
+  release early, both at their edges) glanced off 2 times in 36 yaws, and on Hard at 8 m a
+  short, late corner missed once in 40; the other corners fell every time. Steady swings spread inside the bars
+  fell every time (400 a range).
+- The recorded matches were thrown on the old meter. People on narrower bars will likely
+  aim more carefully than the model, so the meter is set on the lower side again.
 
 ## The Kid meter (0.15)
 

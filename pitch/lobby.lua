@@ -25,6 +25,8 @@
 --     re-levels and removes them (addComputer, moveComputer, setComputerLevel,
 --     removeComputer). A document without one (every one before 0.17) has no
 --     `computers` and reads, cleans and writes exactly as before.
+--   * a person's throw level (since 1.3): a member's `me.throw` (easy, standard or hard)
+--     goes into lineup and matchOptions when easy or hard. No vector's `me` has one.
 import "core/tw"
 import "version"
 import "session/json"
@@ -33,7 +35,7 @@ import "core/scenes"
 import "core/namegen"
 import "core/throwplan"
 
-local json, js, scenes, namegen = tw.web.json, tw.shared.js, tw.scenes, tw.namegen
+local json, js, scenes, namegen, plan = tw.web.json, tw.shared.js, tw.scenes, tw.namegen, tw.plan
 local NULL, object = json.null, json.object
 local truthy, same, get, includes = js.truthy, js.same, js.get, js.includes
 
@@ -633,6 +635,10 @@ function lobby.lineup(doc, members)
 				local name = lobby.cleanName(get(me, "name"))
 				if name == "" then name = "Player " .. (#players[s] + 1) end
 				players[s][#players[s] + 1] = object { id = id, name = name, level = get(me, "level") }
+				-- a person's throw level (since 1.3): what they told the pitch (`me.throw`),
+				-- only when easy or hard, so a lineup without it is the one it always was
+				local tl = get(me, "throw")
+				if tl ~= plan.THROW_DEFAULT and plan.isThrowLevel(tl) then players[s][#players[s]].throw = tl end
 			end
 		end
 	end
@@ -658,7 +664,13 @@ function lobby.matchOptions(doc, lu, seed, start)
 			list[i] = object { name = get(p, "name"), key = get(p, "id"),
 				level = includes(lobby.LEVELS, level) and level or "club" }
 			-- a computer player (since 0.17): the session throws for it at its level
-			if get(p, "cpu") == true then list[i].cpu = true end
+			if get(p, "cpu") == true then
+				list[i].cpu = true
+			else
+				-- a person's throw level (since 1.3): easy or hard, the meter they throw on
+				local tl = get(p, "throw")
+				if tl ~= plan.THROW_DEFAULT and plan.isThrowLevel(tl) then list[i].throw = tl end
+			end
 		end
 		return object { name = (#ps == 1) and get(ps[1], "name") or ("Team " .. s), players = list }
 	end

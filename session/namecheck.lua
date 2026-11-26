@@ -34,6 +34,8 @@
 --   save.mode, opts.mode                       the sheet's [Mode]
 --   save.game.surface, .first, .winner         the sheet's headers
 --   save.lineup.<side>[].level, opts levels    [Throw Levels] (cpu.levelName writes it)
+--   save.lineup.<side>[].throw, opts players' throw   a person's throw level (1.3.0):
+--       easy, standard or hard; [Throw Levels] writes easy and hard
 --   opts.set, opts.scene                       a set and a scene core/scenes lists
 --   the rest (sides, phases, kubb and piece ids, keys)  never shown, held to the values
 --       the engine writes so a string cannot hide in them
@@ -246,18 +248,21 @@ local function enum(s, why) return function(v) return s[v] == true, why end end
 local function pid(v, ctx) return ctx.pids[v] == true, "not a player of this match" end
 local function level(v) return plan.levels[v] ~= nil, "not a throw level" end
 local function key(v) return #v <= 64, "a key longer than 64" end
+local function throwLevel(v) return plan.isThrowLevel(v), "not a person's throw level" end
 
 for _, side in ipairs { "A", "B" } do
 	RULES[".opts.teams." .. side .. ".name"] = { name = "team", side = side, part = "opts" }
 	RULES[".opts.teams." .. side .. ".players[].name"] = { name = "player", side = side, part = "opts" }
 	RULES[".opts.teams." .. side .. ".players[].key"] = key
 	RULES[".opts.teams." .. side .. ".players[].level"] = level
+	RULES[".opts.teams." .. side .. ".players[].throw"] = throwLevel
 	RULES[".save.game.teams." .. side .. ".name"] = { name = "team", side = side, part = "save" }
 	RULES[".save.game.teams." .. side .. ".players[].name"] = { name = "player", side = side, part = "save" }
 	RULES[".save.game.teams." .. side .. ".players[].id"] = pid
 	RULES[".save.lineup." .. side .. "[].id"] = pid
 	RULES[".save.lineup." .. side .. "[].key"] = key
 	RULES[".save.lineup." .. side .. "[].level"] = level
+	RULES[".save.lineup." .. side .. "[].throw"] = throwLevel
 	RULES[".save.order." .. side .. ".ids[]"] = pid
 end
 local kubb = function(v) return isKubb(v), "not a kubb" end

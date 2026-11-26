@@ -112,6 +112,35 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **1.3.0** (minor; draft, the person's meter part). The honest person's meter (the
+  owner, 2026-11-26: "no nerves for people, the release pulls batons and kubbs, release bar
+  5 at 8 m", "Easy/Standard/Hard player levels as bar widths"; docs/notes/throw.md "The
+  honest meter (1.3.0)").
+  - **No nerves on a person's throw**: `nervesDeg`, `nervesLen`, `tumbleSd` 0 on the
+    person's meters, so the same swing gives the same throw. The Kid meter and the
+    computer's levels keep theirs.
+  - **The release bar** at 8 m is 5 degrees either side (was 7.5); the power bar is
+    unchanged.
+  - **The release pulls inside its bar** (`edgeM` 0.05: 5 cm at the throw's distance at
+    the bar's edge), and **a thrown kubb is pulled** too (`kubbPull` 0.15, inside a bar
+    `kubbInGain` 0.3). A perfect swing and a steady swing inside both bars still fell a
+    lone kubb at 4, 6 and 8 m; the recorded hand now sits on club's row (70 / 50 / 28 at
+    4 / 6 / 8 m, was 76 / 62 / 44).
+  - **Easy, Standard and Hard for a person**: a player entry's `throw` (`"easy"`,
+    `"standard"`, `"hard"`; absent is standard), the meter that person throws on, wider or
+    narrower bars only. Kept in the start only when not standard; carried by the pitch as
+    `me.throw` into `lineup` and `matchOptions`; written in `[Throw Levels]` as
+    `<id> easy` or `<id> hard`; `newPractice` takes it. `pitch.constants` has
+    `THROW_LEVELS`.
+  - **`checkThrow`** models the edge and kubb pulls exactly, and with no nerves pins a
+    person's swivel, speed and tumble to the swing within rounding.
+  - **Golden hashes**: every golden match with a person changes (`make golden`); the
+    computer's fixture (`tests/fixtures/cpu/choose.txt`) and the matches without a
+    person do not.
+  - **Playing together**: a 1.3 match shares a pitch only with a client on 1.3.
+  - **For clients**: optional. A client may offer the throw level and send it as the
+    player entry's `throw` (and `me.throw` on a pitch); one that does not plays
+    everyone on Standard.
 - **1.2.0** (minor). The computer's inkast, from a played game (the owner, 2026-11-26:
   the computer "drills its kubbs a couple meters back from the midline. That isn't what
   real players do", and "its first Kubb in went out of bounds. It then threw kubbs toward

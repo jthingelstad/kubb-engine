@@ -1,6 +1,7 @@
--- The person's meter (0.13; docs/notes/throw.md "The person's meter"): one meter for
--- every person, the bars by distance, and an honest meter: a swing inside both bars
--- and steady goes where it was aimed. The computer keeps the levels (plan.levels,
+-- The person's meter (0.13; docs/notes/throw.md "The person's meter"): the bars by
+-- distance, and an honest meter: a swing inside both bars and steady goes where it was
+-- aimed. Since 1.3.0 no nerves, the release sets the line inside its bar too, and three
+-- player levels (easy, standard, hard) that differ in their bars. The computer keeps the levels (plan.levels,
 -- autothrow.cpuLevel). Real physics for the lone kubb; seeded, so the counts are fixed.
 import "core/throwplan"
 import "core/flight"
@@ -25,13 +26,14 @@ end
 
 local PY = 1
 
-local function personSol(d, projectile)
+local function personSol(d, projectile, meter)
+	meter = plan.meter(meter)
 	if projectile == "kubb" then
 		return plan.solve({ projectile = "kubb", px = 0, py = 0, tx = 1.9, ty = d, release = plan.arcFor("drill"),
-			meter = plan.meter(), surface = "grass", spin = 1 }, {})
+			meter = meter, surface = "grass", spin = 1 }, {})
 	end
 	return plan.solve({ projectile = "baton", px = 0, py = PY, tx = 0, ty = PY + d, release = plan.arcFor("baton", d),
-		meter = plan.meter(), aimZ = plan.aimZFor(d >= 6 and "base" or "field") }, {})
+		meter = meter, aimZ = plan.aimZFor(d >= 6 and "base" or "field") }, {})
 end
 
 -- does this launch fell a lone standing kubb d m out, turned yaw?
@@ -95,40 +97,95 @@ test("meter: the bars are wide for a short throw and narrow for a long one", fun
 	expect.near(e.powerHalf, m.powerHalf8, 1e-12); expect.near(e.releaseHalf, m.releaseHalf8, 1e-12)
 end)
 
-test("meter: a perfect swing fells a lone kubb at 4, 6 and 8 m, nerves and all", function()
-	for _, d in ipairs { 4, 6, 8 } do
-		local sol = personSol(d)
-		local sw = { back = sol.back, releaseAngle = sol.release, flickFrac = 1, smoothness = 1, shake = 0, pull = 1,
-			how = "stopped" }
-		local r, yr = plan.rng(31 + d), plan.rng(57 + d)
-		local fell = 0
-		for _ = 1, 30 do
-			local L = plan.launch(sol, sw, { nerves = r }, {})
-			expect.eq(L.sideV, 0, "a perfect swing goes straight")
-			if fells(d, yr.next() * math.pi / 2, L) then fell = fell + 1 end
+-- The honest meter (1.3.0; the owner, 2026-11-26): no hidden draw on a person's throw, a
+-- perfect throw always lands, and an easier player level makes a good throw easier to
+-- make, never makes one fail. At every player level and range.
+test("meter: a perfect swing fells a lone kubb at every player level, 3 to 8 m", function()
+	for _, name in ipairs(plan.THROW_LEVELS) do
+		for _, d in ipairs { 3, 4, 6, 8 } do
+			local sol = personSol(d, nil, name)
+			local sw = { back = sol.back, releaseAngle = sol.release, flickFrac = 1, smoothness = 1, shake = 0, pull = 1,
+				how = "stopped" }
+			local yr = plan.rng(57 + d)
+			local fell = 0
+			for _ = 1, 12 do
+				local L = plan.launch(sol, sw, { nerves = true }, {})
+				expect.eq(L.sideDeg, 0, "a perfect swing goes straight")
+				expect.eq(L.sideV, 0)
+				if fells(d, yr.next() * math.pi / 2, L) then fell = fell + 1 end
+			end
+			expect.eq(fell, 12, name .. " " .. d .. " m")
 		end
-		expect.eq(fell, 30, d .. " m")
 	end
 end)
 
-test("meter: the meter is honest: a steady swing inside both bars fells the kubb and is not PULLED", function()
-	for _, d in ipairs { 4, 6, 8 } do
-		local sol = personSol(d)
-		local lv = sol.level
-		local r, nr, yr = plan.rng(101 + d), plan.rng(203 + d), plan.rng(307 + d)
-		local fell, n = 0, 40
-		for _ = 1, n do
-			local shake = r.next() * plan.tune.steadyBelow * 0.999
-			local sw = { back = sol.back + (2 * r.next() - 1) * lv.powerHalf * 0.999,
-				releaseAngle = sol.release + (2 * r.next() - 1) * lv.releaseHalf * 0.999, flickFrac = 1,
-				shake = shake, smoothness = 1 - shake, pull = r.next() < 0.5 and -1 or 1, how = "stopped" }
-			local L = plan.launch(sol, sw, { nerves = nr }, {})
-			expect.truthy(L.powerV == 0 and L.releaseV == 0 and L.steady, "inside both bars and steady")
-			expect.eq(L.sideV, 0, string.format("%d m: a steady swing is not PULLED", d))
-			if fells(d, yr.next() * math.pi / 2, L) then fell = fell + 1 end
+test("meter: the meter is honest: a steady swing inside both bars fells the kubb and is not PULLED, at every level", function()
+	for _, name in ipairs(plan.THROW_LEVELS) do
+		for _, d in ipairs { 4, 6, 8 } do
+			local sol = personSol(d, nil, name)
+			local lv = sol.level
+			local r, yr = plan.rng(101 + d), plan.rng(307 + d)
+			local fell, n = 0, 40
+			for _ = 1, n do
+				local shake = r.next() * plan.tune.steadyBelow * 0.999
+				local eb, er = 2 * r.next() - 1, 2 * r.next() - 1
+				local sw = { back = sol.back + eb * lv.powerHalf * 0.999,
+					releaseAngle = sol.release + er * lv.releaseHalf * 0.999, flickFrac = 1,
+					shake = shake, smoothness = 1 - shake, pull = r.next() < 0.5 and -1 or 1, how = "stopped" }
+				local L = plan.launch(sol, sw, { nerves = true }, {})
+				expect.truthy(L.powerV == 0 and L.releaseV == 0 and L.steady, "inside both bars and steady")
+				expect.eq(L.sideV, 0, string.format("%s %d m: a steady swing is not PULLED", name, d))
+				if fells(d, yr.next() * math.pi / 2, L) then fell = fell + 1 end
+			end
+			expect.eq(fell, n, string.format("%s %d m: %d of %d fell", name, d, fell, n))
 		end
-		expect.truthy(fell >= 0.95 * n, string.format("%d m: %d of %d fell", d, fell, n))
 	end
+end)
+
+test("meter: no hidden draw: the same swing gives the same throw, nerves asked or not", function()
+	for _, name in ipairs(plan.THROW_LEVELS) do
+		local m = plan.meter(name)
+		expect.eq(m.nervesDeg, 0, name); expect.eq(m.nervesLen, 0, name); expect.eq(m.tumbleSd, 0, name)
+		for _, projectile in ipairs { "baton", "kubb" } do
+			local sol = personSol(projectile == "kubb" and 4.75 or 7, projectile, name)
+			local sw = { back = sol.back + 7, releaseAngle = sol.release - 9, flickFrac = 0.93, smoothness = 0.8,
+				shake = 0.2, pull = -1, how = "stopped" }
+			local o = { projectile = projectile, spin = projectile == "kubb" and 1 or nil }
+			local a = plan.launch(sol, sw, { projectile = projectile, spin = o.spin, nerves = true }, {})
+			local b = plan.launch(sol, sw, { projectile = projectile, spin = o.spin, nerves = plan.rng(99) }, {})
+			local c = plan.launch(sol, sw, { projectile = projectile, spin = o.spin }, {})
+			for _, k in ipairs { "speed", "loft", "swivel", "tilt", "tumble", "sideDeg", "lenShare" } do
+				expect.eq(a[k], c[k], name .. " " .. projectile .. " " .. k)
+				expect.eq(b[k], c[k], name .. " " .. projectile .. " " .. k)
+			end
+			expect.eq(a.sdSide, 0); expect.eq(a.sdLen, 0)
+		end
+	end
+	-- the Kid meter keeps its nerves (0.15.0), and the computer its levels'
+	expect.truthy(plan.meters.kid.nervesDeg > 0)
+	for _, name in ipairs(plan.LEVELS) do expect.truthy(plan.levels[name].nervesDeg > 0, name) end
+end)
+
+test("meter: easy's bars are wider than standard's and hard's narrower, at every range and for both", function()
+	for _, projectile in ipairs { "baton", "kubb" } do
+		for _, d in ipairs { 2, 3, 4, 6, 8, 10 } do
+			local e = plan.meterLevel(plan.meter("easy"), d, projectile)
+			local st = plan.meterLevel(plan.meter("standard"), d, projectile)
+			local h = plan.meterLevel(plan.meter("hard"), d, projectile)
+			local at = projectile .. " " .. d .. " m"
+			expect.truthy(e.powerHalf > st.powerHalf and st.powerHalf > h.powerHalf, at .. ": power")
+			expect.truthy(e.releaseHalf > st.releaseHalf and st.releaseHalf > h.releaseHalf, at .. ": release")
+			-- an easier level never lets more of an error inside a bar through
+			expect.truthy(e.inGain <= st.inGain and st.inGain <= h.inGain, at .. ": inGain")
+		end
+	end
+	expect.eq(plan.meter("easy"), plan.meters.easy)
+	expect.eq(plan.meter("hard"), plan.meters.hard)
+	expect.eq(plan.meter("standard"), plan.meters.standard)
+	for _, v in ipairs(plan.THROW_LEVELS) do expect.truthy(plan.isThrowLevel(v), v) end
+	expect.eq(plan.isThrowLevel("club"), false, "a computer's level is not a person's")
+	expect.eq(plan.isThrowLevel("kid"), false, "the Kid meter is the match's")
+	expect.eq(plan.THROW_DEFAULT, "standard")
 end)
 
 test("meter: outside a bar the error counts in full, so every miss has a readable cause", function()
@@ -200,35 +257,61 @@ test("meter: a degree is a degree: past the power bar the backswing counts the s
 	end
 end)
 
-test("meter: the release past its bar pulls the baton, late left and early right, pullPerDeg a degree", function()
-	local m = plan.meter()
-	for _, d in ipairs { 4, 6, 8 } do
-		local sol = personSol(d)
-		local h = sol.level.releaseHalf
-		local function side(dRel)
-			local sw = { back = sol.back, releaseAngle = sol.release + dRel, flickFrac = 1, smoothness = 1, shake = 0,
+test("meter: the release sets the line: edgeM off at the bar's edge, then pullPerDeg a degree past it", function()
+	for _, name in ipairs(plan.THROW_LEVELS) do
+		local m = plan.meter(name)
+		for _, d in ipairs { 4, 6, 8 } do
+			local sol = personSol(d, nil, name)
+			local h = sol.level.releaseHalf
+			local e = math.deg(math.atan(m.edgeM / sol.dist))
+			local function side(dRel)
+				local sw = { back = sol.back, releaseAngle = sol.release + dRel, flickFrac = 1, smoothness = 1, shake = 0,
+					pull = 1, how = "stopped" }
+				return plan.launch(sol, sw, nil, {})
+			end
+			-- inside the bar: in proportion, a late release left and an early one right
+			expect.eq(side(0).sideDeg, 0, "dead centre: on the line")
+			expect.near(side(h * 0.5).sideDeg, -e * 0.5, 1e-9, "inside the bar, late: left")
+			-- (a stop is never under 0: at 4 m the bar reaches under 6 o'clock)
+			expect.near(side(-h * 0.5).sideDeg, e * math.min(h * 0.5, sol.release) / h, 1e-9, "inside the bar, early: right")
+			local edge = side(h * 0.999)
+			expect.near(edge.sideM, -math.tan(math.rad(e * 0.999)) * sol.dist, 1e-9)
+			expect.truthy(math.abs(edge.sideM) < m.edgeM, "at the edge: edgeM off at the target")
+			expect.eq(edge.sideV, 0, "STRAIGHT inside the bar")
+			for _, x in ipairs { 2, 5, 10 } do
+				local late, early = side(h + x), side(-h - x)
+				expect.near(late.sideDeg, -e - m.pullPerDeg * x, 1e-9, "late pulls left")
+				-- (a stop is never under 0: the pull counts from the stop as it is)
+				local ex = math.max(0, math.min(x, sol.release - h)) -- (0.16: a drive's bar reaches under 6 o'clock)
+				if ex > 0 then expect.near(early.sideDeg, e + m.pullPerDeg * ex, 1e-9, "early pulls right") end
+				expect.eq(late.releaseV, 1); expect.eq(early.releaseV, -1)
+			end
+			-- continuous at the edge
+			expect.near(side(h + 1e-9).sideDeg, side(h - 1e-9).sideDeg, 1e-6)
+		end
+		-- a thrown kubb is pulled too (1.3.0), at kubbPull past its bar
+		local k = personSol(4.75, "kubb", name)
+		local hk = k.level.releaseHalf
+		local ek = math.deg(math.atan(m.edgeM / k.dist))
+		local function kside(dRel)
+			local sw = { back = k.back, releaseAngle = k.release + dRel, flickFrac = 1, smoothness = 1, shake = 0,
 				pull = 1, how = "stopped" }
-			return plan.launch(sol, sw, nil, {})
+			return plan.launch(k, sw, { projectile = "kubb", spin = 1 }, {})
 		end
-		expect.eq(side(h * 0.99).sideDeg, 0, "inside the bar: no pull")
-		expect.eq(side(-h * 0.99).sideDeg, 0)
-		for _, x in ipairs { 2, 5, 10 } do
-			local late, early = side(h + x), side(-h - x)
-			expect.near(late.sideDeg, -m.pullPerDeg * x, 1e-9, "late pulls left")
-			-- (a stop is never under 0: the pull counts from the stop as it is)
-			local ex = math.max(0, math.min(x, sol.release - h)) -- (0.16: a drive's bar reaches under 6 o'clock)
-			expect.near(early.sideDeg, m.pullPerDeg * ex, 1e-9, "early pulls right")
-			expect.eq(late.releaseV, 1); expect.eq(early.releaseV, -1)
-		end
-		-- an angle: the miss in metres grows with the range by itself
-		local L = side(h + 10)
-		expect.near(L.sideM, math.tan(math.rad(-m.pullPerDeg * 10)) * sol.dist, 1e-9)
+		expect.eq(kside(0).sideDeg, 0)
+		expect.near(kside(hk * 0.5).sideDeg, -ek * 0.5, 1e-9, "a kubb inside its bar")
+		expect.near(kside(hk + 10).sideDeg, -ek - m.kubbPull * 10, 1e-9, "a kubb past its bar")
+		expect.eq(k.level.inGain, m.kubbInGain, "a kubb's share of an error inside a bar")
 	end
-	-- a kubb is not pulled by its release (its scatter does that job), nor the computer
-	local k = personSol(4.75, "kubb")
-	local sw = { back = k.back, releaseAngle = k.releaseHi + 10, flickFrac = 1, smoothness = 1, shake = 0, pull = 1,
+	-- the Kid meter's kubb is not pulled (0.15.0, as it was), nor the computer's throw
+	local kk = personSol(4.75, "kubb", "kid")
+	local sw = { back = kk.back, releaseAngle = kk.releaseHi + 10, flickFrac = 1, smoothness = 1, shake = 0, pull = 1,
 		how = "stopped" }
-	expect.eq(plan.launch(k, sw, { projectile = "kubb", spin = 1 }, {}).sideDeg, 0)
+	expect.eq(plan.launch(kk, sw, { projectile = "kubb", spin = 1 }, {}).sideDeg, 0)
+	local kb = personSol(6, nil, "kid")
+	sw = { back = kb.back, releaseAngle = kb.release + kb.level.releaseHalf * 0.9, flickFrac = 1, smoothness = 1,
+		shake = 0, pull = 1, how = "stopped" }
+	expect.eq(plan.launch(kb, sw, nil, {}).sideDeg, 0, "the Kid meter's baton: none inside its bar")
 	local lvc = autothrow.cpuLevel("club")
 	local c = plan.solve({ projectile = "baton", px = 0, py = PY, tx = 0, ty = PY + 8, release = 60, level = lvc }, {})
 	sw = { back = c.back, releaseAngle = c.releaseHi + 10, flickFrac = 1, smoothness = 1, shake = 0, pull = 1, how = "stopped" }
@@ -238,21 +321,20 @@ end)
 test("meter: the recorded hand fells a lone kubb about as the reference's club rows say", plumb(function()
 	local here = debug.getinfo(1, "S").source:match("^@(.*)/[^/]*$") or "."
 	local human = dofile(here .. "/../../tools/gym/human.lua")
-	-- fit 1, the hand the meter's bars were tuned with (0.13). Fit 2 (2026-11-22, the
-	-- default model) is people at the meter itself and fells 76 / 60 / 44%: whether the
-	-- bars narrow to bring it back to the reference rows is a decision for the game, not
-	-- this test (docs/notes/gym.md "Fitting the human thrower")
-	local model = human.load(here .. "/../../tools/gym/human-model-0.7.json")
+	-- fit 2 (2026-11-22, the default model: people at the 0.13 meter), the hand the 1.3.0
+	-- meter was set with (docs/notes/throw.md "The honest meter"); until 1.3.0 this test
+	-- held fit 1 (tools/gym/human-model-0.7.json) to the 0.13 meter
+	local model = human.load(here .. "/../../tools/gym/human-model.json")
 	local p = human.part(model, "club", "baton")
 	-- tools/meterprobe.lua's TARGETS for the recorded hand (x1), at 200 throws a range:
 	-- within 8 points (twice the 4 the meter is tuned to, for the smaller sample)
 	for _, c in ipairs { { 4, 72 }, { 6, 48 }, { 8, 27 } } do
 		local d = c[1]
 		local sol = personSol(d)
-		local r, nr, yr = plan.rng(500 + d * 13), plan.rng(900 + d * 7), plan.rng(77 + d)
+		local r, yr = plan.rng(500 + d * 13), plan.rng(77 + d)
 		local fell, n = 0, 200
 		for _ = 1, n do
-			local L = plan.launch(sol, human.swing(sol, p, r, {}), { nerves = nr }, {})
+			local L = plan.launch(sol, human.swing(sol, p, r, {}), { nerves = true }, {})
 			local yaw = yr.next() * math.pi / 2
 			if L.legal and fells(d, yaw, L) then fell = fell + 1 end
 		end

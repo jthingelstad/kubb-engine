@@ -365,6 +365,15 @@ local function matchOptions(o)
 				local level = p.level
 				if level == nil and isCpuSide then level = out.computer end
 				players[#players + 1] = { name = tostring(p.name or ("Player " .. i)), level = level, key = p.key }
+				-- a person's throw level (1.3.0): the meter they throw on, easy, standard or
+				-- hard (plan.THROW_LEVELS). Kept only when given and not standard, the
+				-- default, so a match without it has the start a match always had
+				if p.throw ~= nil and p.throw ~= plan.THROW_DEFAULT then
+					if not plan.isThrowLevel(p.throw) then
+						error("newMatch: Team " .. side .. "'s player " .. i .. "'s throw level is easy, standard or hard", 0)
+					end
+					players[#players].throw = p.throw
+				end
 			end
 			if players[#players].name then taken[players[#players].name] = true end
 		end
@@ -471,9 +480,12 @@ function session.new(o)
 	s.throws = 0
 	s.recording = nil
 	if s.kind == "practice" then
+		-- the person's throw level (1.3.0), as a match's player entry takes it: absent,
+		-- standard or unknown, the standard meter
+		local tl = (plan.isThrowLevel(o.throw) and o.throw ~= plan.THROW_DEFAULT) and o.throw or nil
 		s.opts = { surface = surfaceKey(o.surface), level = o.level, set = o.set or "classic",
-			scene = tw.shared.lobby.isScene(o.scene) and o.scene ~= "day" and o.scene or nil }
-		s.ts = throw.new { surface = s.opts.surface, level = o.level, set = s.opts.set }
+			scene = tw.shared.lobby.isScene(o.scene) and o.scene ~= "day" and o.scene or nil, throw = tl }
+		s.ts = throw.new { surface = s.opts.surface, level = o.level, set = s.opts.set, throwLevel = tl }
 		-- practice set up under a scene (session.sceneOptions) keeps its surface to the scene's
 		s.sceneRule = o.sceneRule and true or nil
 		s.phase = "throw"
@@ -489,7 +501,9 @@ function session.new(o)
 	for _, side in ipairs { "A", "B" } do
 		local t = s.opts.teams[side]
 		local ps = {}
-		for i, p in ipairs(t.players) do ps[i] = { name = p.name, level = p.level, key = p.key, cpu = p.cpu } end
+		for i, p in ipairs(t.players) do
+			ps[i] = { name = p.name, level = p.level, key = p.key, cpu = p.cpu, throw = p.throw }
+		end
 		teams[side] = { name = t.name, players = ps }
 	end
 	s.m = cmatch.new { start = s.opts.start, surface = SURFACES[s.opts.surface], opening = s.opts.opening,
@@ -597,6 +611,8 @@ function Session:advance()
 	self.phase = "throw"
 	self.pitchFromMatch = nil -- ts holds the match's pitch from here on
 	local ts = self.ts
+	-- the thrower's throw level (1.3.0), before the plan is made: the meter it is made on
+	ts.throwLevel = setup.thrower and setup.thrower.throw or nil
 	throw.prepare(ts, setup)
 	self.frameSide = setup.side -- the frame ts is in now (session/wide)
 	ts.level = setup.thrower and setup.thrower.level or nil
@@ -746,7 +762,8 @@ local function plainSetup(setup)
 		-- cpu (0.17.0): the thrower is a computer (a computer player in a team, or a
 		-- player of a side the computer plays), so a client can say "computer · Pro"
 		thrower = setup.thrower and { id = setup.thrower.id, name = setup.thrower.name,
-			level = setup.thrower.level, key = setup.thrower.key, cpu = setup.thrower.cpu or nil } or nil,
+			level = setup.thrower.level, key = setup.thrower.key, cpu = setup.thrower.cpu or nil,
+			throw = setup.thrower.throw } or nil,
 		settled = plainSettled(setup.settled),
 	}
 end
@@ -828,7 +845,7 @@ end
 function Session:need()
 	if self.kind == "practice" then
 		return { kind = "throw", practice = true, drill = self.ts.drill, surface = self.opts.surface,
-			level = throw.levelFor(self.ts), set = self.opts.set }
+			level = throw.levelFor(self.ts), set = self.opts.set, throw = self.opts.throw }
 	end
 	local out
 	if self.phase == "over" then
@@ -1138,14 +1155,15 @@ end
 local function practiceCheckpoint(s)
 	local ts = s.ts
 	return json.encode { items = ts.items, surface = ts.surface, set = ts.set, scene = s.opts.scene,
-		level = throw.levelFor(ts),
+		level = throw.levelFor(ts), throw = s.opts.throw,
 		drill = ts.drill, drillSeq = ts.drillSeq, baton = ts.practiceBaton,
 		throws = s.throws }
 end
 
 function session.restorePractice(text)
 	local c = json.decode(text)
-	local s = session.new { mode = "practice", surface = c.surface, set = c.set, scene = c.scene, level = c.level }
+	local s = session.new { mode = "practice", surface = c.surface, set = c.set, scene = c.scene, level = c.level,
+		throw = c.throw }
 	local ts = s.ts
 	ts.items, ts.drillSeq, ts.practiceBaton = c.items, c.drillSeq, c.baton
 	s.throws, ts.throws = c.throws, c.throws
@@ -1420,6 +1438,7 @@ function Session:apply(a)
 		local setup = self.setup
 		self.lastThrower = setup.thrower.id
 		self.ts.level = setup.thrower.level
+		self.ts.throwLevel = setup.thrower.throw
 		self.ts.planDirty = true
 		throw.replan(self.ts)
 		self.ts.railName = self:railName(setup)

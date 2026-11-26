@@ -194,11 +194,12 @@ replay. The web's highlight reels check a share this way (its `backend/reels/che
 
 ### Values used by the calls
 
-- **lineup** `{ players: { A: [{ id, name, level, cpu? }], B: [...] }, cpu: "A" | "B" | null }`:
-  since 0.17 a computer seat is in its place as `{ id: seatId, name, level, cpu: true }`
+- **lineup** `{ players: { A: [{ id, name, level, cpu?, throw? }], B: [...] }, cpu: "A" | "B" | null }`:
+  since 0.17 a computer seat is in its place as `{ id: seatId, name, level, cpu: true }`;
+  since 1.3 a person's `throw` is there when it is `easy` or `hard`
 - **members** the pitch's members in joined order: `[{ id, connected, me }]`, where `me`
-  is what the member told the pitch about themselves: `{ name, level, engine }`. `engine`
-  is the member's engine version (`engineVersion`). Other member fields (the server's
+  is what the member told the pitch about themselves: `{ name, level, engine, throw? }`. `engine`
+  is the member's engine version (`engineVersion`); `throw` their throw level (since 1.3). Other member fields (the server's
   `role`, `joined`, `since`) are ignored.
 - **ctx** (who acts) `{ players, cpu, host, connected: [memberId, ...] }`: the match's
   players (`doc.match.players`, computer players marked `cpu: true`) and the side the
@@ -221,7 +222,7 @@ Each is `pitch.<name>`; the fields are the argument object's. "nothing" is `valu
 | `setAccess`    | `doc, open`                                                    | Open (listed) or invite only. Nothing when unchanged.                                                                                                                                                                           |
 | `openListing`  | `doc, members, over`                                           | What the host lists for an open pitch: `{ players, seats, state: "waiting" \| "playing" \| "over" }`, or null while invite only. The pitch server counts players itself; the web sends `seats` and `state`.                     |
 | `pruneTeams`   | `doc, present`                                                 | Forget members no longer on the pitch (`present`: their ids). Between matches only; nothing when nobody went.                                                                                                                   |
-| `lineup`       | `doc, members`                                                 | Who plays: the teams with each member's cleaned name (`Player n` when none) and level, each computer seat in its place (`cpu: true`, since 0.17), the computer on an empty side. Null when nobody is on a team.                  |
+| `lineup`       | `doc, members`                                                 | Who plays: the teams with each member's cleaned name (`Player n` when none) and level, each computer seat in its place (`cpu: true`, since 0.17), the computer on an empty side; a person's `throw` when their `me.throw` is `easy` or `hard` (since 1.3). Null when nobody is on a team.                  |
 | `addComputer`  | `doc, side, level, seed, name`                                 | Since 0.17, the host's: a computer seat on `side` at `level` (`beginner`, `club`, `pro`), last in the throwing order, named `name` when it is a generated player name, else rolled from `seed` (a whole number, the host's draw) and unlike every other seat's; its id the lowest `cpu:<n>` free. Nothing while a match runs, for a full side, a bad side or level, or no name and no seed. |
 | `setComputerLevel` | `doc, id, level`                                           | Since 0.17: a seat's level. Nothing for an unknown seat, a bad level, while a match runs, or when unchanged.                                                                                                                 |
 | `moveComputer` | `doc, id, side, index`                                         | Since 0.17: a seat to `side` at place `index` in its throwing order (0 first; absent, null or past the end: last); the same side reorders. Nothing for a full side, while a match runs, or when it would not move.             |
@@ -232,7 +233,7 @@ Each is `pitch.<name>`; the fields are the argument object's. "nothing" is `valu
 | `optionsOf`    | `doc`                                                          | Every match option the pitch holds, defaults filled in: `options`' five and `computer` and `scene` from `settings`. The one place a client reads them all. Since 0.9. Since 0.14, with a scene named, its surface and set as the scene allows (a kept id this engine does not list reads as `day`). |
 | `optionLabel`  | `key, value`                                                   | The label shown for an option's value, or the value as text.                                                                                                                                                                    |
 | `optionRows`   | `scene`                                                        | Since 0.14: the options card for a scene, `{ scene, rows, defaults: { surface, set } }`. `rows` in `MATCH_OPTIONS`' form, the Scene row first, then a Surface row only where the scene allows more than one surface (Black & White) and with only those, Opening, Raising, Wind, a Kubbs row only where it allows more than one set (none today), Computer. `scene` as the engine reads it (an unknown id is `day`); `defaults` its surface and set, for a card that changes scene. |
-| `matchOptions` | `doc, lineup, seed, start`                                     | The engine's `newMatch` options for the lineup: each player's `key` is their member id (a seat's its seat id, with `cpu: true` and its level, since 0.17), `cpu: []` when no side is empty. The host passes its own `seed` and `start` (`{ year, month, day, hour, min }`). Since 0.14, with a scene named, its surface and set as the scene allows. |
+| `matchOptions` | `doc, lineup, seed, start`                                     | The engine's `newMatch` options for the lineup: each player's `key` is their member id (a seat's its seat id, with `cpu: true` and its level, since 0.17), `cpu: []` when no side is empty; a person's `throw` (`easy` or `hard`) when the lineup has one, since 1.3. The host passes its own `seed` and `start` (`{ year, month, day, hour, min }`). Since 0.14, with a scene named, its surface and set as the scene allows. |
 | `startCheck`   | `players, members, host, lenient`                              | May START go ahead? `{ ok, engine, differ: [ids], unknown: [ids] }` (below). A computer player has no engine to check. Since 0.17 also refused for the lineup itself, with `why` and `text` (a sentence to show) present only then: `"size"` (a team of more than six), `"level"` (a computer player not Beginner, Club or Pro), `"person"` (no person plays). |
 | `startMatch`   | `doc, snap, hash, players, cpu, host, setup, members, lenient` | START: the document with `started`, `n + 1` and the full match (above), stamped with `engine`. Nothing when a match runs or `startCheck` refuses. A live client writes the header only.                                        |
 | `backToLobby`  | `doc, n`                                                       | REMATCH: the same teams, the match dropped. Nothing unless a match runs (and is match `n`, when `n` is given).                                                                                                                  |
@@ -242,7 +243,7 @@ Each is `pitch.<name>`; the fields are the argument object's. "nothing" is `valu
 | `announce`     | `carries, engine`                                              | The presence fields a client carrying several engines sends while the pitch's engine is `engine`: `{ engine: "<engine>+engines", engines: [...] }`. Since 0.8.1.                                                               |
 | `speakAs`      | `members, engine`                                              | The members with `me.engine` set to `engine` for each that carries it, for a host passing them to `engine`'s own `startMatch`. Since 0.8.1.                                                                                     |
 | `compareEngines` | `a, b`                                                       | -1, 0 or 1 as major.minor `a` is older than, equal to or newer than `b`; null when either is not a version. Since 0.8.1.                                                                                                       |
-| `constants`    |                                                                | `DOC_VERSION, TEAM_MAX, SEATS, SIDES, NAME_MAX, LEVELS, OPTION_DEFAULTS, MATCH_OPTIONS, LOG_BUDGET, REPLAY_VERSION`, sync's `CLIENT` and `WITH_BYTES` (4096), `ENGINE` (this engine's major.minor) and `SEAT_LEVELS` (a seat's levels, since 0.17).                       |
+| `constants`    |                                                                | `DOC_VERSION, TEAM_MAX, SEATS, SIDES, NAME_MAX, LEVELS, OPTION_DEFAULTS, MATCH_OPTIONS, LOG_BUDGET, REPLAY_VERSION`, sync's `CLIENT` and `WITH_BYTES` (4096), `ENGINE` (this engine's major.minor) and `SEAT_LEVELS` (a seat's levels, since 0.17) and `THROW_LEVELS` (a person's throw levels, `easy`, `standard`, `hard`, since 1.3).                       |
 
 ### Who acts
 
@@ -463,6 +464,15 @@ are where the Lua decides otherwise, each deliberate and tested
     so `startMatch`'s) lineup refusals. No vector has a seat id or `computers`, so every
     vector decides as before; `startMatch` now refuses a START with no person in it, which
     no vector makes.
+
+12. **A person's throw level** (since 1.3; docs/SESSION.md "A person's throw level").
+    Each member says the meter they throw on in their own presence, `me.throw`: `easy`,
+    `standard` or `hard`, beside `me.level` and `me.engine`. `lineup` and `matchOptions`
+    carry it on a person's entry as `throw` only when it is `easy` or `hard`, so a pitch
+    whose members never say it starts the match it always did; any other value is
+    dropped. It is not in the document: the match's start (the setup and first snapshot)
+    keeps it, which is what a replay plays. No vector has `me.throw`, so every vector
+    decides as before.
 
 Beyond these the calls decide exactly as the JavaScript did on the same JSON, odd input
 included: `===` (so `"3"` is not `3`), JavaScript truthiness (`0`, `""` and `null` are
