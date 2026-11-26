@@ -173,3 +173,30 @@ test("cpuPlay through the door with a view: B's recordings come turned, the same
 	expect.eq(b.need.frame, "A")
 	call("setView", {})
 end)
+
+test("cpuPlay with the wide view: recordings in the world frame, the view at the wide camera", function()
+	local function run(on)
+		call("new", { mode = "match", cpu = "both", seed = 5, maxTurns = 3, start = START })
+		call("setView", {})
+		if on then call("setWide", { box = { left = 0, top = 0, right = 400, bottom = 240 } })
+		else call("setWide", {}) end
+		return call("cpuPlay", { recordings = true })
+	end
+	local a, b = run(false), run(true)
+	local wcam = call("setWide", { box = { left = 0, top = 0, right = 400, bottom = 240 } }).camera
+	expect.eq(#b.steps, #a.steps)
+	local turned = 0
+	for i, st in ipairs(b.steps) do
+		local l0, l1 = a.steps[i].recording.result, st.recording.result
+		if st.side == "B" and l0.landY then
+			expect.near(l1.landY, 8 - l0.landY, 1e-9, "B landing in the world frame")
+			turned = turned + 1
+		elseif l0.landY then
+			expect.near(l1.landY, l0.landY, 1e-12, "A's as it was")
+		end
+	end
+	expect.truthy(turned > 0)
+	expect.truthy(b.view and b.view.camera, "cpuPlay gives the view")
+	expect.eq(json.encode(b.view.camera), json.encode(wcam), "the wide camera")
+	call("setWide", {})
+end)

@@ -1076,7 +1076,8 @@ While it is on:
   frames, until a person is needed or the match is over.
   - Each step is `{ a, h, seq, side, text, short, ruling, recording? }`: the action, the
     hash after it, its ruling and, with `recordings: true`, its recording in its
-    thrower's frame (in the viewer's with `setView`).
+    thrower's frame (in the viewer's with `setView`; in the world's, Team A's, with
+    `setWide`, and `view` then comes at the wide camera, as `view()` gives it).
   - The actions are exactly the ones a watched turn makes. A watched turn and `cpuPlay`
     end on the same hash (tests/lua/session/test_cpuplay.lua).
   - Solo only: on a pitch, the computer's actions are made by the one member that throws

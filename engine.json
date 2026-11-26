@@ -71,7 +71,7 @@
     "pitch/lobby.lua": "96b87d08d657af6a95783eeec97058841e16529bc991e3f611ee6fd9083669ed",
     "pitch/seats.lua": "dd3629e79b005681fe73ee2924b29f0599c7787aee77caf699a952199ea0af37",
     "pitch/sync.lua": "fcdda8e612f296267603e47b268ded6ed8fecf7ed4d46a7c50cd25ba4ad2b60b",
-    "session/api.lua": "285a1154ec8e07a989459b36e0e95cf014db8f5c3360c9f21f4528f1b39ce3d2",
+    "session/api.lua": "0a0d2e02293ce7cbe8b21500824603732884311fa037628a08382e14479bc1a9",
     "session/check.lua": "c446f29acd57070c3209fe10558c1ea2d9d34691332c0a16270c60dd45537d8e",
     "session/json.lua": "8d0668bd82f2b3537fff0d76e986d813fc94104560ebcf2ae66416bf2f79185c",
     "session/namecheck.lua": "b8031610e0c87e2a978b1f0bf3d1a465ee50fdb1903fb33eb27434547becbad8",
@@ -79,7 +79,7 @@
     "session/neighbours.lua": "8d4df3ab31bdb170f06c4d508275aca2b47f1dfad7614b570e46bf678839f834",
     "session/record.lua": "e79351c336c74ed33f9c0a656a9732062b11566af39bc2007e8f1b329699cb20",
     "session/replay.lua": "ce42cb3511eed63360a4313e915e6ef12aea6959a69db887b6f7adfb161a93b7",
-    "session/session.lua": "0e33fde595610f207ca749161d5ff22d5efa6ac328fd3106d3e9814e163db821",
+    "session/session.lua": "a6994133ec2c01b8750671b195fc8e7f2e9526b609c11ba0ae9d3e2ef50da1ee",
     "session/throw.lua": "24948030408fecefb07f50c159a8990d47793d89a8030c39f4ebbb056466fc1c",
     "session/touch.lua": "1785c2057390574d94f42fde5945558e42ae20186a74d5bd8bc6d523231d4371",
     "session/wide.lua": "c80673309f8a58f37cebf87d2ec1f585cf75e8c25dc6565ed31ea9948e6018b3",
@@ -88,6 +88,6 @@
     "version.lua": "8b667dbc8feac961d5352eafb27a64afe4dfa98a531d8f691dbdc979800eb3ba"
   },
   "bundle": {
-    "sha256": "a02f099a053e3aad954150c3691d14089a2840d09a279ad431f4f74ab8f53fbe"
+    "sha256": "e099b36500b405316ac42b2308dcb44f7ec8436011111bd54ce91381f7856531"
   }
 }

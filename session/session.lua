@@ -1551,7 +1551,9 @@ function Session:applyTogo(a)
 	tg.acts[side] = json.decode(json.encode(keep))
 	if stamp then self.finish = stamp end
 	if #self:togoOwed() > 0 then
-		self:togoPrepare()
+		-- a new baton only when this client's changes (the side it threw is in): the other
+		-- side's arriving leaves the baton it is aiming or swinging as it is
+		if self:togoMine() ~= self.togoAt then self:togoPrepare() end
 		return { ok = true, need = self:need() }
 	end
 	for _, s2 in ipairs { "A", "B" } do

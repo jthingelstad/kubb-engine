@@ -141,6 +141,16 @@ end
 
 local function wideOut(method, r)
 	if viewSide and not wideCam then return viewOut(method, r) end
+	if method == "cpuPlay" and wideCam and S and type(r) == "table" then
+		-- (1.4.0) as viewOut's: each step's recording from its thrower's frame (step.side)
+		-- to the world's, and the view and need as `view` and `need` give them
+		for _, st in ipairs(r.steps or {}) do
+			if st.recording and st.recording.timeline then st.recording = wide.recording(st.side, st.recording) end
+		end
+		if type(r.view) == "table" then r.view = wide.out(r.view, wideCam, S.frameSide, S.recSide) end
+		if type(r.need) == "table" then r.need = wide.out({ need = r.need }, wideCam, S.frameSide, S.recSide).need end
+		return r
+	end
 	if not wideCam or not S or not WIDE[method] or type(r) ~= "table" then return r end
 	if method == "showAt" then return wide.out(r, wideCam, S.recSide, S.recSide) end
 	if method == "recording" then
