@@ -93,7 +93,7 @@ test('a team\'s number is served only while that team acts', () => {
     end
     print(table.concat(d, ","))`;
   const out = execFileSync(LUA, ['-e', script], { encoding: 'utf8' }).trim().split('\n');
-  const m = out[0].match(/A=0,0\.123,0\.123 B=1,([\d.]+),\1 none=1,\1,\1 pairs=basketY,group,hand,row,spin/);
+  const m = out[0].match(/A=0,0\.123,0\.123 B=1,([\d.]+),\1 none=1,\1,\1 pairs=basketY,group,hand,row,rowCap,rowPast,spin/);
   assert.ok(m, out[0]);
   assert.notEqual(m[1], '0.123');
   assert.equal(out[1], 'function\tpar');

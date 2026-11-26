@@ -244,6 +244,20 @@ local function depthSpot(s, side, ik, t)
 	return inner.x - side * t.rowStep, inner.y, "row", inner
 end
 
+-- How deep a row's later kubb, laid beside one lying at depth y, is aimed (1.3.0,
+-- autothrow.tune.inkast rowCap; inkast.first, inkast.roll): at y, but with rowCap on no
+-- deeper than rowPast past the basket's depth by, so a kubb that ran on is not copied by
+-- the next. One aimed short of it lands in front and runs on toward it, the kubb already
+-- down its backstop. (A pro column is laid deep on purpose and grows forward; it is not
+-- capped.)
+local function rowDepth(ik, by, y)
+	if (ik.rowCap or 0) ~= 0 then
+		local cap = by + (ik.rowPast or 0)
+		if y > cap then return cap end
+	end
+	return y
+end
+
 -- Where a toss to basket `side` should rest (view frame), for the level's inkast entry
 -- ik (autothrow.tune.inkast; nil for a level it does not name). Returns x, y, how it was
 -- chosen ("basket", "row", "into", "clear") and the lying kubb it goes beside (row and
@@ -267,7 +281,7 @@ function cpu.spot(s, side, ik, lname)
 		-- its inner side. The plan lands it short of that across and its spin rolls it
 		-- in (drill.rollFor)
 		local best = read.innermostLying(s, side)
-		if best then return best.x - side * t.rowStep, best.y, "row", best end
+		if best then return best.x - side * t.rowStep, rowDepth(ik, by, best.y), "row", best end
 		return bx, by, "basket"
 	end
 	local best, bestX, bestY

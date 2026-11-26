@@ -111,6 +111,38 @@ test("a kubb out for now is not built on: the row goes beside the one in (1.2.0)
 	if not ok then error(err, 0) end
 end))
 
+-- Run fn with club's rowCap set to v (autothrow.tune.inkast.club), restored after.
+local function withRowCap(v, fn)
+	local ik = autothrow.tune.inkast.club
+	local saved = ik.rowCap
+	ik.rowCap = v
+	local ok, err = pcall(fn)
+	ik.rowCap = saved
+	if not ok then error(err, 0) end
+end
+
+test("a row's later kubb is not aimed deeper than the cap when the first ran on (1.3.0)", plain(function()
+	local t, ik = autothrow.tune, autothrow.tune.inkast.club
+	-- the first kubb aimed at club's basket (4.45) ran on to 5.21; the next goes beside it
+	local s = toss({ lying("f1", 1.9, 5.21) }, 4, 2)
+	withRowCap(1, function()
+		local d = cpu.decide(s, counting(1), "club")
+		expect.eq(d.why.play, "inkast.roll")
+		expect.eq(d.why.facts.spot, "row")
+		expect.eq(d.why.facts.beside, "f1")
+		expect.near(d.intent.tx, 1.9 - t.rowStep, 1e-12)
+		expect.near(d.intent.ty, ik.basketY + ik.rowPast, 1e-12, "capped: the basket's depth and rowPast")
+		-- a kubb lying short of the cap is laid level with, as before
+		d = cpu.decide(toss({ lying("f2", 1.9, 4.5) }, 4, 2), counting(1), "club")
+		expect.near(d.intent.ty, 4.5, 1e-12)
+	end)
+	-- switched off, 1.2's row: level with the kubb that ran on
+	withRowCap(0, function()
+		local d = cpu.decide(s, counting(1), "club")
+		expect.near(d.intent.ty, 5.21, 1e-12)
+	end)
+end))
+
 test("a first toss at an empty half: inkast.corner, the basket itself, one coin from the stream", plain(function()
 	local t = autothrow.tune
 	local r = counting(7)

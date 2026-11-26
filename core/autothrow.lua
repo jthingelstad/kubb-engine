@@ -131,11 +131,16 @@ autothrow.tune = {
 	-- basket lies, for its spot; nil is basketY above. Club a safe step past the centre
 	-- line, pro pushed to it (docs/reference/play-levels.json inkast-spot): a kubb that
 	-- runs short is thrown again (II.C.4), and real pro inkasts rethrow one kubb in seven.
+	-- rowCap (1.3.0; inkast.first, inkast.roll): 1 aims a later kubb of a row (core/cpu
+	-- rowDepth; not a pro column) no deeper than rowPast past the level's basket, so one kubb that ran on is the backstop the next rolls into instead of the
+	-- depth the next one copies; 0 aims it level with the kubb it goes beside, as 1.2 did,
+	-- and every overshoot adds to the last (an owner's club inkast rested 5.21, 5.43, 5.77
+	-- and 6.23 m from the baseline, the centre line at 4).
 	inkast = {
 		kid = { spin = 0, hand = 0.6, group = 0, row = 0 },   -- 0.15.0: tossed out, as a beginner, rougher
 		beginner = { spin = 0, hand = 0.5, group = 0, row = 0 },
-		club = { spin = 1, hand = 0.26, group = 1, row = 1, basketY = 4.45 },
-		pro = { spin = 1, hand = 0.06, group = 1, row = 1, basketY = 4.3 },
+		club = { spin = 1, hand = 0.26, group = 1, row = 1, basketY = 4.45, rowCap = 0, rowPast = 0.15 },
+		pro = { spin = 1, hand = 0.06, group = 1, row = 1, basketY = 4.3, rowCap = 0, rowPast = 0.15 },
 	},
 	rowStep = 0.075,         -- m across between kubbs lying flank to flank in a row
 	drillScale = 0.2,        -- a drilled kubb's swing mistakes are this much of a baton's, for a
