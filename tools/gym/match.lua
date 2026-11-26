@@ -215,7 +215,11 @@ local function choose(s, r)
 		-- the thrower's lineup level (autothrow.choose reads it when none is given)
 		if t.levels then level = nil end
 	end
-	if thrower == "human" then a = human.choose(s, r, level, model, hand)
+	if thrower == "human" then
+		-- a team's throw level (throw=, 1.3.0) is the meter its person plans on; the Kid
+		-- rules keep the Kid meter for everyone
+		if opt.rules ~= "kid" then human.meterName = teams and teamOf(s.side).throw or nil end
+		a = human.choose(s, r, level, model, hand)
 	else a = autothrow.choose(s, r, opt.scatter, level) end
 	if not a.on and s.kind ~= "toss" then a.on = nearestTarget(s, a.plan) end
 	return a

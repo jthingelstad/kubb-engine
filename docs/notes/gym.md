@@ -320,7 +320,7 @@ differently against each other:
     node tools/gym.mjs versus --a "level=pro" --b "level=pro;autothrow.tune.inkast.pro.row=0"
 
 A spec is one team: `level=` (kid, beginner, club, pro; default club), `thrower=` (cpu or
-human; default cpu), `hand=` (the human thrower's recorded misses times k), `raise=` (the policy it raises the other team's kubbs with when it
+human; default cpu), `hand=` (the human thrower's recorded misses times k), `throw=` (1.3.0: easy, standard or hard, the person's throw level, the meter the human thrower plans on; default standard), `raise=` (the policy it raises the other team's kubbs with when it
 defends; default, since 0.12.0, what the engine does for such a side: the computer by its
 level, pro `par`, club `apart`, beginner `first`, and the human thrower, a person whose
 kubbs the engine raises, `par`; on an engine before 0.12, `apart`) and any number of `path=value` tune settings, the paths `--set`

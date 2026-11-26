@@ -13,7 +13,8 @@ const LEVELS = ['kid', 'beginner', 'club', 'pro'];
 const THROWERS = ['cpu', 'human'];
 
 // A team's spec: "level=pro;thrower=cpu;raise=apart;autothrow.tune.inkast.pro.row=0"
-// (hand=k: the human thrower's recorded misses times k, tools/gym/human.lua human.scale)
+// (hand=k: the human thrower's recorded misses times k, tools/gym/human.lua human.scale;
+// throw=easy|standard|hard, 1.3.0: the person's throw level, the meter it plans on)
 // (parts split by ';' or ','). Returns { level, thrower, raise, sets: [[path, value]],
 // text } with text the normal form the worker is given. Raising policy names and tune
 // paths are checked by the worker, which has the engine.
@@ -47,10 +48,14 @@ export function parseSpec(str, label = 'A') {
     } else if (k === 'hand') {
       if (v === '' || !(Number(v) > 0)) throw new Error(`gym versus: team ${label}: hand is a positive number, got ${v}`);
       spec.hand = Number(v);
+    } else if (k === 'throw') {
+      // a person's throw level (1.3.0): the meter the human thrower plans on
+      if (!['easy', 'standard', 'hard'].includes(v)) throw new Error(`gym versus: team ${label}: throw is easy, standard or hard, got ${v}`);
+      spec.throw = v;
     } else if (k.includes('.')) {
       if (v === '' || !Number.isFinite(Number(v))) throw new Error(`gym versus: team ${label}: ${k} is not set to a number: ${v}`);
       spec.sets.push([k, Number(v)]);
-    } else throw new Error(`gym versus: team ${label}: unknown part ${k} (level, thrower, team, raise, hand or a tune path)`);
+    } else throw new Error(`gym versus: team ${label}: unknown part ${k} (level, thrower, team, raise, hand, throw or a tune path)`);
   }
   if (spec.team) {
     if (seen.has('level')) throw new Error(`gym versus: team ${label}: team= names every player's level; level= goes`);
@@ -59,7 +64,7 @@ export function parseSpec(str, label = 'A') {
     spec.level = spec.team.reduce((a, b) => (rank[b] > rank[a] ? b : a));
   }
   spec.text = [...(spec.team ? [`team=${spec.team.join('+')}`] : [`level=${spec.level}`]), `thrower=${spec.thrower}`, `raise=${spec.raise}`,
-    ...(spec.hand !== undefined ? [`hand=${spec.hand}`] : []), ...spec.sets.map(([p, v]) => `${p}=${v}`)].join(';');
+    ...(spec.hand !== undefined ? [`hand=${spec.hand}`] : []), ...(spec.throw ? [`throw=${spec.throw}`] : []), ...spec.sets.map(([p, v]) => `${p}=${v}`)].join(';');
   return spec;
 }
 
