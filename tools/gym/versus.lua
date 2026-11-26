@@ -4,7 +4,8 @@
 -- numbers in the engine's tune tables only while that team acts.
 --
 -- A spec is "level=pro;thrower=cpu;raise=apart;autothrow.tune.inkast.pro.row=0" (hand=k:
--- the human thrower's recorded misses times k, human.scale; team=club+club+pro (0.17.0):
+-- the human thrower's recorded misses times k, human.scale; throw=easy|standard|hard
+-- (1.3.0): the person's throw level, the meter the human thrower plans on; team=club+club+pro (0.17.0):
 -- a team of computers at mixed levels, one player a level in throwing order, each
 -- throwing at its own and the team deciding at its strongest; parts
 -- split by ';' or ','; tune paths are --set's: a number reachable from tw by its path).
@@ -97,6 +98,15 @@ function versus.parse(str, label)
 					error("versus: team " .. label .. ": team is 1 to 6 players, got " .. v, 0)
 				end
 				spec.levels = levels
+			elseif k == "throw" then
+				-- a person's throw level (1.3.0): the meter the human thrower plans on
+				if not (v == "easy" or v == "standard" or v == "hard") then
+					error("versus: team " .. label .. ": throw is easy, standard or hard, got " .. v, 0)
+				end
+				if not (tw.plan.meters and tw.plan.meters[v]) then
+					error("versus: team " .. label .. ": this engine has no " .. v .. " meter (1.3.0)", 0)
+				end
+				spec.throw = v
 			elseif k == "hand" then
 				local n = tonumber(v)
 				if not (n and n > 0) then error("versus: team " .. label .. ": hand is a positive number, got " .. v, 0) end
@@ -106,7 +116,7 @@ function versus.parse(str, label)
 				if not n then error("versus: team " .. label .. ": " .. k .. " is not set to a number: " .. v, 0) end
 				spec.sets[#spec.sets + 1] = { path = k, value = n }
 			else
-				error("versus: team " .. label .. ": unknown part " .. k .. " (level, thrower, raise, hand or a tune path)", 0)
+				error("versus: team " .. label .. ": unknown part " .. k .. " (level, thrower, raise, hand, throw or a tune path)", 0)
 			end
 		end
 	end
