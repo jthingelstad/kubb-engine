@@ -1011,9 +1011,12 @@ The raise need (`raiseInfo`, above) now also carries:
 - `lying`: every field kubb of the half still lying, in id order (the first is `kubb`).
   Each entry is `{ id, pose, mode, choices, ends, default }`, as the top-level fields
   give for the first.
-- `camera`: one camera for the whole raise. It sits at the raiser's own end, with every
-  lying kubb, its ends and the king in it (`camera.tune.raise`; kind `"raise"`), fitted to
-  the `setView` box when there is one. A client's own raise camera can go.
+- `camera`: one camera for the whole raise (`camera.tune.raise`; kind `"raise"`), fitted to
+  the `setView` box when there is one. It stands over the lying group from the raiser's
+  side and keeps every lying kubb and its ends, with at least `half` m of ground round
+  them (1.4.1; in 1.4.0 it stood at the raiser's end and kept the whole near baseline and
+  the king, which made the kubbs a few points long on a phone). A client's own raise
+  camera can go.
 - `frame`: the raiser's side, the frame every pose is in.
 - `players`: the raising side's players as a `thrower` (`id, name, level, key, cpu?,
   throw?`).
@@ -1046,18 +1049,30 @@ While it is on:
     kubb's poses, cursor, bounds and keep-out circles.
   - Each output carries `view: side`, and each need `frame: side`.
 - When the other side throws, inkasts or raises, `camera` is a camera at the viewer's end
-  (`camera.tune["end"]`, kind `"end"`), fitted to `box` (frame px, default
-  `camera.tune["end"].box`). The fit keeps in view:
-  - for an aim: the viewer's baseline, the king, the thrower and the circle
-  - for a recording (one camera for the whole of it): where the projectile was thrown
-    from, landed and came to rest
-  - for a raise: every lying kubb and its ends
+  (`camera.tune["end"]`, kind `"end"`): the eyes of a person standing just behind the
+  middle of the viewer's baseline (1.2 m back, 1.6 m up; 1.4.1, where 1.4.0 stood 3.2 m
+  back and 3 m up, or 2 m back and 5 m up on a tall box), turned toward the points it
+  keeps and fitted to `box` (frame px, default `camera.tune["end"].box`). The fit keeps
+  in view:
+  - for an aim: the king, the thrower and the circle
+  - for a recording: where the projectile was thrown from, its flight, where it landed
+    and came to rest
+  - for a raise: every lying kubb, its ends and the king
 
-  A tall box (a phone held upright) uses `camera.tune["end"].tall`, which is higher and
-  nearer. Framing is checked at 4, 6 and 8 m targets on 400 x 240, 1440 x 900, 844 x 390,
-  390 x 844 and 768 x 1024 windows: every point stays inside the box, the viewer's end is
-  at the bottom, and near kubbs are no smaller than far ones. The side's own throws keep
-  the thrower's camera.
+  and, always, two ground points a metre out in front of the eyes (`keep`), so the view
+  runs from the viewer's own half to the far end. The viewer's own baseline is not kept
+  (it is under the eyes), and a spot behind it (a baton gone past) is kept as one on it
+  (`nearY`).
+- A recording of the other side's (1.4.1) is watched: `showAt` at t gives the camera
+  fitted to the whole throw turned part of the way toward the projectile
+  (`camera.endFollow`: `follow`, eased in over `ease` s from the release), with the same
+  eyes, lens and principal point. At t = 0 it is the fitted camera itself, so a client
+  that keeps one camera for the whole recording (Reduce Motion) holds that one.
+  Framing is checked at 4, 6 and 8 m targets on 400 x 240, 1440 x 900, 844 x 390,
+  390 x 844 and 768 x 1024 windows (tests/lua/session/test_view.lua): every point kept
+  stays inside the box, the eyes are a person's on the baseline, the far end is above
+  the near, and the projectile stays in the box while it is over the pitch. The side's
+  own throws keep the thrower's camera.
 - A punishment kubb's need says `frame` (the viewer's) and `actionFrame` (the placing
   side's). Send `{ type: "punish", x, y, frame }` with x and y in `frame`, or leave out
   `frame` and send them in the placing side's frame as before. `checkPunish(x, y, frame)`

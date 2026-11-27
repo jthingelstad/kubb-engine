@@ -45,7 +45,7 @@ test("setView: on with a side (and a box), off with {}", function()
 	expect.eq(call("view").view, nil, "off: no view field")
 end)
 
-test("the other side's throw: at the viewer's end, framed at 4, 6 and 8 m, wide and tall", function()
+test("the other side's throw: from a person's eyes on the viewer's baseline, framed at 4, 6 and 8 m, wide and tall", function()
 	for _, wh in ipairs { { 400, 240 }, { 1440, 900 }, { 844, 390 }, { 390, 844 }, { 768, 1024 } } do
 		local box, k = boxFor(wh[1], wh[2])
 		for _, d in ipairs { 4, 6, 8 } do
@@ -54,25 +54,25 @@ test("the other side's throw: at the viewer's end, framed at 4, 6 and 8 m, wide 
 			local aim = { thrower = { x = 0.3, y = 8 }, marker = { x = -0.4, y = 8 - d } }
 			local c = wide.endCamera(box, aim)
 			expect.eq(c.kind, "end")
+			-- (1.4.1) a person's eyes, just behind the middle of the viewer's baseline (the
+			-- owner: "It should be like we are standing on the baseline")
+			expect.near(c.px, 0, 1e-12, what .. " eyes across")
+			expect.truthy(c.py < 0 and c.py >= -1.5, what .. " eyes just behind the line")
+			expect.truthy(c.pz >= 1.4 and c.pz <= 1.8, what .. " eyes a person's height")
 			inside(c, box, 0.3, 8, 1.2, what .. " thrower")
 			inside(c, box, -0.4, 8 - d, 0, what .. " circle")
 			inside(c, box, 0, 4, 0.3, what .. " king")
-			for _, x in ipairs { -2.5, 2.5 } do inside(c, box, x, 0, 0.15, what .. " own baseline") end
-			-- behind the viewer's baseline, looking down the pitch: nearer is lower and larger
-			local _, yNear = camera.project(c, 0, 0, 0)
+			-- looking down the pitch: nearer is lower and larger
+			local _, yNear = camera.project(c, 0, 1.5, 0)
 			local _, yFar = camera.project(c, 0, 8, 0)
 			expect.truthy(yNear > yFar, what .. ": the viewer's end at the bottom")
-			local near = camera.uprightPx(c, 2.5, 0, 0.15) * k
+			local near = camera.uprightPx(c, 0, 1.5, 0.15) * k
 			local far = camera.uprightPx(c, 0, 8, 0.15) * k
 			expect.truthy(near >= far, what .. ": near kubbs no smaller than far")
 			-- a kubb at the circle, in CSS px: readable on a desktop window
 			if wh[1] >= 1280 then
 				expect.truthy(camera.uprightPx(c, -0.4, 8 - d, 0.15) * k >= 12, what .. " circle kubb size")
 			end
-			-- the pitch fills the box across
-			local xl = camera.project(c, -2.5, 0, 0)
-			local xr = camera.project(c, 2.5, 0, 0)
-			expect.truthy((xr - xl) / (box.right - box.left) > 0.6, what .. " fills across")
 		end
 	end
 end)
@@ -115,12 +115,27 @@ test("a match watched from one end: outputs in that frame, the other side's at t
 				for _, it in ipairs(s0.items) do
 					if it.id == pid then expect.truthy(it.y > 4, "B's baton leaves from the far end") end
 				end
-				local done = call("showAt", { t = 1e9 })
-				for _, it in ipairs(done.items) do
-					if it.id == pid and math.abs(it.x) < 2.6 and it.y > -0.5 and it.y < 8.5 then
-						inside(s0.camera, camera.tune["end"].box, it.x, it.y, it.z or 0, "B's baton at rest")
+				-- (1.4.1) the view follows the throw: the eyes stay, the look turns, and the
+				-- baton is in the box while it is over the pitch in front of the eyes
+				local dur = o.recording.duration
+				local looks = {}
+				for i = 0, 20 do
+					local s = call("showAt", { t = dur * i / 20 })
+					local c = s.camera
+					expect.eq(c.kind, "end")
+					expect.near(c.px, s0.camera.px, 1e-9, "the same eyes")
+					expect.near(c.py, s0.camera.py, 1e-9, "the same eyes")
+					expect.near(c.f, s0.camera.f, 1e-9, "the same lens")
+					looks[string.format("%.4f %.4f", c.fx, c.fz)] = true
+					for _, it in ipairs(s.items) do
+						if it.id == pid and math.abs(it.x) < 2.6 and it.y > camera.tune["end"].nearY and it.y < 8.5 then
+							inside(c, camera.tune["end"].box, it.x, it.y, it.z or 0, "B's baton at " .. i .. "/20")
+						end
 					end
 				end
+				local n = 0
+				for _ in pairs(looks) do n = n + 1 end
+				expect.truthy(n > 5, "the camera turns with the throw")
 			end
 			if seen.A >= 2 and seen.B >= 2 then break end
 		end
@@ -132,6 +147,38 @@ test("a match watched from one end: outputs in that frame, the other side's at t
 	expect.eq(a1, a0, "the same throws with the view on")
 	expect.eq(s1, s0, "the same snapshot with the view on")
 	call("setView", {})
+end)
+
+test("the raise camera (1.4.1): over the lying group, close enough to see a kubb", function()
+	-- the owner's picture of build 284: three kubbs just short of the middle line by the left
+	-- sideline, on a 402 x 874 phone held upright
+	local W, H = 402, 874
+	local k = math.min(W / 400, H / 240)
+	local ox, oy = (W - 400 * k) / 2, (H - 240 * k) / 2
+	local box = { left = (16 - ox) / k, right = (W - 16 - ox) / k, top = (148 - oy) / k, bottom = (H - 34 - 238 - oy) / k }
+	local lying = { { -1.86, 3.51 }, { -1.77, 3.56 }, { -1.66, 3.56 } }
+	local pts = {}
+	for _, p in ipairs(lying) do
+		pts[#pts + 1] = { p[1], p[2], 0 }
+		pts[#pts + 1] = { p[1] - 0.11, p[2], 0 }
+		pts[#pts + 1] = { p[1] + 0.11, p[2], 0 }
+	end
+	local c = camera.fromEnd(nil, pts, box, "raise")
+	expect.eq(c.kind, "raise")
+	-- behind the group from the raiser's side, looking down at it
+	expect.truthy(c.py < 3.51 and c.pz > 1 and c.pz < 3, "over the group from the raiser's side")
+	for _, p in ipairs(lying) do
+		inside(c, box, p[1], p[2], 0, "a lying kubb")
+		-- a lying kubb's length on the screen (it was about 5 pt in 1.4.0's far camera)
+		local x1 = camera.project(c, p[1] - 0.075, p[2], 0.035)
+		local x2 = camera.project(c, p[1] + 0.075, p[2], 0.035)
+		expect.truthy((x2 - x1) * k >= 25, string.format("a lying kubb %.1f pt long", (x2 - x1) * k))
+	end
+	-- one kubb alone is not drawn huge: at least `half` m of ground round it
+	local one = camera.fromEnd(nil, { { 0.5, 2, 0 } }, box, "raise")
+	local a = camera.project(one, 0.5 - camera.tune.raise.half, 2, 0)
+	local b = camera.project(one, 0.5 + camera.tune.raise.half, 2, 0)
+	expect.truthy(a >= box.left - 1 and b <= box.right + 1, "the ground round a lone kubb shows")
 end)
 
 test("needTo: a raise's poses turn, and its camera is made again at the viewer's end", function()

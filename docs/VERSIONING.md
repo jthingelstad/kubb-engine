@@ -112,6 +112,36 @@ Every client shows its own version with the engine's beside it, in one form:
 
 ## Release notes
 
+- **1.4.1** (patch). The cameras of a view from one side, from the owner's TestFlight
+  notes on build 284 (2026-11-27). View only: no call, argument, field, snapshot, action
+  or hash changes (`make golden-check` passes on the 1.4.0 corpus), so 1.4.1 and 1.4.0
+  share a match.
+  - **The other side's throw, from a person on the baseline** ("our view should be from
+    the baseline. Now we are far far behind the baseline and almost floating up in the
+    air"): the end camera (`camera.tune["end"]`, kind `"end"`) is a person's eyes, 1.6 m
+    up and 1.2 m behind the middle of the viewer's baseline, where it was 3.2 m back and
+    3 m up (2 m back and 5 m up on a tall box; `.tall` is gone). It turns toward what it
+    keeps, and its fit no longer keeps the viewer's own baseline, which is under its
+    feet; two ground points a metre in front of it are kept instead (`keep`). A spot
+    behind the baseline is kept as one on it (`nearY`).
+  - **Watching the throw** ("when the computer throws we should be 'watching' the throw,
+    so our view isn't totally static"): `showAt` of the other side's recording fits the
+    end camera once to the whole throw (where it was thrown from, its flight, where it
+    landed and came to rest), then turns it toward the projectile, part of the way
+    (`follow`, eased in over `ease` s), with the same eyes, lens and principal point
+    (`camera.endFollow`). At t = 0 it is the fitted camera: a client that wants one
+    camera for the whole throw (Reduce Motion) holds `showAt { t = 0 }`'s.
+  - **A raise you can see** ("This POV doesn't work for raising the Kubbs"): the raise
+    need's `camera` (kind `"raise"`, `camera.tune.raise`) stands over the lying group
+    from the raiser's side and keeps only the lying kubbs and their ends, with at least
+    `half` m of ground round them. It kept the whole near baseline and the king before,
+    which gave every raise the same far, wide lens: on a 402 x 874 phone a lying kubb
+    just short of the middle line was about 5 pt tall and is now about 23 pt tall
+    (about 40 pt long).
+  - **The other side's raise and the throw to go** keep the end camera, from the new
+    eyes; their fits leave out the viewer's baseline too.
+  - **For clients**: take the tag. A client that holds one camera for a recording under
+    Reduce Motion holds the first frame's (docs/CLIENTS.md "1.4.1 on top").
 - **1.4.0** (minor). Four additions, every one opt in. A match that uses none of them
   plays and hashes exactly as on 1.3 (`make golden-check` passes with the corpus
   untouched).
