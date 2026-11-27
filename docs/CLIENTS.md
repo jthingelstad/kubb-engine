@@ -574,6 +574,22 @@ differs): web and iPhone move together.
 - **The rest**: nothing to change. pairRoll from the first step and the propped contacts
   change how throws settle (a few throws in thousands no longer run to the 12 s limit).
 
+## 1.4.1 on top
+
+A patch on 1.4.0: the cameras of a view from one side only (docs/VERSIONING.md "1.4.1").
+No call, field or hash changes, and 1.4.1 shares a match with 1.4.0. Sync `v1.4.1` in
+place of `v1.4.0` (web `npm run vendor:sync -- --tag v1.4.1`, iPhone `TAG=v1.4.1`). The
+web's carried 1.4 engine moves to the patch; its ENGINES.md row for 1.4 names 1.4.1.
+
+- **Watching the other side's throw**: draw each frame's `showAt` camera as before. It now
+  turns toward the projectile. Under Reduce Motion, hold the camera of the recording's
+  first frame (`showAt { t = 0 }`, kind `"end"`) for the whole recording: it is fitted to
+  the whole throw.
+- **The raise**: nothing to change. `need.camera` (kind `"raise"`) now frames the lying
+  group closely. A client that moves the scene up for a raise panel (the iPhone's
+  `stillPoints`) keeps doing so; the group stays in the `setView` box.
+- **The Playdate**: nothing (it has no view from one side).
+
 ## 1.4 on top
 
 All three clients vendor 1.0.0 (2026-11-26). This section is everything from 1.0 to 1.4
