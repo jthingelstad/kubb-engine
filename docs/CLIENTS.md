@@ -588,7 +588,14 @@ web's carried 1.4 engine moves to the patch; its ENGINES.md row for 1.4 names 1.
 - **The raise**: nothing to change. `need.camera` (kind `"raise"`) now frames the lying
   group closely. A client that moves the scene up for a raise panel (the iPhone's
   `stillPoints`) keeps doing so; the group stays in the `setView` box.
-- **The Playdate**: nothing (it has no view from one side).
+- **The Playdate**: check what it passes to `camera.fromEnd`, which it calls itself. Since
+  game 1.1.0 it shows the Playdate's own throws from the player's end
+  (`throw.endCamera`, kind `"end"`, made when the throw starts and again on each new plan)
+  and holds one view for a raise (`settle`'s `holdCamera`). Now that the end camera is a
+  person's eyes on the player's baseline, `throw.endCamera` keeps the king, the thrower
+  and the circle, as the session's `wide.endCamera` does, and no longer the player's own
+  baseline, fitted into a box clear of the HUD; and a raise watched from the player's end
+  takes kind `"raise"`, not `"end"`. Game 1.1.1 (build 19) made both changes.
 
 ## 1.4 on top
 
